@@ -1,0 +1,887 @@
+ 
+ 
+ 
+Integrated  Portal  for Academic  Office  
+ 
+ 
+ 
+Software  Requirements  Specification  
+ 
+Version  1.0 
+ 
+21st January,  2026  
+ 
+ 
+ 
+ 
+230041025   Nipun  Samal  
+230001072   Srinidhi  Sai Boorgu  
+230001006   Aman  Gupta  
+230001026   Eedubilli  Lathika  Priya   
+230001036   Kari Sai Babu  
+ 
+ 
+ 
+ 
+Prepared  for 
+CS 310 Software  Engineering  
+Spring  2026 
+ 
+  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  2 
+   
+Revision  History  
+ 
+Date  Description  Author  Comments  
+    
+    
+    
+    
+ 
+ 
+ 
+Document  Approval  
+ 
+The following  Software  Requirements  Specification  has been  accepted  and approved  by the 
+following:  
+Signature  Printed  Name  Title  Date  
+    
+    
+    
+ 
+      
+  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  3 
+  Table  of Contents  
+ 
+REVISION  HISTORY  ................................ ................................ ................................ ................................ ...............  2 
+DOCUMENT  APPROVAL  ................................ ................................ ................................ ................................ ....... 2 
+1. INTRODUCTION  ................................ ................................ ................................ ................................ ..................  4 
+1.1 PURPOSE  ................................ ................................ ................................ ................................ .............................  4 
+1.2 SCOPE  ................................ ................................ ................................ ................................ ................................ . 4 
+1.3 DEFINITIONS , ACRONYMS , AND  ABBREVIATIONS  ................................ ................................ ...............................  5 
+1.4 REFERENCES  ................................ ................................ ................................ ................................ .......................  5 
+1.5 OVERVIEW  ................................ ................................ ................................ ................................ ..........................  6 
+2. GENERAL  DESCRIPTION  ................................ ................................ ................................ ................................ .. 6 
+2.1 PRODUCT  PERSPECTIVE  ................................ ................................ ................................ ................................ ...... 6 
+2.2 PRODUCT  FUNCTIONS  ................................ ................................ ................................ ................................ .........  6 
+2.3 USER CHARACTERISTICS  ................................ ................................ ................................ ................................ .... 6 
+2.4 GENERAL  CONSTRAINTS  ................................ ................................ ................................ ................................ ..... 8 
+2.5 ASSUMPTIONS  AND  DEPENDENCIES  ................................ ................................ ................................ ....................  8 
+3. SPECIFIC  REQUIREMENTS  ................................ ................................ ................................ ..............................  8 
+3.1 EXTERNAL  INTERFACE  REQUIREMENTS  ................................ ................................ ................................ ..............  8 
+3.1.1  User  Interfaces  ................................ ................................ ................................ ................................ ...........  8 
+3.1.2  Hardware  Interfaces  ................................ ................................ ................................ ................................ .. 8 
+3.1.3  Software  Interfaces ................................ ................................ ................................ ................................ ..... 9 
+3.1.4  Communications  Interfaces  ................................ ................................ ................................ ........................  9 
+3.2 FUNCTIONAL  REQUIREMENTS  ................................ ................................ ................................ .............................  9 
+3.2.1  Synopsis  Submission  and Review  – PTS-1 ................................ ................................ ................................ . 9 
+3.2.2  Examiner  List Submission  and Approval  – PTS-3 ................................ ................................ ...................  10 
+3.2.3  Thesis  Submission  and Approval  – PTS-2 ................................ ................................ ................................  12 
+3.2.4  AR Academic  Dashboard  for PhD Theses  ................................ ................................ ...............................  13 
+3.2.5  Examiner  Evaluation  Submission  – PTS-4 ................................ ................................ ...............................  14 
+3.2.6  Synopsis  Submission  and Review  – MSRTS -1 ................................ ................................ ..........................  15 
+3.2.7  Examiner  List Submission  and Approval  – MSRTS -3 ................................ ................................ ..............  16 
+3.2.8  Thesis  Submission  and Approval  – MSRTS -2 ................................ ................................ ..........................  18 
+3.2.9  AR Academic  Dashboard  for MS(Research)  Theses  ................................ ................................ ................  19 
+3.2.10  Examiner  Evaluation  Submission  – MSRTS -4 ................................ ................................ .......................  20 
+3.3 CLASSES  / OBJECTS  ................................ ................................ ................................ ................................ ...........  21 
+3.3.1 User  ................................ ................................ ................................ ................................ ..........................  21 
+3.3.2 Thesis Submission  ................................ ................................ ................................ ................................ .... 21 
+3.3.3 Examiner  ................................ ................................ ................................ ................................ ..................  22 
+3.4 NON-FUNCTIONAL  REQUIREMENTS  ................................ ................................ ................................ ..................  22 
+3.4.1  Performance  ................................ ................................ ................................ ................................ .............  22 
+3.4.2  Reliability  ................................ ................................ ................................ ................................ .................  22 
+3.4.3  Availability  ................................ ................................ ................................ ................................ ...............  22 
+3.4.4  Security  ................................ ................................ ................................ ................................ ....................  22 
+3.4.5  Maintainability  ................................ ................................ ................................ ................................ .........  22 
+3.4.6  Portability  ................................ ................................ ................................ ................................ ................  22 
+3.5 INVERSE  REQUIREMENTS  ................................ ................................ ................................ ................................ .. 23 
+3.6 DESIGN  CONSTRAINTS  ................................ ................................ ................................ ................................ ...... 23 
+3.7 LOGICAL  DATABASE  REQUIREMENTS  ................................ ................................ ................................ ...............  23 
+3.8 OTHER  REQUIREMENTS  ................................ ................................ ................................ ................................ .... 23 
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  4 
+  1. Introduction  
+The Integrated  Portal  is a web-based  system  that manages  the thesis  process  for MS(R esearch ) 
+and PhD students.  It provides  a single  platform  for thesis  submission,  review,  and approval.  
+The portal  is used by students,  supervisors,  academic  committees,  and academic  office  staff.   
+Each  user has a defined  role and access  level.   It automates  the currently  manual  processes  and 
+improves  clarity,  efficiency,  and tracking.  This document  describes  the software  requirements  of 
+the system  and serves  as a reference  for its design,  development,  and use. 
+1.1 Purpose  
+The purpose  of this document  is to define  the software  requirements  for the Integrated  Portal  for 
+Academic  Office.  It describes  the system’s  intended  functionality,  user roles,  and operating  
+constraints  in a formal  manner.  
+This document  is intended  to serve  as a reference  for developers,  students,  academic  authorities,  
+and reviewers  involved  in the design,  implementation,  and evaluation  of the system.  It helps  the 
+parties  involved  understand  the system’s  purpose  and what  is included  in its scope.  
+1.2 Scope  
+The software  product  to be developed  is the Integrated  Portal  for Academic  Office,  a web-based  
+academic  workflow  management  system.  
+ 
+The portal  is designed  to manage  the complete  thesis  process  for PhD and MS(Research ) 
+students,  starting  from  synopsis  submission  and ending  with thesis  evaluation  including  viva-
+voce  and approval.  It supports  online  submission  of forms  and documents,  multi -level  review  
+and approval,  examiner  management,  status  tracking,  and generation  of official  certificates.  The 
+system  provides  role-based  access  to students,  supervisors,  academic  committees,  and 
+administrative  authorities  to ensure  that each user can perform  only the actions  permitted  for 
+their role. 
+ 
+The system  will allow  students  to submit  their synopsis  and thesis,  apply  for thesis  submission,  
+track  the status  of their submissions,  receive  notifications,  view  reviewer  comments,  and 
+download  certificates  after approval.  Supervisors  will be able to initiate and manage  student  
+requests,  upload  required  reports,  propose  examiner  lists, and respond  to comments  or rejections.  
+Academic  committees  and authorities  such as PSPC,  DPGC,  HoD,  Section  Officers,  Dean  and 
+Associate  Dean  of Academic  Affairs,  and Senate  Chairperson  will review  submissions,  provide  
+recommendations,  verify  details,  and grant  approvals  as per defined  workflows.   
+ 
+The AR Academic  will use a dedicated  dashboard  to manage  examiner  consent,  thesis  
+evaluation,  and related  communications.  The examiners  will use a separate  dashboard  for thesis  
+evaluation  by filling  the necessary  forms.  
+ 
+The portal  aims  to reduce  manual  paperwork  and ensure  timely  processing  of thesis -related  
+activities  by providing  a centralized,  auditable,  and structured  digital  workflow.  The system  does 
+not replace  academic  decision -making ; it only facilitates  the submission,  review,  
+communication,  and record -keeping  processes  associated  with thesis  evaluation.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  5 
+  1.3 Definitions,  Acronyms,  and Abbreviations  
+Term  / Acronym  Definition  
+PTS PhD Thesis  Submission.  A set of structured  forms  used for managing  
+different  stages  of a PhD thesis  process.  
+PTS-1  Submission  and review  process  for the synopsis  of a PhD thesis.  
+PTS-2  Thesis  submission  and approval  process  for a PhD thesis.  
+PTS-3  Examiner  list proposal  and approval  process  for a PhD thesis.  
+PTS-4  Form  for evaluation  of PhD thesis  by Examiners.  
+MSRTS  MS Research  Thesis  Submission  form  used for managing  thesis  
+submission  and evaluation  for MS(Research ) students.  
+MSRTS -1  Submission  and review  process  for the synopsis  of a MS(Research ) thesis.  
+MSRTS -2  Thesis  submission  and approval  process  for a MS(Research ) thesis.  
+MSRTS -3  Examiner  list proposal  and approval  process  for a MS(Research ) thesis.  
+MSRTS -4  Form  for evaluation  of MS(Research ) thesis  by Examiners.  
+PSPC  Postgraduate  Student  Progress  Committee.  A committee  responsible  for 
+reviewing  and recommending  student  academic  progress.  
+DPGC  Department/ Discipline  Postgraduate  Committee . A departmental  body  
+that reviews  and recommends  postgraduate  academic  matters.  
+HoD  Head  of Department.  The academic  head  of a department  responsible  for 
+reviews  and approvals  within  the department.  
+ADoAA  Associate  Dean  of Academic  Affairs.  An academic  authority  responsible  
+for recommendations  and approvals.  
+DoAA  Dean  of Academic  Affairs.  An academic  authority  responsible  for final 
+academic  approvals.  
+AR Academic  Assistant  Registrar  (Academic).  An administrative  role responsible  for 
+managing  examiner  communication  and thesis  evaluation  workflows.  
+ 
+1.4 References  
+The following  documents  and resources  have  been  referenced  in this section.  
+1. PhD  and MS Research  Academic  Forms , Academic  Office,  Indian  Institute  of 
+Technology  Indore.  
+Available  at: Link  
+2. Postgraduate  (PG)  and PhD  Rules  and Regulations , dated  19 January  2026,  
+Indian  Institute  of Technology  Indore.  
+Available  at: Link  
+ 
+ 
+ 
+ 
+ 
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  6 
+  1.5 Overview  
+This document  is organized  to describe  the requirements  of the Integrated  Portal  for Academic  
+Office  in a structured  manner.  It provides  both high-level  context  and detailed  system  
+requirements.  Section  2 presents  a general  description  of the system,  including  its purpose,  main  
+functions,  users,  constraints,  and assumptions.  Section  3 defines  the specific  functional  and non-
+functional  requirements  that guide  system  development  and testing.  
+2. General  Description  
+This section  presents  a high-level  description  of the Integrated  Portal  for Academic  Office.  It 
+explains  how the system  fits into the existing  academic  environment,  outlines  its main  functions,  
+identifies  its users,  and states  the general  constraints  and assumptions.  This section  is intended  to 
+provide  context  only and does not define  detailed  system  requirements.   
+2.1 Product  Perspective  
+The Integrated  Portal  for the Academic  Office  is a web-based  system  that supports  existing  
+academic  rules  and approval  processes.  It does not change  institutional  policies  or decision -
+making,  but helps  manage  thesis -related  submissions,  reviews,  and record  keeping.  
+The system  works  with the current  academic  setup  and uses existing  login  systems  and official  
+email  for communication.  It automates  processes  that are currently  handled  through  paper  forms,  
+emails,  or separate  tools.  
+2.2 Product  Functions  
+At a high level,  the system  provides  the following  functions:  
+• Online  submission  of thesis -related  forms  and documents  
+• Role -based  authentication,  review,  recommendation,  and approval  workflows  
+• Parallel  and sequential  approvals  as defined  by academic  processes  
+• Status  tracking  and notifications  for all involved  users  
+• Examiner  list management  and communication  support  
+• Generation  and storage  of official  academic  records  and certificates  
+• Online  thesis  evaluation  management   
+Detailed  functional  requirements  are described  in later sections  of this document.  
+2.3 User  Characteristics  
+The Integrated  Portal  for Academic  Office  is meant  for multiple  academic  and administrative  
+roles  with different  responsibilities  and access  levels . The user roles  and their general  
+responsibilities  within  the system  are summarized  in the table  below.  Detailed  system  behavior  
+and permissions  for each role are specified  later in the functional  requirements  section.  
+ 
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  7 
+  User  Role  Description  Primary  Responsibilities  
+PhD  Student  Doctoral  student  responsible  for 
+submitting  and tracking  thesis -
+related  work  Submit  synopsis  and thesis,  apply  for 
+thesis  submission,  track  status  of 
+submission  and evaluation , view  
+remarks,  download  certificates  
+MS Research  
+Student  MS(Research ) student  responsible  
+for submitting  and tracking  thesis -
+related  work  Submit  synopsis  and thesis,  apply  for 
+thesis  submission,  track  status  of 
+submission  and evaluation , view  
+remarks,  download  certificates  
+Main  Supervisor  Primary  faculty  supervisor  
+responsible  for initiating  and 
+managing  student  submissions  Initiate  synopsis  and examiner  forms,  
+upload  reports,  respond  to reviews,  
+track  thesis  progress  
+Co-Supervisor  Supporting  faculty  supervisor  
+associated  with a student  Review  submissions,  provide  
+recommendations,  view  examiner  
+details  
+PSPC  Member  Member  of the Postgraduate  
+Student  Progress  Committee  Review  synopsis  submissions,  provide  
+recommendations  or reversion  with 
+comments  
+DPGC  Member  Member  of the 
+Department/ Discipline  
+Postgraduate  Committee  Review  submissions,  recommend  
+approval  or reversion  with comments  
+Head  of 
+Department  
+(HoD)  Academic  head  of the department  Review  submissions,  recommend  
+approval  or reversion  with comments  
+Section  Officer  Administrative  staff responsible  
+for verification  Verify  documents  and details,  forward  
+submissions  
+Associate  Dean  of 
+Academic  Affairs  
+(ADoAA)  Senior  academic  authority  Final  review,  approval  or reversion,  
+modify  examiner  ordering  where  
+applicable  
+Dean  of Academic  
+Affairs  (DoAA)  Senior  academic  authority  Recommendation,  approval  or reversion  
+with comments  
+Senate  
+Chairperson  
+(Director)  Chair  of the Senate  and highest  
+approving  authority  Approve  or revert  examiner  lists, 
+finalize  examiner  ordering  
+AR Academic  Assistant  Registrar  handling  
+academic  administration  Final  review,  approval  or reversion , 
+manage  examiner  communication,  
+consent,  evaluation  process , and 
+dashboard  
+Office  Member  Academic  office  staff supporting  
+administrative  processes  Assist  in handling  records  and 
+submissions  
+Examiner  Authority  responsible  for 
+evaluating  the thesis  Fill evaluation  forms  through  a 
+dashboard  after reviewing  the thesis  
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  8 
+  2.4 General  Constraints  
+The system  must  follow  the academic  rules,  approval  hierarchies,  and workflows  defined  by the 
+institution.  These  processes  limit  how submissions,  reviews,  and approvals  can be designed  and 
+sequenced  within  the system.  
+The portal  is required  to be web-based  and accessible  through  standard  web browsers.  It must  
+support  role-based  access  control  and maintain  records  of all actions  for audit  purposes.  Data  
+storage,  document  handling,  and user access  must  comply  with institu tional  policies  on security  
+and data privacy.  
+The system  design  is also constrained  by the need  to support  multiple  user roles,  parallel  
+reviews,  and confidential  information  handling,  such as restricted  visibility  of examiner  ordering.   
+2.5 Assumptions  and Dependencies  
+The system  is developed  with the assumption  that users  have  access  to a modern  web browser.  It 
+is also assumed  that users  will have  valid  institutional  credentials  to access  the portal.  
+The system  depends  on existing  academic  rules,  approval  structures,  and workflows  defined  by 
+the institution . 
+The system  may rely on external  services  such as institutional  authentication  systems,  email  
+services,  and data storage  infrastructure.  Changes  or unavailability  of these  services  can affect  
+system  functionality  and may require  updates  to this specificatio n. 
+3. Specific  Requirements  
+This section  describes  the detailed  requirements  of the Integrated  Portal  for Academic  Office.  
+These  requirements  define  what  the system  must  do and how it should  behave.  
+Each  requirement  in this section  is written  to be clear,  testable,  and uniquely  identified.  The 
+requirements  are organized  into categories  so they are easy to understand  and refer ence. 
+This section  focuses  on system  behavior  and constraints  and avoids  describing  design  or 
+implementation  details.  
+3.1 External  Interface  Requirements  
+This section  describes  how the system  interacts  with users,  hardware,  software,  and 
+communication  services.  It defines  the external  interfaces  required  for system  operation.  
+3.1.1  User  Interfaces  
+The system  shall  provide  a web-based  user interface  accessible  through  standard  web browsers.  
+The interface  shall  be role-based,  showing  only the functions  and information  relevant  to the 
+logged -in user.  Forms,  status  indicators,  and notifications  shall  be presented  in a clear  and 
+consistent  manner  to support  ease of use. 
+3.1.2  Hardware  Interfaces  
+The system  does not require  any specialized  hardware  interfaces.  It shall  operate  on standard  
+client  devices  such as desktop  computers,  laptops,  and mobile  devices  with internet  access.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  9 
+  3.1.3  Software  Interfaces  
+The system  may interface  with existing  institutional  systems  such as authentication  services  and 
+email  services . It shall  also use a database  system  for storing  user data,  documents,  and workflow  
+records.   
+3.1.4  Communications  Interfaces  
+The system  shall  use standard  internet  communication  protocols  to support  web access  and 
+electronic  notifications.  Communication  with users  and external  services  shall  occur  over secure  
+network  connections.  
+3.2 Functional  Requirements  
+This section  describes  the functional  requirements  of the Integrated  Portal  for Academic  Office.  
+Each  requirement  defines  a specific  feature  of the system  and explains  how the system  responds  
+to user actions.  
+ 
+3.2.1  Synopsis  Submission  and Review  – PTS-1  
+ 
+3.2.1.1  Introduction  
+PTS-1 supports  the submission  and review  of a student’s  thesis  synopsis  after the open  seminar.  
+The system  enables  supervisors,  academic  committees,  and academic  authorities  to review,  
+recommend,  revert,  or approve  the synopsis  through  a defined  workflow.  
+ 
+3.2.1.2  Inputs  
+• PTS-1 form  details  entered  by the main  supervisor  
+• Synopsis  report  uploaded  as a document  
+• Review  decisions  (recommend  or revert)  from  reviewers  
+• Comments  provided  during  review  or reversion  
+ 
+3.2.1.3  Processing  
+• The main  supervisor  initiates  the PTS-1 request  by submitting  the completed  form  with 
+the synopsis  report.  
+• All co-supervisors  receive  the request  in parallel  and may either  recommend  or revert  the 
+submission.  
+• If any co-supervisor  reverts  the request,  the system  marks  the PTS-1 status  as Reverted  
+and returns  it to the main  supervisor.  
+• After  all supervisors  recommend,  the request  is forwarded  to PSPC  members  for review.  
+• PSPC  members  review  the request  and may recommend  or revert  it. 
+• The request  is then reviewed  sequentially  by DPGC  and the Head  of Department.  
+• The Section  Officer  verifies  the submitted  details  and forwards  the request  without  the 
+option  to revert.  
+• The Dean  of Academic  Affairs  reviews  the request  and makes  the final decision  to 
+approve,  reject,  or revert.  
+• On approval,  the system  marks  the PTS-1 status  as Accepted . 
+ 
+3.2.1.4  Outputs  
+• Updated  PTS-1 status  (In Progress,  Reverted,  Accepted,  or Rejected)  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  10 
+  • Notifications  sent to all relevant  users  on submission,  reversion,  and approval  
+• Stored  review  comments  and timestamps  
+• Maintained  record  of all submission  attempts  
+ 
+3.2.1.5  Error  Handling  
+• If required  fields  or documents  are missing,  the system  shall  prevent  submission  and 
+display  an error  message.  
+• If a reviewer  attempts  an unauthorized  action,  the system  shall  deny  the action.  
+• If a reversion  occurs,  the system  shall  require  a comment  before  processing  the action.  
+ 
+3.2.2  Examiner  List Submission  and Approval  – PTS-3 
+ 
+3.2.2.1  Introduction  
+PTS-3 supports  the submission,  review,  and approval  of the examiner  list for thesis  evaluation.  
+The system  enables  controlled  review,  ordering,  and approval  of examiners  while  enforcing  
+confidentiality  rules  based  on user roles.  
+ 
+3.2.2.2  Inputs  
+• Examiner  details  submitted  by the main  supervisor  
+• Consent  status  for each proposed  examiner  
+• Review  decisions  (recommend,  revert,  approve)  
+• Comments  provided  during  review  or reversion  
+• Examiner  ordering  changes  by authorized  roles  
+ 
+3.2.2.3  Processing  
+• The main  supervisor  initiates  PTS-3 by submitting  a proposed  list of examiners  and 
+indicating  whether  prior  consent  has been  obtained  for each examiner.  
+• Co-supervisors  are granted  view -only access  to the examiner  list and cannot  modify  or 
+revert  it. 
+• The Head  of Department  reviews  the list and may recommend  or revert  it with 
+comments.  
+• The Section  Officer  verifies  examiner  details  and forwards  the request  with optional  
+comments.  
+• The Dean  of Academic  Affairs  reviews  the list and may reorder  examiners,  recommend,  
+or revert  the submission.  
+• The Senate  Chairperson  reviews  the examiner  list and may reorder,  revert,  or approve  it. 
+• Any ordering  changes  made  by the Dean  of Academic  Affairs  or the Senate  Chairperson  
+are recorded  by the system  and made  visible  only to them . 
+• After  approval,  the finalized  examiner  list is made  available  to the AR Academic  for 
+further  processing.  
+ 
+3.2.2.4  Outputs  
+• Updated  PTS-3 status  (In Progress,  Reverted,  or Approved)  
+• Finalized  examiner  list for academic  processing  
+• Stored  examiner  ordering  history  
+• Notifications  sent to relevant  users  on submission,  reversion,  or approval  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  11 
+  3.2.2.5  Error  Handling  
+• The system  shall  prevent  submission  if required  examiner  details  are missing.  
+• Reversion  actions  shall  require  a mandatory  comment.  
+• Unauthorized  users  shall  be prevented  from  modifying  examiner  ordering.  
+• The system  shall  enforce  confidentiality  rules  on examiner  ordering  visibility.  
+ 
+ 
+ 
+Figure  1: PTS-1 and PTS-3 flows  
+ 
+
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  12 
+  3.2.3  Thesis  Submission  and Approval  – PTS-2 
+ 
+3.2.3.1  Introduction  
+PTS-2 supports  the submission  and approval  of a student’s  thesis.  The system  enables  
+supervisors,  academic  authorities,  and administrative  staff to review  the submission  and take 
+approval  or reversion  actions  through  a defined  workflow.  
+ 
+3.2.3.2  Inputs  
+• PTS-2 form  details  submitted  by the student  
+• Thesis  document  uploaded  by the student  
+• Review  decisions  (approve  or revert)  from  reviewers  
+• Comments  provided  during  reversion  
+ 
+3.2.3.3  Processing  
+• The student  completes  the PTS-2 form  and uploads  the thesis  document  through  the 
+system.  
+• The system  records  the thesis  submission  date.  
+• All assigned  supervisors  receive  the submission  in parallel  and may either  approve  or 
+revert  it with a comment.  
+• If any supervisor  reverts  the submission,  the system  returns  it to the student  for re-
+submission.  
+• After  supervisor  approvals,  the submission  is reviewed  by the Departmental  Postgraduate  
+Committee  and the Head  of Department.  
+• The AR Academic  performs  the final review  and may accept  or revert  the submission.  
+• Upon  acceptance,  the system  generates  a thesis  submission  certificate.  
+ 
+3.2.3.4  Outputs  
+• Updated  PTS-2 status  (In Progress,  Reverted,  or Accepted)  
+• Generated  thesis  submission  certificate  in PDF format  
+• Download  access  to the certificate  for the student  
+• Status  visibility  for all involved  users  
+ 
+3.2.3.5  Error  Handling  
+• The system  shall  prevent  submission  if required  fields  or the thesis  document  are missing.  
+• Reversion  actions  shall  require  a mandatory  comment.  
+• Unauthorized  users  shall  be prevented  from  approving  or reverting  the submission.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  13 
+   
+ 
+Figure  2: PTS-2 flow 
+ 
+3.2.4  AR Academic  Dashboard  for PhD  Theses  
+ 
+3.2.4.1  Introduction  
+The AR Academic  Dashboard  provides  administrative  tools  to manage  examiner  
+communication,  consent  tracking,  and thesis  evaluation  processes  after approval  of the examiner  
+list. It supports  monitoring  and control  of examiner -related  actions  for each student.  
+ 
+3.2.4.2  Inputs  
+• Student  academic  details  
+• Approved  synopsis  and thesis  documents  
+• Finalized  examiner  list with ordering  
+• Examiner  consent  status  
+• Examiner  responses  and evaluation  status  
+ 
+ 
+ 
+
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  14 
+  3.2.4.3  Processing  
+• The system  displays  student  details,  synopsis,  and thesis  information  to the AR 
+Academic.  
+• The system  displays  the finalized  examiner  list, separated  into Indian  and Foreign  
+examiners,  along  with consent  status.  
+• The AR Academic  may send the synopsis  to a selected  examiner  to request  consent  when  
+consent  has not been  received.  
+• Upon  receiving  consent,  the AR Academic  may send both the synopsis  and thesis  to the 
+examiner  for evaluation.  
+• The AR Academic  may send reminders  to examiners  who have  not responded.  
+• If an examiner  rejects  the request  or does not respond  within  a defined  period,  the AR 
+Academic  may withdraw  the request  and proceed  to the next examiner  in the approved  
+order.  
+• Examiner  evaluation  submissions  received  through  the system  are reflected  in the 
+dashboard  for tracking  and status  updates.  
+ 
+3.2.4.4  Outputs  
+• Updated  examiner  consent  and evaluation  status  
+• Notifications  sent to examiners  and academic  staff 
+• Updated  dashboard  view  reflecting  current  evaluation  progress  
+ 
+3.2.4.5  Error  Handling  
+• The system  shall  prevent  sending  documents  to an examiner  if required  approvals  or 
+consent  conditions  are not met. 
+• The system  shall  prevent  unauthorized  actions  by non-administrative  users.  
+• The system  shall  notify  the AR Academic  in case of failed  communication  attempts.  
+ 
+3.2.5  Examiner  Evaluation  Submission  – PTS-4 
+ 
+3.2.5.1  Introduction  
+PTS-4 supports  the submission  of thesis  evaluation  details  by appointed  examiners.  The system  
+provides  a simple  interface  for examiners  to submit  their evaluation  in response  to an official  
+evaluation  request.  
+ 
+3.2.5.2  Inputs  
+• Examiner  login  credentials  or secure  access  link 
+• Evaluation  form  details  filled  by the examiner  
+• Evaluation  decision  and remarks  
+• Optional  supporting  document  upload,  if applicable  
+ 
+3.2.5.3  Processing  
+• The system  provides  the examiner  with access  to the PTS-4 evaluation  form  after the 
+thesis  has been  sent for evaluation.  
+• The examiner  fills in the required  evaluation  details  and submits  the form  through  the 
+system.  
+• Upon  submission,  the system  records  the evaluation  details  along  with the timestamp.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  15 
+  • The submitted  evaluation  is stored  and reflected  in the AR Academic  Dashboard  for 
+tracking  and further  academic  processing.  
+ 
+3.2.5.4  Outputs  
+• Stored  examiner  evaluation  record  
+• Updated  evaluation  status  visible  to authorized  academic  users  
+• Confirmation  of successful  submission  to the examiner  
+ 
+3.2.5.5  Error  Handling  
+• The system  shall  prevent  submission  if mandatory  evaluation  fields  are incomplete.  
+• Unauthorized  users  shall  be prevented  from  accessing  or submitting  the evaluation  form.  
+ 
+3.2.6  Synopsis  Submission  and Review  – MSRTS -1  
+ 
+ 
+3.2.6 .1 Introduction  
+MSRTS -1 supports  the submission  and review  of a student’s  thesis  synopsis  after the open  
+seminar.  The system  enables  supervisors,  academic  committees,  and academic  authorities  to 
+review,  recommend,  revert,  or approve  the synopsis  through  a defined  workflow.  
+ 
+3.2.6 .2 Inputs  
+• MSRTS -1 form  details  entered  by the main  supervisor  
+• Synopsis  report  uploaded  as a document  
+• Review  decisions  (recommend  or revert)  from  reviewers  
+• Comments  provided  during  review  or reversion  
+ 
+3.2.6 .3 Processing  
+• The main  supervisor  initiates  the MSRTS -1 request  by submitting  the completed  form  
+with the synopsis  report.  
+• All co-supervisors  receive  the request  in parallel  and may either  recommend  or revert  the 
+submission.  
+• If any co-supervisor  reverts  the request,  the system  marks  the MSRTS -1 status  as 
+Reverted  and returns  it to the main  supervisor.  
+• The request  is then reviewed  sequentially  by DPGC  and the Head  of Department  or any 
+Nominated  individual . 
+• The Section  Officer  verifies  the submitted  details  and forwards  the request  without  the 
+option  to revert.  
+• The Dean  of Academic  Affairs  reviews  the request  and makes  the final decision  to 
+approve,  reject,  or revert.  
+• On approval,  the system  marks  the MSRTS -1 status  as Accepted . 
+ 
+3.2.6 .4 Outputs  
+• Updated  MSRTS -1 status  (In Progress,  Reverted,  Accepted,  or Rejected)  
+• Notifications  sent to all relevant  users  on submission,  reversion,  and approval  
+• Stored  review  comments  and timestamps  
+• Maintained  record  of all submission  attempts  
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  16 
+  3.2.6 .5 Error  Handling  
+• If required  fields  or documents  are missing,  the system  shall  prevent  submission  and 
+display  an error  message.  
+• If a reviewer  attempts  an unauthorized  action,  the system  shall  deny  the action.  
+• If a reversion  occurs,  the system  shall  require  a comment  before  processing  the action.  
+ 
+3.2.7  Examiner  List Submission  and Approval  – MSRTS -3 
+ 
+3.2.7 .1 Introduction  
+MSRTS -3 supports  the submission,  review,  and approval  of the examiner  list for thesis  
+evaluation.  The system  enables  controlled  review,  ordering,  and approval  of examiners  while  
+enforcing  confidentiality  rules  based  on user roles.  
+ 
+3.2.7 .2 Inputs  
+• Examiner  details  submitted  by the main  supervisor  
+• Consent  status  for each proposed  examiner  
+• Review  decisions  (recommend,  revert,  approve)  
+• Comments  provided  during  review  or reversion  
+• Examiner  ordering  changes  by authorized  roles  
+ 
+3.2.7 .3 Processing  
+• The main  supervisor  initiates  MSRTS -3 by submitting  a proposed  list of examiners  and 
+indicating  whether  prior  consent  has been  obtained  for each examiner.  
+• Co-supervisors  are granted  view -only access  to the examiner  list and cannot  modify  or 
+revert  it. 
+• The Head  of Department  reviews  the list and may recommend  or revert  it with 
+comments.  
+• The Section  Officer  verifies  examiner  details  and forwards  the request  with optional  
+comments.  
+• The Dean  of Academic  Affairs  reviews  the list and may reorder  examiners,  recommend,  
+or revert  the submission.  
+• The Senate  Chairperson  reviews  the examiner  list and may reorder,  revert,  or approve  it. 
+• Any ordering  changes  made  by the Dean  of Academic  Affairs  or the Senate  Chairperson  
+are recorded  by the system  and made  visible  only to them . 
+• After  approval,  the finalized  examiner  list is made  available  to the AR Academic  for 
+further  processing.  
+ 
+3.2.7 .4 Outputs  
+• Updated  MSRTS -3 status  (In Progress,  Reverted,  or Approved)  
+• Finalized  examiner  list for academic  processing  
+• Stored  examiner  ordering  history  
+• Notifications  sent to relevant  users  on submission,  reversion,  or approval  
+ 
+3.2.7 .5 Error  Handling  
+• The system  shall  prevent  submission  if required  examiner  details  are missing.  
+• Reversion  actions  shall  require  a mandatory  comment.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  17 
+  • Unauthorized  users  shall  be prevented  from  modifying  examiner  ordering.  
+• The system  shall  enforce  confidentiality  rules  on examiner  ordering  visibility.  
+ 
+ 
+ 
+Figure  3: MSRTS -1 and MSRTS -3 flows  
+ 
+
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  18 
+  3.2.8  Thesis  Submission  and Approval  – MSRTS -2 
+ 
+3.2.8 .1 Introduction  
+MSRTS -2 supports  the submission  and approval  of a student’s  thesis.  The system  enables  
+supervisors,  academic  authorities,  and administrative  staff to review  the submission  and take 
+approval  or reversion  actions  through  a defined  workflow.  
+ 
+3.2.8 .2 Inputs  
+• MSRTS -2 form  details  submitted  by the student  
+• Thesis  document  uploaded  by the student  
+• Review  decisions  (approve  or revert)  from  reviewers  
+• Comments  provided  during  reversion  
+ 
+3.2.8 .3 Processing  
+• The student  completes  the MSRTS -2 form  and uploads  the thesis  document  through  the 
+system.  
+• The system  records  the thesis  submission  date.  
+• All assigned  supervisors  receive  the submission  in parallel  and may either  approve  or 
+revert  it with a comment.  
+• If any supervisor  reverts  the submission,  the system  returns  it to the student  for re-
+submission.  
+• After  supervisor  approvals,  the submission  is reviewed  by the Departmental  Postgraduate  
+Committee  and the Head  of Department.  
+• The AR Academic  performs  the final review  and may accept  or revert  the submission.  
+• Upon  acceptance,  the system  generates  a thesis  submission  certificate.  
+ 
+3.2.8 .4 Outputs  
+• Updated  MSRTS -2 status  (In Progress,  Reverted,  or Accepted)  
+• Generated  thesis  submission  certificate  in PDF format  
+• Download  access  to the certificate  for the student  
+• Status  visibility  for all involved  users  
+ 
+3.2.8 .5 Error  Handling  
+• The system  shall  prevent  submission  if required  fields  or the thesis  document  are missing.  
+• Reversion  actions  shall  require  a mandatory  comment.  
+• Unauthorized  users  shall  be prevented  from  approving  or reverting  the submission.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  19 
+   
+ 
+Figure  4: MSRTS -2 flow 
+ 
+ 
+3.2.9  AR Academic  Dashboard  for MS(R esearch ) Thes es 
+ 
+ 
+3.2.9 .1 Introduction  
+The AR Academic  Dashboard  provides  administrative  tools  to manage  examiner  
+communication,  consent  tracking,  and thesis  evaluation  processes  after approval  of the examiner  
+list. It supports  monitoring  and control  of examiner -related  actions  for each student.  
+ 
+3.2.9 .2 Inputs  
+• Student  academic  details  
+• Approved  synopsis  and thesis  documents  
+• Finalized  examiner  list with ordering  
+• Examiner  consent  status  
+• Examiner  responses  and evaluation  status  
+ 
+
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  20 
+  3.2.9 .3 Processing  
+• The system  displays  student  details,  synopsis,  and thesis  information  to the AR Academic  
+along  with the final examiner  list. 
+• The AR Academic  may send the synopsis  to a selected  examiner  to request  consent  when  
+consent  has not been  received.  
+• Upon  receiving  consent,  the AR Academic  may send both the synopsis  and thesis  to the 
+examiner  for evaluation.  
+• The AR Academic  may send reminders  to examiners  who have  not responded.  
+• If an examiner  rejects  the request  or does not respond  within  a defined  period,  the AR 
+Academic  may withdraw  the request  and proceed  to the next examiner  in the approved  
+order.  
+• Examiner  evaluation  submissions  received  through  the system  are reflected  in the 
+dashboard  for tracking  and status  updates.  
+ 
+3.2.9 .4 Outputs  
+• Updated  examiner  consent  and evaluation  status  
+• Notifications  sent to examiners  and academic  staff 
+• Updated  dashboard  view  reflecting  current  evaluation  progress  
+ 
+3.2.9 .5 Error  Handling  
+• The system  shall  prevent  sending  documents  to an examiner  if required  approvals  or 
+consent  conditions  are not met. 
+• The system  shall  prevent  unauthorized  actions  by non-administrative  users.  
+• The system  shall  notify  the AR Academic  in case of failed  communication  attempts . 
+ 
+3.2.10  Examiner  Evaluation  Submission  – MSRTS -4 
+ 
+3.2.10 .1 Introduction  
+MSRTS -4 supports  the submission  of thesis  evaluation  details  by appointed  examiners.  The 
+system  provides  a simple  interface  for examiners  to submit  their evaluation  in response  to an 
+official  evaluation  request.  
+ 
+3.2.10 .2 Inputs  
+• Examiner  login  credentials  or secure  access  link 
+• Evaluation  form  details  filled  by the examiner  
+• Evaluation  decision  and remarks  
+• Optional  supporting  document  upload,  if applicable  
+ 
+3.2.10 .3 Processing  
+• The system  provides  the examiner  with access  to the MSRTS -4 evaluation  form  after the 
+thesis  has been  sent for evaluation.  
+• The examiner  fills in the required  evaluation  details  and submits  the form  through  the 
+system.  
+• Upon  submission,  the system  records  the evaluation  details  along  with the timestamp.  
+• The submitted  evaluation  is stored  and reflected  in the AR Academic  Dashboard  for 
+tracking  and further  academic  processing.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  21 
+  3.2.10 .4 Outputs  
+• Stored  examiner  evaluation  record  
+• Updated  evaluation  status  visible  to authorized  academic  users  
+• Confirmation  of successful  submission  to the examiner  
+ 
+3.2.10 .5 Error  Handling  
+• The system  shall  prevent  submission  if mandatory  evaluation  fields  are incomplete.  
+• Unauthorized  users  shall  be prevented  from  accessing  or submitting  the evaluation  form.  
+ 
+3.3 Classes  / Objects  
+This subsection  identifies  the major  logical  objects  used by the system.  These  objects  represent  
+key academic  entities  and workflows  handled  by the portal.  The descriptions  are conceptual  and 
+do not imply  specific  implementation  details.   
+3.3.1 User  
+3.3.1.1 Attributes  
+• User  ID 
+• Name  
+• Role  (Student,  Supervisor,  Committee  Member,  Administrative  Staff)  
+• Department  
+• Contact  Information  
+3.3.1.2 Functions  
+• Authenticate  and access  the system  
+• View  tasks  and submissions  relevant  to the assigned  role 
+• Perform  role-specific  actions  such as submit,  review,  recommend,  or approve  
+3.3.2 Thesis Submission  
+3.3.2.1 Attributes  
+• Submission ID  
+• Student Details  
+• Submission Type ( PTS,  MSRTS)  
+• Current Status  
+• Submission Date  
+• Associated Documents  
+3.3.2.2 Functions  
+• Accept submission data and uploaded documents  
+• Track approval and review status  
+• Store comments and revision history  
+• Support resubmission after reversion  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  22 
+  3.3.3 Examiner  
+3.3.3.1 Attributes  
+• Examiner Name  
+• Affiliation  
+• Category (Indian / Foreign)  
+• Contact Information  
+• Consent Status  
+3.3.3.2 Functions  
+• Be associated with a thesis submission  
+• Track consent and evaluation status  
+• Support ordering and selection during evaluation  
+3.4 Non-Functional  Requirements  
+This section  defines  the quality  attributes  that the system  must  satisfy  at the overall  system  level.  
+3.4.1  Performance  
+• The system  shall  respond  to user actions  such as form  submission,  approval,  and status  
+updates  within  a few seconds  under  normal  operating  conditions.  
+• The system  shall  support  multiple  concurrent  users  without  significant  performance  
+degradation  
+3.4.2  Reliability  
+• The system  shall  operate  without  failure  for extended  periods  during  normal  use. 
+• In case of a failure,  no submitted  data shall  be lost. 
+3.4.3  Availability  
+• The system  shall  be available  24 hours  a day, 7 days a week,  except  during  scheduled  
+maintenance.  
+3.4.4  Security  
+• The system  shall  require  user authentication  using  unique  login  credentials.  
+• Access  to system  functions  shall  be restricted  based  on user roles.  
+• Basic  protection  shall  be provided  to prevent  unauthorized  access  to user data.  
+3.4.5  Maintainability  
+• The system  shall  be structured  in a way that allows  future  updates  and bug fixes  without  
+impacting  existing  core functionality.  
+• Changes  to the system  shall  be possible  without  requiring  major  rework  of unrelated  
+components.  
+3.4.6  Portability  
+• The system  shall  be accessible  through  standard  web browsers  across  common  operating  
+systems.  
+• The system  shall  be designed  to allow  upgrades  without  loss of existing  user data or 
+disruption  of core workflows.  
+Integrated  Portal  for Academic  Office  
+Software  Requirements  Specification   Page  23 
+  3.5 Inverse  Requirements  
+The system  shall  not make  academic  decisions  or judgments.  All approvals,  rejections,  and 
+recommendations  are made  by authorized  users,  and the system  only records  and routes  these  
+actions.  The system  shall  not allow  users  to access  functions  or data outside  their assigned  roles.  
+It shall  also not modify  or delete  academic  records  without  proper  authorization.  
+3.6 Design  Constraints  
+The design  of the system  is constrained  by the need  to support  predefined  academic  workflows,  
+multiple  user roles,  and controlled  information  visibility.  These  constraints  affect  how system  
+features  can be structured  and presented.  No additional  hardware -specific  or technology -specific  
+design  constraints  are imposed  beyond  those  already  stated  in this document.  
+3.7 Logical  Database  Requirements  
+The system  requires  persistent  storage  to maintain  records  related  to users,  submissions,  
+approvals,  comments,  and system  activities.  The stored  data must  support  tracking  of submission  
+states  and historical  actions  across  the academic  workflow.  
+The database  must  logically  support  structured  academic  records,  document  references,  and 
+time-based  information  such as submission  and approval  dates.  Data  retention  and modification  
+shall  follow  institutional  practices,  and records  shall  remain  available  for review  and reference  as 
+required.  
+3.8 Other  Requirements  
+The system  shall  provide  basic  search  and filtering  capabilities  to help users  locate  records  
+efficiently.  The system  shall  be designed  to allow  future  enhancements  without  major  changes  to 
+existing  functionality.  
+ 

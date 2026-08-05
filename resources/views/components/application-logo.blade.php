@@ -1,0 +1,1 @@
+<img src="{{ asset('images/iiti-logo.png') }}" alt="IIT Indore Logo" {{ $attributes }}>
