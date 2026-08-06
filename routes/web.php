@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\SystemAdminController;
 use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\StudentThesisController;
 use App\Http\Controllers\Student\SubmissionController;
 use App\Http\Controllers\Student\Pts1Controller;
 use App\Http\Controllers\Student\StudentPts2Controller;
@@ -30,16 +31,19 @@ Route::middleware('auth')->group(function () {
 
         if ($user->isStudent()) {
             return redirect()->route('student.dashboard');
-        } elseif ($user->isFaculty()) {
-            return redirect()->route('faculty.dashboard');
-        } elseif ($user->isHod()) {
-            return redirect()->route('hod.dashboard');
-        } elseif ($user->isDpgc()) {
-            return redirect()->route('dpgc.dashboard');
-        } elseif ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || $user->isSectionOfficer()) {
-            return redirect()->route('global_authority.dashboard');
         }
-
+        if ($user->isFaculty()) {
+            return redirect()->route('faculty.dashboard');
+        }
+        if ($user->isHod()) {
+            return redirect()->route('hod.dashboard');
+        }
+        if ($user->isDpgc()) {
+            return redirect()->route('dpgc.dashboard');
+        }
+        if ($user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
+            return redirect()->route('global_authorities.dashboard');
+        }
         return redirect()->route('student.dashboard');
     })->name('dashboard');
 
@@ -70,6 +74,8 @@ Route::middleware('auth')->group(function () {
 */
 Route::prefix('student')->middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
+    Route::post('/thesis/store', [StudentThesisController::class, 'store'])->name('student.thesis.store');
+    
     Route::get('/pts1/create', [Pts1Controller::class, 'create'])->name('student.pts1.create');
     Route::post('/pts1/store', [Pts1Controller::class, 'store'])->name('student.pts1.store');
     Route::get('/pts1/template/download', [Pts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
@@ -88,20 +94,15 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
 Route::prefix('faculty')->middleware(['auth', 'role:faculty'])->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])->name('faculty.dashboard');
     Route::get('/pts1/{pts1}/review', [FacultyPts1Controller::class, 'edit'])->name('faculty.pts1.edit');
-    Route::put('/pts1/{pts1}', [FacultyPts1Controller::class, 'update'])->name('faculty.pts1.update');
-
-    // Co-Supervisor PTS-1 Review Routes
-    Route::get('/pts1/{pts1}/co-review', [FacultyPts1Controller::class, 'coEdit'])->name('faculty.pts1.co_edit');
-    Route::put('/pts1/{pts1}/co-update', [FacultyPts1Controller::class, 'coUpdate'])->name('faculty.pts1.co_update');
-
-    // PTS-2 Faculty Review & Update Routes
+    Route::post('/pts1/{pts1}/update', [FacultyPts1Controller::class, 'update'])->name('faculty.pts1.update');
+    
     Route::get('/pts2/{pts2}/review', [FacultyPts2Controller::class, 'edit'])->name('faculty.pts2.edit');
-    Route::put('/pts2/{pts2}', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
+    Route::post('/pts2/{pts2}/update', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
 });
 
 /*
 |--------------------------------------------------------------------------
-| HoD Routes
+| Head of Department (HOD) Routes
 |--------------------------------------------------------------------------
 */
 Route::prefix('hod')->middleware(['auth', 'role:hod'])->group(function () {
@@ -110,7 +111,7 @@ Route::prefix('hod')->middleware(['auth', 'role:hod'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| DPGC Routes
+| Department Postgraduate Committee (DPGC) Routes
 |--------------------------------------------------------------------------
 */
 Route::prefix('dpgc')->middleware(['auth', 'role:dpgc'])->group(function () {
@@ -119,47 +120,38 @@ Route::prefix('dpgc')->middleware(['auth', 'role:dpgc'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Global Authorities Routes (DOAA, Section Officer, etc.)
+| Institute Global Authorities Routes (DOAA, ADoAA, Senate Chair, Section Officer)
 |--------------------------------------------------------------------------
 */
-Route::prefix('global-authority')->middleware(['auth', 'role:doaa,adoaa,senate_chairperson,ar_academic,section_officer'])->group(function () {
-    Route::get('/dashboard', [GlobalAuthorityDashboardController::class, 'index'])->name('global_authority.dashboard');
+Route::prefix('global-authorities')->middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [GlobalAuthorityDashboardController::class, 'index'])->name('global_authorities.dashboard');
 });
 
 /*
 |--------------------------------------------------------------------------
-| System Admin Routes (Guard: admin)
+| System Admin Routes (System Admin Model Guard)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware(['auth:admin'])->group(function () {
-    Route::get('/dashboard', [SystemAdminController::class, 'index'])->name('system_admin.dashboard');
-    
-    // Core Admins Management
-    Route::get('/core-admins/manage', [SystemAdminController::class, 'manageCoreAdmins'])->name('system_admin.admins.index');
-    
-    // Global Authorities Management
-    Route::get('/global-authorities/manage', [SystemAdminController::class, 'manageGlobalAuthorities'])->name('system_admin.global_authorities.index');
-    Route::post('/global-authorities', [SystemAdminController::class, 'storeGlobalAuthority'])->name('system_admin.global_authorities.store');
+Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:system_admin'])->group(function () {
+    Route::get('/dashboard', [SystemAdminController::class, 'dashboard'])->name('dashboard');
 
-    // Departments Management
-    Route::get('/departments/manage', [SystemAdminController::class, 'manageDepartments'])->name('system_admin.departments.index');
-    Route::post('/departments', [SystemAdminController::class, 'storeDepartment'])->name('system_admin.departments.store');
-    Route::put('/departments/{department}', [SystemAdminController::class, 'updateDepartment'])->name('system_admin.departments.update');
-    Route::patch('/departments/{department}/toggle', [SystemAdminController::class, 'toggleDepartmentStatus'])->name('system_admin.departments.toggle');
+    // Admin & Global Authority User Management
+    Route::get('/users', [SystemAdminController::class, 'manageUsers'])->name('users.index');
+    Route::post('/users', [SystemAdminController::class, 'storeUser'])->name('users.store');
+    Route::patch('/users/{user}/toggle', [SystemAdminController::class, 'toggleUserStatus'])->name('users.toggle');
+    Route::delete('/users/{user}', [SystemAdminController::class, 'deleteUser'])->name('users.destroy');
 
-    // Department Authorities Management
-    Route::get('/dept-authorities/manage', [SystemAdminController::class, 'manageDeptAuthorities'])->name('system_admin.dept_authorities.index');
-    Route::post('/dept-authorities', [SystemAdminController::class, 'storeDeptAuthority'])->name('system_admin.dept_authorities.store');
+    // Department Management
+    Route::get('/departments', [SystemAdminController::class, 'departmentsIndex'])->name('departments.index');
+    Route::post('/departments', [SystemAdminController::class, 'storeDepartment'])->name('departments.store');
 
-    // Users (Faculty/Staff) Management
-    Route::get('/users/manage', [SystemAdminController::class, 'manageUsers'])->name('system_admin.users.index');
-    Route::post('/users', [SystemAdminController::class, 'storeUser'])->name('system_admin.users.store');
-    Route::put('/users/{user}', [SystemAdminController::class, 'updateUser'])->name('system_admin.users.update');
-    Route::patch('/users/{user}/toggle', [SystemAdminController::class, 'toggleUserStatus'])->name('system_admin.users.toggle');
+    // Core Admin Accounts Management
+    Route::get('/admins', [SystemAdminController::class, 'adminsIndex'])->name('admins.index');
+    Route::post('/admins', [SystemAdminController::class, 'storeAdmin'])->name('admins.store');
 
-    // Students Management
-    Route::get('/students/manage', [SystemAdminController::class, 'manageStudents'])->name('system_admin.students.index');
-    Route::post('/students', [SystemAdminController::class, 'storeStudent'])->name('system_admin.students.store');
+    // PhD Student Management
+    Route::get('/students', [SystemAdminController::class, 'studentsIndex'])->name('students.index');
+    Route::post('/students', [SystemAdminController::class, 'storeStudent'])->name('students.store');
 });
 
 require __DIR__.'/auth.php';
