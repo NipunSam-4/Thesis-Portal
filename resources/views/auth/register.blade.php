@@ -1,52 +1,65 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register | PhD Portal | IIT Indore</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/iiti-logo.png') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-300">
-    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        
-        <div class="absolute top-0 left-0 w-full h-64 bg-blue-900 dark:bg-blue-950 shadow-lg -z-10 transition-colors duration-300 sm:rounded-b-[100px]"></div>
+<x-guest-layout>
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
 
-        <div class="mb-8 text-center flex flex-col items-center z-10">
-            <a href="/"><img src="{{ asset('images/iiti-logo.png') }}" class="h-20 sm:h-24 w-auto mb-4 drop-shadow-xl bg-white/10 dark:bg-transparent rounded-full p-2"></a>
-            <h2 class="text-2xl font-extrabold text-white">PhD Integrated Portal</h2>
-            <p class="text-blue-100 font-medium">Indian Institute of Technology, Indore</p>
+        <!-- Name -->
+        <div>
+            <x-input-label for="name" value="Name" />
+            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required
+                autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
-        <div class="w-full sm:max-w-md bg-white dark:bg-gray-800 px-8 py-10 shadow-2xl rounded-2xl border border-gray-100 dark:border-gray-700 z-10">
-            <form method="POST" action="{{ route('register') }}">
-                @csrf
-                <div>
-                    <label class="block font-semibold text-sm text-gray-700 dark:text-gray-300">Full Name</label>
-                    <input type="text" name="name" :value="old('name')" required autofocus class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-lg shadow-sm focus:ring-blue-500" />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
-                <div class="mt-4">
-                    <label class="block font-semibold text-sm text-gray-700 dark:text-gray-300">Institutional Email</label>
-                    <input type="email" name="email" :value="old('email')" required class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-lg shadow-sm focus:ring-blue-500" />
-                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
-                <div class="mt-4">
-                    <label class="block font-semibold text-sm text-gray-700 dark:text-gray-300">Password</label>
-                    <input type="password" name="password" required class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-lg shadow-sm focus:ring-blue-500" />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
-                <div class="mt-4">
-                    <label class="block font-semibold text-sm text-gray-700 dark:text-gray-300">Confirm Password</label>
-                    <input type="password" name="password_confirmation" required class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 rounded-lg shadow-sm focus:ring-blue-500" />
-                </div>
-
-                <div class="flex items-center justify-between mt-8">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 underline">Already registered?</a>
-                    <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition transform hover:-translate-y-0.5">Register</button>
-                </div>
-            </form>
+        <!-- Email Address -->
+        <div class="mt-4">
+            <x-input-label for="email" value="Email" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
+                autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
-    </div>
-</body>
-</html>
+
+        <!-- Password -->
+        <div class="mt-4">
+            <div class="flex items-center gap-1.5">
+                <x-input-label for="password" value="Password" />
+                <div class="password-tooltip">
+                    <svg class="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="tooltip-box bg-slate-900 text-white border border-slate-700 shadow-xl dark:bg-slate-100 dark:text-slate-900 dark:border-slate-300">
+                        Your password must be at least 8 characters long and may contain letters, numbers, and symbols.
+                    </div>
+                </div>
+            </div>
+
+            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
+                autocomplete="new-password" />
+
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mt-4">
+            <x-input-label for="password_confirmation" value="Confirm Password" />
+
+            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                name="password_confirmation" required autocomplete="new-password" />
+
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        </div>
+
+        <div class="mt-6 space-y-4">
+            <x-primary-button class="w-full justify-center">
+                Register
+            </x-primary-button>
+
+            <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+                Already registered?
+                <a href="{{ route('login') }}" class="underline hover:text-gray-900 dark:hover:text-gray-100">
+                    Log In
+                </a>
+            </p>
+        </div>
+
+    </form>
+</x-guest-layout>
