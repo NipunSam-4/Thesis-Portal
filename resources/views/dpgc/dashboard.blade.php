@@ -12,8 +12,14 @@
 
     <div class="py-8" x-data="{
         expandedStudent: null,
+        searchQuery: '',
         toggleStudent(id) {
             this.expandedStudent = (this.expandedStudent === id) ? null : id;
+        },
+        matchesSearch(target) {
+            if (!this.searchQuery || !this.searchQuery.trim()) return true;
+            if (!target) return false;
+            return target.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
         }
     }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -45,16 +51,28 @@
 
             <!-- Department Scholars List Card -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                         <span class="w-2.5 h-2.5 rounded-full bg-purple-500 mr-2"></span>
                         Department PhD Scholars ({{ $departmentStudents->count() }})
                     </h3>
-                    <span class="text-xs text-gray-500">Click a scholar to expand thesis and PTS milestone progress</span>
+                    
+                    <!-- Search Input Bar -->
+                    <div class="w-full md:w-80 lg:w-96 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="text" x-model="searchQuery" placeholder="🔍 Search scholar by Name, Roll, or Email..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-purple-500 text-sm font-medium transition shadow-sm">
+                        <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
                 </div>
 
                 @forelse($departmentStudents as $student)
-                    <div class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                    <div x-show="!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim())" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                         <!-- Student Header Card -->
                         <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                             <div class="flex items-center space-x-3">

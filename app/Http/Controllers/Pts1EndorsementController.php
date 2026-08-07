@@ -52,7 +52,7 @@ class Pts1EndorsementController extends Controller
     {
         $user = auth()->user();
         $thesis = $pts1->thesis;
-        $comment = $request->input('comment', 'Endorsed.');
+        $comment = $request->input('comment') ?: 'N/A';
 
         $stage = $pts1->current_stage;
 

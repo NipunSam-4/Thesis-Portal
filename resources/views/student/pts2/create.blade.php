@@ -35,6 +35,15 @@
 
         triggerFileInput() {
             document.getElementById('synopsis_report_doc_input').click();
+        },
+
+        deleteFile() {
+            this.selectedFileName = '';
+            this.selectedFileSize = '';
+            this.filePreviewUrl = '';
+            this.fileError = '';
+            const input = document.getElementById('synopsis_report_doc_input');
+            if (input) input.value = '';
         }
     }">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -127,10 +136,13 @@
 
                                 <div class="flex items-center space-x-2">
                                     <a :href="filePreviewUrl" target="_blank" x-show="filePreviewUrl" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-200">
-                                        👁 View File
+                                        📄 View File
                                     </a>
-                                    <button type="button" @click="triggerFileInput()" class="px-3 py-1.5 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg hover:bg-amber-200">
-                                        ✏ Change File
+                                    <button type="button" @click="deleteFile()" class="px-3 py-1.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 text-xs font-bold rounded-lg hover:bg-red-200 flex items-center">
+                                        <svg class="w-3.5 h-3.5 mr-1 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        Delete File
                                     </button>
                                 </div>
                             </div>

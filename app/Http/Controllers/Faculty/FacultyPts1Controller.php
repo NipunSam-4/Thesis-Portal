@@ -216,10 +216,9 @@ class FacultyPts1Controller extends Controller
             return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 Form reverted back to scholar.');
         }
 
-        // Action: Approve (Endorse)
         $pts1->update([
             "{$roleKey}_endorsement" => true,
-            "{$roleKey}_comment" => $validated['comment'] ?? null,
+            "{$roleKey}_comment" => $validated['comment'] ?: 'N/A',
         ]);
 
         $co1Done = !$pts1->co_supervisor_1_id || $pts1->co_supervisor_1_endorsement;

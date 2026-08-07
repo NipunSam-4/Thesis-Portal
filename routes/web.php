@@ -94,10 +94,10 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
 Route::prefix('faculty')->middleware(['auth', 'role:faculty'])->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])->name('faculty.dashboard');
     Route::get('/pts1/{pts1}/review', [FacultyPts1Controller::class, 'edit'])->name('faculty.pts1.edit');
-    Route::post('/pts1/{pts1}/update', [FacultyPts1Controller::class, 'update'])->name('faculty.pts1.update');
+    Route::match(['post', 'put'], '/pts1/{pts1}/update', [FacultyPts1Controller::class, 'update'])->name('faculty.pts1.update');
     
     Route::get('/pts2/{pts2}/review', [FacultyPts2Controller::class, 'edit'])->name('faculty.pts2.edit');
-    Route::post('/pts2/{pts2}/update', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
+    Route::match(['post', 'put'], '/pts2/{pts2}/update', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
 });
 
 /*

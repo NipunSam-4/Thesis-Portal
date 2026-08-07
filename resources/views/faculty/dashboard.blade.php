@@ -13,8 +13,14 @@
     <div class="py-8" x-data="{
         activeTab: 'main',
         expandedStudent: null,
+        searchQuery: '',
         toggleStudent(id) {
             this.expandedStudent = (this.expandedStudent === id) ? null : id;
+        },
+        matchesSearch(target) {
+            if (!this.searchQuery || !this.searchQuery.trim()) return true;
+            if (!target) return false;
+            return target.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
         }
     }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -43,28 +49,44 @@
                 </div>
             </div>
 
-            <!-- Role-Based Navigation Tabs -->
-            <div class="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
-                <button type="button" @click="activeTab = 'main'" :class="activeTab === 'main' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
-                    👤 Main Supervisor
-                    <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'main' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300'">
-                        {{ $mainStudents->count() }}
-                    </span>
-                </button>
+            <!-- Navigation Tabs & Search Input Bar -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-3">
+                <!-- Role-Based Navigation Tabs -->
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" @click="activeTab = 'main'" :class="activeTab === 'main' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
+                        👤 Main Supervisor
+                        <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'main' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300'">
+                            {{ $mainStudents->count() }}
+                        </span>
+                    </button>
 
-                <button type="button" @click="activeTab = 'co'" :class="activeTab === 'co' ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
-                    👥 Co-Supervisor
-                    <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'co' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'">
-                        {{ $coStudents->count() }}
-                    </span>
-                </button>
+                    <button type="button" @click="activeTab = 'co'" :class="activeTab === 'co' ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
+                        👥 Co-Supervisor
+                        <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'co' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'">
+                            {{ $coStudents->count() }}
+                        </span>
+                    </button>
 
-                <button type="button" @click="activeTab = 'pspc'" :class="activeTab === 'pspc' ? 'bg-purple-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
-                    🔬 PSPC Member
-                    <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'pspc' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'">
-                        {{ $pspcStudents->count() }}
-                    </span>
-                </button>
+                    <button type="button" @click="activeTab = 'pspc'" :class="activeTab === 'pspc' ? 'bg-purple-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center">
+                        🎓 PSPC Member
+                        <span class="ml-2 text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'pspc' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'">
+                            {{ $pspcStudents->count() }}
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Scholar Search Input Bar -->
+                <div class="w-full md:w-80 lg:w-96 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" x-model="searchQuery" placeholder="🔍 Search scholar by Name or Roll..." class="w-full pl-9 pr-9 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
+                    <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <!-- TAB 1: MAIN SUPERVISOR SCHOLARS -->
@@ -75,7 +97,7 @@
                     </h3>
 
                     @forelse($mainStudents as $student)
-                        <div class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim())" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('main-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -90,7 +112,7 @@
                                             </span>
                                         </h4>
                                         <p class="text-xs text-gray-500 mt-0.5">
-                                            Dept: {{ $student->department->name ?? 'N/A' }} | Joining: {{ $student->date_joining }}
+                                            Reg Date: {{ $student->date_registration }} | Joining: {{ $student->date_joining }}
                                         </p>
                                     </div>
                                 </div>
@@ -112,7 +134,6 @@
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
                                         </div>
 
-                                        <!-- PTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- PTS-1 Card -->
                                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
@@ -202,7 +223,7 @@
                     </h3>
 
                     @forelse($coStudents as $student)
-                        <div class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim())" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('co-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -248,7 +269,7 @@
                                                         @if($thesis->pts1Form->status === 'in_progress')
                                                             <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                         @elseif($thesis->pts1Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
+                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
                                                         @elseif($thesis->pts1Form->status === 'accepted')
                                                             <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                         @endif
@@ -263,13 +284,21 @@
                                                         <div class="text-blue-600 dark:text-blue-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
                                                     </div>
 
-                                                    <!-- Dedicated Review & Endorse Button for Co-Supervisor for PTS-1 -->
+                                                    <!-- Dedicated Co-Supervisor Review Action for PTS-1 -->
                                                     @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'co_supervisors')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('faculty.pts1.co_edit', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            if ($thesis->pts1Form->co_supervisor_1_id === $user->id && $thesis->pts1Form->co_supervisor_1_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->co_supervisor_2_id === $user->id && $thesis->pts1Form->co_supervisor_2_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->co_supervisor_3_id === $user->id && $thesis->pts1Form->co_supervisor_3_endorsement) $alreadyEndorsed = true;
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>
@@ -284,27 +313,36 @@
                                                         @if($thesis->pts2Form->status === 'in_progress')
                                                             <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                         @elseif($thesis->pts2Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
+                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
                                                         @elseif($thesis->pts2Form->status === 'accepted')
                                                             <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                         @endif
                                                     @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Submitted</span>
+                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
                                                     @endif
                                                 </div>
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                        <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                     </div>
 
-                                                    <!-- Pending Co-Supervisor Action for PTS-2 -->
+                                                    <!-- Dedicated Co-Supervisor Review Action for PTS-2 -->
                                                     @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'co_supervisors')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            if ($thesis->pts2Form->co_supervisor_1_id === $user->id && $thesis->pts2Form->co_supervisor_1_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->co_supervisor_2_id === $user->id && $thesis->pts2Form->co_supervisor_2_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->co_supervisor_3_id === $user->id && $thesis->pts2Form->co_supervisor_3_endorsement) $alreadyEndorsed = true;
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>
@@ -327,7 +365,7 @@
                     </h3>
 
                     @forelse($pspcStudents as $student)
-                        <div class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim())" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('pspc-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -373,7 +411,7 @@
                                                         @if($thesis->pts1Form->status === 'in_progress')
                                                             <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                         @elseif($thesis->pts1Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
+                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
                                                         @elseif($thesis->pts1Form->status === 'accepted')
                                                             <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                         @endif
@@ -388,13 +426,21 @@
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
                                                     </div>
 
-                                                    <!-- Dedicated Review & Endorse Button for PSPC Member for PTS-1 -->
+                                                    <!-- Dedicated PSPC Review Action for PTS-1 -->
                                                     @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'pspc_members')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            if ($thesis->pts1Form->pspc_member_1_id === $user->id && $thesis->pts1Form->pspc_member_1_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->pspc_member_2_id === $user->id && $thesis->pts1Form->pspc_member_2_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->pspc_member_3_id === $user->id && $thesis->pts1Form->pspc_member_3_endorsement) $alreadyEndorsed = true;
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>
@@ -409,27 +455,36 @@
                                                         @if($thesis->pts2Form->status === 'in_progress')
                                                             <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                         @elseif($thesis->pts2Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
+                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
                                                         @elseif($thesis->pts2Form->status === 'accepted')
                                                             <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                         @endif
                                                     @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Submitted</span>
+                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
                                                     @endif
                                                 </div>
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                        <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                     </div>
 
-                                                    <!-- Dedicated Review & Endorse Button for PSPC Member for PTS-2 -->
+                                                    <!-- Dedicated PSPC Review Action for PTS-2 -->
                                                     @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'pspc_members')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            if ($thesis->pts2Form->pspc_member_1_id === $user->id && $thesis->pts2Form->pspc_member_1_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->pspc_member_2_id === $user->id && $thesis->pts2Form->pspc_member_2_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->pspc_member_3_id === $user->id && $thesis->pts2Form->pspc_member_3_endorsement) $alreadyEndorsed = true;
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>

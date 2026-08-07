@@ -45,7 +45,7 @@ class Pts2EndorsementController extends Controller
     public function endorse(Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
-        $comment = $request->input('comment', 'Endorsed.');
+        $comment = $request->input('comment') ?: 'N/A';
 
         switch ($pts2->current_stage) {
             case 'co_supervisors':

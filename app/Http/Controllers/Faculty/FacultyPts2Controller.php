@@ -85,7 +85,7 @@ class FacultyPts2Controller extends Controller
 
         $pts2->update([
             'main_supervisor_endorsement' => true,
-            'main_supervisor_comment' => $validated['comment'] ?? null,
+            'main_supervisor_comment' => $validated['comment'] ?: 'N/A',
             'current_stage' => $nextStage,
             'status' => 'in_progress',
         ]);

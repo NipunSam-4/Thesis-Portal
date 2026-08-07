@@ -139,7 +139,7 @@
                                     <div class="flex items-center space-x-3">
                                         <span class="text-xs text-gray-500">Current File:</span>
                                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline flex items-center">
-                                            👁 View Publication Approval Copy
+                                            📄 View Publication Approval Copy
                                         </a>
                                     </div>
                                 @endif
@@ -183,7 +183,7 @@
                                     <div class="flex items-center space-x-3">
                                         <span class="text-xs text-gray-500">Current File:</span>
                                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'min_time_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline flex items-center">
-                                            👁 View Minimum Time Approval Copy
+                                            📄 View Minimum Time Approval Copy
                                         </a>
                                     </div>
                                 @endif
@@ -207,7 +207,7 @@
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Draft Synopsis Report</label>
                                 @if($pts1->draft_synopsis_report_doc_path)
                                     <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs font-bold hover:bg-indigo-100 flex items-center">
-                                        👁 View Draft Synopsis
+                                        📄 View Draft Synopsis
                                     </a>
                                 @endif
                             </div>
@@ -223,7 +223,7 @@
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">Publication List</label>
                                 @if($pts1->publication_list_doc_path)
                                     <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-bold hover:bg-emerald-100 flex items-center">
-                                        👁 View Publication List
+                                        📄 View Publication List
                                     </a>
                                 @endif
                             </div>

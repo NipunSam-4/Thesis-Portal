@@ -85,7 +85,7 @@
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Submitted Synopsis Report Document</span>
                             <a href="{{ route('pts.document.serve', ['pts2', $pts2->id, 'synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded hover:bg-blue-200">
-                                👁 Inspect Submitted Synopsis File
+                                📄 Inspect Submitted Synopsis File
                             </a>
                         </div>
 

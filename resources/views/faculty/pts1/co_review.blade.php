@@ -77,10 +77,10 @@
                     <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase block">Submitted Documents</span>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-200">
-                            👁 Inspect Synopsis Report
+                            📄 Inspect Synopsis Report
                         </a>
                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg hover:bg-emerald-200">
-                            👁 Inspect Publication List
+                            📄 Inspect Publication List
                         </a>
                     </div>
                 </div>

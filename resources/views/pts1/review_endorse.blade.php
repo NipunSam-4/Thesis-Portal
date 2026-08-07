@@ -77,10 +77,10 @@
                     <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase block">Submitted Documents</span>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-200">
-                            👁 Inspect Synopsis Report
+                            📄 Inspect Synopsis Report
                         </a>
                         <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-3 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg hover:bg-emerald-200">
-                            👁 Inspect Publication List
+                            📄 Inspect Publication List
                         </a>
                     </div>
                 </div>
@@ -274,53 +274,81 @@
                     @endif
                 </div>
 
-                <!-- Authority Action Form Section -->
-                <h4 class="font-bold text-base text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2 pt-4">
-                    3. Action Required: Evaluate, Endorse or Revert
-                </h4>
+                @php
+                    $showActionForm = false;
+                    $user = auth()->user();
+                    if ($pts1->current_stage === 'co_supervisors') {
+                        if ($pts1->co_supervisor_1_id === $user->id && !$pts1->co_supervisor_1_endorsement) $showActionForm = true;
+                        if ($pts1->co_supervisor_2_id === $user->id && !$pts1->co_supervisor_2_endorsement) $showActionForm = true;
+                        if ($pts1->co_supervisor_3_id === $user->id && !$pts1->co_supervisor_3_endorsement) $showActionForm = true;
+                    } elseif ($pts1->current_stage === 'pspc_members') {
+                        if ($pts1->pspc_member_1_id === $user->id && !$pts1->pspc_member_1_endorsement) $showActionForm = true;
+                        if ($pts1->pspc_member_2_id === $user->id && !$pts1->pspc_member_2_endorsement) $showActionForm = true;
+                        if ($pts1->pspc_member_3_id === $user->id && !$pts1->pspc_member_3_endorsement) $showActionForm = true;
+                    } elseif ($pts1->current_stage === 'dpgc') {
+                        if ($user->role === 'dpgc' && !$pts1->dpgc_endorsement) $showActionForm = true;
+                    } elseif ($pts1->current_stage === 'hod') {
+                        if ($user->role === 'hod' && !$pts1->hod_endorsement) $showActionForm = true;
+                    } elseif ($pts1->current_stage === 'section_officer') {
+                        if ($user->role === 'section_officer' && !$pts1->section_officer_endorsement) $showActionForm = true;
+                    } elseif ($pts1->current_stage === 'doaa') {
+                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic']) && !$pts1->doaa_endorsement) $showActionForm = true;
+                    }
+                @endphp
 
-                <form x-bind:action="action === 'approve' ? '{{ route('pts1.endorse', $pts1->id) }}' : '{{ route('pts1.revert', $pts1->id) }}'" method="POST" class="space-y-6">
-                    @csrf
+                @if($showActionForm)
+                    <!-- Authority Action Form Section -->
+                    <h4 class="font-bold text-base text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2 pt-4">
+                        3. Action Required: Evaluate, Endorse or Revert
+                    </h4>
 
-                    <!-- Action Selection Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Approve Card -->
-                        <div @click="action = 'approve'" :class="action === 'approve' ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 ring-2 ring-emerald-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
-                            <div class="flex items-center space-x-2">
-                                <input type="radio" name="action" value="approve" x-model="action" class="text-emerald-600 focus:ring-emerald-500">
-                                <span class="font-bold text-sm text-emerald-900 dark:text-emerald-300">✓ Approve & Endorse</span>
+                    <form x-bind:action="action === 'approve' ? '{{ route('pts1.endorse', $pts1->id) }}' : '{{ route('pts1.revert', $pts1->id) }}'" method="POST" class="space-y-6">
+                        @csrf
+
+                        <!-- Action Selection Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Approve Card -->
+                            <div @click="action = 'approve'" :class="action === 'approve' ? 'border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 ring-2 ring-emerald-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" name="action" value="approve" x-model="action" class="text-emerald-600 focus:ring-emerald-500">
+                                    <span class="font-bold text-sm text-emerald-900 dark:text-emerald-300">
+                                        {{ auth()->user()->role === 'section_officer' ? '✓ Forward' : '✓ Approve & Endorse' }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    {{ auth()->user()->role === 'section_officer' ? 'Forward PTS-1 form to the next stage in the academic pipeline.' : 'Endorse PTS-1 form and forward to the next stage in the academic pipeline.' }}
+                                </p>
                             </div>
-                            <p class="text-xs text-gray-500">Endorse PTS-1 form and forward to the next stage in the academic pipeline.</p>
-                        </div>
-                        @if(!$sectionofficer)
-                        <!-- Revert Card -->
-                        <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
-                            <div class="flex items-center space-x-2">
-                                <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
-                                <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Scholar</span>
+                            @if(!$sectionofficer)
+                            <!-- Revert Card -->
+                            <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
+                                    <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Scholar</span>
+                                </div>
+                                <p class="text-xs text-gray-500">Revert form back to student with comments for necessary modifications.</p>
                             </div>
-                            <p class="text-xs text-gray-500">Revert form back to student with comments for necessary modifications.</p>
+                            @endif
                         </div>
-                        @endif
-                    </div>
 
-                    <!-- Comment Input (Required if Revert selected) -->
-                    <div>
-                        <label for="comment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
-                            Authority Comments <span x-show="action === 'revert'" class="text-red-500">* (Required for Reversion)</span>
-                        </label>
-                        <textarea name="comment" id="comment" rows="3" :required="action === 'revert'"
-                            placeholder="Enter endorsement observations or reversion comments..."
-                            class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                    </div>
+                        <!-- Comment Input (Required if Revert selected) -->
+                        <div>
+                            <label for="comment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                                Authority Comments <span x-show="action === 'revert'" class="text-red-500">* (Required for Reversion)</span>
+                            </label>
+                            <textarea name="comment" id="comment" rows="3" :required="action === 'revert'"
+                                placeholder="Enter endorsement observations or reversion comments..."
+                                class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
 
-                    <!-- Submit Button -->
-                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                        <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
-                            Submit Decision &rarr;
-                        </button>
-                    </div>
-                </form>
+                        <!-- Submit Button -->
+                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                            <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
+                                Submit Decision &rarr;
+                            </button>
+                        </div>
+                    </form>
+                @endif
 
             </div>
 
