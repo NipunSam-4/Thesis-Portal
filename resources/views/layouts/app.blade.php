@@ -30,7 +30,7 @@
 
     <div class="relative z-10 min-h-screen flex flex-col">
         
-        @include('layouts.navigation')
+        {{-- @include('layouts.navigation') --}}
 
         <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 z-30 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

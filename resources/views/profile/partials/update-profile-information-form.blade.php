@@ -5,11 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            @if($user->isStudent())
-                {{ __("Your official account details as registered with Academic Administration.") }}
-            @else
-                {{ __("Update your account's profile information and email address.") }}
-            @endif
+            {{ __("Your official account details as registered with Academic Administration.") }}
         </p>
     </header>
 
@@ -25,30 +21,14 @@
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full {{ $user->isStudent() ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : '' }}" :value="old('name', $user->name)" :disabled="$user->isStudent()" :readonly="$user->isStudent()" required autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('name', $user->name)" :disabled="true" :readonly="true" required autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full {{ $user->isStudent() ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed' : '' }}" :value="old('email', $user->email)" :disabled="$user->isStudent()" :readonly="$user->isStudent()" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('email', $user->email)" :disabled="true" :readonly="true" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
-
-        @if(!$user->isStudent())
-            <div class="flex items-center gap-4">
-                <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-                @if (session('status') === 'profile-updated')
-                    <p
-                        x-data="{ show: true }"
-                        x-show="show"
-                        x-transition
-                        x-init="setTimeout(() => show = false, 2000)"
-                        class="text-sm text-gray-600"
-                    >{{ __('Saved.') }}</p>
-                @endif
-            </div>
-        @endif
     </form>
 </section>

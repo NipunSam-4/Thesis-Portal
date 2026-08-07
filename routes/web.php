@@ -24,28 +24,36 @@ Route::get('/', function () {
 });
 
 // Profile, Dashboard Dispatcher & Private File & Endorsement Routes
-Route::middleware('auth')->group(function () {
-    // Central Role-Based Dashboard Dispatcher
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
+Route::get('/dashboard', function () {
+    if (auth('admin')->check()) {
+        return redirect()->route('system_admin.dashboard');
+    }
 
-        if ($user->isStudent()) {
-            return redirect()->route('student.dashboard');
-        }
-        if ($user->isFaculty()) {
-            return redirect()->route('faculty.dashboard');
-        }
-        if ($user->isHod()) {
-            return redirect()->route('hod.dashboard');
-        }
-        if ($user->isDpgc()) {
-            return redirect()->route('dpgc.dashboard');
-        }
-        if ($user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
-            return redirect()->route('global_authorities.dashboard');
-        }
+    $user = auth()->user();
+
+    if (!$user) {
+        return redirect()->route('login');
+    }
+
+    if ($user->isStudent()) {
         return redirect()->route('student.dashboard');
-    })->name('dashboard');
+    }
+    if ($user->isFaculty()) {
+        return redirect()->route('faculty.dashboard');
+    }
+    if ($user->isHod()) {
+        return redirect()->route('hod.dashboard');
+    }
+    if ($user->isDpgc()) {
+        return redirect()->route('dpgc.dashboard');
+    }
+    if ($user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
+        return redirect()->route('global_authorities.dashboard');
+    }
+    return redirect()->route('student.dashboard');
+})->middleware(['auth:web,admin'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -132,7 +140,7 @@ Route::prefix('global-authorities')->middleware(['auth'])->group(function () {
 | System Admin Routes (System Admin Model Guard)
 |--------------------------------------------------------------------------
 */
-Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:system_admin'])->group(function () {
+Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:admin'])->group(function () {
     Route::get('/dashboard', [SystemAdminController::class, 'dashboard'])->name('dashboard');
 
     // Admin & Global Authority User Management

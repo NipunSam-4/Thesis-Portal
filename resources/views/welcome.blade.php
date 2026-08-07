@@ -37,13 +37,13 @@
 
             <div class="relative z-10 max-w-md">
                 <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-6 transition-colors">
-                    Shape the future through <span class="text-blue-600 dark:text-blue-400">research.</span>
+                    Streamline your <span class="text-blue-600 dark:text-blue-400">research journey.</span>
                 </h1>
                 <p class="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed transition-colors">
-                    Welcome to the Indian Institute of Technology Indore's Thesis Management Portal.
+                    Manage thesis submissions, track review status, and streamline the review and approval process.
                 </p>
                 <div class="flex items-center gap-4">
-                    <a href="https://academic.iiti.ac.in/phdadvt.php" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-white bg-white dark:bg-white/10 hover:bg-slate-50 dark:hover:bg-white/20 px-6 py-3 rounded-full shadow-sm backdrop-blur-md transition-all border border-slate-200 dark:border-white/10">
+                    <a href="https://academic.iiti.ac.in/phdforms.php" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-white bg-white dark:bg-white/10 hover:bg-slate-50 dark:hover:bg-white/20 px-6 py-3 rounded-full shadow-sm backdrop-blur-md transition-all border border-slate-200 dark:border-white/10">
                         <svg class="w-5 h-5 text-blue-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         More Information 
                     </a>
@@ -70,14 +70,13 @@
                 
                 <div class="mb-6 lg:mb-8">
                     <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-3">Portal Access</h2>
-                    <p class="text-slate-600 dark:text-slate-400">Select an option below to continue your admission process.</p>
                 </div>
 
                 @if (Route::has('login'))
                     <div class="space-y-6">
                         @auth
                             <div class="group relative bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-xl border border-slate-200 dark:border-slate-800 transition-all duration-300">
-                                <div class="flex items-start justify-between mb-6">
+                                {{-- <div class="flex items-start justify-between mb-6">
                                     <div>
                                         <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 mb-4">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -85,6 +84,15 @@
                                         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Welcome Back</h3>
                                         <p class="text-slate-600 dark:text-slate-400 text-sm mt-1">You are currently logged into the portal.</p>
                                     </div>
+                                </div> --}}
+                                <div>
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-10 h-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 dark:group-hover:bg-blue-500/10 dark:group-hover:border-blue-500/30 dark:group-hover:text-blue-400 transition-colors">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Welcome Back</h3>
+                                    </div>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">You are currently logged into the portal.</p>
                                 </div>
                                 
                                 <a href="{{ url('/dashboard') }}" class="flex items-center justify-center w-full px-6 py-3.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition duration-200 shadow-sm">
@@ -100,12 +108,12 @@
                                             <div class="w-10 h-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-blue-50 group-hover:border-blue-100 group-hover:text-blue-600 dark:group-hover:bg-blue-500/10 dark:group-hover:border-blue-500/30 dark:group-hover:text-blue-400 transition-colors">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
                                             </div>
-                                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Existing Applicant</h3>
+                                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Institute Login</h3>
                                         </div>
-                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Log in to check your applications or continue drafting.</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Log in to manage your applications or continue drafting.</p>
                                     </div>
                                     <span class="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-                                        Log In <span aria-hidden="true">&rarr;</span>
+                                        Log In to Portal<span aria-hidden="true">&rarr;</span>
                                     </span>
                                 </a>
 
@@ -130,26 +138,13 @@
                             Get Manual
                         </a>
                     </div>
-
-                    <div class="lg:hidden bg-white dark:bg-slate-800/50 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm border border-slate-200 dark:border-slate-700">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-blue-50 dark:bg-slate-700 border border-blue-100 dark:border-slate-600 rounded-lg shadow-sm text-blue-600 dark:text-blue-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div class="text-left">
-                                <p class="text-sm font-semibold text-slate-900 dark:text-white">Admission Details</p>
-                                <p class="text-xs text-slate-600 dark:text-slate-400">View the full PhD advertisement.</p>
-                            </div>
-                        </div>
-                        <a href="https://academic.iiti.ac.in/phdadvt.php" target="_blank" class="w-full sm:w-auto px-4 py-2 text-sm font-semibold text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 transition-colors text-center shadow-sm">
-                            More Information
+                    
+                    <div class="lg:hidden flex items-center gap-3 justify-center mt-4">
+                        <a href="https://academic.iiti.ac.in/phdforms.php" target="_blank" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-white bg-white dark:bg-white/10 hover:bg-slate-50 dark:hover:bg-white/20 px-6 py-3 rounded-full shadow-sm backdrop-blur-md transition-all border border-slate-200 dark:border-white/10">
+                            <svg class="w-5 h-5 text-blue-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            More Information 
                         </a>
                     </div>
-
-                </div>
-
-                <div class="lg:hidden mt-8 text-center text-sm text-slate-500">
-                    {{-- Footer Info --}}
                 </div>
 
             </div>
