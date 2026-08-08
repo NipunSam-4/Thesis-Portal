@@ -291,9 +291,9 @@
                                                     @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'co_supervisors')
                                                         @php
                                                             $alreadyEndorsed = false;
-                                                            if ($thesis->pts1Form->co_supervisor_1_id === $user->id && $thesis->pts1Form->co_supervisor_1_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts1Form->co_supervisor_2_id === $user->id && $thesis->pts1Form->co_supervisor_2_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts1Form->co_supervisor_3_id === $user->id && $thesis->pts1Form->co_supervisor_3_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->co_supervisor_1_id === $user->id && $thesis->pts1Form->co_supervisor_1_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->co_supervisor_2_id === $user->id && $thesis->pts1Form->co_supervisor_2_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->co_supervisor_3_id === $user->id && $thesis->pts1Form->co_supervisor_3_recommendation) $alreadyEndorsed = true;
                                                         @endphp
                                                         @if(!$alreadyEndorsed)
                                                             <div class="pt-2">
@@ -335,9 +335,9 @@
                                                     @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'co_supervisors')
                                                         @php
                                                             $alreadyEndorsed = false;
-                                                            if ($thesis->pts2Form->co_supervisor_1_id === $user->id && $thesis->pts2Form->co_supervisor_1_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->co_supervisor_2_id === $user->id && $thesis->pts2Form->co_supervisor_2_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->co_supervisor_3_id === $user->id && $thesis->pts2Form->co_supervisor_3_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->co_supervisor_1_id === $user->id && $thesis->pts2Form->co_supervisor_1_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->co_supervisor_2_id === $user->id && $thesis->pts2Form->co_supervisor_2_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->co_supervisor_3_id === $user->id && $thesis->pts2Form->co_supervisor_3_recommendation) $alreadyEndorsed = true;
                                                         @endphp
                                                         @if(!$alreadyEndorsed)
                                                             <div class="pt-2">
@@ -433,9 +433,9 @@
                                                     @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'pspc_members')
                                                         @php
                                                             $alreadyEndorsed = false;
-                                                            if ($thesis->pts1Form->pspc_member_1_id === $user->id && $thesis->pts1Form->pspc_member_1_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts1Form->pspc_member_2_id === $user->id && $thesis->pts1Form->pspc_member_2_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts1Form->pspc_member_3_id === $user->id && $thesis->pts1Form->pspc_member_3_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->pspc_member_1_id === $user->id && $thesis->pts1Form->pspc_member_1_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->pspc_member_2_id === $user->id && $thesis->pts1Form->pspc_member_2_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts1Form->pspc_member_3_id === $user->id && $thesis->pts1Form->pspc_member_3_recommendation) $alreadyEndorsed = true;
                                                         @endphp
                                                         @if(!$alreadyEndorsed)
                                                             <div class="pt-2">
@@ -477,9 +477,9 @@
                                                     @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'pspc_members')
                                                         @php
                                                             $alreadyEndorsed = false;
-                                                            if ($thesis->pts2Form->pspc_member_1_id === $user->id && $thesis->pts2Form->pspc_member_1_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->pspc_member_2_id === $user->id && $thesis->pts2Form->pspc_member_2_endorsement) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->pspc_member_3_id === $user->id && $thesis->pts2Form->pspc_member_3_endorsement) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->pspc_member_1_id === $user->id && $thesis->pts2Form->pspc_member_1_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->pspc_member_2_id === $user->id && $thesis->pts2Form->pspc_member_2_recommendation) $alreadyEndorsed = true;
+                                                            if ($thesis->pts2Form->pspc_member_3_id === $user->id && $thesis->pts2Form->pspc_member_3_recommendation) $alreadyEndorsed = true;
                                                         @endphp
                                                         @if(!$alreadyEndorsed)
                                                             <div class="pt-2">

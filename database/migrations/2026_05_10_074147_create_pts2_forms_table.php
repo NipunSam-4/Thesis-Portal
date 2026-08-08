@@ -19,19 +19,18 @@ return new class extends Migration
             
             // Student Synopsis Upload
             $table->string('synopsis_report_doc_path');
-            $table->string('synopsis_title')->default('N/A');
             $table->text('remarks')->default('N/A');
 
             // Workflow Tracking
             $table->enum('current_stage', [
                 'main_supervisor', 
-                'co_supervisors', 
-                'pspc_members', 
+                'co_supervisors',
                 'dpgc', 
                 'hod', 
                 'section_officer', 
                 'doaa', 
                 'completed', 
+                'reverted',
                 'rejected'
             ])->default('main_supervisor');
 
@@ -39,47 +38,102 @@ return new class extends Migration
             $table->string('reverted_by_role')->nullable();
 
             // 1. Main Supervisor Endorsement
-            $table->boolean('main_supervisor_endorsement')->default(false);
-            $table->text('main_supervisor_comment')->default('N/A');
+            $table->text('main_supervisor_student_comment')->default('N/A');
+            $table->boolean('main_supervisor_recommendation')->default(false);
+            $table->text('main_supervisor_confidential_remark')->nullable();
+            $table->text('main_supervisor_reversion_comment')->nullable();
+            $table->timestamp('main_supervisor_submitted_at')->nullable();
 
-            // 2. Co-Supervisors (Up to 3)
+            // 2. Co-Supervisors (Up to 10)
             $table->foreignId('co_supervisor_1_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('co_supervisor_1_endorsement')->default(false);
-            $table->text('co_supervisor_1_comment')->default('N/A');
+            $table->boolean('co_supervisor_1_recommendation')->default(false);
+            $table->text('co_supervisor_1_confidential_remark')->nullable();
+            $table->text('co_supervisor_1_reversion_comment')->nullable();
 
             $table->foreignId('co_supervisor_2_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('co_supervisor_2_endorsement')->default(false);
-            $table->text('co_supervisor_2_comment')->default('N/A');
+            $table->boolean('co_supervisor_2_recommendation')->default(false);
+            $table->text('co_supervisor_2_confidential_remark')->nullable();
+            $table->text('co_supervisor_2_reversion_comment')->nullable();
 
             $table->foreignId('co_supervisor_3_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('co_supervisor_3_endorsement')->default(false);
-            $table->text('co_supervisor_3_comment')->default('N/A');
+            $table->boolean('co_supervisor_3_recommendation')->default(false);
+            $table->text('co_supervisor_3_confidential_remark')->nullable();
+            $table->text('co_supervisor_3_reversion_comment')->nullable();
 
-            // 3. PSPC Members (Up to 3)
+            $table->foreignId('co_supervisor_4_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_4_recommendation')->default(false);
+            $table->text('co_supervisor_4_confidential_remark')->nullable();
+            $table->text('co_supervisor_4_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_5_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_5_recommendation')->default(false);
+            $table->text('co_supervisor_5_confidential_remark')->nullable();
+            $table->text('co_supervisor_5_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_6_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_6_recommendation')->default(false);
+            $table->text('co_supervisor_6_confidential_remark')->nullable();
+            $table->text('co_supervisor_6_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_7_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_7_recommendation')->default(false);
+            $table->text('co_supervisor_7_confidential_remark')->nullable();
+            $table->text('co_supervisor_7_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_8_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_8_recommendation')->default(false);
+            $table->text('co_supervisor_8_confidential_remark')->nullable();
+            $table->text('co_supervisor_8_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_9_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_9_recommendation')->default(false);
+            $table->text('co_supervisor_9_confidential_remark')->nullable();
+            $table->text('co_supervisor_9_reversion_comment')->nullable();
+
+            $table->foreignId('co_supervisor_10_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('co_supervisor_10_recommendation')->default(false);
+            $table->text('co_supervisor_10_confidential_remark')->nullable();
+            $table->text('co_supervisor_10_reversion_comment')->nullable();
+
+            $table->timestamp('co_supervisors_submitted_at')->nullable();
+
+            // 3. PSPC Committee Members (Up to 10)
             $table->foreignId('pspc_member_1_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('pspc_member_1_endorsement')->default(false);
-            $table->text('pspc_member_1_comment')->default('N/A');
-
             $table->foreignId('pspc_member_2_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('pspc_member_2_endorsement')->default(false);
-            $table->text('pspc_member_2_comment')->default('N/A');
-
             $table->foreignId('pspc_member_3_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->boolean('pspc_member_3_endorsement')->default(false);
-            $table->text('pspc_member_3_comment')->default('N/A');
+            $table->foreignId('pspc_member_4_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_5_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_6_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_7_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_8_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_9_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('pspc_member_10_id')->nullable()->constrained('users')->nullOnDelete();
 
-            // 4. Institutional Authorities
-            $table->boolean('dpgc_endorsement')->default(false);
-            $table->text('dpgc_comment')->default('N/A');
+            // 4. DPGC Convenor
+            $table->text('dpgc_student_comment')->nullable();
+            $table->boolean('dpgc_recommendation')->default(false);
+            $table->text('dpgc_confidential_remark')->nullable();
+            $table->text('dpgc_reversion_comment')->nullable();
 
-            $table->boolean('hod_endorsement')->default(false);
-            $table->text('hod_comment')->default('N/A');
+            // 5. Head of Department (HOD)
+            $table->text('hod_student_comment')->nullable();
+            $table->boolean('hod_recommendation')->default(false);
+            $table->text('hod_confidential_remark')->nullable();
+            $table->text('hod_reversion_comment')->nullable();
 
-            $table->boolean('section_officer_endorsement')->default(false);
-            $table->text('section_officer_comment')->default('N/A');
+            // 6. Academic Office
+            $table->text('academic_office_student_comment')->nullable();
+            $table->floatval('course_credits')->default('0.0');
+            $table->boolean('academic_office_recommendation')->default(false);
+            $table->text('academic_office_confidential_remark')->nullable();
+            $table->text('academic_office_reversion_comment')->nullable();
 
-            $table->boolean('doaa_endorsement')->default(false);
-            $table->text('doaa_comment')->default('N/A');
+            // 7. Dean of Academic Affairs (DOAA)
+            $table->text('doaa_student_comment')->nullable();
+            $table->boolean('doaa_approval')->default(false);
+            $table->text('doaa_confidential_remark')->nullable();
+            $table->text('doaa_reversion_comment')->nullable();
+            $table->timestamp('pts2_submitted_at')->nullable();
 
             $table->timestamps();
         });

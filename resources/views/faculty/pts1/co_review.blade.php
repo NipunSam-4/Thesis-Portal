@@ -99,7 +99,7 @@
                     <div>
                         <span class="text-xs font-bold text-indigo-900 dark:text-indigo-200 block mb-1">Supervisor Comments & Observations:</span>
                         <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-indigo-200 dark:border-indigo-900 text-xs italic text-gray-800 dark:text-gray-200">
-                            "{{ $pts1->main_supervisor_comment ?: $pts1->additional_comments }}"
+                            "{{ $pts1->main_supervisor_confidential_remark ?: $pts1->main_supervisor_student_comment }}"
                         </div>
                     </div>
                 </div>

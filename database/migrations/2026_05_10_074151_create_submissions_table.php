@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('thesis_id')->constrained()->cascadeOnDelete();
             $table->enum('form_type', ['PTS-1', 'PTS-2', 'PTS-3', 'PTS-4', 'PTS-5']);
             $table->string('document_path')->nullable();
-            $table->enum('status', ['In Progress', 'Reverted', 'Accepted', 'Rejected'])->default('In Progress'); /* Rejected only for PTS-1 */
+            $table->enum('status', [ 'Reverted', 'Accepted', 'Rejected']); /* Rejected only for PTS-1 */
             $table->timestamps();
         });
     }

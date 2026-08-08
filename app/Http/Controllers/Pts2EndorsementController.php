@@ -63,9 +63,9 @@ class Pts2EndorsementController extends Controller
                     "co_supervisor_{$roleKey}_comment" => $comment,
                 ]);
 
-                $co1Done = !$pts2->co_supervisor_1_id || $pts2->co_supervisor_1_endorsement;
-                $co2Done = !$pts2->co_supervisor_2_id || $pts2->co_supervisor_2_endorsement;
-                $co3Done = !$pts2->co_supervisor_3_id || $pts2->co_supervisor_3_endorsement;
+                $co1Done = !$pts2->co_supervisor_1_id || $pts2->co_supervisor_1_recommendation;
+                $co2Done = !$pts2->co_supervisor_2_id || $pts2->co_supervisor_2_recommendation;
+                $co3Done = !$pts2->co_supervisor_3_id || $pts2->co_supervisor_3_recommendation;
 
                 if ($co1Done && $co2Done && $co3Done) {
                     $nextStage = ($pts2->pspc_member_1_id || $pts2->pspc_member_2_id || $pts2->pspc_member_3_id) ? 'pspc_members' : 'dpgc';
@@ -88,9 +88,9 @@ class Pts2EndorsementController extends Controller
                     "pspc_member_{$roleKey}_comment" => $comment,
                 ]);
 
-                $pspc1Done = !$pts2->pspc_member_1_id || $pts2->pspc_member_1_endorsement;
-                $pspc2Done = !$pts2->pspc_member_2_id || $pts2->pspc_member_2_endorsement;
-                $pspc3Done = !$pts2->pspc_member_3_id || $pts2->pspc_member_3_endorsement;
+                $pspc1Done = !$pts2->pspc_member_1_id || $pts2->pspc_member_1_recommendation;
+                $pspc2Done = !$pts2->pspc_member_2_id || $pts2->pspc_member_2_recommendation;
+                $pspc3Done = !$pts2->pspc_member_3_id || $pts2->pspc_member_3_recommendation;
 
                 if ($pspc1Done && $pspc2Done && $pspc3Done) {
                     $pts2->update(['current_stage' => 'dpgc']);
@@ -102,8 +102,8 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'dpgc_endorsement' => true,
-                    'dpgc_comment' => $comment,
+                    'dpgc_recommendation' => true,
+                    'dpgc_confidential_remark' => $comment,
                     'current_stage' => 'hod',
                 ]);
                 break;
@@ -113,8 +113,8 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'hod_endorsement' => true,
-                    'hod_comment' => $comment,
+                    'hod_recommendation' => true,
+                    'hod_confidential_remark' => $comment,
                     'current_stage' => 'section_officer',
                 ]);
                 break;
@@ -124,8 +124,8 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'section_officer_endorsement' => true,
-                    'section_officer_comment' => $comment,
+                    'section_officer_recommendation' => true,
+                    'section_officer_confidential_remark' => $comment,
                     'current_stage' => 'doaa',
                 ]);
                 break;
@@ -135,8 +135,8 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'doaa_endorsement' => true,
-                    'doaa_comment' => $comment,
+                    'doaa_approval' => true,
+                    'doaa_confidential_remark' => $comment,
                     'current_stage' => 'completed',
                     'status' => 'accepted',
                 ]);
@@ -195,7 +195,7 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'dpgc_comment' => $comment,
+                    'dpgc_confidential_remark' => $comment,
                     'reverted_by_role' => 'dpgc',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -207,7 +207,7 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'hod_comment' => $comment,
+                    'hod_confidential_remark' => $comment,
                     'reverted_by_role' => 'hod',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -219,7 +219,7 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'section_officer_comment' => $comment,
+                    'section_officer_confidential_remark' => $comment,
                     'reverted_by_role' => 'section_officer',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -231,7 +231,7 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'doaa_comment' => $comment,
+                    'doaa_confidential_remark' => $comment,
                     'reverted_by_role' => 'doaa',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',

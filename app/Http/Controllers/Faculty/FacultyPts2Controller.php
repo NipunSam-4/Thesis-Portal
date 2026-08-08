@@ -69,7 +69,7 @@ class FacultyPts2Controller extends Controller
                 'status' => 'reverted',
                 'reverted_by_role' => 'main_supervisor',
                 'current_stage' => 'rejected',
-                'main_supervisor_comment' => $validated['comment'] ?? 'Reverted by Main Supervisor.',
+                'main_supervisor_confidential_remark' => $validated['comment'] ?? 'Reverted by Main Supervisor.',
             ]);
 
             return redirect()->route('faculty.dashboard')->with('warning', 'PTS-2 Synopsis Form reverted back to scholar.');
@@ -84,8 +84,8 @@ class FacultyPts2Controller extends Controller
         }
 
         $pts2->update([
-            'main_supervisor_endorsement' => true,
-            'main_supervisor_comment' => $validated['comment'] ?: 'N/A',
+            'main_supervisor_recommendation' => true,
+            'main_supervisor_confidential_remark' => $validated['comment'] ?: 'N/A',
             'current_stage' => $nextStage,
             'status' => 'in_progress',
         ]);

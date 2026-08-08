@@ -6,24 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('thesis_pspc_members', function (Blueprint $table) {
+        Schema::create('student_supervisor', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->foreignId('faculty_user_id')->constrained('users')->cascadeOnDelete();
+            $table->enum('supervisor_type', ['main', 'co']);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('thesis_pspc_members');
+        Schema::dropIfExists('student_supervisor');
     }
 };

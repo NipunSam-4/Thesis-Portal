@@ -153,7 +153,7 @@ class DatabaseSeeder extends Seeder
         //         'draft_synopsis_report_doc_path' => 'documents/draft_synopsis_report.pdf',
         //         'publication_list_doc_path' => 'documents/publication_list.pdf',
         //         'work_status' => 'adequate',
-        //         'additional_comments' => 'Seminar completed successfully with adequate research progress.',
+        //         'main_supervisor_student_comment' => 'Seminar completed successfully with adequate research progress.',
         //         'current_stage' => 'main_supervisor',
         //         'status' => 'in_progress',
         //         'co_supervisor_1_id' => $faculty2->id,

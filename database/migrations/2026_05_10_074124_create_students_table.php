@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->enum('program_name',['phd','ms(r)'])->default('phd');
             $table->string('roll_number')->unique();
             $table->string('date_joining');
             $table->string('date_registration');

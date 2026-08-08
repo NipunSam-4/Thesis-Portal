@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->string('title')->nullable();
-            $table->string('current_status')->default('Pending');
+            $table->enum('status', ['pending','in_progress', 'completed', 'rejected'])
+                  ->default('pending');
             $table->timestamps();
         });
     }

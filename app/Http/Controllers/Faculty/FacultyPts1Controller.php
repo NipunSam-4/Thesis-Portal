@@ -69,7 +69,7 @@ class FacultyPts1Controller extends Controller
             'publication_list' => 'nullable|file|mimes:xlsx,xls,csv|max:2048',
 
             'work_status' => 'required|in:adequate,inadequate',
-            'additional_comments' => 'required|string',
+            'main_supervisor_student_comment' => 'required|string',
         ]);
 
         // Optional File Replacements by Main Supervisor
@@ -112,8 +112,8 @@ class FacultyPts1Controller extends Controller
                 'draft_synopsis_report_doc_path' => $synopsisPath,
                 'publication_list_doc_path' => $pubListPath,
                 'work_status' => 'inadequate',
-                'additional_comments' => $validated['additional_comments'],
-                'main_supervisor_comment' => $validated['additional_comments'],
+                'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
+                'main_supervisor_confidential_remark' => $validated['main_supervisor_student_comment'],
                 'status' => 'reverted',
                 'reverted_by_role' => 'main_supervisor',
                 'current_stage' => 'rejected',
@@ -147,9 +147,9 @@ class FacultyPts1Controller extends Controller
             'draft_synopsis_report_doc_path' => $synopsisPath,
             'publication_list_doc_path' => $pubListPath,
             'work_status' => 'adequate',
-            'additional_comments' => $validated['additional_comments'],
-            'main_supervisor_comment' => $validated['additional_comments'],
-            'main_supervisor_endorsement' => true,
+            'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
+            'main_supervisor_confidential_remark' => $validated['main_supervisor_student_comment'],
+            'main_supervisor_recommendation' => true,
             'current_stage' => $nextStage,
             'status' => 'in_progress',
         ]);
@@ -221,9 +221,9 @@ class FacultyPts1Controller extends Controller
             "{$roleKey}_comment" => $validated['comment'] ?: 'N/A',
         ]);
 
-        $co1Done = !$pts1->co_supervisor_1_id || $pts1->co_supervisor_1_endorsement;
-        $co2Done = !$pts1->co_supervisor_2_id || $pts1->co_supervisor_2_endorsement;
-        $co3Done = !$pts1->co_supervisor_3_id || $pts1->co_supervisor_3_endorsement;
+        $co1Done = !$pts1->co_supervisor_1_id || $pts1->co_supervisor_1_recommendation;
+        $co2Done = !$pts1->co_supervisor_2_id || $pts1->co_supervisor_2_recommendation;
+        $co3Done = !$pts1->co_supervisor_3_id || $pts1->co_supervisor_3_recommendation;
 
         if ($co1Done && $co2Done && $co3Done) {
             $nextStage = ($pts1->pspc_member_1_id || $pts1->pspc_member_2_id || $pts1->pspc_member_3_id) ? 'pspc_members' : 'dpgc';

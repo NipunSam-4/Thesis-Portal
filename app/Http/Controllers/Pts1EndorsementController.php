@@ -126,8 +126,8 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'dpgc_endorsement' => true,
-                    'dpgc_comment' => $comment,
+                    'dpgc_recommendation' => true,
+                    'dpgc_confidential_remark' => $comment,
                     'current_stage' => 'hod',
                 ]);
                 break;
@@ -137,8 +137,8 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'hod_endorsement' => true,
-                    'hod_comment' => $comment,
+                    'hod_recommendation' => true,
+                    'hod_confidential_remark' => $comment,
                     'current_stage' => 'section_officer',
                 ]);
                 break;
@@ -148,8 +148,8 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'section_officer_endorsement' => true,
-                    'section_officer_comment' => $comment,
+                    'section_officer_recommendation' => true,
+                    'section_officer_confidential_remark' => $comment,
                     'current_stage' => 'doaa',
                 ]);
                 break;
@@ -159,8 +159,8 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'doaa_endorsement' => true,
-                    'doaa_comment' => $comment,
+                    'doaa_approval' => true,
+                    'doaa_confidential_remark' => $comment,
                     'current_stage' => 'completed',
                     'status' => 'accepted',
                 ]);
@@ -226,7 +226,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'dpgc_comment' => $comment,
+                    'dpgc_confidential_remark' => $comment,
                     'reverted_by_role' => 'dpgc',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -238,7 +238,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'hod_comment' => $comment,
+                    'hod_confidential_remark' => $comment,
                     'reverted_by_role' => 'hod',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -250,7 +250,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'section_officer_comment' => $comment,
+                    'section_officer_confidential_remark' => $comment,
                     'reverted_by_role' => 'section_officer',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -262,7 +262,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'doaa_comment' => $comment,
+                    'doaa_confidential_remark' => $comment,
                     'reverted_by_role' => 'doaa',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',

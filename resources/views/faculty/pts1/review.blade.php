@@ -282,7 +282,7 @@
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
                             2. Additional comments / observations / recommendations of the PSPC with discussion <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="additional_comments" rows="4" required placeholder="Provide detailed PSPC comments, observations, and recommendations..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('additional_comments', $pts1->additional_comments) }}</textarea>
+                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed PSPC comments, observations, and recommendations..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment', $pts1->main_supervisor_student_comment) }}</textarea>
                     </div>
                 </div>
 

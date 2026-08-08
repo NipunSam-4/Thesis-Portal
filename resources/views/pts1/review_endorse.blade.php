@@ -102,64 +102,64 @@
                             </span>
                         </div>
                         <p class="text-xs italic text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900">
-                            "{{ $pts1->main_supervisor_comment ?: $pts1->additional_comments }}"
+                            "{{ $pts1->main_supervisor_confidential_remark ?: $pts1->main_supervisor_student_comment }}"
                         </p>
                     </div>
 
                     <!-- Co-Supervisors Endorsements -->
-                    @if($coSupervisor1 && $pts1->co_supervisor_1_endorsement || $coSupervisor2 && $pts1->co_supervisor_2_endorsement || $coSupervisor3 && $pts1->co_supervisor_3_endorsement)
+                    @if($coSupervisor1 && $pts1->co_supervisor_1_recommendation || $coSupervisor2 && $pts1->co_supervisor_2_recommendation || $coSupervisor3 && $pts1->co_supervisor_3_recommendation)
                         <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-3">
                             <h5 class="text-xs font-bold text-blue-900 dark:text-blue-200">Co-Supervisor Endorsements</h5>
                             
-                            @if($coSupervisor1 && $pts1->co_supervisor_1_endorsement)
+                            @if($coSupervisor1 && $pts1->co_supervisor_1_recommendation)
                                 <div class="text-xs space-y-1">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $coSupervisor1->name }} (Co-Supervisor 1):</span>
-                                        @if($pts1->co_supervisor_1_endorsement)
+                                        @if($pts1->co_supervisor_1_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->co_supervisor_1_comment)
+                                    @if($pts1->co_supervisor_1_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts1->co_supervisor_1_comment }}"
+                                            "{{ $pts1->co_supervisor_1_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
                             @endif
 
-                            @if($coSupervisor2 && $pts1->co_supervisor_2_endorsement)
+                            @if($coSupervisor2 && $pts1->co_supervisor_2_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-blue-100 dark:border-blue-900">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $coSupervisor2->name }} (Co-Supervisor 2):</span>
-                                        @if($pts1->co_supervisor_2_endorsement)
+                                        @if($pts1->co_supervisor_2_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->co_supervisor_2_comment)
+                                    @if($pts1->co_supervisor_2_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts1->co_supervisor_2_comment }}"
+                                            "{{ $pts1->co_supervisor_2_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
                             @endif
 
-                            @if($coSupervisor3 && $pts1->co_supervisor_3_endorsement)
+                            @if($coSupervisor3 && $pts1->co_supervisor_3_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-blue-100 dark:border-blue-900">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $coSupervisor3->name }} (Co-Supervisor 3):</span>
-                                        @if($pts1->co_supervisor_3_endorsement)
+                                        @if($pts1->co_supervisor_3_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->co_supervisor_3_comment)
+                                    @if($pts1->co_supervisor_3_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts1->co_supervisor_3_comment }}"
+                                            "{{ $pts1->co_supervisor_3_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
@@ -168,59 +168,59 @@
                     @endif
 
                     <!-- PSPC Committee Endorsements -->
-                    @if($pspc1 && $pts1->pspc_member_1_endorsement || $pspc2 && $pts1->pspc_member_2_endorsement || $pspc3 && $pts1->pspc_member_3_endorsement)
+                    @if($pspc1 && $pts1->pspc_member_1_recommendation || $pspc2 && $pts1->pspc_member_2_recommendation || $pspc3 && $pts1->pspc_member_3_recommendation)
                         <div class="p-4 bg-purple-50/70 dark:bg-purple-950/40 border-l-4 border-purple-500 rounded-xl space-y-3">
                             <h5 class="text-xs font-bold text-purple-900 dark:text-purple-200">PSPC Committee Endorsements</h5>
                             
-                            @if($pspc1 && $pts1->pspc_member_1_endorsement)
+                            @if($pspc1 && $pts1->pspc_member_1_recommendation)
                                 <div class="text-xs space-y-1">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $pspc1->name }} (PSPC Member 1):</span>
-                                        @if($pts1->pspc_member_1_endorsement)
+                                        @if($pts1->pspc_member_1_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->pspc_member_1_comment)
+                                    @if($pts1->pspc_member_1_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts1->pspc_member_1_comment }}"
+                                            "{{ $pts1->pspc_member_1_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
                             @endif
 
-                            @if($pspc2 && $pts1->pspc_member_2_endorsement)
+                            @if($pspc2 && $pts1->pspc_member_2_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-purple-100 dark:border-purple-900">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $pspc2->name }} (PSPC Member 2):</span>
-                                        @if($pts1->pspc_member_2_endorsement)
+                                        @if($pts1->pspc_member_2_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->pspc_member_2_comment)
+                                    @if($pts1->pspc_member_2_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts1->pspc_member_2_comment }}"
+                                            "{{ $pts1->pspc_member_2_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
                             @endif
 
-                            @if($pspc3 && $pts1->pspc_member_3_endorsement)
+                            @if($pspc3 && $pts1->pspc_member_3_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-purple-100 dark:border-purple-900">
                                     <div class="flex justify-between font-semibold">
                                         <span>{{ $pspc3->name }} (PSPC Member 3):</span>
-                                        @if($pts1->pspc_member_3_endorsement)
+                                        @if($pts1->pspc_member_3_recommendation)
                                             <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                         @else
                                             <span class="text-amber-600 font-bold">Pending</span>
                                         @endif
                                     </div>
-                                    @if($pts1->pspc_member_3_comment)
+                                    @if($pts1->pspc_member_3_confidential_remark)
                                         <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts1->pspc_member_3_comment }}"
+                                            "{{ $pts1->pspc_member_3_confidential_remark }}"
                                         </p>
                                     @endif
                                 </div>
@@ -229,45 +229,45 @@
                     @endif
 
                     <!-- DPGC Endorsement -->
-                    @if($pts1->dpgc_endorsement)
+                    @if($pts1->dpgc_recommendation)
                         <div class="p-4 bg-teal-50/70 dark:bg-teal-950/40 border-l-4 border-teal-500 rounded-xl space-y-2 text-xs">
                             <div class="flex justify-between font-bold text-teal-900 dark:text-teal-200">
                                 <span>Department Postgraduate Committee (DPGC):</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts1->dpgc_comment)
+                            @if($pts1->dpgc_confidential_remark)
                                 <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-teal-100 dark:border-teal-900">
-                                    "{{ $pts1->dpgc_comment }}"
+                                    "{{ $pts1->dpgc_confidential_remark }}"
                                 </p>
                             @endif
                         </div>
                     @endif
 
                     <!-- HOD Endorsement -->
-                    @if($pts1->hod_endorsement)
+                    @if($pts1->hod_recommendation)
                         <div class="p-4 bg-amber-50/70 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2 text-xs">
                             <div class="flex justify-between font-bold text-amber-900 dark:text-amber-200">
                                 <span>Head of Department (HOD):</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts1->hod_comment)
+                            @if($pts1->hod_confidential_remark)
                                 <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-100 dark:border-amber-900">
-                                    "{{ $pts1->hod_comment }}"
+                                    "{{ $pts1->hod_confidential_remark }}"
                                 </p>
                             @endif
                         </div>
                     @endif
 
                     <!-- Section Officer Endorsement -->
-                    @if($pts1->section_officer_endorsement)
+                    @if($pts1->section_officer_recommendation)
                         <div class="p-4 bg-rose-50/70 dark:bg-rose-950/40 border-l-4 border-rose-500 rounded-xl space-y-2 text-xs">
                             <div class="flex justify-between font-bold text-rose-900 dark:text-rose-200">
                                 <span>Academic Section Officer:</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts1->section_officer_comment)
+                            @if($pts1->section_officer_confidential_remark)
                                 <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-rose-100 dark:border-rose-900">
-                                    "{{ $pts1->section_officer_comment }}"
+                                    "{{ $pts1->section_officer_confidential_remark }}"
                                 </p>
                             @endif
                         </div>
@@ -278,21 +278,21 @@
                     $showActionForm = false;
                     $user = auth()->user();
                     if ($pts1->current_stage === 'co_supervisors') {
-                        if ($pts1->co_supervisor_1_id === $user->id && !$pts1->co_supervisor_1_endorsement) $showActionForm = true;
-                        if ($pts1->co_supervisor_2_id === $user->id && !$pts1->co_supervisor_2_endorsement) $showActionForm = true;
-                        if ($pts1->co_supervisor_3_id === $user->id && !$pts1->co_supervisor_3_endorsement) $showActionForm = true;
+                        if ($pts1->co_supervisor_1_id === $user->id && !$pts1->co_supervisor_1_recommendation) $showActionForm = true;
+                        if ($pts1->co_supervisor_2_id === $user->id && !$pts1->co_supervisor_2_recommendation) $showActionForm = true;
+                        if ($pts1->co_supervisor_3_id === $user->id && !$pts1->co_supervisor_3_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'pspc_members') {
-                        if ($pts1->pspc_member_1_id === $user->id && !$pts1->pspc_member_1_endorsement) $showActionForm = true;
-                        if ($pts1->pspc_member_2_id === $user->id && !$pts1->pspc_member_2_endorsement) $showActionForm = true;
-                        if ($pts1->pspc_member_3_id === $user->id && !$pts1->pspc_member_3_endorsement) $showActionForm = true;
+                        if ($pts1->pspc_member_1_id === $user->id && !$pts1->pspc_member_1_recommendation) $showActionForm = true;
+                        if ($pts1->pspc_member_2_id === $user->id && !$pts1->pspc_member_2_recommendation) $showActionForm = true;
+                        if ($pts1->pspc_member_3_id === $user->id && !$pts1->pspc_member_3_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'dpgc') {
-                        if ($user->role === 'dpgc' && !$pts1->dpgc_endorsement) $showActionForm = true;
+                        if ($user->role === 'dpgc' && !$pts1->dpgc_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'hod') {
-                        if ($user->role === 'hod' && !$pts1->hod_endorsement) $showActionForm = true;
+                        if ($user->role === 'hod' && !$pts1->hod_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'section_officer') {
-                        if ($user->role === 'section_officer' && !$pts1->section_officer_endorsement) $showActionForm = true;
+                        if ($user->role === 'section_officer' && !$pts1->section_officer_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'doaa') {
-                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic']) && !$pts1->doaa_endorsement) $showActionForm = true;
+                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic']) && !$pts1->doaa_approval) $showActionForm = true;
                     }
                 @endphp
 
