@@ -110,7 +110,7 @@
                                             </div>
                                             <h3 class="text-xl font-bold text-slate-900 dark:text-white">Institute Login</h3>
                                         </div>
-                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Log in to manage your applications or continue drafting.</p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Log in to manage your submissions or continue drafting.</p>
                                     </div>
                                     <span class="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 group-hover:gap-2 transition-all">
                                         Log In to Portal<span aria-hidden="true">&rarr;</span>
