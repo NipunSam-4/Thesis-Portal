@@ -16,7 +16,7 @@ class Pts1EndorsementController extends Controller
         $user = auth()->user();
         $thesis = $pts1->thesis;
         $student = $thesis->student;
-        $scholarUser = $student->user;
+        $studentUser = $student->user;
 
         $mainSupervisor = $thesis->mainSupervisor;
         $coSupervisor1 = $pts1->co_supervisor_1_id ? User::find($pts1->co_supervisor_1_id) : null;
@@ -33,7 +33,7 @@ class Pts1EndorsementController extends Controller
             'pts1',
             'thesis',
             'student',
-            'scholarUser',
+            'studentUser',
             'mainSupervisor',
             'coSupervisor1',
             'coSupervisor2',
@@ -273,6 +273,6 @@ class Pts1EndorsementController extends Controller
                 return back()->with('error', 'Invalid stage for reversion.');
         }
 
-        return redirect()->route('dashboard')->with('warning', 'PTS-1 form has been reverted to the scholar for resubmission.');
+        return redirect()->route('dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
     }
 }

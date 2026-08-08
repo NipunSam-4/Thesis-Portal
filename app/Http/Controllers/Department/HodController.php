@@ -17,6 +17,6 @@ class HodController extends Controller
             $query->where('department_id', $departmentId);
         })->with(['student.user', 'supervisors'])->get();
 
-        return view('hod.dashboard', compact('departmentTheses'));
+        return view('dept_authorities.dashboard', compact('departmentTheses'));
     }
 }

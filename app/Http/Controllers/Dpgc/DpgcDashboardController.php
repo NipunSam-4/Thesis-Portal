@@ -24,6 +24,6 @@ class DpgcDashboardController extends Controller
             ])
             ->get();
 
-        return view('dpgc.dashboard', compact('user', 'departmentStudents'));
+        return view('dept_authorities.dashboard', compact('user', 'departmentStudents'));
     }
 }

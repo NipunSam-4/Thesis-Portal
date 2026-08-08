@@ -63,10 +63,10 @@
             <!-- Form Card -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                 
-                <!-- Read-Only Scholar Profile Header -->
+                <!-- Read-Only Student Profile Header -->
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/40 rounded-xl border border-gray-200 dark:border-gray-600 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                     <div>
-                        <span class="text-gray-500 block">Scholar Name</span>
+                        <span class="text-gray-500 block">Student Name</span>
                         <strong class="text-gray-900 dark:text-white font-bold text-sm">{{ $student->user->name }}</strong>
                     </div>
                     <div>

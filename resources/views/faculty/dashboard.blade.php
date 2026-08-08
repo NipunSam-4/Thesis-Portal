@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Faculty Academic Portal') }}
+                {{ __('Thesis Management Portal') }}
             </h2>
             <div class="flex justify-between items-center">
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
@@ -45,10 +45,7 @@
             <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl shadow-sm p-6 text-white flex items-center justify-between">
                 <div>
                     <h2 class="text-2xl font-bold mb-1">Welcome, {{ $user->name }}</h2>
-                    <p class="text-blue-100 text-sm">Select a role tab below to inspect your assigned scholars, their registered theses, and PTS milestone progress.</p>
-                </div>
-                <div class="hidden md:block p-3 bg-white/10 rounded-lg">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                    <p class="text-blue-100 text-sm">Select a role tab below to inspect your assigned students and their registered thesis submissions.</p>
                 </div>
             </div>
 
@@ -78,14 +75,14 @@
                     </button>
                 </div>
 
-                <!-- Scholar Search Input Bar -->
+                <!-- Student Search Input Bar -->
                 <div class="w-full md:w-80 lg:w-96 relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <input type="text" x-model="searchQuery" placeholder="🔍 Search scholar by Name or Roll..." class="w-full pl-9 pr-9 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
+                    <input type="text" x-model="searchQuery" placeholder="🔍 Search student by Name or Roll..." class="w-full pl-9 pr-9 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
                     <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
@@ -96,7 +93,7 @@
             <div x-show="activeTab === 'main'" x-cloak class="space-y-4">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        Scholars Supervised as Main Supervisor ({{ $mainStudents->count() }})
+                        Students Supervised as Main Supervisor ({{ $mainStudents->count() }})
                     </h3>
 
                     @forelse($mainStudents as $student)
@@ -212,7 +209,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No scholars assigned as Main Supervisor.</p>
+                        <p class="text-sm text-gray-500 text-center py-6">No students assigned as Main Supervisor.</p>
                     @endforelse
                 </div>
             </div>
@@ -221,7 +218,7 @@
             <div x-show="activeTab === 'co'" x-cloak class="space-y-4">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        Scholars Supervised as Co-Supervisor ({{ $coStudents->count() }})
+                        Students Supervised as Co-Supervisor ({{ $coStudents->count() }})
                     </h3>
 
                     @forelse($coStudents as $student)
@@ -353,7 +350,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No scholars assigned as Co-Supervisor.</p>
+                        <p class="text-sm text-gray-500 text-center py-6">No students assigned as Co-Supervisor.</p>
                     @endforelse
                 </div>
             </div>
@@ -362,7 +359,7 @@
             <div x-show="activeTab === 'pspc'" x-cloak class="space-y-4">
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        Scholars Assigned for PSPC Committee ({{ $pspcStudents->count() }})
+                        Students Assigned for PSPC Committee ({{ $pspcStudents->count() }})
                     </h3>
 
                     @forelse($pspcStudents as $student)
@@ -477,7 +474,7 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No scholars assigned for PSPC Committee.</p>
+                        <p class="text-sm text-gray-500 text-center py-6">No students assigned for PSPC Committee.</p>
                     @endforelse
                 </div>
             </div>

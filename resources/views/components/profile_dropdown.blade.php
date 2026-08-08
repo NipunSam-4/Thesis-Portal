@@ -16,7 +16,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <x-dropdown-link :href="route('profile.edit')" class="font-normal">
                             Profile
                         </x-dropdown-link>
 
@@ -25,7 +25,7 @@
                             @csrf
 
                             <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                                                this.closest('form').submit();" class="font-normal">
                                 Log Out
                             </x-dropdown-link>
                         </form>

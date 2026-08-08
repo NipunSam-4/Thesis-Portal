@@ -38,8 +38,10 @@
                 <div class="flex items-center justify-between min-h-[96px]">
 
                     <div class="flex items-center">
-                        <img src="{{ asset('images/iiti_logo.png') }}" alt="IIT Indore"
-                            class="h-12 sm:h-14 lg:h-16 w-auto object-contain bg-white dark:bg-white rounded-xl p-1.5 shadow-sm border border-slate-200 dark:border-slate-700 transition-transform hover:scale-105 duration-300" />
+                        <a href="{{ url('/') }}">
+                            <img src="{{ asset('images/iiti_logo.png') }}" alt="IIT Indore"
+                                class="h-12 sm:h-14 lg:h-16 w-auto object-contain bg-white dark:bg-white rounded-xl p-1.5 shadow-sm border border-slate-200 dark:border-slate-700 transition-transform hover:scale-105 duration-300" />
+                        </a>
                     </div>
 
                     <div class="flex-1 text-center px-4">
@@ -48,10 +50,6 @@
                                 {{ $header }}
                             </div>
                         @endisset
-                    </div>
-
-                    <div class="flex items-center">
-                        <div class="h-12 sm:h-14 lg:h-16 w-[64px]"></div>
                     </div>
                 </div>
             </div>

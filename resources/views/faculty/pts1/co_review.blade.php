@@ -15,12 +15,12 @@
     }">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Read-Only Scholar Profile -->
+            <!-- Read-Only Student Profile -->
             <div class="bg-indigo-900 text-white rounded-xl p-6 shadow-sm space-y-3">
                 <div class="flex justify-between items-start border-b border-indigo-700 pb-3">
                     <div>
-                        <span class="text-xs uppercase text-indigo-300 font-bold">Ph.D. Scholar Profile</span>
-                        <h3 class="text-2xl font-bold mt-0.5">{{ $scholarUser->name }}</h3>
+                        <span class="text-xs uppercase text-indigo-300 font-bold">Ph.D. Student Profile</span>
+                        <h3 class="text-2xl font-bold mt-0.5">{{ $studentUser->name }}</h3>
                     </div>
                     <span class="bg-indigo-700 text-indigo-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-indigo-600">
                         Roll: {{ $student->roll_number }}
@@ -127,7 +127,7 @@
                         <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
                             <div class="flex items-center space-x-2">
                                 <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
-                                <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Scholar</span>
+                                <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Student</span>
                             </div>
                             <p class="text-xs text-gray-500">Revert form back to student with feedback comments for modifications.</p>
                         </div>

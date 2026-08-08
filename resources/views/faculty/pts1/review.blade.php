@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Main Supervisor Review: PTS-1 Form') }} &mdash; {{ $scholarUser->name }} ({{ $student->roll_number }})
+                {{ __('Main Supervisor Review: PTS-1 Form') }} &mdash; {{ $studentUser->name }} ({{ $student->roll_number }})
             </h2>
             <a href="{{ route('faculty.dashboard') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
                 &larr; Back to Dashboard
@@ -35,22 +35,22 @@
                 @csrf
                 @method('PUT')
 
-                <!-- Section 1: Read-Only Scholar Information -->
+                <!-- Section 1: Read-Only Student Information -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                             <span class="w-2.5 h-2.5 rounded-full bg-blue-500 mr-2"></span>
-                            1. Scholar Information (Read-Only)
+                            1. Student Information (Read-Only)
                         </h3>
                         <span class="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
-                            Fetched from Scholar Record
+                            Fetched from Student Record
                         </span>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Scholar Name</label>
-                            <input type="text" value="{{ $scholarUser->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
+                            <input type="text" value="{{ $studentUser->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
@@ -267,7 +267,7 @@
                                 <input type="radio" name="work_status" value="inadequate" x-model="workStatus" class="mt-1 text-red-600 focus:ring-red-500">
                                 <div>
                                     <span class="block font-bold text-sm text-red-900 dark:text-red-300 uppercase tracking-wide">
-                                        (b) INADEQUATE in Present Form (Reverts Form to Scholar)
+                                        (b) INADEQUATE in Present Form (Reverts Form to Student)
                                     </span>
                                     <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
                                         <strong>INADEQUATE</strong> for the submission of the Ph.D. Synopsis and Thesis in its present form and major modifications / additions / changes are required. The student must incorporate the improvements / modifications / changes suggested in item 2, and give the <strong>OPEN SEMINAR again</strong>.
@@ -289,7 +289,7 @@
                 <!-- Submit Action Button -->
                 <div class="flex justify-end pt-4">
                     <button type="submit" :class="workStatus === 'inadequate' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'" class="text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
-                        <span x-text="workStatus === 'inadequate' ? '⚠️ Revert PTS-1 Form to Scholar' : '✓ Endorse & Forward PTS-1 Form'"></span>
+                        <span x-text="workStatus === 'inadequate' ? '⚠️ Revert PTS-1 Form to Student' : '✓ Endorse & Forward PTS-1 Form'"></span>
                     </button>
                 </div>
             </form>

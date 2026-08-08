@@ -16,7 +16,7 @@ class Pts2EndorsementController extends Controller
         $user = auth()->user();
         $thesis = $pts2->thesis;
         $student = $thesis->student;
-        $scholarUser = $student->user;
+        $studentUser = $student->user;
 
         $mainSupervisor = $thesis->mainSupervisor;
         $coSupervisor1 = $pts2->co_supervisor_1_id ? User::find($pts2->co_supervisor_1_id) : null;
@@ -31,7 +31,7 @@ class Pts2EndorsementController extends Controller
             'pts2',
             'thesis',
             'student',
-            'scholarUser',
+            'studentUser',
             'mainSupervisor',
             'coSupervisor1',
             'coSupervisor2',
@@ -196,6 +196,6 @@ class Pts2EndorsementController extends Controller
                 break;
         }
 
-        return redirect()->route('dashboard')->with('warning', 'PTS-2 form has been reverted to the scholar for resubmission.');
+        return redirect()->route('dashboard')->with('warning', 'PTS-2 form has been reverted to the student for resubmission.');
     }
 }

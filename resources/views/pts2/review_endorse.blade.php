@@ -15,12 +15,12 @@
     }">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Scholar Profile Header Card -->
+            <!-- Student Profile Header Card -->
             <div class="bg-purple-900 text-white rounded-xl p-6 shadow-sm space-y-3">
                 <div class="flex justify-between items-start border-b border-purple-700 pb-3">
                     <div>
-                        <span class="text-xs uppercase text-purple-300 font-bold">Ph.D. Scholar Profile</span>
-                        <h3 class="text-2xl font-bold mt-0.5">{{ $scholarUser->name }}</h3>
+                        <span class="text-xs uppercase text-purple-300 font-bold">Ph.D. Student Profile</span>
+                        <h3 class="text-2xl font-bold mt-0.5">{{ $studentUser->name }}</h3>
                     </div>
                     <span class="bg-purple-700 text-purple-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-purple-600">
                         Roll: {{ $student->roll_number }}
@@ -57,7 +57,7 @@
                     </div>
                     @if($pts2->remarks)
                         <div>
-                            <span class="text-xs text-gray-500 block">Scholar Remarks:</span>
+                            <span class="text-xs text-gray-500 block">Student Remarks:</span>
                             <p class="text-xs text-gray-700 dark:text-gray-300 italic">{{ $pts2->remarks }}</p>
                         </div>
                     @endif
@@ -282,7 +282,7 @@
                             <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
                                 <div class="flex items-center space-x-2">
                                     <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
-                                    <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Scholar</span>
+                                    <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Student</span>
                                 </div>
                                 <p class="text-xs text-gray-500">Revert synopsis form back to student with comments for necessary modifications.</p>
                             </div>

@@ -16,7 +16,7 @@ class StudentPts2Controller extends Controller
         $student = $user->student;
 
         if (!$student) {
-            return redirect()->route('student.dashboard')->with('warning', 'Scholar profile not found.');
+            return redirect()->route('student.dashboard')->with('warning', 'Student profile not found.');
         }
 
         $thesis = Thesis::where('student_id', $student->id)->with(['pts1Form', 'pts2Form'])->first();
@@ -41,7 +41,7 @@ class StudentPts2Controller extends Controller
         $student = $user->student;
 
         if (!$student) {
-            return redirect()->route('student.dashboard')->with('error', 'Scholar profile not found.');
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
         $thesis = Thesis::where('student_id', $student->id)->with(['pts1Form', 'pts2Form'])->firstOrFail();

@@ -61,15 +61,15 @@
             <form action="{{ route('student.pts1.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
 
-                <!-- Section 1: Pre-filled Scholar Details (Read-Only) -->
+                <!-- Section 1: Pre-filled Student Details (Read-Only) -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        1. Scholar Information
+                        1. Student Information
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Scholar Name</label>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
                             <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
@@ -79,8 +79,18 @@
                         </div>
 
                         <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
+                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
                             <input type="text" value="{{ $student->date_registration }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
+                            <input type="text" value="{{ $student->date_joining }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
                     </div>
                 </div>
@@ -88,7 +98,7 @@
                 <!-- Section 2: Seminar & Confirmation Details -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Confirmation & Seminar Details
+                        2. Confirmation & Open Seminar Details
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -300,6 +310,10 @@
                                 <span class="text-[11px] text-gray-400">Max 2 MB</span>
                             </div>
 
+                            <div class="h-8">
+
+                            </div>
+
                             <div x-show="!fileStates.synopsis.name">
                                 <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" required @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
@@ -336,16 +350,19 @@
 
                         <!-- Publication List Upload -->
                         <div>
-                            <div class="flex justify-between items-center mb-1">
+                            <div class="flex justify-between items-center">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                                     Upload Publication List + Other Recognition (.xlsx, .csv) <span class="text-red-500">*</span>
                                 </label>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[11px] text-gray-400">Max 2 MB</span>
-                                    <a href="{{ route('student.pts1.template.download') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                                        ↓ Download Template Format
-                                    </a>
                                 </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <a href="{{ route('student.pts1.template.download') }}" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                    ↓ Download Template Format
+                                </a>
                             </div>
 
                             <div x-show="!fileStates.pubList.name">

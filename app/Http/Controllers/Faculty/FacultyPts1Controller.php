@@ -28,9 +28,9 @@ class FacultyPts1Controller extends Controller
         }
 
         $student = $thesis->student;
-        $scholarUser = $student->user;
+        $studentUser = $student->user;
 
-        return view('faculty.pts1.review', compact('pts1', 'thesis', 'student', 'scholarUser'));
+        return view('faculty.pts1.review', compact('pts1', 'thesis', 'student', 'studentUser'));
     }
 
     /**
@@ -119,7 +119,7 @@ class FacultyPts1Controller extends Controller
                 'current_stage' => 'rejected',
             ]);
 
-            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form evaluated as INADEQUATE and reverted to scholar for modifications.');
+            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form evaluated as INADEQUATE and reverted to student for modifications.');
         }
 
         // Evaluate Work Status: Option (a) ADEQUATE -> Endorse & Advance
@@ -178,10 +178,10 @@ class FacultyPts1Controller extends Controller
         }
 
         $student = $thesis->student;
-        $scholarUser = $student->user;
+        $studentUser = $student->user;
         $mainSupervisor = $thesis->mainSupervisor;
 
-        return view('faculty.pts1.co_review', compact('pts1', 'thesis', 'student', 'scholarUser', 'mainSupervisor'));
+        return view('faculty.pts1.co_review', compact('pts1', 'thesis', 'student', 'studentUser', 'mainSupervisor'));
     }
 
     /**
@@ -213,7 +213,7 @@ class FacultyPts1Controller extends Controller
                 'current_stage' => 'rejected',
             ]);
 
-            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 Form reverted back to scholar.');
+            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 Form reverted back to student.');
         }
 
         $pts1->update([

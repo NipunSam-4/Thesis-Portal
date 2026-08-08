@@ -2,11 +2,19 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Institute Global Authority Portal') }}
+                {{ __('Thesis Management Portal') }}
             </h2>
-            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full dark:bg-indigo-900 dark:text-indigo-300 uppercase">
-                {{ str_replace('_', ' ', $user->role) }}
-            </span>
+            <div class="flex justify-between items-center">
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                    @if($user->isDoaa()) Dean of Academic Affairs (DOAA) @endif
+                    @if($user->isAdoaa()) Associate Dean of Academic Affairs (ADoAA) @endif
+                    @if($user->isSenateChairperson()) Senate Chairperson @endif
+                    @if($user->isArAcademic()) Assistant Registrar (Academic) @endif
+                    @if($user->isDrAcademic()) Deputy Registrar (Academic) @endif
+                    @if($user->isSectionOfficer()) Section Officer @endif
+                </span>
+                <x-profile_dropdown/>
+            </div>
         </div>
     </x-slot>
 
@@ -49,18 +57,14 @@
                         @if($user->isSectionOfficer()) Academic Section Officer Dashboard @endif
                     </p>
                 </div>
-                <div class="text-right text-xs bg-white/10 px-4 py-2 rounded-lg">
-                    <div class="font-bold text-base">{{ $allStudents->count() }}</div>
-                    <div>Institute Scholars</div>
-                </div>
             </div>
 
-            <!-- Institute Scholars List Card -->
+            <!-- Institute Students List Card -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                         <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 mr-2"></span>
-                        Institute PhD Scholars ({{ $allStudents->count() }})
+                        Institute PhD Students ({{ $allStudents->count() }})
                     </h3>
                     
                     <!-- Search Input Bar -->
@@ -70,7 +74,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" x-model="searchQuery" placeholder="🔍 Search scholar by Name, Roll, or Dept..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
+                        <input type="text" x-model="searchQuery" placeholder="🔍 Search student by Name, Roll, or Dept..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
                         <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -210,11 +214,11 @@
                                     </div>
                                 </div>
                             @empty
-                                <p class="text-xs text-gray-500">No theses registered for this scholar.</p>
+                                <p class="text-xs text-gray-500">No theses registered for this student.</p>
                             @endforelse
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No scholars registered in the institute.</p>
+                        <p class="text-sm text-gray-500 text-center py-6">No students registered in the institute.</p>
                     @endforelse
                 </div>
 

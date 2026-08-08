@@ -1,6 +1,6 @@
 <div class="shrink-0 flex items-center">
     <a
-        href="{{ route('dashboard') }}"
+        href="{{ route('welcome') }}"
         class="p-2 rounded-md
                text-gray-500 dark:text-gray-400
                hover:text-gray-900 dark:hover:text-gray-200

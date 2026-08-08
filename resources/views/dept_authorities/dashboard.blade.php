@@ -2,11 +2,25 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Head of Department (HOD) Portal') }}
+                @if($user->isDpgc())
+                    {{ __('DPGC Member Portal') }}
+                @elseif($user->isHod())
+                    {{ __('Thesis Management Portal') }}
+                @else
+                    {{ __('Departmental Authority Portal') }}
+                @endif
             </h2>
-            <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-indigo-900 dark:text-indigo-300">
-                HOD Role
-            </span>
+            <div class="flex items-center space-x-3">
+                @if($user->isDpgc())
+                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                        DPGC Member
+                    </span>
+                @elseif($user->isHod())
+                    <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-indigo-900 dark:text-indigo-300">
+                        HOD Role
+                    </span>
+                @endif
+            </div>
         </div>
     </x-slot>
 
@@ -38,23 +52,31 @@
             @endif
 
             <!-- Banner Header -->
-            <div class="bg-indigo-700 dark:bg-indigo-900 rounded-xl shadow-sm p-6 text-white flex justify-between items-center">
+            <div class="{{ $user->isDpgc() ? 'bg-purple-600 dark:bg-purple-900' : 'bg-indigo-700 dark:bg-indigo-900' }} rounded-xl shadow-sm p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold mb-1">Welcome, {{ $user->name }}</h2>
-                    <p class="text-indigo-100 text-sm">Head of Department Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong></p>
+                    <p class="{{ $user->isDpgc() ? 'text-purple-100' : 'text-indigo-100' }} text-sm">
+                        @if($user->isDpgc())
+                            Department Postgraduate Committee (DPGC) Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                        @elseif($user->isHod())
+                            Head of Department Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                        @else
+                            Departmental Authority Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                        @endif
+                    </p>
                 </div>
                 <div class="text-right text-xs bg-white/10 px-4 py-2 rounded-lg">
                     <div class="font-bold text-base">{{ $departmentStudents->count() }}</div>
-                    <div>Department Scholars</div>
+                    <div>Department Students</div>
                 </div>
             </div>
 
-            <!-- Department Scholars List Card -->
+            <!-- Department Students List Card -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 mr-2"></span>
-                        Department PhD Scholars ({{ $departmentStudents->count() }})
+                        <span class="w-2.5 h-2.5 rounded-full {{ $user->isDpgc() ? 'bg-purple-500' : 'bg-indigo-600' }} mr-2"></span>
+                        Department PhD Students ({{ $departmentStudents->count() }})
                     </h3>
                     
                     <!-- Search Input Bar -->
@@ -64,7 +86,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" x-model="searchQuery" placeholder="🔍 Search scholar by Name, Roll, or Email..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition shadow-sm">
+                        <input type="text" x-model="searchQuery" placeholder="🔍 Search student by Name, Roll, or Email..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 {{ $user->isDpgc() ? 'focus:ring-purple-500' : 'focus:ring-indigo-500' }} text-sm font-medium transition shadow-sm">
                         <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -76,7 +98,7 @@
                         <!-- Student Header Card -->
                         <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-base border border-indigo-200 dark:border-indigo-800">
+                                <div class="w-10 h-10 rounded-full {{ $user->isDpgc() ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' }} flex items-center justify-center font-bold text-base border">
                                     {{ substr($student->user->name ?? 'S', 0, 1) }}
                                 </div>
                                 <div>
@@ -93,7 +115,7 @@
                             </div>
 
                             <div class="flex items-center space-x-3 text-xs font-bold">
-                                <span class="text-indigo-600 dark:text-indigo-400">
+                                <span class="{{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }}">
                                     {{ $student->theses->count() }} Registered Thesis(es)
                                 </span>
                                 <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === {{ $student->id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -105,7 +127,7 @@
                             @forelse($student->theses as $thesis)
                                 <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
                                     <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
-                                        <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
+                                        <div class="text-[10px] uppercase font-bold {{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }}">Thesis Title</div>
                                         <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
                                         <div class="text-xs text-gray-500 mt-1">Supervisors: {{ $thesis->supervisors->pluck('name')->join(', ') ?: 'Unassigned' }}</div>
                                     </div>
@@ -132,13 +154,13 @@
                                             @if($thesis->pts1Form)
                                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                                     <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('M d, Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
-                                                    <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
+                                                    <div class="{{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }} font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
                                                 </div>
 
-                                                <!-- Dedicated HOD PTS-1 Review Button -->
-                                                @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'hod')
+                                                <!-- Dedicated DPGC / HOD PTS-1 Review Button -->
+                                                @if(($user->isDpgc() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'dpgc') || ($user->isHod() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'hod'))
                                                     <div class="pt-2">
-                                                        <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                        <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 {{ $user->isDpgc() ? 'bg-purple-600 hover:bg-purple-700' : 'bg-indigo-600 hover:bg-indigo-700' }} text-white font-bold text-xs rounded-lg shadow transition">
                                                             Review & Endorse PTS-1 Form &rarr;
                                                         </a>
                                                     </div>
@@ -170,8 +192,8 @@
                                                     <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                 </div>
 
-                                                <!-- Dedicated HOD PTS-2 Review Button -->
-                                                @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'hod')
+                                                <!-- Dedicated DPGC / HOD PTS-2 Review Button -->
+                                                @if(($user->isDpgc() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'dpgc') || ($user->isHod() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'hod'))
                                                     <div class="pt-2">
                                                         <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                             Review & Endorse PTS-2 Form &rarr;
@@ -182,12 +204,12 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-xs text-gray-500">No theses registered for this scholar.</p>
+                                    <p class="text-xs text-gray-500">No theses registered for this student.</p>
                                 @endforelse
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No scholars registered in your department.</p>
+                        <p class="text-sm text-gray-500 text-center py-6">No students registered in your department.</p>
                     @endforelse
                 </div>
 

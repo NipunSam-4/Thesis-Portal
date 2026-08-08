@@ -24,6 +24,6 @@ class HodDashboardController extends Controller
             ])
             ->get();
 
-        return view('hod.dashboard', compact('user', 'departmentStudents'));
+        return view('dept_authorities.dashboard', compact('user', 'departmentStudents'));
     }
 }

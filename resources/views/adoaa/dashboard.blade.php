@@ -22,7 +22,7 @@
                 @forelse($allTheses as $thesis)
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg mb-3 flex justify-between items-center">
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">{{ $thesis->student->user->name ?? 'Scholar' }} ({{ $thesis->student->department->code ?? 'N/A' }})</div>
+                            <div class="font-semibold text-gray-900 dark:text-white">{{ $thesis->student->user->name ?? 'Student' }} ({{ $thesis->student->department->code ?? 'N/A' }})</div>
                             <div class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ $thesis->title }}</div>
                         </div>
                         <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded">

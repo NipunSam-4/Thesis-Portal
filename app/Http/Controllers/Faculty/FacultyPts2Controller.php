@@ -23,9 +23,9 @@ class FacultyPts2Controller extends Controller
             return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access.');
         }
 
-        $scholar = $pts2->thesis->student;
+        $student = $pts2->thesis->student;
 
-        return view('faculty.pts2.review', compact('pts2', 'scholar'));
+        return view('faculty.pts2.review', compact('pts2', 'student'));
     }
 
     public function update(Request $request, Pts2Form $pts2)
@@ -70,7 +70,7 @@ class FacultyPts2Controller extends Controller
                 'main_supervisor_confidential_remark' => $validated['comment'] ?? 'Reverted by Main Supervisor.',
             ]);
 
-            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-2 Synopsis Form reverted back to scholar.');
+            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-2 Synopsis Form reverted back to student.');
         }
 
         // Action: Approve

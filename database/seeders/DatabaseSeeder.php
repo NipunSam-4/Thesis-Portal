@@ -97,10 +97,10 @@ class DatabaseSeeder extends Seeder
         );
         $faculty3->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
-        // 6. PhD Scholar (With existing thesis & PTS-1/PTS-2)
+        // 6. PhD Student (With existing thesis & PTS-1/PTS-2)
         $studentUser = User::firstOrCreate(
             ['email' => 'phdstudent@iiti.ac.in'],
-            ['name' => 'Test PhD Scholar', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
+            ['name' => 'Test PhD Student', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
         );
 
         $student = Student::firstOrCreate(
@@ -175,10 +175,10 @@ class DatabaseSeeder extends Seeder
         //     ]
         // );
 
-        // 9. NEW PhD Scholar (NO Thesis Submitted Yet)
+        // 9. NEW PhD Student (NO Thesis Submitted Yet)
         $newStudentUser = User::firstOrCreate(
             ['email' => 'newstudent@iiti.ac.in'],
-            ['name' => 'Fresh PhD Scholar', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
+            ['name' => 'Fresh PhD Student', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
         );
 
         Student::firstOrCreate(
@@ -192,6 +192,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Scholar!');
+        $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Student!');
     }
 }

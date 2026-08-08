@@ -214,7 +214,7 @@ class SystemAdminController extends Controller
         return back()->with('success', $user->name . ' registered successfully!');
     }
 
-    // 6. PhD Scholars Management
+    // 6. PhD Students Management
     public function manageStudents()
     {
         $departments = Department::where('is_active', true)->orderBy('name')->get();
