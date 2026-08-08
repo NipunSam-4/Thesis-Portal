@@ -115,7 +115,7 @@ class Pts1Controller extends Controller
             $thesis = Thesis::create([
                 'student_id' => $student->id,
                 'title' => 'Ph.D. Thesis Research',
-                'current_status' => 'In Progress',
+                'status' => 'in_progress',
             ]);
         }
 

@@ -53,7 +53,7 @@
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/40 rounded-xl border border-gray-200 dark:border-gray-600 space-y-3">
                     <div>
                         <span class="text-xs text-gray-500 block">Synopsis Title:</span>
-                        <strong class="text-base text-gray-900 dark:text-white font-bold">{{ $pts2->synopsis_title }}</strong>
+                        <strong class="text-base text-gray-900 dark:text-white font-bold">{{ $pts2->thesis->title }}</strong>
                     </div>
                     @if($pts2->remarks)
                         <div>
@@ -250,7 +250,7 @@
                     } elseif ($pts2->current_stage === 'section_officer') {
                         if ($user->role === 'section_officer' && !$pts2->section_officer_recommendation) $showActionForm = true;
                     } elseif ($pts2->current_stage === 'doaa') {
-                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic']) && !$pts2->doaa_approval) $showActionForm = true;
+                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar']) && !$pts2->doaa_approval) $showActionForm = true;
                     }
                 @endphp
 

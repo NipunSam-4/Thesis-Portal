@@ -82,17 +82,6 @@
                 <form action="{{ route('student.pts2.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
-                    <!-- Synopsis Title -->
-                    <div>
-                        <label for="synopsis_title" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
-                            Ph.D. Synopsis Title <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="synopsis_title" id="synopsis_title" required
-                            value="{{ old('synopsis_title', $pts2->synopsis_title ?? $thesis->title) }}"
-                            placeholder="Enter the complete title of your Ph.D. Synopsis..."
-                            class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                        @error('synopsis_title') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                    </div>
 
                     <!-- Additional Remarks -->
                     <div>

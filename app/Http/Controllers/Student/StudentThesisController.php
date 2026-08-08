@@ -32,7 +32,7 @@ class StudentThesisController extends Controller
         Thesis::create([
             'student_id' => $student->id,
             'title' => $validated['title'],
-            'current_status' => 'Thesis Registered',
+            'status' => 'pending',
         ]);
 
         return redirect()->route('student.dashboard')->with('success', 'Ph.D. Thesis title registered successfully. You can now submit your PTS-1 Form.');

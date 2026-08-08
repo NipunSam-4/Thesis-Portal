@@ -14,7 +14,6 @@ class Pts2Form extends Model
 
     protected $fillable = [
         'thesis_id',
-        'synopsis_title',
         'remarks',
         'synopsis_report_doc_path',
         'current_stage',

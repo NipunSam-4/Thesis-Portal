@@ -155,7 +155,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'doaa':
-                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic'])) {
+                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar'])) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -258,7 +258,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'doaa':
-                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic'])) {
+                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar'])) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([

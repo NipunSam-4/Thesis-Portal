@@ -16,7 +16,7 @@ class Thesis extends Model
     protected $fillable = [
         'student_id',
         'title',
-        'current_status',
+        'status',
     ];
 
     public function student(): BelongsTo
@@ -26,42 +26,42 @@ class Thesis extends Model
 
     public function supervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_supervisor', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
                     ->withPivot('supervisor_type')
                     ->withTimestamps();
     }
 
     public function mainSupervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_supervisor', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
                     ->wherePivot('supervisor_type', 'main')
                     ->withTimestamps();
     }
 
     public function coSupervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_supervisor', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
                     ->wherePivot('supervisor_type', 'co')
                     ->withTimestamps();
     }
 
     public function administrativeSupervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_supervisor', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
                     ->wherePivot('supervisor_type', 'administrative')
                     ->withTimestamps();
     }
 
     public function externalSupervisors(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_supervisor', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
                     ->wherePivot('supervisor_type', 'external')
                     ->withTimestamps();
     }
 
     public function pspcMembers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'thesis_pspc_members', 'thesis_id', 'faculty_user_id')
+        return $this->belongsToMany(User::class, 'student_pspc_members', 'student_id', 'faculty_user_id', 'student_id')
                     ->withTimestamps();
     }
 

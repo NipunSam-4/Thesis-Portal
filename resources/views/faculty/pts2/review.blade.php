@@ -61,15 +61,6 @@
                         1. Supervisor Edit Section (Synopsis Details & Uploaded File)
                     </h4>
 
-                    <!-- Synopsis Title -->
-                    <div>
-                        <label for="synopsis_title" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
-                            Ph.D. Synopsis Title <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="synopsis_title" id="synopsis_title" required
-                            value="{{ old('synopsis_title', $pts2->synopsis_title) }}"
-                            class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
 
                     <!-- Remarks -->
                     <div>

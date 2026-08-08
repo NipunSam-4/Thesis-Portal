@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function isStudent(): bool
     {
-        return $this->role === 'student';
+        return $this->role === 'phd_student';
     }
 
     public function isFaculty(): bool
@@ -84,7 +84,7 @@ class User extends Authenticatable
 
     public function isArAcademic(): bool
     {
-        return $this->role === 'ar_academic';
+        return $this->role === 'ar';
     }
 
     /*
@@ -119,14 +119,14 @@ class User extends Authenticatable
 
     public function supervisedTheses(): BelongsToMany
     {
-        return $this->belongsToMany(Thesis::class, 'thesis_supervisor', 'faculty_user_id', 'thesis_id')
+        return $this->belongsToMany(Thesis::class, 'student_supervisor', 'faculty_user_id', 'student_id', 'id', 'student_id')
                     ->withPivot('supervisor_type')
                     ->withTimestamps();
     }
 
     public function pspcTheses(): BelongsToMany
     {
-        return $this->belongsToMany(Thesis::class, 'thesis_pspc_members', 'faculty_user_id', 'thesis_id')
+        return $this->belongsToMany(Thesis::class, 'student_pspc_members', 'faculty_user_id', 'student_id', 'id', 'student_id')
                     ->withTimestamps();
     }
 }

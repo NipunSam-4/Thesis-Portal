@@ -193,7 +193,6 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                     </div>
 
@@ -327,7 +326,6 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                     </div>
 
@@ -469,26 +467,8 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                     </div>
-
-                                                    <!-- Dedicated PSPC Review Action for PTS-2 -->
-                                                    @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'pspc_members')
-                                                        @php
-                                                            $alreadyEndorsed = false;
-                                                            if ($thesis->pts2Form->pspc_member_1_id === $user->id && $thesis->pts2Form->pspc_member_1_recommendation) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->pspc_member_2_id === $user->id && $thesis->pts2Form->pspc_member_2_recommendation) $alreadyEndorsed = true;
-                                                            if ($thesis->pts2Form->pspc_member_3_id === $user->id && $thesis->pts2Form->pspc_member_3_recommendation) $alreadyEndorsed = true;
-                                                        @endphp
-                                                        @if(!$alreadyEndorsed)
-                                                            <div class="pt-2">
-                                                                <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    Review & Endorse PTS-2 Form &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @endif
                                                 @endif
                                             </div>
                                         </div>

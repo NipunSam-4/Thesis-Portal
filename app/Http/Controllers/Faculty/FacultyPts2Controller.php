@@ -42,11 +42,10 @@ class FacultyPts2Controller extends Controller
         }
 
         $validated = $request->validate([
-            'action' => 'required|in:approve,revert',
-            'synopsis_title' => 'required|string|max:255',
             'remarks' => 'nullable|string',
-            'synopsis_report_doc' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
             'comment' => 'nullable|string',
+            'action' => 'required|string|in:approve,revert',
+            'synopsis_report_doc' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
         // File replacement by supervisor if uploaded
@@ -59,7 +58,6 @@ class FacultyPts2Controller extends Controller
         }
 
         $pts2->update([
-            'synopsis_title' => $validated['synopsis_title'],
             'remarks' => $validated['remarks'] ?? null,
             'synopsis_report_doc_path' => $filePath,
         ]);
@@ -79,8 +77,6 @@ class FacultyPts2Controller extends Controller
         $nextStage = 'dpgc';
         if ($pts2->co_supervisor_1_id || $pts2->co_supervisor_2_id || $pts2->co_supervisor_3_id) {
             $nextStage = 'co_supervisors';
-        } elseif ($pts2->pspc_member_1_id || $pts2->pspc_member_2_id || $pts2->pspc_member_3_id) {
-            $nextStage = 'pspc_members';
         }
 
         $pts2->update([

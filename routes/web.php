@@ -80,7 +80,7 @@ Route::middleware('auth')->group(function () {
 | Student Routes
 |--------------------------------------------------------------------------
 */
-Route::prefix('student')->middleware(['auth', 'role:student'])->group(function () {
+Route::prefix('student')->middleware(['auth', 'role:phd_student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
     Route::post('/thesis/store', [StudentThesisController::class, 'store'])->name('student.thesis.store');
     

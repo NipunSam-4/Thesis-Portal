@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
 
         User::firstOrCreate(
             ['email' => 'aracademic@iiti.ac.in'],
-            ['name' => 'Assistant Registrar (Academic)', 'password' => $password, 'role' => 'ar_academic', 'is_active' => true]
+            ['name' => 'Assistant Registrar (Academic)', 'password' => $password, 'role' => 'ar', 'is_active' => true]
         );
 
         User::firstOrCreate(
@@ -100,7 +100,7 @@ class DatabaseSeeder extends Seeder
         // 6. PhD Scholar (With existing thesis & PTS-1/PTS-2)
         $studentUser = User::firstOrCreate(
             ['email' => 'phdstudent@iiti.ac.in'],
-            ['name' => 'Test PhD Scholar', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Test PhD Scholar', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
         );
 
         $student = Student::firstOrCreate(
@@ -118,24 +118,24 @@ class DatabaseSeeder extends Seeder
             ['student_id' => $student->id],
             [
                 'title' => 'Deep Learning Architectures for Academic Systems',
-                'current_status' => 'In Progress',
+                'status' => 'in_progress',
             ]
         );
 
-        if (!$thesis->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
-            $thesis->supervisors()->attach($faculty1->id, ['supervisor_type' => 'main']);
+        if (!$student->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
+            $student->supervisors()->attach($faculty1->id, ['supervisor_type' => 'main']);
         }
 
-        if (!$thesis->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $thesis->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
+        if (!$student->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $student->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$thesis->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $thesis->pspcMembers()->attach($faculty2->id);
+        if (!$student->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $student->pspcMembers()->attach($faculty2->id);
         }
 
-        if (!$thesis->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
-            $thesis->pspcMembers()->attach($faculty3->id);
+        if (!$student->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $student->pspcMembers()->attach($faculty3->id);
         }
 
         // // 7. Seed Sample PTS-1 Form
@@ -178,7 +178,7 @@ class DatabaseSeeder extends Seeder
         // 9. NEW PhD Scholar (NO Thesis Submitted Yet)
         $newStudentUser = User::firstOrCreate(
             ['email' => 'newstudent@iiti.ac.in'],
-            ['name' => 'Fresh PhD Scholar', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Fresh PhD Scholar', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
         );
 
         Student::firstOrCreate(

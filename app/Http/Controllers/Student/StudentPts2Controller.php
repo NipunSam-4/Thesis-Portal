@@ -54,7 +54,6 @@ class StudentPts2Controller extends Controller
         $fileRequired = $pts2 && $pts2->synopsis_report_doc_path ? 'nullable' : 'required';
 
         $validated = $request->validate([
-            'synopsis_title' => 'required|string|max:255',
             'remarks' => 'nullable|string',
             'synopsis_report_doc' => "{$fileRequired}|file|mimes:pdf,doc,docx|max:2048",
         ]);
@@ -72,7 +71,6 @@ class StudentPts2Controller extends Controller
         Pts2Form::updateOrCreate(
             ['thesis_id' => $thesis->id],
             [
-                'synopsis_title' => $validated['synopsis_title'],
                 'remarks' => $validated['remarks'] ?? 'N/A',
                 'synopsis_report_doc_path' => $filePath,
                 'current_stage' => 'main_supervisor',

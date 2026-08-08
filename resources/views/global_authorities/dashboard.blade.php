@@ -185,7 +185,6 @@
 
                                             @if($thesis->pts2Form)
                                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                    <div>Synopsis Title: <strong>{{ $thesis->pts2Form->synopsis_title }}</strong></div>
                                                     <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
                                                 </div>
 

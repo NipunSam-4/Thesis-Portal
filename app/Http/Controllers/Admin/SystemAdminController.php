@@ -184,7 +184,7 @@ class SystemAdminController extends Controller
     // 5. Global Authorities Management (including AR Academic)
     public function manageGlobalAuthorities()
     {
-        $authorities = User::whereIn('role', ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic'])
+        $authorities = User::whereIn('role', ['doaa', 'adoaa', 'senate_chairperson', 'ar'])
             ->orderBy('name')
             ->get();
 
@@ -196,7 +196,7 @@ class SystemAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users', 
-            'role' => 'required|string|in:doaa,adoaa,senate_chairperson,ar_academic',
+            'role' => 'required|string|in:doaa,adoaa,senate_chairperson,ar',
         ]);
 
         if (User::where('role', $request->role)->exists()) {
@@ -220,7 +220,7 @@ class SystemAdminController extends Controller
         $departments = Department::where('is_active', true)->orderBy('name')->get();
         $facultyUsers = User::where('role', 'faculty')->with('facultyProfile.department')->orderBy('name')->get();
 
-        $students = User::where('role', 'student')
+        $students = User::where('role', 'phd_student')
             ->with(['student.department', 'student.theses.supervisors', 'student.theses.pspcMembers'])
             ->orderBy('name')
             ->get();
@@ -247,7 +247,7 @@ class SystemAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make('password'),
-            'role' => 'student',
+            'role' => 'phd_student',
             'is_active' => true,
         ]);
 
@@ -258,7 +258,7 @@ class SystemAdminController extends Controller
 
         $thesis = $student->theses()->create([
             'title' => $request->thesis_title ?? 'Ph.D. Thesis Research',
-            'current_status' => 'In Progress',
+            'status' => 'in_progress',
         ]);
 
         // Attach Main Supervisor

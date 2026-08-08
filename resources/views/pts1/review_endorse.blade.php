@@ -292,7 +292,7 @@
                     } elseif ($pts1->current_stage === 'section_officer') {
                         if ($user->role === 'section_officer' && !$pts1->section_officer_recommendation) $showActionForm = true;
                     } elseif ($pts1->current_stage === 'doaa') {
-                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar_academic']) && !$pts1->doaa_approval) $showActionForm = true;
+                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar']) && !$pts1->doaa_approval) $showActionForm = true;
                     }
                 @endphp
 

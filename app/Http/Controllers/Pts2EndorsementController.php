@@ -68,31 +68,6 @@ class Pts2EndorsementController extends Controller
                 $co3Done = !$pts2->co_supervisor_3_id || $pts2->co_supervisor_3_recommendation;
 
                 if ($co1Done && $co2Done && $co3Done) {
-                    $nextStage = ($pts2->pspc_member_1_id || $pts2->pspc_member_2_id || $pts2->pspc_member_3_id) ? 'pspc_members' : 'dpgc';
-                    $pts2->update(['current_stage' => $nextStage]);
-                }
-                break;
-
-            case 'pspc_members':
-                $roleKey = null;
-                if ($pts2->pspc_member_1_id === $user->id) $roleKey = 1;
-                elseif ($pts2->pspc_member_2_id === $user->id) $roleKey = 2;
-                elseif ($pts2->pspc_member_3_id === $user->id) $roleKey = 3;
-
-                if (!$roleKey) {
-                    return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
-                }
-
-                $pts2->update([
-                    "pspc_member_{$roleKey}_endorsement" => true,
-                    "pspc_member_{$roleKey}_comment" => $comment,
-                ]);
-
-                $pspc1Done = !$pts2->pspc_member_1_id || $pts2->pspc_member_1_recommendation;
-                $pspc2Done = !$pts2->pspc_member_2_id || $pts2->pspc_member_2_recommendation;
-                $pspc3Done = !$pts2->pspc_member_3_id || $pts2->pspc_member_3_recommendation;
-
-                if ($pspc1Done && $pspc2Done && $pspc3Done) {
                     $pts2->update(['current_stage' => 'dpgc']);
                 }
                 break;
@@ -140,7 +115,7 @@ class Pts2EndorsementController extends Controller
                     'current_stage' => 'completed',
                     'status' => 'accepted',
                 ]);
-                $pts2->thesis->update(['current_status' => 'PTS-2 Approved / Synopsis Approved']);
+                $pts2->thesis->update(['status' => 'completed']);
                 break;
         }
 
@@ -162,24 +137,6 @@ class Pts2EndorsementController extends Controller
 
                 if (!$roleKey) {
                     return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
-                }
-
-                $pts2->update([
-                    "{$roleKey}_comment" => $comment,
-                    'reverted_by_role' => $roleKey,
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
-
-            case 'pspc_members':
-                $roleKey = null;
-                if ($pts2->pspc_member_1_id === $user->id) $roleKey = 'pspc_member_1';
-                elseif ($pts2->pspc_member_2_id === $user->id) $roleKey = 'pspc_member_2';
-                elseif ($pts2->pspc_member_3_id === $user->id) $roleKey = 'pspc_member_3';
-
-                if (!$roleKey) {
-                    return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
                 }
 
                 $pts2->update([

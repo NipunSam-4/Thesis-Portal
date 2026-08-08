@@ -123,7 +123,7 @@ return new class extends Migration
 
             // 6. Academic Office
             $table->text('academic_office_student_comment')->nullable();
-            $table->floatval('course_credits')->default('0.0');
+            $table->float('course_credits')->default('0.0');
             $table->boolean('academic_office_recommendation')->default(false);
             $table->text('academic_office_confidential_remark')->nullable();
             $table->text('academic_office_reversion_comment')->nullable();
