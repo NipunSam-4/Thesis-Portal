@@ -67,7 +67,7 @@
                                         <div class="text-gray-900 dark:text-gray-100 font-medium">{{ $user->student->department->name ?? 'N/A' }}</div>
                                         <div class="text-xs text-gray-500 mt-0.5">Supervisor(s): 
                                             <span class="font-semibold">
-                                                {{ $user->student->theses->flatMap->supervisors->pluck('name')->unique()->join(', ') ?: 'Unassigned' }}
+                                                {{ $user->student->supervisors->pluck('name')->join(', ') ?: 'Unassigned' }}
                                             </span>
                                         </div>
                                     </td>

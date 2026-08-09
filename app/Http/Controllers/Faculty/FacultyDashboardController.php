@@ -13,19 +13,20 @@ class FacultyDashboardController extends Controller
         $user = auth()->user();
 
         // 1. Students where faculty is Main Supervisor
-        $mainStudents = Student::whereHas('theses.supervisors', function ($query) use ($user) {
+        $mainStudents = Student::whereHas('supervisors', function ($query) use ($user) {
             $query->where('users.id', $user->id)->where('supervisor_type', 'main');
         })
         ->with([
             'user',
             'department',
+            'supervisors',
             'theses.pts1Form',
             'theses.pts2Form'
         ])
         ->get();
 
         // 2. Students where faculty is Co-Supervisor
-        $coStudents = Student::whereHas('theses.supervisors', function ($query) use ($user) {
+        $coStudents = Student::whereHas('supervisors', function ($query) use ($user) {
             $query->where('users.id', $user->id)->where('supervisor_type', 'co');
         })
         ->orWhereHas('theses.pts1Form', function ($query) use ($user) {
@@ -36,13 +37,14 @@ class FacultyDashboardController extends Controller
         ->with([
             'user',
             'department',
+            'supervisors',
             'theses.pts1Form',
             'theses.pts2Form'
         ])
         ->get();
 
         // 3. Students where faculty is PSPC Member
-        $pspcStudents = Student::whereHas('theses.pspcMembers', function ($query) use ($user) {
+        $pspcStudents = Student::whereHas('pspcMembers', function ($query) use ($user) {
             $query->where('users.id', $user->id);
         })
         ->orWhereHas('theses.pts1Form', function ($query) use ($user) {

@@ -84,7 +84,7 @@ class Pts1EndorsementController extends Controller
                 }
 
                 if ($allCoDone) {
-                    $pspcCount = $thesis->pspcMembers()->count();
+                    $pspcCount = $thesis->student ? $thesis->student->pspcMembers()->count() : 0;
                     $nextStage = $pspcCount > 0 ? 'pspc_members' : 'dpgc';
                     $pts1->update(['current_stage' => $nextStage]);
                 }
@@ -183,6 +183,23 @@ class Pts1EndorsementController extends Controller
         $comment = $request->input('comment');
 
         $stage = $pts1->current_stage;
+
+        // Check if user is Main Supervisor for this thesis
+        $isMainSupervisor = $pts1->thesis->supervisors()
+            ->where('users.id', $user->id)
+            ->wherePivot('supervisor_type', 'main')
+            ->exists();
+
+        if ($stage === 'main_supervisor_review' || $isMainSupervisor) {
+            $pts1->update([
+                'main_supervisor_student_comment' => $comment,
+                'main_supervisor_confidential_remark' => $comment,
+                'reverted_by_role' => 'main_supervisor',
+                'status' => 'reverted',
+                'current_stage' => 'rejected',
+            ]);
+            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
+        }
 
         switch ($stage) {
             case 'co_supervisors':

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Submit PTS-2 Ph.D. Synopsis Report') }}
+                {{ __('Submit PTS-2 PhD Synopsis Report') }}
             </h2>
             <a href="{{ route('student.dashboard') }}" class="px-4 py-1.5 bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs rounded-lg shadow transition">
                 &larr; Back to Dashboard

@@ -84,4 +84,12 @@ class Thesis extends Model
     {
         return $this->hasMany(Examiner::class);
     }
+
+    /**
+     * Accessor to get human-readable formatted status (e.g. 'in_progress' -> 'In Progress').
+     */
+    public function getCurrentStatusAttribute(): string
+    {
+        return ucwords(str_replace('_', ' ', $this->status ?? ''));
+    }
 }

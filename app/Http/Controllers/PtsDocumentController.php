@@ -65,9 +65,9 @@ class PtsDocumentController extends Controller
         }
 
         // 2. Check if user is an assigned supervisor or PSPC member
-        if (!$isAuthorized && $thesis) {
-            if ($thesis->supervisors()->where('faculty_user_id', $user->id)->exists() || 
-                $thesis->pspcMembers()->where('faculty_user_id', $user->id)->exists()) {
+        if (!$isAuthorized && $thesis && $thesis->student) {
+            if ($thesis->student->supervisors()->where('faculty_user_id', $user->id)->exists() || 
+                $thesis->student->pspcMembers()->where('faculty_user_id', $user->id)->exists()) {
                 $isAuthorized = true;
             }
         }

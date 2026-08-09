@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 class Student extends Model
 {
     use HasFactory;
@@ -15,6 +17,7 @@ class Student extends Model
     protected $fillable = [
         'user_id',
         'department_id',
+        'program_name',
         'roll_number',
         'name',
     ];
@@ -29,9 +32,30 @@ class Student extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function isPhd(): bool
+    {
+        return $this->program_name === 'phd';
+    }
+
+    public function isMsr(): bool
+    {
+        return $this->program_name === 'msr';
+    }
+
+
     public function theses(): HasMany
     {
         return $this->hasMany(Thesis::class);
+    }
+
+    public function activeThesis(): HasOne
+    {
+        return $this->hasOne(Thesis::class)->where('status', 'in_progress')->latestOfMany();
+    }
+
+    public function hasActiveThesis(): bool
+    {
+        return $this->activeThesis()->exists();
     }
 
     public function supervisors(): BelongsToMany

@@ -17,19 +17,20 @@ class StudentDashboardController extends Controller
         
         $student = $user->student()->with([
             'department', 
-            'theses.supervisors',
-            'theses.pspcMembers',
+            'supervisors',
+            'pspcMembers',
             'theses.pts1Form',
             'theses.pts2Form'
         ])->firstOrFail();
 
-        $latestThesis = $student->theses->last();
-        $pts1Form = $latestThesis ? $latestThesis->pts1Form : null;
-        $pts2Form = $latestThesis ? $latestThesis->pts2Form : null;
+        $activeThesis = $student->theses->firstWhere('status', 'in_progress');
+        $latestThesis = $activeThesis;
+        $pts1Form = $activeThesis ? $activeThesis->pts1Form : null;
+        $pts2Form = $activeThesis ? $activeThesis->pts2Form : null;
 
         // PTS-2 is unlocked when PTS-1 is approved (status === 'accepted')
         $pts1Approved = $pts1Form && $pts1Form->status === 'accepted';
 
-        return view('student.dashboard', compact('student', 'latestThesis', 'pts1Form', 'pts2Form', 'pts1Approved'));
+        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'pts1Form', 'pts2Form', 'pts1Approved'));
     }
 }

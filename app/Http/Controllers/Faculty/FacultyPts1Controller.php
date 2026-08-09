@@ -66,10 +66,11 @@ class FacultyPts1Controller extends Controller
             'min_time_approval_doc' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:2048',
 
             'draft_synopsis_report' => 'nullable|file|mimes:pdf,docx|max:2048',
-            'publication_list' => 'nullable|file|mimes:xlsx,xls,csv|max:2048',
+            'publication_list' => 'nullable|file|mimes:xlsx,xls|max:2048',
 
             'work_status' => 'required|in:adequate,inadequate',
             'main_supervisor_student_comment' => 'required|string',
+            'main_supervisor_confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string' : 'nullable|string',
         ]);
 
         // Optional File Replacements by Main Supervisor
@@ -96,35 +97,9 @@ class FacultyPts1Controller extends Controller
         // Update Student confirmation date
         $thesis->student->update(['date_confirmation' => $validated['date_confirmation']]);
 
-        // Evaluate Work Status: Option (b) INADEQUATE -> Revert to Student
-        if ($validated['work_status'] === 'inadequate') {
-            $pts1->update([
-                'seminar_date' => $validated['seminar_date'],
-                'seminar_time' => $validated['seminar_time'],
-                'seminar_venue' => $validated['seminar_venue'],
-                'meeting_link' => $validated['meeting_link'],
-                'publication_norm_fulfillment' => $request->boolean('publication_norm_fulfillment'),
-                'special_approval_publication' => $request->boolean('special_approval_publication'),
-                'publication_approval_doc_path' => $pubAppPath,
-                'min_time_req_fulfilled' => $request->boolean('min_time_req_fulfilled'),
-                'special_approval_min_time' => $request->boolean('special_approval_min_time'),
-                'min_time_approval_doc_path' => $minTimeAppPath,
-                'draft_synopsis_report_doc_path' => $synopsisPath,
-                'publication_list_doc_path' => $pubListPath,
-                'work_status' => 'inadequate',
-                'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
-                'main_supervisor_confidential_remark' => $validated['main_supervisor_student_comment'],
-                'status' => 'reverted',
-                'reverted_by_role' => 'main_supervisor',
-                'current_stage' => 'rejected',
-            ]);
-
-            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form evaluated as INADEQUATE and reverted to student for modifications.');
-        }
-
-        // Evaluate Work Status: Option (a) ADEQUATE -> Endorse & Advance
-        $coSupervisorsCount = $thesis->coSupervisors()->count();
-        $pspcMembersCount = $thesis->pspcMembers()->count();
+        // Determine Next Stage for Forwarding
+        $coSupervisorsCount = $thesis->student ? $thesis->student->coSupervisors()->count() : 0;
+        $pspcMembersCount = $thesis->student ? $thesis->student->pspcMembers()->count() : 0;
 
         $nextStage = 'dpgc';
         if ($coSupervisorsCount > 0) {
@@ -146,15 +121,15 @@ class FacultyPts1Controller extends Controller
             'min_time_approval_doc_path' => $minTimeAppPath,
             'draft_synopsis_report_doc_path' => $synopsisPath,
             'publication_list_doc_path' => $pubListPath,
-            'work_status' => 'adequate',
+            'work_status' => $validated['work_status'],
             'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
-            'main_supervisor_confidential_remark' => $validated['main_supervisor_student_comment'],
-            'main_supervisor_recommendation' => true,
+            'main_supervisor_confidential_remark' => $validated['main_supervisor_confidential_remark'] ?: 'N/A',
+            'main_supervisor_recommendation' => ($validated['work_status'] === 'adequate'),
             'current_stage' => $nextStage,
             'status' => 'in_progress',
         ]);
 
-        return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form endorsed successfully and forwarded to next stage.');
+        return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
     }
 
     /**

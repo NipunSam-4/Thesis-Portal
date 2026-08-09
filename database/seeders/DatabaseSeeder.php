@@ -61,6 +61,11 @@ class DatabaseSeeder extends Seeder
         );
 
         User::firstOrCreate(
+            ['email' => 'dracademic@iiti.ac.in'],
+            ['name' => 'Deputy Registrar (Academic)', 'password' => $password, 'role' => 'dr', 'is_active' => true]
+        );
+
+        User::firstOrCreate(
             ['email' => 'sectionofficer@iiti.ac.in'],
             ['name' => 'Section Officer', 'password' => $password, 'role' => 'section_officer', 'is_active' => true]
         );
@@ -81,116 +86,120 @@ class DatabaseSeeder extends Seeder
         // 5. Faculty Members
         $faculty1 = User::firstOrCreate(
             ['email' => 'mainsupervisor@iiti.ac.in'],
-            ['name' => 'Dr. Main Supervisor', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['name' => ' Main Supervisor', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty1->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         $faculty2 = User::firstOrCreate(
-            ['email' => 'cosupervisor@iiti.ac.in'],
-            ['name' => 'Dr. Co-Supervisor', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['email' => 'cosupervisor1@iiti.ac.in'],
+            ['name' => 'Co-Supervisor 1', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty2->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         $faculty3 = User::firstOrCreate(
-            ['email' => 'externalsupervisor@iiti.ac.in'],
-            ['name' => 'Dr. External Supervisor', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['email' => 'cosupervisor2@iiti.ac.in'],
+            ['name' => 'Co Supervisor 2', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty3->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         // 6. PhD Student (With existing thesis & PTS-1/PTS-2)
-        $studentUser = User::firstOrCreate(
+        $phdStudentUser = User::firstOrCreate(
             ['email' => 'phdstudent@iiti.ac.in'],
-            ['name' => 'Test PhD Student', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
+            ['name' => 'PhD Student 1', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        $student = Student::firstOrCreate(
-            ['user_id' => $studentUser->id],
+        $phdStudent = Student::firstOrCreate(
+            ['user_id' => $phdStudentUser->id],
             [
                 'roll_number' => '230001001',
                 'department_id' => $dept->id,
+                'program_name'=>'phd',
                 'date_joining' => '2023-08-01',
                 'date_registration' => '2023-08-15',
                 'date_confirmation' => '2024-08-01',
             ]
         );
 
-        $thesis = Thesis::firstOrCreate(
-            ['student_id' => $student->id],
-            [
-                'title' => 'Deep Learning Architectures for Academic Systems',
-                'status' => 'in_progress',
-            ]
+        if (!$phdStudent->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
+            $phdStudent->supervisors()->attach($faculty1->id, ['supervisor_type' => 'main']);
+        }
+
+        if (!$phdStudent->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $phdStudent->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
+        }
+
+        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $phdStudent->pspcMembers()->attach($faculty2->id);
+        }
+
+        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $phdStudent->pspcMembers()->attach($faculty3->id);
+        }
+
+        $phdStudentUser1 = User::firstOrCreate(
+            ['email' => 'phdstudent1@iiti.ac.in'],
+            ['name' => 'PhD Student 2', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        if (!$student->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
-            $student->supervisors()->attach($faculty1->id, ['supervisor_type' => 'main']);
-        }
-
-        if (!$student->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $student->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
-        }
-
-        if (!$student->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $student->pspcMembers()->attach($faculty2->id);
-        }
-
-        if (!$student->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
-            $student->pspcMembers()->attach($faculty3->id);
-        }
-
-        // // 7. Seed Sample PTS-1 Form
-        // Pts1Form::firstOrCreate(
-        //     ['thesis_id' => $thesis->id],
-        //     [
-        //         'seminar_date' => '2026-08-15',
-        //         'seminar_time' => '10:30 AM',
-        //         'seminar_venue' => 'Seminar Hall 1, CSE Dept',
-        //         'meeting_link' => 'https://meet.google.com/abc-defg-hij',
-        //         'publication_norm_fulfillment' => true,
-        //         'special_approval_publication' => false,
-        //         'min_time_req_fulfilled' => true,
-        //         'special_approval_min_time' => false,
-        //         'draft_synopsis_report_doc_path' => 'documents/draft_synopsis_report.pdf',
-        //         'publication_list_doc_path' => 'documents/publication_list.pdf',
-        //         'work_status' => 'adequate',
-        //         'main_supervisor_student_comment' => 'Seminar completed successfully with adequate research progress.',
-        //         'current_stage' => 'main_supervisor',
-        //         'status' => 'in_progress',
-        //         'co_supervisor_1_id' => $faculty2->id,
-        //         'pspc_member_1_id' => $faculty2->id,
-        //         'pspc_member_2_id' => $faculty3->id,
-        //     ]
-        // );
-
-        // // 8. Seed Sample PTS-2 Form
-        // Pts2Form::firstOrCreate(
-        //     ['thesis_id' => $thesis->id],
-        //     [
-        //         'synopsis_report_doc_path' => 'documents/final_synopsis_report.pdf',
-        //         'current_stage' => 'main_supervisor',
-        //         'status' => 'in_progress',
-        //         'co_supervisor_1_id' => $faculty2->id,
-        //         'pspc_member_1_id' => $faculty2->id,
-        //         'pspc_member_2_id' => $faculty3->id,
-        //     ]
-        // );
-
-        // 9. NEW PhD Student (NO Thesis Submitted Yet)
-        $newStudentUser = User::firstOrCreate(
-            ['email' => 'newstudent@iiti.ac.in'],
-            ['name' => 'Fresh PhD Student', 'password' => $password, 'role' => 'phd_student', 'is_active' => true]
-        );
-
-        Student::firstOrCreate(
-            ['user_id' => $newStudentUser->id],
+        $phdStudent1 = Student::firstOrCreate(
+            ['user_id' => $phdStudentUser1->id],
             [
-                'roll_number' => '240041001',
+                'roll_number' => '230001002',
                 'department_id' => $dept->id,
-                'date_joining' => '2024-08-01',
-                'date_registration' => '2024-08-15',
-                'date_confirmation' => '2025-08-01',
+                'program_name'=>'phd',
+                'date_joining' => '2023-08-01',
+                'date_registration' => '2023-08-15',
             ]
         );
+
+
+        if (!$phdStudent1->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
+            $phdStudent1->supervisors()->attach($faculty1->id, ['supervisor_type' => 'main']);
+        }
+
+        if (!$phdStudent1->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $phdStudent1->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
+        }
+
+        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $phdStudent1->pspcMembers()->attach($faculty2->id);
+        }
+
+        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $phdStudent1->pspcMembers()->attach($faculty3->id);
+        }
+
+       $msrStudentUser = User::firstOrCreate(
+            ['email' => 'msrstudent@iiti.ac.in'],
+            ['name' => 'MS(R) Student', 'password' => $password, 'role' => 'student', 'is_active' => true]
+        );
+
+        $msrStudent = Student::firstOrCreate(
+            ['user_id' => $msrStudentUser->id],
+            [
+                'roll_number' => '230002001',
+                'department_id' => $dept->id,
+                'program_name'=>'msr',
+                'date_joining' => '2023-08-01',
+                'date_registration' => '2023-08-15',
+            ]
+        );
+
+        if (!$msrStudent->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $msrStudent->supervisors()->attach($faculty2->id, ['supervisor_type' => 'main']);
+        }
+
+        if (!$msrStudent->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
+            $msrStudent->supervisors()->attach($faculty1->id, ['supervisor_type' => 'co']);
+        }
+
+        if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $msrStudent->pspcMembers()->attach($faculty2->id);
+        }
+
+        if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $msrStudent->pspcMembers()->attach($faculty3->id);
+        }
 
         $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Student!');
     }

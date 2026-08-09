@@ -23,19 +23,23 @@ class Pts1Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        // Check if student already has a thesis with a PTS-1 form
-        $thesis = $student->theses()->latest()->first();
-        if ($thesis && $thesis->pts1Form) {
-            $pts1 = $thesis->pts1Form;
-            if ($pts1->status === 'in_progress') {
+        // Check if student has an active thesis with status in_progress
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        if ($pts1Form) {
+            if ($pts1Form->status === 'in_progress') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form is currently in progress.');
             }
-            if ($pts1->status === 'accepted') {
+            if ($pts1Form->status === 'accepted') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form has already been approved.');
             }
         }
 
-        return view('student.pts1.create', compact('user', 'student', 'thesis'));
+        return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
     }
 
     /**
@@ -87,14 +91,14 @@ class Pts1Controller extends Controller
             
             'publication_norm_fulfillment' => 'required|boolean',
             'special_approval_publication' => 'required_if:publication_norm_fulfillment,0|nullable|boolean',
-            'publication_approval_doc' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:2048',
+            'publication_approval_doc' => 'required_if:special_approval_publication,1|nullable|file|mimes:pdf,png,jpg,jpeg|max:2048',
 
             'min_time_req_fulfilled' => 'required|boolean',
             'special_approval_min_time' => 'required_if:min_time_req_fulfilled,0|nullable|boolean',
-            'min_time_approval_doc' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:2048',
+            'min_time_approval_doc' => 'required_if:special_approval_min_time,1|nullable|file|mimes:pdf,png,jpg,jpeg|max:2048',
 
             'draft_synopsis_report' => 'required|file|mimes:pdf,docx|max:2048',
-            'publication_list' => 'required|file|mimes:xlsx,xls,csv|max:2048',
+            'publication_list' => 'required|file|mimes:xlsx,xls|max:2048',
         ]);
 
         // Guard validation: If norm/min-time is false and special approval is false, reject
@@ -110,11 +114,11 @@ class Pts1Controller extends Controller
         $student->update(['date_confirmation' => $validated['date_confirmation']]);
 
         // Retrieve or instantiate Thesis for Student
-        $thesis = $student->theses()->latest()->first();
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
         if (!$thesis) {
             $thesis = Thesis::create([
                 'student_id' => $student->id,
-                'title' => 'Ph.D. Thesis Research',
+                'title' => 'PhD Thesis Research',
                 'status' => 'in_progress',
             ]);
         }
@@ -134,8 +138,8 @@ class Pts1Controller extends Controller
         $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
 
         // Committee Co-Supervisors & PSPC IDs
-        $coSupervisors = $thesis->coSupervisors()->pluck('users.id')->all();
-        $pspcMembers = $thesis->pspcMembers()->pluck('users.id')->all();
+        $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
+        $pspcMembers = $student->pspcMembers()->pluck('users.id')->all();
 
         // Create or Update PTS-1 Form
         Pts1Form::updateOrCreate(

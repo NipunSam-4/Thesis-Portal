@@ -75,7 +75,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-mono font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
@@ -104,7 +104,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="date" name="date_confirmation" required value="{{ $pts1Form ? $student->date_confirmation : '' }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
@@ -142,11 +142,11 @@
                         </label>
                         <div class="flex items-center space-x-6">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="publication_norm_fulfillment" value="1" x-model="pubNorm" class="text-blue-600">
+                                <input type="radio" name="publication_norm_fulfillment" value="1" required x-model="pubNorm" class="text-blue-600">
                                 <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
                             </label>
                             <label class="inline-flex items-center">
-                                <input type="radio" name="publication_norm_fulfillment" value="0" x-model="pubNorm" class="text-blue-600">
+                                <input type="radio" name="publication_norm_fulfillment" value="0" required x-model="pubNorm" class="text-blue-600">
                                 <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
                             </label>
                         </div>
@@ -158,23 +158,25 @@
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_publication" value="1" x-model="pubApproval" class="text-blue-600">
+                                    <input type="radio" name="special_approval_publication" value="1" :required="pubNorm === '0'" x-model="pubApproval" class="text-blue-600">
                                     <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_publication" value="0" x-model="pubApproval" class="text-blue-600">
+                                    <input type="radio" name="special_approval_publication" value="0" :required="pubNorm === '0'" x-model="pubApproval" class="text-blue-600">
                                     <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
                                 </label>
                             </div>
 
                             <div x-show="pubApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Upload Special Publication Approval Copy (Max 2 MB)</label>
+                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Upload Special Publication Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                    </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
 
                                 <div x-show="!fileStates.pubApp.name">
-                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="pubNorm === '0' && pubApproval === '1'" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
 
                                 <!-- File Size Error Alert -->
@@ -221,11 +223,11 @@
                         </label>
                         <div class="flex items-center space-x-6">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="min_time_req_fulfilled" value="1" x-model="timeNorm" class="text-blue-600">
+                                <input type="radio" name="min_time_req_fulfilled" value="1" required x-model="timeNorm" class="text-blue-600">
                                 <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
                             </label>
                             <label class="inline-flex items-center">
-                                <input type="radio" name="min_time_req_fulfilled" value="0" x-model="timeNorm" class="text-blue-600">
+                                <input type="radio" name="min_time_req_fulfilled" value="0" required x-model="timeNorm" class="text-blue-600">
                                 <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
                             </label>
                         </div>
@@ -237,23 +239,25 @@
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_min_time" value="1" x-model="timeApproval" class="text-blue-600">
+                                    <input type="radio" name="special_approval_min_time" value="1" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
                                     <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_min_time" value="0" x-model="timeApproval" class="text-blue-600">
+                                    <input type="radio" name="special_approval_min_time" value="0" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
                                     <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
                                 </label>
                             </div>
 
                             <div x-show="timeApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Upload Special Minimum Time Approval Copy (Max 2 MB)</label>
+                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Upload Special Minimum Time Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                    </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
 
                                 <div x-show="!fileStates.timeApp.name">
-                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1'" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
 
                                 <!-- File Size Error Alert -->
@@ -405,7 +409,7 @@
                         <div class="flex items-center justify-between">
                             <h4 class="text-md font-bold text-indigo-900 dark:text-indigo-300 flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Publication List Multi-Sheet Preview
+                                Publication and Other Recognition Preview
                             </h4>
                             <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-3 py-1 rounded-full" id="excelSheetCount"></span>
                         </div>

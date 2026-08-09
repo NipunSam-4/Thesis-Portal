@@ -34,13 +34,13 @@
 
             <!-- Flash Alerts -->
             @if(session('success'))
-                <div class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold">
+                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(session('warning'))
-                <div class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold">
+                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold">
                     {{ session('warning') }}
                 </div>
             @endif
@@ -64,7 +64,7 @@
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                         <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 mr-2"></span>
-                        Institute PhD Students ({{ $allStudents->count() }})
+                        PhD Students ({{ $allStudents->count() }})
                     </h3>
                     
                     <!-- Search Input Bar -->
@@ -120,7 +120,7 @@
                                     <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                         <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
                                         <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
-                                        <div class="text-xs text-gray-500 mt-1">Supervisors: {{ $thesis->supervisors->pluck('name')->join(', ') ?: 'Unassigned' }}</div>
+                                        <div class="text-xs text-gray-500 mt-1">Supervisors: {{ $student->supervisors->pluck('name')->join(', ') ?: 'Unassigned' }}</div>
                                     </div>
 
                                     <!-- PTS Milestone Forms Breakdown -->

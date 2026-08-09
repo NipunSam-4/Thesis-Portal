@@ -221,7 +221,7 @@ class SystemAdminController extends Controller
         $facultyUsers = User::where('role', 'faculty')->with('facultyProfile.department')->orderBy('name')->get();
 
         $students = User::where('role', 'phd_student')
-            ->with(['student.department', 'student.theses.supervisors', 'student.theses.pspcMembers'])
+            ->with(['student.department', 'student.supervisors', 'student.pspcMembers'])
             ->orderBy('name')
             ->get();
 
@@ -257,23 +257,23 @@ class SystemAdminController extends Controller
         ]);
 
         $thesis = $student->theses()->create([
-            'title' => $request->thesis_title ?? 'Ph.D. Thesis Research',
+            'title' => $request->thesis_title ?? 'PhD Thesis Research',
             'status' => 'in_progress',
         ]);
 
-        // Attach Main Supervisor
-        $thesis->supervisors()->attach($request->main_supervisor_id, ['supervisor_type' => 'main']);
+        // Attach Main Supervisor to Student
+        $student->supervisors()->attach($request->main_supervisor_id, ['supervisor_type' => 'main']);
 
-        // Attach Co-Supervisors
+        // Attach Co-Supervisors to Student
         if (!empty($request->co_supervisor_ids)) {
             foreach ($request->co_supervisor_ids as $coSupId) {
-                $thesis->supervisors()->attach($coSupId, ['supervisor_type' => 'co']);
+                $student->supervisors()->attach($coSupId, ['supervisor_type' => 'co']);
             }
         }
 
-        // Attach PSPC Members
+        // Attach PSPC Members to Student
         if (!empty($request->pspc_member_ids)) {
-            $thesis->pspcMembers()->attach($request->pspc_member_ids);
+            $student->pspcMembers()->attach($request->pspc_member_ids);
         }
 
         return back()->with('success', 'Student ' . $user->name . ' registered successfully with thesis record!');

@@ -19,10 +19,10 @@ class StudentPts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'Student profile not found.');
         }
 
-        $thesis = Thesis::where('student_id', $student->id)->with(['pts1Form', 'pts2Form'])->first();
+        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->first();
 
         if (!$thesis) {
-            return redirect()->route('student.dashboard')->with('warning', 'No registered thesis found.');
+            return redirect()->route('student.dashboard')->with('warning', 'No active registered thesis found.');
         }
 
         // Must have an APPROVED PTS-1 Form (status === 'accepted')
@@ -44,7 +44,7 @@ class StudentPts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        $thesis = Thesis::where('student_id', $student->id)->with(['pts1Form', 'pts2Form'])->firstOrFail();
+        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->firstOrFail();
 
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
             return redirect()->route('student.dashboard')->with('error', 'Unauthorized: PTS-1 is not approved.');

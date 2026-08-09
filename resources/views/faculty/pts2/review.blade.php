@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Evaluate & Edit PTS-2 Ph.D. Synopsis Form') }}
+                {{ __('Evaluate & Edit PTS-2 PhD Synopsis Form') }}
             </h2>
             <a href="{{ route('faculty.dashboard') }}" class="px-4 py-1.5 bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs rounded-lg shadow transition">
                 &larr; Back to Dashboard
@@ -26,7 +26,7 @@
             <div class="bg-indigo-900 text-white rounded-xl p-6 shadow-sm space-y-3">
                 <div class="flex justify-between items-start border-b border-indigo-700 pb-3">
                     <div>
-                        <span class="text-xs uppercase text-indigo-300 font-bold">Ph.D. Student Profile (Read-Only)</span>
+                        <span class="text-xs uppercase text-indigo-300 font-bold">PhD Student Profile (Read-Only)</span>
                         <h3 class="text-2xl font-bold mt-0.5">{{ $student->user->name }}</h3>
                     </div>
                     <span class="bg-indigo-700 text-indigo-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-indigo-600">

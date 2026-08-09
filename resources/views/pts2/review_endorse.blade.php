@@ -19,7 +19,7 @@
             <div class="bg-purple-900 text-white rounded-xl p-6 shadow-sm space-y-3">
                 <div class="flex justify-between items-start border-b border-purple-700 pb-3">
                     <div>
-                        <span class="text-xs uppercase text-purple-300 font-bold">Ph.D. Student Profile</span>
+                        <span class="text-xs uppercase text-purple-300 font-bold">PhD Student Profile</span>
                         <h3 class="text-2xl font-bold mt-0.5">{{ $studentUser->name }}</h3>
                     </div>
                     <span class="bg-purple-700 text-purple-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-purple-600">

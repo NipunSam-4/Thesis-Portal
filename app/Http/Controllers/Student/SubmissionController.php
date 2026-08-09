@@ -15,7 +15,7 @@ class SubmissionController extends Controller
         $user = $request->user();
         $student = $user->student()->with('theses.submissions')->firstOrFail();
 
-        $latestThesis = $student->theses->last();
+        $latestThesis = $student->theses->firstWhere('status', 'in_progress');
         $submissions = $latestThesis ? $latestThesis->submissions : collect();
         $pts1Approved = $submissions->where('form_type', 'PTS-1')->whereIn('status', ['Accepted', 'Approved'])->isNotEmpty();
         $pts3Approved = $submissions->where('form_type', 'PTS-3')->whereIn('status', ['Accepted', 'Approved'])->isNotEmpty();
