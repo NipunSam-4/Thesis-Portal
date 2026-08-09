@@ -16,7 +16,7 @@ class GlobalAuthorityDashboardController extends Controller
         $allStudents = Student::with([
             'user',
             'department',
-            'theses.supervisors',
+            'supervisors',
             'theses.pts1Form',
             'theses.pts2Form'
         ])

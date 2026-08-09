@@ -33,12 +33,6 @@ class Department extends Model
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Department Relationships
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Get the Department Super Admins assigned to this department.
      */
@@ -46,28 +40,5 @@ class Department extends Model
     {
         return $this->hasMany(SuperAdmin::class);
     }
-
-    /**
-     * Get the Head of Departments (HoDs) assigned to this department.
-     */
-    public function hods(): HasMany
-    {
-        return $this->hasMany(Hod::class);
-    }
-
-    /**
-     * Get the PhD Students enrolled in this department.
-     */
-    public function students(): HasMany
-    {
-        return $this->hasMany(Student::class);
-    }
     
-    /**
-     * Get the Faculty Supervisors belonging to this department.
-     */
-    public function supervisors(): HasMany
-    {
-        return $this->hasMany(Supervisor::class);
-    }
 }

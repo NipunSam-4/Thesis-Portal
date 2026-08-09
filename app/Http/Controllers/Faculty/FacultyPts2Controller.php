@@ -14,10 +14,7 @@ class FacultyPts2Controller extends Controller
         $user = auth()->user();
 
         // Ensure user is Main Supervisor for this thesis
-        $isMain = $pts2->thesis->supervisors()
-            ->where('users.id', $user->id)
-            ->where('supervisor_type', 'main')
-            ->exists();
+        $isMain = $pts2->thesis->student->isMainSupervisor($user);
 
         if (!$isMain) {
             return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access.');
@@ -32,10 +29,7 @@ class FacultyPts2Controller extends Controller
     {
         $user = auth()->user();
 
-        $isMain = $pts2->thesis->supervisors()
-            ->where('users.id', $user->id)
-            ->where('supervisor_type', 'main')
-            ->exists();
+        $isMain = $pts2->thesis->student->isMainSupervisor($user);
 
         if (!$isMain) {
             return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access.');

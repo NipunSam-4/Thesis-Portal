@@ -210,6 +210,19 @@
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Submission of open seminar details, institute norms, draft synopsis report, publication and other recognitions list.
                                         </p>
+
+                                        @if($pts1Form && $pts1Form->status === 'reverted')
+                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                    ⚠️ Reverted by {{ $pts1Form->getRevertedByRoleLabel() }}
+                                                </div>
+                                                @if($pts1Form->getReversionComment())
+                                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1">
+                                                        "{{ $pts1Form->getReversionComment() }}"
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
@@ -253,6 +266,19 @@
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Submission and sequential endorsement of the {{ $student->isPhd() ? 'PhD' : 'MS(R)' }} Synopsis Report.
                                         </p>
+
+                                        @if($pts2Form && $pts2Form->status === 'reverted')
+                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                    ⚠️ Reverted by {{ $pts2Form->getRevertedByRoleLabel() }}
+                                                </div>
+                                                @if($pts2Form->getReversionComment())
+                                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1">
+                                                        "{{ $pts2Form->getReversionComment() }}"
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600">

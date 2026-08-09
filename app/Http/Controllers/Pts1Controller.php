@@ -6,8 +6,135 @@ use App\Models\Pts1Form;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class Pts1EndorsementController extends Controller
+class Pts1Controller extends Controller
 {
+    /**
+     * Show the Main Supervisor review & edit form for a PTS-1 submission.
+     */
+    public function edit(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+
+        // Check if logged-in user is Main Supervisor for this thesis
+        $thesis = $pts1->thesis;
+        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
+
+        if (!$isMainSupervisor) {
+            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-1 review.');
+        }
+
+        $student = $thesis->student;
+        $studentUser = $student->user;
+
+        return view('faculty.pts1.review', compact('pts1', 'thesis', 'student', 'studentUser'));
+    }
+
+    /**
+     * Process Main Supervisor review submission (Edits, Evaluation & Endorsement/Reversion).
+     */
+    public function update(Request $request, Pts1Form $pts1)
+    {
+        $user = auth()->user();
+        $thesis = $pts1->thesis;
+
+        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
+
+        if (!$isMainSupervisor) {
+            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-1 review.');
+        }
+
+        $pubNormFulfilled = $request->boolean('publication_norm_fulfillment');
+        $pubSpecialApproval = $pubNormFulfilled ? false : $request->boolean('special_approval_publication');
+
+        $minTimeFulfilled = $request->boolean('min_time_req_fulfilled');
+        $minTimeSpecialApproval = $minTimeFulfilled ? false : $request->boolean('special_approval_min_time');
+
+        $requirePubDoc = !$pubNormFulfilled && $pubSpecialApproval && !$pts1->publication_approval_doc_path;
+        $requireMinTimeDoc = !$minTimeFulfilled && $minTimeSpecialApproval && !$pts1->min_time_approval_doc_path;
+
+        $validated = $request->validate([
+            'date_confirmation' => 'required|date',
+            'seminar_date' => 'required|date',
+            'seminar_time' => 'required|string|max:100',
+            'seminar_venue' => 'required|string|max:255',
+            'meeting_link' => 'nullable|url|max:255',
+            
+            'publication_norm_fulfillment' => 'required|boolean',
+            'special_approval_publication' => 'nullable|boolean',
+            'publication_approval_doc' => ($requirePubDoc ? 'required' : 'nullable') . '|file|mimes:pdf,png,jpg,jpeg|max:2048',
+
+            'min_time_req_fulfilled' => 'required|boolean',
+            'special_approval_min_time' => 'nullable|boolean',
+            'min_time_approval_doc' => ($requireMinTimeDoc ? 'required' : 'nullable') . '|file|mimes:pdf,png,jpg,jpeg|max:2048',
+
+            'draft_synopsis_report' => 'nullable|file|mimes:pdf,docx|max:2048',
+            'publication_list' => 'nullable|file|mimes:xlsx,xls|max:2048',
+
+            'work_status' => 'required|in:adequate,inadequate',
+            'main_supervisor_student_comment' => 'required|string',
+            'main_supervisor_confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string' : 'nullable|string',
+        ]);
+
+        // Optional File Replacements by Main Supervisor
+        $pubAppPath = $pts1->publication_approval_doc_path;
+        if (!$pubNormFulfilled && $pubSpecialApproval && $request->hasFile('publication_approval_doc')) {
+            $pubAppPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
+        }
+
+        $minTimeAppPath = $pts1->min_time_approval_doc_path;
+        if (!$minTimeFulfilled && $minTimeSpecialApproval && $request->hasFile('min_time_approval_doc')) {
+            $minTimeAppPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
+        }
+
+        $synopsisPath = $pts1->draft_synopsis_report_doc_path;
+        if ($request->hasFile('draft_synopsis_report')) {
+            $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
+        }
+
+        $pubListPath = $pts1->publication_list_doc_path;
+        if ($request->hasFile('publication_list')) {
+            $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
+        }
+
+        // Update Student confirmation date
+        $thesis->student->update(['date_confirmation' => $validated['date_confirmation']]);
+
+        // Determine Next Stage for Forwarding
+        $coSupervisorsCount = $thesis->student ? $thesis->student->coSupervisors()->count() : 0;
+        $pspcMembersCount = $thesis->student ? $thesis->student->pspcMembers()->count() : 0;
+
+        $nextStage = 'dpgc';
+        if ($coSupervisorsCount > 0) {
+            $nextStage = 'co_supervisors';
+        } elseif ($pspcMembersCount > 0) {
+            $nextStage = 'pspc_members';
+        }
+
+        $pts1->update([
+            'seminar_date' => $validated['seminar_date'],
+            'seminar_time' => $validated['seminar_time'],
+            'seminar_venue' => $validated['seminar_venue'],
+            'meeting_link' => $validated['meeting_link'],
+            'publication_norm_fulfillment' => $pubNormFulfilled,
+            'special_approval_publication' => $pubSpecialApproval,
+            'publication_approval_doc_path' => $pubNormFulfilled ? null : $pubAppPath,
+            'min_time_req_fulfilled' => $minTimeFulfilled,
+            'special_approval_min_time' => $minTimeSpecialApproval,
+            'min_time_approval_doc_path' => $minTimeFulfilled ? null : $minTimeAppPath,
+            'draft_synopsis_report_doc_path' => $synopsisPath,
+            'publication_list_doc_path' => $pubListPath,
+            'work_status' => $validated['work_status'],
+            'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
+            'main_supervisor_confidential_remark' => $validated['main_supervisor_confidential_remark'] ?: 'N/A',
+            'main_supervisor_recommendation' => ($validated['work_status'] === 'adequate'),
+            'current_stage' => $nextStage,
+            'status' => 'in_progress',
+            'main_supervisor_submitted_at' => now(),
+        ]);
+
+        return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
+    }
+
     /**
      * Display dedicated full-page review & endorsement view for PTS-1 with complete audit trail.
      */
@@ -17,7 +144,7 @@ class Pts1EndorsementController extends Controller
         $thesis = $pts1->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-        $mainSupervisor = $thesis->mainSupervisor;
+        $mainSupervisor = $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -35,7 +162,7 @@ class Pts1EndorsementController extends Controller
             }
         }
 
-        $sectionofficer = ($user->role === 'section_officer');
+        $sectionofficer = $user->isSectionOfficer();
 
         return view('pts1.review_endorse', compact(
             'pts1',
@@ -58,14 +185,14 @@ class Pts1EndorsementController extends Controller
         $thesis = $pts1->thesis;
 
         $validated = $request->validate([
-            'work_status' => 'required|in:adequate,inadequate',
-            'comment' => 'nullable|string',
-            'confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string' : 'nullable|string',
+            'recommendation' => 'required|boolean',
+            'student_comment' => 'nullable|string',
+            'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
         ]);
 
-        $isRecommended = ($validated['work_status'] === 'adequate');
-        $comment = $validated['comment'] ?? 'N/A';
-        $remark = $validated['confidential_remark'] ?: ($isRecommended ? 'Recommended' : 'Not Recommended');
+        $isRecommended = $request->boolean('recommendation');
+        $comment = $validated['student_comment'] ?? null;
+        $remark = $validated['confidential_remark'] ;
 
         $stage = $pts1->current_stage;
 
@@ -93,8 +220,8 @@ class Pts1EndorsementController extends Controller
                 $allCoDone = true;
                 for ($i = 1; $i <= 10; $i++) {
                     $idCol = "co_supervisor_{$i}_id";
-                    $remCol = "co_supervisor_{$i}_confidential_remark";
-                    if ($pts1->$idCol && is_null($pts1->$remCol)) {
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts1->$idCol && is_null($pts1->$recCol)) {
                         $allCoDone = false;
                         break;
                     }
@@ -140,8 +267,8 @@ class Pts1EndorsementController extends Controller
                 $allPspcDone = true;
                 for ($i = 1; $i <= 10; $i++) {
                     $idCol = "pspc_member_{$i}_id";
-                    $remCol = "pspc_member_{$i}_confidential_remark";
-                    if ($pts1->$idCol && is_null($pts1->$remCol)) {
+                    $recCol = "pspc_member_{$i}_recommendation";
+                    if ($pts1->$idCol && is_null($pts1->$recCol)) {
                         $allPspcDone = false;
                         break;
                     }
@@ -156,7 +283,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'dpgc':
-                if ($user->role !== 'dpgc') {
+                if (!$user->isDpgc()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -168,7 +295,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'hod':
-                if ($user->role !== 'hod') {
+                if (!$user->isHod()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -180,7 +307,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'section_officer':
-                if ($user->role !== 'section_officer') {
+                if (!$user->isSectionOfficer()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -192,7 +319,7 @@ class Pts1EndorsementController extends Controller
                 break;
 
             case 'doaa':
-                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar'])) {
+                if (!($user->isDoaa())) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -218,27 +345,24 @@ class Pts1EndorsementController extends Controller
     public function revert(Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();
-        $request->validate(['comment' => 'required|string']);
-        $comment = $request->input('comment');
+        $request->validate(['reversion_comment' => 'required|string']);
+        $comment = $request->input('reversion_comment');
 
         $stage = $pts1->current_stage;
 
         switch ($stage) {
             case 'main_supervisor':
-                $isMainSupervisor = $pts1->thesis->supervisors()
-                    ->where('users.id', $user->id)
-                    ->wherePivot('supervisor_type', 'main')
-                    ->exists();
+                $isMainSupervisor = $pts1->thesis->student->isMainSupervisor($user);
 
                 if (!$isMainSupervisor) {
                     return back()->with('error', 'Unauthorized access. Only Main Supervisor can revert at this stage.');
                 }
 
                 $pts1->update([
-                    'main_supervisor_reversion_comment' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'main_supervisor',
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
             case 'co_supervisors':
@@ -256,10 +380,10 @@ class Pts1EndorsementController extends Controller
                 }
 
                 $pts1->update([
-                    "{$roleKey}_reversion_comment" => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => $roleKey,
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 break;
 
@@ -278,58 +402,46 @@ class Pts1EndorsementController extends Controller
                 }
 
                 $pts1->update([
-                    "{$roleKey}_reversion_comment" => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => $roleKey,
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 break;
 
             case 'dpgc':
-                if ($user->role !== 'dpgc') {
+                if (!$user->isDpgc()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'dpgc_reversion_comment' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'dpgc',
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 break;
 
             case 'hod':
-                if ($user->role !== 'hod') {
+                if (!$user->isHod()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'hod_reversion_comment' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'hod',
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
-
-            case 'section_officer':
-                if ($user->role !== 'section_officer') {
-                    return back()->with('error', 'Unauthorized access.');
-                }
-                $pts1->update([
-                    'section_officer_reversion_comment' => $comment,
-                    'reverted_by_role' => 'section_officer',
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 break;
 
             case 'doaa':
-                if (!in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar'])) {
+                if (!($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic())) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'doaa_reversion_comment' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'doaa',
                     'status' => 'reverted',
-                    'current_stage' => 'rejected',
+                    'current_stage' => 'reverted',
                 ]);
                 break;
 

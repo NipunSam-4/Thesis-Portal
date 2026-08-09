@@ -15,6 +15,43 @@
     }">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            <!-- Flash Session Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('warning') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 text-red-800 dark:text-red-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('info') }}</span>
+                    </div>
+                </div>
+            @endif
+
             <!-- Student Profile Header Card -->
             <div class="bg-purple-900 text-white rounded-xl p-6 shadow-sm space-y-3">
                 <div class="flex justify-between items-start border-b border-purple-700 pb-3">
@@ -236,21 +273,31 @@
                     $showActionForm = false;
                     $user = auth()->user();
                     if ($pts2->current_stage === 'co_supervisors') {
-                        if ($pts2->co_supervisor_1_id === $user->id && !$pts2->co_supervisor_1_recommendation) $showActionForm = true;
-                        if ($pts2->co_supervisor_2_id === $user->id && !$pts2->co_supervisor_2_recommendation) $showActionForm = true;
-                        if ($pts2->co_supervisor_3_id === $user->id && !$pts2->co_supervisor_3_recommendation) $showActionForm = true;
+                        for ($i = 1; $i <= 10; $i++) {
+                            $idCol = "co_supervisor_{$i}_id";
+                            $recCol = "co_supervisor_{$i}_recommendation";
+                            if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
+                                $showActionForm = true;
+                                break;
+                            }
+                        }
                     } elseif ($pts2->current_stage === 'pspc_members') {
-                        if ($pts2->pspc_member_1_id === $user->id && !$pts2->pspc_member_1_recommendation) $showActionForm = true;
-                        if ($pts2->pspc_member_2_id === $user->id && !$pts2->pspc_member_2_recommendation) $showActionForm = true;
-                        if ($pts2->pspc_member_3_id === $user->id && !$pts2->pspc_member_3_recommendation) $showActionForm = true;
+                        for ($i = 1; $i <= 10; $i++) {
+                            $idCol = "pspc_member_{$i}_id";
+                            $recCol = "pspc_member_{$i}_recommendation";
+                            if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
+                                $showActionForm = true;
+                                break;
+                            }
+                        }
                     } elseif ($pts2->current_stage === 'dpgc') {
-                        if ($user->role === 'dpgc' && !$pts2->dpgc_recommendation) $showActionForm = true;
+                        if ($user->isDpgc() && is_null($pts2->dpgc_recommendation)) $showActionForm = true;
                     } elseif ($pts2->current_stage === 'hod') {
-                        if ($user->role === 'hod' && !$pts2->hod_recommendation) $showActionForm = true;
+                        if ($user->isHod() && is_null($pts2->hod_recommendation)) $showActionForm = true;
                     } elseif ($pts2->current_stage === 'section_officer') {
-                        if ($user->role === 'section_officer' && !$pts2->section_officer_recommendation) $showActionForm = true;
+                        if ($user->isSectionOfficer() && is_null($pts2->section_officer_recommendation)) $showActionForm = true;
                     } elseif ($pts2->current_stage === 'doaa') {
-                        if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar']) && !$pts2->doaa_approval) $showActionForm = true;
+                        if (($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) && is_null($pts2->doaa_approval)) $showActionForm = true;
                     }
                 @endphp
 
@@ -270,22 +317,24 @@
                                 <div class="flex items-center space-x-2">
                                     <input type="radio" name="action" value="approve" x-model="action" class="text-emerald-600 focus:ring-emerald-500">
                                     <span class="font-bold text-sm text-emerald-900 dark:text-emerald-300">
-                                        {{ auth()->user()->role === 'section_officer' ? '✓ Forward' : '✓ Approve & Endorse' }}
+                                        {{ $user->isSectionOfficer() ? '✓ Forward' : '✓ Approve & Endorse' }}
                                     </span>
                                 </div>
                                 <p class="text-xs text-gray-500">
-                                    {{ auth()->user()->role === 'section_officer' ? 'Forward PTS-2 Synopsis form to the next stage in the academic pipeline.' : 'Endorse PTS-2 Synopsis form and forward to the next stage in the academic pipeline.' }}
+                                    {{ $user->isSectionOfficer() ? 'Forward PTS-2 Synopsis form to the next stage in the academic pipeline.' : 'Endorse PTS-2 Synopsis form and forward to the next stage in the academic pipeline.' }}
                                 </p>
                             </div>
 
-                            <!-- Revert Card -->
-                            <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
-                                <div class="flex items-center space-x-2">
-                                    <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
-                                    <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Student</span>
+                            @if(!$user->isSectionOfficer())
+                                <!-- Revert Card -->
+                                <div @click="action = 'revert'" :class="action === 'revert' ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20 ring-2 ring-red-500' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'" class="p-4 rounded-xl border cursor-pointer transition space-y-2">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="radio" name="action" value="revert" x-model="action" class="text-red-600 focus:ring-red-500">
+                                        <span class="font-bold text-sm text-red-900 dark:text-red-300">⚠️ Revert Back to Student</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Revert synopsis form back to student with comments for necessary modifications.</p>
                                 </div>
-                                <p class="text-xs text-gray-500">Revert synopsis form back to student with comments for necessary modifications.</p>
-                            </div>
+                            @endif
                         </div>
 
                         <!-- Comment Input (Required if Revert selected) -->
@@ -293,7 +342,7 @@
                             <label for="comment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
                                 Authority Comments <span x-show="action === 'revert'" class="text-red-500">* (Required for Reversion)</span>
                             </label>
-                            <textarea name="comment" id="comment" rows="3" :required="action === 'revert'"
+                            <textarea :name="action === 'revert' ? 'reversion_comment' : 'comment'" id="comment" rows="3" :required="action === 'revert'"
                                 placeholder="Enter endorsement observations or reversion comments..."
                                 class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"></textarea>
                         </div>

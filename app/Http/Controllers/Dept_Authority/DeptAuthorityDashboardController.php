@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Dpgc;
+namespace App\Http\Controllers\Dept_Authority;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
-class DpgcDashboardController extends Controller
+class DeptAuthorityDashboardController extends Controller
 {
     public function index()
     {
         $user = auth()->user();
         $departmentId = $user->facultyProfile?->department_id;
 
-        // Fetch all students belonging to DPGC's department with their theses and PTS forms
+        // Fetch all students belonging to the department with their theses and PTS forms
         $departmentStudents = Student::where('department_id', $departmentId)
             ->with([
                 'user',
                 'department',
-                'theses.supervisors',
+                'supervisors',
                 'theses.pts1Form',
                 'theses.pts2Form'
             ])

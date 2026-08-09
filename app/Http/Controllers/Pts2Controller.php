@@ -6,7 +6,7 @@ use App\Models\Pts2Form;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class Pts2EndorsementController extends Controller
+class Pts2Controller extends Controller
 {
     /**
      * Display dedicated full-page review & endorsement view for PTS-2 with complete audit trail.
@@ -18,7 +18,7 @@ class Pts2EndorsementController extends Controller
         $student = $thesis->student;
         $studentUser = $student->user;
 
-        $mainSupervisor = $thesis->mainSupervisor;
+        $mainSupervisor = $student->mainSupervisors->first();
         $coSupervisor1 = $pts2->co_supervisor_1_id ? User::find($pts2->co_supervisor_1_id) : null;
         $coSupervisor2 = $pts2->co_supervisor_2_id ? User::find($pts2->co_supervisor_2_id) : null;
         $coSupervisor3 = $pts2->co_supervisor_3_id ? User::find($pts2->co_supervisor_3_id) : null;
@@ -125,8 +125,8 @@ class Pts2EndorsementController extends Controller
     public function revert(Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
-        $request->validate(['comment' => 'required|string']);
-        $comment = $request->input('comment');
+        $request->validate(['reversion_comment' => 'required|string']);
+        $comment = $request->input('reversion_comment');
 
         switch ($pts2->current_stage) {
             case 'co_supervisors':
@@ -140,7 +140,7 @@ class Pts2EndorsementController extends Controller
                 }
 
                 $pts2->update([
-                    "{$roleKey}_comment" => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => $roleKey,
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -152,7 +152,7 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'dpgc_confidential_remark' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'dpgc',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -164,31 +164,21 @@ class Pts2EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'hod_confidential_remark' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'hod',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
                 ]);
                 break;
 
-            case 'section_officer':
-                if ($user->role !== 'section_officer') {
-                    return back()->with('error', 'Unauthorized access.');
-                }
-                $pts2->update([
-                    'section_officer_confidential_remark' => $comment,
-                    'reverted_by_role' => 'section_officer',
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
+
 
             case 'doaa':
                 if (!$user->isDoaa() && !$user->isAdoaa() && !$user->isSenateChairperson() && !$user->isArAcademic()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'doaa_confidential_remark' => $comment,
+                    'reversion_comment' => $comment,
                     'reverted_by_role' => 'doaa',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',

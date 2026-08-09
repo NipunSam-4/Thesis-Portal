@@ -15,7 +15,7 @@ class HodController extends Controller
 
         $departmentTheses = Thesis::whereHas('student', function($query) use ($departmentId) {
             $query->where('department_id', $departmentId);
-        })->with(['student.user', 'supervisors'])->get();
+        })->with(['student.user', 'student.supervisors'])->get();
 
         return view('dept_authorities.dashboard', compact('departmentTheses'));
     }

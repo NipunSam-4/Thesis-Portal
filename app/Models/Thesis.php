@@ -24,47 +24,6 @@ class Thesis extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function supervisors(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
-                    ->withPivot('supervisor_type')
-                    ->withTimestamps();
-    }
-
-    public function mainSupervisors(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
-                    ->wherePivot('supervisor_type', 'main')
-                    ->withTimestamps();
-    }
-
-    public function coSupervisors(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
-                    ->wherePivot('supervisor_type', 'co')
-                    ->withTimestamps();
-    }
-
-    public function administrativeSupervisors(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
-                    ->wherePivot('supervisor_type', 'administrative')
-                    ->withTimestamps();
-    }
-
-    public function externalSupervisors(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_supervisor', 'student_id', 'faculty_user_id', 'student_id')
-                    ->wherePivot('supervisor_type', 'external')
-                    ->withTimestamps();
-    }
-
-    public function pspcMembers(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'student_pspc_members', 'student_id', 'faculty_user_id', 'student_id')
-                    ->withTimestamps();
-    }
-
     public function pts1Form(): HasOne
     {
         return $this->hasOne(Pts1Form::class);
@@ -73,16 +32,6 @@ class Thesis extends Model
     public function pts2Form(): HasOne
     {
         return $this->hasOne(Pts2Form::class);
-    }
-
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(Submission::class);
-    }
-
-    public function examiners(): HasMany
-    {
-        return $this->hasMany(Examiner::class);
     }
 
     /**

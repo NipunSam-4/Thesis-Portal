@@ -4,17 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\SystemAdminController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentThesisController;
-use App\Http\Controllers\Student\SubmissionController;
-use App\Http\Controllers\Student\Pts1Controller;
+use App\Http\Controllers\Student\StudentPts1Controller;
 use App\Http\Controllers\Student\StudentPts2Controller;
 use App\Http\Controllers\PtsDocumentController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
-use App\Http\Controllers\Faculty\FacultyPts1Controller;
 use App\Http\Controllers\Faculty\FacultyPts2Controller;
-use App\Http\Controllers\Pts1EndorsementController;
-use App\Http\Controllers\Pts2EndorsementController;
-use App\Http\Controllers\Hod\HodDashboardController;
-use App\Http\Controllers\Dpgc\DpgcDashboardController;
+use App\Http\Controllers\Pts1Controller;
+use App\Http\Controllers\Pts2Controller;
+use App\Http\Controllers\Dept_Authority\DeptAuthorityDashboardController;
 use App\Http\Controllers\GlobalAuthority\GlobalAuthorityDashboardController;
 use App\Http\Controllers\ProfileController;
 
@@ -30,11 +27,10 @@ Route::get('/dashboard', function () {
     }
 
     $user = auth()->user();
-
+    
     if (!$user) {
         return redirect()->route('login');
     }
-
     if ($user->isStudent()) {
         return redirect()->route('student.dashboard');
     }
@@ -63,83 +59,57 @@ Route::middleware('auth')->group(function () {
     Route::get('/pts/document/{formType}/{id}/{field}', [PtsDocumentController::class, 'serveDocument'])->name('pts.document.serve');
 
     // Universal Dedicated Review & Endorsement Full-Page Views
-    Route::get('/pts1/{pts1}/review-endorse', [Pts1EndorsementController::class, 'showReview'])->name('pts1.review_endorse');
-    Route::get('/pts2/{pts2}/review-endorse', [Pts2EndorsementController::class, 'showReview'])->name('pts2.review_endorse');
+    Route::get('/pts1/{pts1}/review-endorse', [Pts1Controller::class, 'showReview'])->name('pts1.review_endorse');
+    Route::get('/pts2/{pts2}/review-endorse', [Pts2Controller::class, 'showReview'])->name('pts2.review_endorse');
 
     // Universal PTS-1 Endorsement & Reversion Action Routes
-    Route::post('/pts1/{pts1}/endorse', [Pts1EndorsementController::class, 'endorse'])->name('pts1.endorse');
-    Route::post('/pts1/{pts1}/revert', [Pts1EndorsementController::class, 'revert'])->name('pts1.revert');
+    Route::post('/pts1/{pts1}/endorse', [Pts1Controller::class, 'endorse'])->name('pts1.endorse');
+    Route::post('/pts1/{pts1}/revert', [Pts1Controller::class, 'revert'])->name('pts1.revert');
 
     // Universal PTS-2 Endorsement & Reversion Action Routes
-    Route::post('/pts2/{pts2}/endorse', [Pts2EndorsementController::class, 'endorse'])->name('pts2.endorse');
-    Route::post('/pts2/{pts2}/revert', [Pts2EndorsementController::class, 'revert'])->name('pts2.revert');
+    Route::post('/pts2/{pts2}/endorse', [Pts2Controller::class, 'endorse'])->name('pts2.endorse');
+    Route::post('/pts2/{pts2}/revert', [Pts2Controller::class, 'revert'])->name('pts2.revert');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Student Routes
-|--------------------------------------------------------------------------
-*/
+// Student Routes
 Route::prefix('student')->middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
     Route::post('/thesis/store', [StudentThesisController::class, 'store'])->name('student.thesis.store');
     
-    Route::get('/pts1/create', [Pts1Controller::class, 'create'])->name('student.pts1.create');
-    Route::post('/pts1/store', [Pts1Controller::class, 'store'])->name('student.pts1.store');
-    Route::get('/pts1/template/download', [Pts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
+    Route::get('/pts1/create', [StudentPts1Controller::class, 'create'])->name('student.pts1.create');
+    Route::post('/pts1/store', [StudentPts1Controller::class, 'store'])->name('student.pts1.store');
+    Route::get('/pts1/template/download', [StudentPts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
     
     // PTS-2 Synopsis Form Routes
     Route::get('/pts2/create', [StudentPts2Controller::class, 'create'])->name('student.pts2.create');
     Route::post('/pts2/store', [StudentPts2Controller::class, 'store'])->name('student.pts2.store');
-    Route::get('/thesis/submit', [SubmissionController::class, 'createPts2'])->name('student.thesis.submit');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Faculty Routes (Supervisors & PSPC)
-|--------------------------------------------------------------------------
-*/
+// Faculty Routes (Supervisors & PSPC)
 Route::prefix('faculty')->middleware(['auth', 'role:faculty'])->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])->name('faculty.dashboard');
-    Route::get('/pts1/{pts1}/review', [FacultyPts1Controller::class, 'edit'])->name('faculty.pts1.edit');
-    Route::match(['post', 'put'], '/pts1/{pts1}/update', [FacultyPts1Controller::class, 'update'])->name('faculty.pts1.update');
+    Route::get('/pts1/{pts1}/review', [Pts1Controller::class, 'edit'])->name('faculty.pts1.edit');
+    Route::match(['post', 'put'], '/pts1/{pts1}/update', [Pts1Controller::class, 'update'])->name('faculty.pts1.update');
     
     Route::get('/pts2/{pts2}/review', [FacultyPts2Controller::class, 'edit'])->name('faculty.pts2.edit');
     Route::match(['post', 'put'], '/pts2/{pts2}/update', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Head of Department (HOD) Routes
-|--------------------------------------------------------------------------
-*/
+// Departmental Authorities Routes (HOD & DPGC)
 Route::prefix('hod')->middleware(['auth', 'role:hod'])->group(function () {
-    Route::get('/dashboard', [HodDashboardController::class, 'index'])->name('hod.dashboard');
+    Route::get('/dashboard', [DeptAuthorityDashboardController::class, 'index'])->name('hod.dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Department Postgraduate Committee (DPGC) Routes
-|--------------------------------------------------------------------------
-*/
 Route::prefix('dpgc')->middleware(['auth', 'role:dpgc'])->group(function () {
-    Route::get('/dashboard', [DpgcDashboardController::class, 'index'])->name('dpgc.dashboard');
+    Route::get('/dashboard', [DeptAuthorityDashboardController::class, 'index'])->name('dpgc.dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Institute Global Authorities Routes (DOAA, ADoAA, Senate Chair, Section Officer)
-|--------------------------------------------------------------------------
-*/
+// Institute Global Authorities Routes (DOAA, ADoAA, Senate Chair, Section Officer)
 Route::prefix('global-authorities')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [GlobalAuthorityDashboardController::class, 'index'])->name('global_authorities.dashboard');
 });
 
-/*
-|--------------------------------------------------------------------------
-| System Admin Routes (System Admin Model Guard)
-|--------------------------------------------------------------------------
-*/
+// System Admin Routes (System Admin Model Guard)
 Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:admin'])->group(function () {
     Route::get('/dashboard', [SystemAdminController::class, 'dashboard'])->name('dashboard');
 

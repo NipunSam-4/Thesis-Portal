@@ -20,6 +20,7 @@ class Student extends Model
         'program_name',
         'roll_number',
         'name',
+        'date_confirmation',
     ];
 
     public function user(): BelongsTo
@@ -83,5 +84,20 @@ class Student extends Model
     {
         return $this->belongsToMany(User::class, 'student_pspc_members', 'student_id', 'faculty_user_id')
                     ->withTimestamps();
+    }
+
+    public function isMainSupervisor(User $user): bool
+    {
+        return $this->mainSupervisors()->where('users.id', $user->id)->exists();
+    }
+
+    public function isCoSupervisor(User $user): bool
+    {
+        return $this->coSupervisors()->where('users.id', $user->id)->exists();
+    }
+
+    public function isPspcMember(User $user): bool
+    {
+        return $this->pspcMembers()->where('users.id', $user->id)->exists();
     }
 }

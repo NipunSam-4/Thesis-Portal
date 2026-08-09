@@ -19,6 +19,7 @@ class Pts2Form extends Model
         'current_stage',
         'status',
         'reverted_by_role',
+        'reversion_comment',
         'main_supervisor_recommendation',
         'main_supervisor_confidential_remark',
         'co_supervisor_1_id',
@@ -121,19 +122,6 @@ class Pts2Form extends Model
 
     public function getReversionComment(): ?string
     {
-        return match ($this->reverted_by_role) {
-            'main_supervisor' => $this->main_supervisor_confidential_remark,
-            'co_supervisor_1' => $this->co_supervisor_1_confidential_remark,
-            'co_supervisor_2' => $this->co_supervisor_2_confidential_remark,
-            'co_supervisor_3' => $this->co_supervisor_3_confidential_remark,
-            'pspc_member_1' => $this->pspc_member_1_confidential_remark,
-            'pspc_member_2' => $this->pspc_member_2_confidential_remark,
-            'pspc_member_3' => $this->pspc_member_3_confidential_remark,
-            'dpgc' => $this->dpgc_confidential_remark,
-            'hod' => $this->hod_confidential_remark,
-            'section_officer' => $this->section_officer_confidential_remark,
-            'doaa' => $this->doaa_confidential_remark,
-            default => null,
-        };
+        return $this->reversion_comment;
     }
 }

@@ -12,9 +12,46 @@
 
     <div class="py-8" x-data="{
         showRevertModal: false,
-        workStatus: 'adequate'
+        recommendation: '1'
     }">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <!-- Flash Session Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('warning') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 text-red-800 dark:text-red-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('info') }}</span>
+                    </div>
+                </div>
+            @endif
 
             <!-- Error Alerts -->
             @if($errors->any())
@@ -220,13 +257,13 @@
 
                 $currentWeight = $stageWeights[$stage] ?? 1;
 
-                $passedMainSupervisor = ($currentWeight > 1) || !is_null($pts1->main_supervisor_submitted_at) || !is_null($pts1->main_supervisor_confidential_remark);
+                $passedMainSupervisor = ($currentWeight > 1) || !is_null($pts1->main_supervisor_submitted_at) || !is_null($pts1->main_supervisor_recommendation);
                 $passedCoSupervisors  = ($currentWeight > 2) || !is_null($pts1->co_supervisors_submitted_at);
                 $passedPspcMembers    = ($currentWeight > 3) || !is_null($pts1->pspc_members_submitted_at);
-                $passedDpgc           = ($currentWeight > 4) || !is_null($pts1->dpgc_confidential_remark) || !is_null($pts1->dpgc_student_comment);
-                $passedHod            = ($currentWeight > 5) || !is_null($pts1->hod_confidential_remark) || !is_null($pts1->hod_student_comment);
-                $passedSectionOfficer = ($currentWeight > 6) || !is_null($pts1->section_officer_confidential_remark) || !is_null($pts1->section_officer_student_comment);
-                $passedDoaa           = ($currentWeight > 7) || !is_null($pts1->doaa_confidential_remark) || !is_null($pts1->doaa_student_comment) || !is_null($pts1->pts1_submitted_at);
+                $passedDpgc           = ($currentWeight > 4) || !is_null($pts1->dpgc_recommendation);
+                $passedHod            = ($currentWeight > 5) || !is_null($pts1->hod_recommendation);
+                $passedSectionOfficer = ($currentWeight > 6) || !is_null($pts1->section_officer_recommendation);
+                $passedDoaa           = ($currentWeight > 7) || !is_null($pts1->doaa_approval) || !is_null($pts1->pts1_submitted_at);
             @endphp
 
             <!-- Section 5: Previous Authority Recommendations & Comments Audit Trail -->
@@ -466,8 +503,8 @@
                 if ($pts1->current_stage === 'co_supervisors') {
                     for ($i = 1; $i <= 10; $i++) {
                         $idCol = "co_supervisor_{$i}_id";
-                        $remCol = "co_supervisor_{$i}_confidential_remark";
-                        if ($pts1->$idCol === $user->id && is_null($pts1->$remCol)) {
+                        $recCol = "co_supervisor_{$i}_recommendation";
+                        if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
                             $showActionForm = true;
                             break;
                         }
@@ -475,20 +512,20 @@
                 } elseif ($pts1->current_stage === 'pspc_members') {
                     for ($i = 1; $i <= 10; $i++) {
                         $idCol = "pspc_member_{$i}_id";
-                        $remCol = "pspc_member_{$i}_confidential_remark";
-                        if ($pts1->$idCol === $user->id && is_null($pts1->$remCol)) {
+                        $recCol = "pspc_member_{$i}_recommendation";
+                        if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
                             $showActionForm = true;
                             break;
                         }
                     }
                 } elseif ($pts1->current_stage === 'dpgc') {
-                    if ($user->role === 'dpgc' && is_null($pts1->dpgc_confidential_remark)) $showActionForm = true;
+                    if ($user->isDpgc() && is_null($pts1->dpgc_recommendation)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'hod') {
-                    if ($user->role === 'hod' && is_null($pts1->hod_confidential_remark)) $showActionForm = true;
+                    if ($user->isHod() && is_null($pts1->hod_recommendation)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'section_officer') {
-                    if ($user->role === 'section_officer' && is_null($pts1->section_officer_confidential_remark)) $showActionForm = true;
+                    if ($user->isSectionOfficer() && is_null($pts1->section_officer_recommendation)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'doaa') {
-                    if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar']) && is_null($pts1->doaa_confidential_remark)) $showActionForm = true;
+                    if (($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) && is_null($pts1->doaa_approval)) $showActionForm = true;
                 }
             @endphp
 
@@ -510,8 +547,8 @@
 
                             <div class="grid grid-cols-1 gap-4">
                                 <!-- Option (a) RECOMMENDED -->
-                                <label class="p-4 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="workStatus === 'adequate' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
-                                    <input type="radio" name="work_status" value="adequate" required x-model="workStatus" class="mt-1 text-emerald-600 focus:ring-emerald-500">
+                                <label class="p-4 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="recommendation === '1' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
+                                    <input type="radio" name="recommendation" value="1" required x-model="recommendation" class="mt-1 text-emerald-600 focus:ring-emerald-500">
                                     <div>
                                         <span class="block font-bold text-sm text-emerald-900 dark:text-emerald-300 uppercase tracking-wide">
                                             (a) RECOMMENDED
@@ -523,8 +560,8 @@
                                 </label>
 
                                 <!-- Option (b) NOT RECOMMENDED -->
-                                <label class="p-4 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="workStatus === 'inadequate' ? 'border-red-500 bg-red-50/50 dark:bg-red-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
-                                    <input type="radio" name="work_status" value="inadequate" required x-model="workStatus" class="mt-1 text-red-600 focus:ring-red-500">
+                                <label class="p-4 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="recommendation === '0' ? 'border-red-500 bg-red-50/50 dark:bg-red-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
+                                    <input type="radio" name="recommendation" value="0" required x-model="recommendation" class="mt-1 text-red-600 focus:ring-red-500">
                                     <div>
                                         <span class="block font-bold text-sm text-red-900 dark:text-red-300 uppercase tracking-wide">
                                             (b) NOT RECOMMENDED
@@ -543,27 +580,27 @@
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Student Comment
                                 </label>
-                                <textarea name="comment" rows="3" placeholder="Provide optional comments or observations for the student..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                                <textarea name="student_comment" rows="3" placeholder="Provide optional comments or observations for the student..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
                             </div>
                         @endif 
 
                         <!-- Item 3: Dynamic Recommendation / Non-Recommendation Remark -->
                         <div class="space-y-2 pt-2">
                             <label class="block font-bold text-gray-900 dark:text-white text-sm">
-                                <span x-show="workStatus === 'adequate'">Recommendation Remark (Optional)</span>
-                                <span x-show="workStatus === 'inadequate'">Non-Recommendation Remark <span class="text-red-500">*</span></span>
+                                <span x-show="recommendation === '1'">Recommendation Remark (Optional)</span>
+                                <span x-show="recommendation === '0'">Non-Recommendation Remark <span class="text-red-500">*</span></span>
                             </label>
                             <textarea name="confidential_remark" 
                                       rows="3" 
-                                      :required="workStatus === 'inadequate'" 
-                                      :placeholder="workStatus === 'adequate' ? 'Optional recommendation remarks for next stage...' : 'Provide mandatory non-recommendation remarks...'" 
+                                      :required="recommendation === '0'" 
+                                      :placeholder="recommendation === '1' ? 'Optional recommendation remarks for next stage...' : 'Provide mandatory non-recommendation remarks...'" 
                                       class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
                         </div>
                     </div>
 
                     <!-- Submit & Revert Action Buttons Bar -->
                     <div class="flex items-center justify-end space-x-4 pt-4">
-                        @if(!$sectionofficer)
+                        @if(!$user->isSectionOfficer())
                             <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
                             <button type="button" 
                                     @click="showRevertModal = true" 
@@ -623,7 +660,7 @@
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-1.5">
                                     Reversion Comment <span class="text-red-500">*</span>
                                 </label>
-                                <textarea name="comment" 
+                                <textarea name="reversion_comment" 
                                           required 
                                           rows="4" 
                                           placeholder="Provide clear reasons/instructions for the student regarding required modifications..." 

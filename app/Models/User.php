@@ -114,30 +114,5 @@ class User extends Authenticatable
         return $this->hasOne(FacultyProfile::class);
     }
 
-    /**
-     * Get the user's department from their student or faculty profile.
-     */
-    public function getDepartmentAttribute()
-    {
-        return $this->student?->department ?? $this->facultyProfile?->department;
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Faculty Thesis Relationships (Supervisors & PSPC)
-    |--------------------------------------------------------------------------
-    */
-
-    public function supervisedTheses(): BelongsToMany
-    {
-        return $this->belongsToMany(Thesis::class, 'student_supervisor', 'faculty_user_id', 'student_id', 'id', 'student_id')
-                    ->withPivot('supervisor_type')
-                    ->withTimestamps();
-    }
-
-    public function pspcTheses(): BelongsToMany
-    {
-        return $this->belongsToMany(Thesis::class, 'student_pspc_members', 'faculty_user_id', 'student_id', 'id', 'student_id')
-                    ->withTimestamps();
-    }
 }
