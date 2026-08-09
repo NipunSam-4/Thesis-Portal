@@ -127,6 +127,7 @@ class FacultyPts1Controller extends Controller
             'main_supervisor_recommendation' => ($validated['work_status'] === 'adequate'),
             'current_stage' => $nextStage,
             'status' => 'in_progress',
+            'main_supervisor_submitted_at' => now(),
         ]);
 
         return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
@@ -143,10 +144,17 @@ class FacultyPts1Controller extends Controller
         $isCoSupervisor = $thesis->supervisors()
             ->where('users.id', $user->id)
             ->wherePivot('supervisor_type', 'co')
-            ->exists() ||
-            $pts1->co_supervisor_1_id === $user->id ||
-            $pts1->co_supervisor_2_id === $user->id ||
-            $pts1->co_supervisor_3_id === $user->id;
+            ->exists();
+
+        if (!$isCoSupervisor) {
+            for ($i = 1; $i <= 10; $i++) {
+                $col = "co_supervisor_{$i}_id";
+                if ($pts1->$col === $user->id) {
+                    $isCoSupervisor = true;
+                    break;
+                }
+            }
+        }
 
         if (!$isCoSupervisor) {
             return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to Co-Supervisor PTS-1 review.');
@@ -173,16 +181,23 @@ class FacultyPts1Controller extends Controller
         ]);
 
         // Determine Co-Supervisor role slot
-        $roleKey = 'co_supervisor_1';
-        if ($pts1->co_supervisor_2_id === $user->id) {
-            $roleKey = 'co_supervisor_2';
-        } elseif ($pts1->co_supervisor_3_id === $user->id) {
-            $roleKey = 'co_supervisor_3';
+        $roleKey = null;
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts1->$col === $user->id) {
+                $roleKey = "co_supervisor_{$i}";
+                break;
+            }
+        }
+
+        if (!$roleKey) {
+            return redirect()->route('faculty.dashboard')->with('error', 'You are not assigned as a Co-Supervisor.');
         }
 
         if ($validated['action'] === 'revert') {
             $pts1->update([
-                "{$roleKey}_comment" => $validated['comment'],
+                "{$roleKey}_confidential_remark" => $validated['comment'],
+                "{$roleKey}_reversion_comment" => $validated['comment'],
                 'reverted_by_role' => $roleKey,
                 'status' => 'reverted',
                 'current_stage' => 'rejected',
@@ -192,17 +207,34 @@ class FacultyPts1Controller extends Controller
         }
 
         $pts1->update([
-            "{$roleKey}_endorsement" => true,
-            "{$roleKey}_comment" => $validated['comment'] ?: 'N/A',
+            "{$roleKey}_recommendation" => true,
+            "{$roleKey}_confidential_remark" => $validated['comment'] ?: 'Recommended',
         ]);
 
-        $co1Done = !$pts1->co_supervisor_1_id || $pts1->co_supervisor_1_recommendation;
-        $co2Done = !$pts1->co_supervisor_2_id || $pts1->co_supervisor_2_recommendation;
-        $co3Done = !$pts1->co_supervisor_3_id || $pts1->co_supervisor_3_recommendation;
+        $allCoDone = true;
+        for ($i = 1; $i <= 10; $i++) {
+            $idCol = "co_supervisor_{$i}_id";
+            $remCol = "co_supervisor_{$i}_confidential_remark";
+            if ($pts1->$idCol && (is_null($pts1->$remCol))) {
+                $allCoDone = false;
+                break;
+            }
+        }
 
-        if ($co1Done && $co2Done && $co3Done) {
-            $nextStage = ($pts1->pspc_member_1_id || $pts1->pspc_member_2_id || $pts1->pspc_member_3_id) ? 'pspc_members' : 'dpgc';
-            $pts1->update(['current_stage' => $nextStage]);
+        if ($allCoDone) {
+            $hasPspc = false;
+            for ($i = 1; $i <= 10; $i++) {
+                $col = "pspc_member_{$i}_id";
+                if ($pts1->$col) {
+                    $hasPspc = true;
+                    break;
+                }
+            }
+            $nextStage = $hasPspc ? 'pspc_members' : 'dpgc';
+            $pts1->update([
+                'current_stage' => $nextStage,
+                'co_supervisors_submitted_at' => now(),
+            ]);
         }
 
         return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 Form endorsed successfully.');

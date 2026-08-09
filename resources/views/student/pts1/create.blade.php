@@ -356,7 +356,7 @@
                         <div>
                             <div class="flex justify-between items-center">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Publication List + Other Recognition (.xlsx, .csv) <span class="text-red-500">*</span>
+                                    Upload Publication List + Other Recognition (.xlsx) <span class="text-red-500">*</span>
                                 </label>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[11px] text-gray-400">Max 2 MB</span>
@@ -370,7 +370,7 @@
                             </div>
 
                             <div x-show="!fileStates.pubList.name">
-                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls,.csv" required @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" required @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
 
                             <!-- File Size Error Alert -->

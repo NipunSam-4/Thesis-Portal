@@ -16,6 +16,7 @@ class FacultyDashboardController extends Controller
         $mainStudents = Student::whereHas('supervisors', function ($query) use ($user) {
             $query->where('users.id', $user->id)->where('supervisor_type', 'main');
         })
+        ->orderBy('roll_number', 'asc')
         ->with([
             'user',
             'department',
@@ -34,6 +35,7 @@ class FacultyDashboardController extends Controller
                 ->orWhere('co_supervisor_2_id', $user->id)
                 ->orWhere('co_supervisor_3_id', $user->id);
         })
+        ->orderBy('roll_number', 'asc')
         ->with([
             'user',
             'department',
@@ -52,6 +54,7 @@ class FacultyDashboardController extends Controller
                 ->orWhere('pspc_member_2_id', $user->id)
                 ->orWhere('pspc_member_3_id', $user->id);
         })
+        ->orderBy('roll_number', 'asc')
         ->with([
             'user',
             'department',

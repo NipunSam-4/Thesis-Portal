@@ -390,7 +390,7 @@
                         <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl space-y-3">
                             <div class="flex justify-between items-center">
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
-                                    Publication List (.xlsx, .csv)
+                                    Publication List (.xlsx, .xls)
                                 </label>
                                 <span class="text-[11px] text-gray-400">Max 2 MB</span>
                             </div>
@@ -406,7 +406,7 @@
 
                             <div x-show="!fileStates.pubList.name">
                                 <label class="block text-xs font-semibold text-gray-500 mb-1">Replace File (Optional)</label>
-                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls,.csv" @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                             </div>
 
                             <!-- File Size Error Alert -->

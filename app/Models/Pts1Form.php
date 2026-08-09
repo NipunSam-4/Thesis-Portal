@@ -31,34 +31,40 @@ class Pts1Form extends Model
         'current_stage',
         'status',
         'reverted_by_role',
+        
         'main_supervisor_recommendation',
         'main_supervisor_confidential_remark',
-        'co_supervisor_1_id',
-        'co_supervisor_1_recommendation',
-        'co_supervisor_1_confidential_remark',
-        'co_supervisor_2_id',
-        'co_supervisor_2_recommendation',
-        'co_supervisor_2_confidential_remark',
-        'co_supervisor_3_id',
-        'co_supervisor_3_recommendation',
-        'co_supervisor_3_confidential_remark',
-        'pspc_member_1_id',
-        'pspc_member_1_recommendation',
-        'pspc_member_1_confidential_remark',
-        'pspc_member_2_id',
-        'pspc_member_2_recommendation',
-        'pspc_member_2_confidential_remark',
-        'pspc_member_3_id',
-        'pspc_member_3_recommendation',
-        'pspc_member_3_confidential_remark',
-        'dpgc_recommendation',
-        'dpgc_confidential_remark',
-        'hod_recommendation',
-        'hod_confidential_remark',
-        'section_officer_recommendation',
-        'section_officer_confidential_remark',
-        'doaa_approval',
-        'doaa_confidential_remark',
+        'main_supervisor_reversion_comment',
+        'main_supervisor_submitted_at',
+
+        'co_supervisor_1_id', 'co_supervisor_1_recommendation', 'co_supervisor_1_confidential_remark', 'co_supervisor_1_reversion_comment',
+        'co_supervisor_2_id', 'co_supervisor_2_recommendation', 'co_supervisor_2_confidential_remark', 'co_supervisor_2_reversion_comment',
+        'co_supervisor_3_id', 'co_supervisor_3_recommendation', 'co_supervisor_3_confidential_remark', 'co_supervisor_3_reversion_comment',
+        'co_supervisor_4_id', 'co_supervisor_4_recommendation', 'co_supervisor_4_confidential_remark', 'co_supervisor_4_reversion_comment',
+        'co_supervisor_5_id', 'co_supervisor_5_recommendation', 'co_supervisor_5_confidential_remark', 'co_supervisor_5_reversion_comment',
+        'co_supervisor_6_id', 'co_supervisor_6_recommendation', 'co_supervisor_6_confidential_remark', 'co_supervisor_6_reversion_comment',
+        'co_supervisor_7_id', 'co_supervisor_7_recommendation', 'co_supervisor_7_confidential_remark', 'co_supervisor_7_reversion_comment',
+        'co_supervisor_8_id', 'co_supervisor_8_recommendation', 'co_supervisor_8_confidential_remark', 'co_supervisor_8_reversion_comment',
+        'co_supervisor_9_id', 'co_supervisor_9_recommendation', 'co_supervisor_9_confidential_remark', 'co_supervisor_9_reversion_comment',
+        'co_supervisor_10_id', 'co_supervisor_10_recommendation', 'co_supervisor_10_confidential_remark', 'co_supervisor_10_reversion_comment',
+        'co_supervisors_submitted_at',
+
+        'pspc_member_1_id', 'pspc_member_1_recommendation', 'pspc_member_1_confidential_remark', 'pspc_member_1_reversion_comment',
+        'pspc_member_2_id', 'pspc_member_2_recommendation', 'pspc_member_2_confidential_remark', 'pspc_member_2_reversion_comment',
+        'pspc_member_3_id', 'pspc_member_3_recommendation', 'pspc_member_3_confidential_remark', 'pspc_member_3_reversion_comment',
+        'pspc_member_4_id', 'pspc_member_4_recommendation', 'pspc_member_4_confidential_remark', 'pspc_member_4_reversion_comment',
+        'pspc_member_5_id', 'pspc_member_5_recommendation', 'pspc_member_5_confidential_remark', 'pspc_member_5_reversion_comment',
+        'pspc_member_6_id', 'pspc_member_6_recommendation', 'pspc_member_6_confidential_remark', 'pspc_member_6_reversion_comment',
+        'pspc_member_7_id', 'pspc_member_7_recommendation', 'pspc_member_7_confidential_remark', 'pspc_member_7_reversion_comment',
+        'pspc_member_8_id', 'pspc_member_8_recommendation', 'pspc_member_8_confidential_remark', 'pspc_member_8_reversion_comment',
+        'pspc_member_9_id', 'pspc_member_9_recommendation', 'pspc_member_9_confidential_remark', 'pspc_member_9_reversion_comment',
+        'pspc_member_10_id', 'pspc_member_10_recommendation', 'pspc_member_10_confidential_remark', 'pspc_member_10_reversion_comment',
+        'pspc_members_submitted_at',
+
+        'dpgc_student_comment', 'dpgc_recommendation', 'dpgc_confidential_remark', 'dpgc_reversion_comment',
+        'hod_student_comment', 'hod_recommendation', 'hod_confidential_remark', 'hod_reversion_comment',
+        'section_officer_student_comment', 'section_officer_recommendation', 'section_officer_confidential_remark', 'section_officer_reversion_comment',
+        'doaa_student_comment', 'doaa_approval', 'doaa_confidential_remark', 'doaa_reversion_comment', 'pts1_submitted_at',
     ];
 
     protected function casts(): array
@@ -70,16 +76,38 @@ class Pts1Form extends Model
             'min_time_req_fulfilled' => 'boolean',
             'special_approval_min_time' => 'boolean',
             'main_supervisor_recommendation' => 'boolean',
+
             'co_supervisor_1_recommendation' => 'boolean',
             'co_supervisor_2_recommendation' => 'boolean',
             'co_supervisor_3_recommendation' => 'boolean',
+            'co_supervisor_4_recommendation' => 'boolean',
+            'co_supervisor_5_recommendation' => 'boolean',
+            'co_supervisor_6_recommendation' => 'boolean',
+            'co_supervisor_7_recommendation' => 'boolean',
+            'co_supervisor_8_recommendation' => 'boolean',
+            'co_supervisor_9_recommendation' => 'boolean',
+            'co_supervisor_10_recommendation' => 'boolean',
+
             'pspc_member_1_recommendation' => 'boolean',
             'pspc_member_2_recommendation' => 'boolean',
             'pspc_member_3_recommendation' => 'boolean',
+            'pspc_member_4_recommendation' => 'boolean',
+            'pspc_member_5_recommendation' => 'boolean',
+            'pspc_member_6_recommendation' => 'boolean',
+            'pspc_member_7_recommendation' => 'boolean',
+            'pspc_member_8_recommendation' => 'boolean',
+            'pspc_member_9_recommendation' => 'boolean',
+            'pspc_member_10_recommendation' => 'boolean',
+
             'dpgc_recommendation' => 'boolean',
             'hod_recommendation' => 'boolean',
             'section_officer_recommendation' => 'boolean',
             'doaa_approval' => 'boolean',
+
+            'main_supervisor_submitted_at' => 'datetime',
+            'co_supervisors_submitted_at' => 'datetime',
+            'pspc_members_submitted_at' => 'datetime',
+            'pts1_submitted_at' => 'datetime',
         ];
     }
 
@@ -88,45 +116,42 @@ class Pts1Form extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function coSupervisor1(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'co_supervisor_1_id');
-    }
+    public function coSupervisor1(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_1_id'); }
+    public function coSupervisor2(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_2_id'); }
+    public function coSupervisor3(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_3_id'); }
+    public function coSupervisor4(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_4_id'); }
+    public function coSupervisor5(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_5_id'); }
+    public function coSupervisor6(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_6_id'); }
+    public function coSupervisor7(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_7_id'); }
+    public function coSupervisor8(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_8_id'); }
+    public function coSupervisor9(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_9_id'); }
+    public function coSupervisor10(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_10_id'); }
 
-    public function coSupervisor2(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'co_supervisor_2_id');
-    }
-
-    public function coSupervisor3(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'co_supervisor_3_id');
-    }
-
-    public function pspcMember1(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_1_id');
-    }
-
-    public function pspcMember2(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_2_id');
-    }
-
-    public function pspcMember3(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_3_id');
-    }
+    public function pspcMember1(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_1_id'); }
+    public function pspcMember2(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_2_id'); }
+    public function pspcMember3(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_3_id'); }
+    public function pspcMember4(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_4_id'); }
+    public function pspcMember5(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_5_id'); }
+    public function pspcMember6(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_6_id'); }
+    public function pspcMember7(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_7_id'); }
+    public function pspcMember8(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_8_id'); }
+    public function pspcMember9(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_9_id'); }
+    public function pspcMember10(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_10_id'); }
 
     /**
      * Get human-readable role label for the authority who reverted the form.
      */
     public function getRevertedByRoleLabel(): string
     {
+        if (str_starts_with($this->reverted_by_role ?? '', 'co_supervisor')) {
+            return 'Co-Supervisor';
+        }
+        if (str_starts_with($this->reverted_by_role ?? '', 'pspc_member')) {
+            return 'PSPC Member';
+        }
+
         return match ($this->reverted_by_role) {
             'main_supervisor' => 'Main Supervisor',
-            'co_supervisor_1', 'co_supervisor_2', 'co_supervisor_3' => 'Co-Supervisor',
-            'pspc_member_1', 'pspc_member_2', 'pspc_member_3' => 'PSPC Member',
             'dpgc' => 'DPGC Convenor',
             'hod' => 'Head of Department (HOD)',
             'section_officer' => 'Academic Section Officer',
@@ -140,19 +165,27 @@ class Pts1Form extends Model
      */
     public function getReversionComment(): ?string
     {
-        return match ($this->reverted_by_role) {
-            'main_supervisor' => $this->main_supervisor_confidential_remark,
-            'co_supervisor_1' => $this->co_supervisor_1_confidential_remark,
-            'co_supervisor_2' => $this->co_supervisor_2_confidential_remark,
-            'co_supervisor_3' => $this->co_supervisor_3_confidential_remark,
-            'pspc_member_1'   => $this->pspc_member_1_confidential_remark,
-            'pspc_member_2'   => $this->pspc_member_2_confidential_remark,
-            'pspc_member_3'   => $this->pspc_member_3_confidential_remark,
-            'dpgc'            => $this->dpgc_confidential_remark,
-            'hod'             => $this->hod_confidential_remark,
-            'section_officer' => $this->section_officer_confidential_remark,
-            'doaa'            => $this->doaa_confidential_remark,
-            default           => null,
-        };
+        $role = $this->reverted_by_role;
+        if (!$role) return null;
+
+        if ($role === 'main_supervisor') return $this->main_supervisor_reversion_comment ?: $this->main_supervisor_confidential_remark;
+        if ($role === 'dpgc') return $this->dpgc_reversion_comment ?: $this->dpgc_confidential_remark;
+        if ($role === 'hod') return $this->hod_reversion_comment ?: $this->hod_confidential_remark;
+        if ($role === 'section_officer') return $this->section_officer_reversion_comment ?: $this->section_officer_confidential_remark;
+        if ($role === 'doaa') return $this->doaa_reversion_comment ?: $this->doaa_confidential_remark;
+
+        if (str_starts_with($role, 'co_supervisor_')) {
+            $revCol = "{$role}_reversion_comment";
+            $confCol = "{$role}_confidential_remark";
+            return $this->$revCol ?: $this->$confCol;
+        }
+
+        if (str_starts_with($role, 'pspc_member_')) {
+            $revCol = "{$role}_reversion_comment";
+            $confCol = "{$role}_confidential_remark";
+            return $this->$revCol ?: $this->$confCol;
+        }
+
+        return null;
     }
 }

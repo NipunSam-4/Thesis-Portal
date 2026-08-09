@@ -141,44 +141,35 @@ class Pts1Controller extends Controller
         $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
         $pspcMembers = $student->pspcMembers()->pluck('users.id')->all();
 
+        $formData = [
+            'seminar_date' => $validated['seminar_date'],
+            'seminar_time' => $validated['seminar_time'],
+            'seminar_venue' => $validated['seminar_venue'],
+            'meeting_link' => $validated['meeting_link'],
+            'publication_norm_fulfillment' => $request->boolean('publication_norm_fulfillment'),
+            'special_approval_publication' => $request->boolean('special_approval_publication'),
+            'publication_approval_doc_path' => $pubAppDocPath,
+            'min_time_req_fulfilled' => $request->boolean('min_time_req_fulfilled'),
+            'special_approval_min_time' => $request->boolean('special_approval_min_time'),
+            'min_time_approval_doc_path' => $minTimeAppDocPath,
+            'draft_synopsis_report_doc_path' => $synopsisPath,
+            'publication_list_doc_path' => $pubListPath,
+            'work_status' => 'adequate',
+            'main_supervisor_student_comment' => 'N/A',
+            'current_stage' => 'main_supervisor',
+            'status' => 'in_progress',
+        ];
+
+        // Dynamically assign up to 10 Co-Supervisors and 10 PSPC Members
+        for ($i = 1; $i <= 10; $i++) {
+            $formData["co_supervisor_{$i}_id"] = $coSupervisors[$i - 1] ?? null;
+            $formData["pspc_member_{$i}_id"] = $pspcMembers[$i - 1] ?? null;
+        }
+
         // Create or Update PTS-1 Form
         Pts1Form::updateOrCreate(
             ['thesis_id' => $thesis->id],
-            [
-                'seminar_date' => $validated['seminar_date'],
-                'seminar_time' => $validated['seminar_time'],
-                'seminar_venue' => $validated['seminar_venue'],
-                'meeting_link' => $validated['meeting_link'],
-                'publication_norm_fulfillment' => $request->boolean('publication_norm_fulfillment'),
-                'special_approval_publication' => $request->boolean('special_approval_publication'),
-                'publication_approval_doc_path' => $pubAppDocPath,
-                'min_time_req_fulfilled' => $request->boolean('min_time_req_fulfilled'),
-                'special_approval_min_time' => $request->boolean('special_approval_min_time'),
-                'min_time_approval_doc_path' => $minTimeAppDocPath,
-                'draft_synopsis_report_doc_path' => $synopsisPath,
-                'publication_list_doc_path' => $pubListPath,
-                'work_status' => 'adequate',
-                'main_supervisor_student_comment' => 'N/A',
-                'main_supervisor_confidential_remark' => 'N/A',
-                'co_supervisor_1_confidential_remark' => 'N/A',
-                'co_supervisor_2_confidential_remark' => 'N/A',
-                'co_supervisor_3_confidential_remark' => 'N/A',
-                'pspc_member_1_confidential_remark' => 'N/A',
-                'pspc_member_2_confidential_remark' => 'N/A',
-                'pspc_member_3_confidential_remark' => 'N/A',
-                'dpgc_confidential_remark' => 'N/A',
-                'hod_confidential_remark' => 'N/A',
-                'section_officer_confidential_remark' => 'N/A',
-                'doaa_confidential_remark' => 'N/A',
-                'current_stage' => 'main_supervisor',
-                'status' => 'in_progress',
-                'co_supervisor_1_id' => $coSupervisors[0] ?? null,
-                'co_supervisor_2_id' => $coSupervisors[1] ?? null,
-                'co_supervisor_3_id' => $coSupervisors[2] ?? null,
-                'pspc_member_1_id' => $pspcMembers[0] ?? null,
-                'pspc_member_2_id' => $pspcMembers[1] ?? null,
-                'pspc_member_3_id' => $pspcMembers[2] ?? null,
-            ]
+            $formData
         );
 
         return redirect()->route('student.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to your Main Supervisor for review!');

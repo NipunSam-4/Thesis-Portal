@@ -17,17 +17,25 @@ class Pts1EndorsementController extends Controller
         $thesis = $pts1->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-
         $mainSupervisor = $thesis->mainSupervisor;
-        $coSupervisor1 = $pts1->co_supervisor_1_id ? User::find($pts1->co_supervisor_1_id) : null;
-        $coSupervisor2 = $pts1->co_supervisor_2_id ? User::find($pts1->co_supervisor_2_id) : null;
-        $coSupervisor3 = $pts1->co_supervisor_3_id ? User::find($pts1->co_supervisor_3_id) : null;
 
-        $pspc1 = $pts1->pspc_member_1_id ? User::find($pts1->pspc_member_1_id) : null;
-        $pspc2 = $pts1->pspc_member_2_id ? User::find($pts1->pspc_member_2_id) : null;
-        $pspc3 = $pts1->pspc_member_3_id ? User::find($pts1->pspc_member_3_id) : null;
+        $coSupervisors = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts1->$col) {
+                $coSupervisors[$i] = User::find($pts1->$col);
+            }
+        }
 
-        $sectionofficer = $user->role=='section_officer';
+        $pspcMembers = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "pspc_member_{$i}_id";
+            if ($pts1->$col) {
+                $pspcMembers[$i] = User::find($pts1->$col);
+            }
+        }
+
+        $sectionofficer = ($user->role === 'section_officer');
 
         return view('pts1.review_endorse', compact(
             'pts1',
@@ -35,12 +43,8 @@ class Pts1EndorsementController extends Controller
             'student',
             'studentUser',
             'mainSupervisor',
-            'coSupervisor1',
-            'coSupervisor2',
-            'coSupervisor3',
-            'pspc1',
-            'pspc2',
-            'pspc3',
+            'coSupervisors',
+            'pspcMembers',
             'sectionofficer'
         ));
     }
@@ -52,72 +56,102 @@ class Pts1EndorsementController extends Controller
     {
         $user = auth()->user();
         $thesis = $pts1->thesis;
-        $comment = $request->input('comment') ?: 'N/A';
+
+        $validated = $request->validate([
+            'work_status' => 'required|in:adequate,inadequate',
+            'comment' => 'nullable|string',
+            'confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string' : 'nullable|string',
+        ]);
+
+        $isRecommended = ($validated['work_status'] === 'adequate');
+        $comment = $validated['comment'] ?? 'N/A';
+        $remark = $validated['confidential_remark'] ?: ($isRecommended ? 'Recommended' : 'Not Recommended');
 
         $stage = $pts1->current_stage;
 
         switch ($stage) {
             case 'co_supervisors':
                 $roleKey = null;
-                if ($pts1->co_supervisor_1_id === $user->id) $roleKey = 1;
-                elseif ($pts1->co_supervisor_2_id === $user->id) $roleKey = 2;
-                elseif ($pts1->co_supervisor_3_id === $user->id) $roleKey = 3;
+                for ($i = 1; $i <= 10; $i++) {
+                    $col = "co_supervisor_{$i}_id";
+                    if ($pts1->$col === $user->id) {
+                        $roleKey = $i;
+                        break;
+                    }
+                }
 
                 if (!$roleKey) {
                     return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
                 }
 
                 $pts1->update([
-                    "co_supervisor_{$roleKey}_endorsement" => true,
-                    "co_supervisor_{$roleKey}_comment" => $comment,
+                    "co_supervisor_{$roleKey}_recommendation" => $isRecommended,
+                    "co_supervisor_{$roleKey}_confidential_remark" => $remark,
                 ]);
 
-                // Check if all assigned co-supervisors have endorsed
+                // Check if all assigned co-supervisors have submitted recommendations
                 $allCoDone = true;
-                for ($i = 1; $i <= 3; $i++) {
+                for ($i = 1; $i <= 10; $i++) {
                     $idCol = "co_supervisor_{$i}_id";
-                    $endCol = "co_supervisor_{$i}_endorsement";
-                    if ($pts1->$idCol && !$pts1->$endCol) {
+                    $remCol = "co_supervisor_{$i}_confidential_remark";
+                    if ($pts1->$idCol && is_null($pts1->$remCol)) {
                         $allCoDone = false;
                         break;
                     }
                 }
 
                 if ($allCoDone) {
-                    $pspcCount = $thesis->student ? $thesis->student->pspcMembers()->count() : 0;
-                    $nextStage = $pspcCount > 0 ? 'pspc_members' : 'dpgc';
-                    $pts1->update(['current_stage' => $nextStage]);
+                    $hasPspc = false;
+                    for ($i = 1; $i <= 10; $i++) {
+                        $col = "pspc_member_{$i}_id";
+                        if ($pts1->$col) {
+                            $hasPspc = true;
+                            break;
+                        }
+                    }
+                    $nextStage = $hasPspc ? 'pspc_members' : 'dpgc';
+                    $pts1->update([
+                        'current_stage' => $nextStage,
+                        'co_supervisors_submitted_at' => now(),
+                    ]);
                 }
                 break;
 
             case 'pspc_members':
                 $roleKey = null;
-                if ($pts1->pspc_member_1_id === $user->id) $roleKey = 1;
-                elseif ($pts1->pspc_member_2_id === $user->id) $roleKey = 2;
-                elseif ($pts1->pspc_member_3_id === $user->id) $roleKey = 3;
+                for ($i = 1; $i <= 10; $i++) {
+                    $col = "pspc_member_{$i}_id";
+                    if ($pts1->$col === $user->id) {
+                        $roleKey = $i;
+                        break;
+                    }
+                }
 
                 if (!$roleKey) {
                     return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
                 }
 
                 $pts1->update([
-                    "pspc_member_{$roleKey}_endorsement" => true,
-                    "pspc_member_{$roleKey}_comment" => $comment,
+                    "pspc_member_{$roleKey}_recommendation" => $isRecommended,
+                    "pspc_member_{$roleKey}_confidential_remark" => $remark,
                 ]);
 
-                // Check if all assigned PSPC members have endorsed
+                // Check if all assigned PSPC members have submitted recommendations
                 $allPspcDone = true;
-                for ($i = 1; $i <= 3; $i++) {
+                for ($i = 1; $i <= 10; $i++) {
                     $idCol = "pspc_member_{$i}_id";
-                    $endCol = "pspc_member_{$i}_endorsement";
-                    if ($pts1->$idCol && !$pts1->$endCol) {
+                    $remCol = "pspc_member_{$i}_confidential_remark";
+                    if ($pts1->$idCol && is_null($pts1->$remCol)) {
                         $allPspcDone = false;
                         break;
                     }
                 }
 
                 if ($allPspcDone) {
-                    $pts1->update(['current_stage' => 'dpgc']);
+                    $pts1->update([
+                        'current_stage' => 'dpgc',
+                        'pspc_members_submitted_at' => now(),
+                    ]);
                 }
                 break;
 
@@ -126,8 +160,9 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'dpgc_recommendation' => true,
-                    'dpgc_confidential_remark' => $comment,
+                    'dpgc_student_comment' => $comment,
+                    'dpgc_recommendation' => $isRecommended,
+                    'dpgc_confidential_remark' => $remark,
                     'current_stage' => 'hod',
                 ]);
                 break;
@@ -137,8 +172,9 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'hod_recommendation' => true,
-                    'hod_confidential_remark' => $comment,
+                    'hod_student_comment' => $comment,
+                    'hod_recommendation' => $isRecommended,
+                    'hod_confidential_remark' => $remark,
                     'current_stage' => 'section_officer',
                 ]);
                 break;
@@ -148,8 +184,9 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'section_officer_recommendation' => true,
-                    'section_officer_confidential_remark' => $comment,
+                    'section_officer_student_comment' => $comment,
+                    'section_officer_recommendation' => $isRecommended,
+                    'section_officer_confidential_remark' => $remark,
                     'current_stage' => 'doaa',
                 ]);
                 break;
@@ -159,10 +196,12 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'doaa_approval' => true,
-                    'doaa_confidential_remark' => $comment,
+                    'doaa_student_comment' => $comment,
+                    'doaa_approval' => $isRecommended,
+                    'doaa_confidential_remark' => $remark,
                     'current_stage' => 'completed',
                     'status' => 'accepted',
+                    'pts1_submitted_at' => now(),
                 ]);
                 break;
 
@@ -170,7 +209,7 @@ class Pts1EndorsementController extends Controller
                 return back()->with('error', 'Invalid stage for endorsement.');
         }
 
-        return redirect()->route('dashboard')->with('success', 'PTS-1 form endorsed successfully!');
+        return redirect()->route('dashboard')->with('success', 'PTS-1 form evaluated and submitted successfully!');
     }
 
     /**
@@ -184,36 +223,40 @@ class Pts1EndorsementController extends Controller
 
         $stage = $pts1->current_stage;
 
-        // Check if user is Main Supervisor for this thesis
-        $isMainSupervisor = $pts1->thesis->supervisors()
-            ->where('users.id', $user->id)
-            ->wherePivot('supervisor_type', 'main')
-            ->exists();
-
-        if ($stage === 'main_supervisor_review' || $isMainSupervisor) {
-            $pts1->update([
-                'main_supervisor_student_comment' => $comment,
-                'main_supervisor_confidential_remark' => $comment,
-                'reverted_by_role' => 'main_supervisor',
-                'status' => 'reverted',
-                'current_stage' => 'rejected',
-            ]);
-            return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
-        }
-
         switch ($stage) {
+            case 'main_supervisor':
+                $isMainSupervisor = $pts1->thesis->supervisors()
+                    ->where('users.id', $user->id)
+                    ->wherePivot('supervisor_type', 'main')
+                    ->exists();
+
+                if (!$isMainSupervisor) {
+                    return back()->with('error', 'Unauthorized access. Only Main Supervisor can revert at this stage.');
+                }
+
+                $pts1->update([
+                    'main_supervisor_reversion_comment' => $comment,
+                    'reverted_by_role' => 'main_supervisor',
+                    'status' => 'reverted',
+                    'current_stage' => 'rejected',
+                ]);
+                return redirect()->route('faculty.dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
             case 'co_supervisors':
                 $roleKey = null;
-                if ($pts1->co_supervisor_1_id === $user->id) $roleKey = 'co_supervisor_1';
-                elseif ($pts1->co_supervisor_2_id === $user->id) $roleKey = 'co_supervisor_2';
-                elseif ($pts1->co_supervisor_3_id === $user->id) $roleKey = 'co_supervisor_3';
+                for ($i = 1; $i <= 10; $i++) {
+                    $col = "co_supervisor_{$i}_id";
+                    if ($pts1->$col === $user->id) {
+                        $roleKey = "co_supervisor_{$i}";
+                        break;
+                    }
+                }
 
                 if (!$roleKey) {
                     return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
                 }
 
                 $pts1->update([
-                    "{$roleKey}_comment" => $comment,
+                    "{$roleKey}_reversion_comment" => $comment,
                     'reverted_by_role' => $roleKey,
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -222,16 +265,20 @@ class Pts1EndorsementController extends Controller
 
             case 'pspc_members':
                 $roleKey = null;
-                if ($pts1->pspc_member_1_id === $user->id) $roleKey = 'pspc_member_1';
-                elseif ($pts1->pspc_member_2_id === $user->id) $roleKey = 'pspc_member_2';
-                elseif ($pts1->pspc_member_3_id === $user->id) $roleKey = 'pspc_member_3';
+                for ($i = 1; $i <= 10; $i++) {
+                    $col = "pspc_member_{$i}_id";
+                    if ($pts1->$col === $user->id) {
+                        $roleKey = "pspc_member_{$i}";
+                        break;
+                    }
+                }
 
                 if (!$roleKey) {
                     return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
                 }
 
                 $pts1->update([
-                    "{$roleKey}_comment" => $comment,
+                    "{$roleKey}_reversion_comment" => $comment,
                     'reverted_by_role' => $roleKey,
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -243,7 +290,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'dpgc_confidential_remark' => $comment,
+                    'dpgc_reversion_comment' => $comment,
                     'reverted_by_role' => 'dpgc',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -255,7 +302,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'hod_confidential_remark' => $comment,
+                    'hod_reversion_comment' => $comment,
                     'reverted_by_role' => 'hod',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -267,7 +314,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'section_officer_confidential_remark' => $comment,
+                    'section_officer_reversion_comment' => $comment,
                     'reverted_by_role' => 'section_officer',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
@@ -279,7 +326,7 @@ class Pts1EndorsementController extends Controller
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
-                    'doaa_confidential_remark' => $comment,
+                    'doaa_reversion_comment' => $comment,
                     'reverted_by_role' => 'doaa',
                     'status' => 'reverted',
                     'current_stage' => 'rejected',
