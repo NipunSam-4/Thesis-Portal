@@ -99,9 +99,6 @@
                                             Dept: {{ $student->department->code ?? 'N/A' }}
                                         </span>
                                     </h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        Department: {{ $student->department->name ?? 'N/A' }} | Reg Date: {{ $student->date_registration }}
-                                    </p>
                                 </div>
                             </div>
 
@@ -136,6 +133,8 @@
                                                         <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
                                                     @elseif($thesis->pts1Form->status === 'accepted')
                                                         <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                    @elseif($thesis->pts1Form->status === 'rejected')
+                                                        <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
                                                     @endif
                                                 @else
                                                     <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
@@ -144,7 +143,7 @@
 
                                             @if($thesis->pts1Form)
                                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                    <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('M d, Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
+                                                    <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
                                                     <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
                                                 </div>
 
@@ -162,6 +161,14 @@
                                                     <div class="pt-2">
                                                         <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                             Review & Endorse PTS-1 Form &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                                
+                                                @if(in_array($thesis->pts1Form->status, ['accepted', 'rejected']))
+                                                    <div class="pt-2">
+                                                        <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            View Submitted PTS-1 Form &rarr;
                                                         </a>
                                                     </div>
                                                 @endif

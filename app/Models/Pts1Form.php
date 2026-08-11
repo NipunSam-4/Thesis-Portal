@@ -70,7 +70,7 @@ class Pts1Form extends Model
     protected function casts(): array
     {
         return [
-            'seminar_date' => 'date',
+            'seminar_date' => 'date:d-m-Y',
             'publication_norm_fulfillment' => 'boolean',
             'special_approval_publication' => 'boolean',
             'min_time_req_fulfilled' => 'boolean',

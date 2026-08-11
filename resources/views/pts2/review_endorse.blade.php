@@ -121,7 +121,7 @@
                             </span>
                         </div>
                         <p class="text-xs italic text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-purple-100 dark:border-purple-900">
-                            "{{ $pts2->main_supervisor_confidential_remark ?: 'Synopsis report reviewed and recommended.' }}"
+                            {{ $pts2->main_supervisor_confidential_remark ?: 'Confidential Remark not provided' }}
                         </p>
                     </div>
 
@@ -136,11 +136,9 @@
                                         <span>{{ $coSupervisor1->name }} (Co-Supervisor 1):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->co_supervisor_1_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts2->co_supervisor_1_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
+                                        {{ $pts2->co_supervisor_1_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
 
@@ -150,11 +148,9 @@
                                         <span>{{ $coSupervisor2->name }} (Co-Supervisor 2):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->co_supervisor_2_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts2->co_supervisor_2_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
+                                        {{ $pts2->co_supervisor_2_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
 
@@ -164,11 +160,9 @@
                                         <span>{{ $coSupervisor3->name }} (Co-Supervisor 3):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->co_supervisor_3_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                            "{{ $pts2->co_supervisor_3_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
+                                        {{ $pts2->co_supervisor_3_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
                         </div>
@@ -185,11 +179,9 @@
                                         <span>{{ $pspc1->name }} (PSPC Member 1):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->pspc_member_1_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts2->pspc_member_1_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
+                                        {{ $pts2->pspc_member_1_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
 
@@ -199,11 +191,9 @@
                                         <span>{{ $pspc2->name }} (PSPC Member 2):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->pspc_member_2_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts2->pspc_member_2_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
+                                        {{ $pts2->pspc_member_2_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
 
@@ -213,11 +203,9 @@
                                         <span>{{ $pspc3->name }} (PSPC Member 3):</span>
                                         <span class="text-emerald-600 font-bold">✓ Endorsed</span>
                                     </div>
-                                    @if($pts2->pspc_member_3_confidential_remark)
-                                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
-                                            "{{ $pts2->pspc_member_3_confidential_remark }}"
-                                        </p>
-                                    @endif
+                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
+                                        {{ $pts2->pspc_member_3_confidential_remark ?: 'Confidential Remark not provided' }}
+                                    </p>
                                 </div>
                             @endif
                         </div>
@@ -230,11 +218,9 @@
                                 <span>Department Postgraduate Committee (DPGC):</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts2->dpgc_confidential_remark)
-                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-teal-100 dark:border-teal-900">
-                                    "{{ $pts2->dpgc_confidential_remark }}"
-                                </p>
-                            @endif
+                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-teal-100 dark:border-teal-900">
+                                {{ $pts2->dpgc_confidential_remark ?: 'Confidential Remark not provided' }}
+                            </p>
                         </div>
                     @endif
 
@@ -245,11 +231,9 @@
                                 <span>Head of Department (HOD):</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts2->hod_confidential_remark)
-                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-100 dark:border-amber-900">
-                                    "{{ $pts2->hod_confidential_remark }}"
-                                </p>
-                            @endif
+                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-100 dark:border-amber-900">
+                                {{ $pts2->hod_confidential_remark ?: 'Confidential Remark not provided' }}
+                            </p>
                         </div>
                     @endif
 
@@ -260,11 +244,9 @@
                                 <span>Academic Section Officer:</span>
                                 <span class="text-emerald-600">✓ Endorsed</span>
                             </div>
-                            @if($pts2->section_officer_confidential_remark)
-                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-rose-100 dark:border-rose-900">
-                                    "{{ $pts2->section_officer_confidential_remark }}"
-                                </p>
-                            @endif
+                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-rose-100 dark:border-rose-900">
+                                {{ $pts2->section_officer_confidential_remark ?: 'Confidential Remark not provided' }}
+                            </p>
                         </div>
                     @endif
                 </div>

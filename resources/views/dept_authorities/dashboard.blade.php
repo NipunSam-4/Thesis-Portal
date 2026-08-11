@@ -2,24 +2,14 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                @if($user->isDpgc())
-                    {{ __('DPGC Member Portal') }}
-                @elseif($user->isHod())
-                    {{ __('Thesis Management Portal') }}
-                @else
-                    {{ __('Departmental Authority Portal') }}
-                @endif
+                {{ __('Thesis Management Portal') }}
             </h2>
-            <div class="flex items-center space-x-3">
-                @if($user->isDpgc())
-                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                        DPGC Member
-                    </span>
-                @elseif($user->isHod())
-                    <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-indigo-900 dark:text-indigo-300">
-                        HOD Role
-                    </span>
-                @endif
+            <div class="flex justify-between items-center">
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                    @if($user->isDpgc()) DPGC Member @endif
+                    @if($user->isHod()) HOD @endif
+                </span>
+                <x-profile_dropdown/>
             </div>
         </div>
     </x-slot>
@@ -57,11 +47,11 @@
                     <h2 class="text-2xl font-bold mb-1">Welcome, {{ $user->name }}</h2>
                     <p class="{{ $user->isDpgc() ? 'text-purple-100' : 'text-indigo-100' }} text-sm">
                         @if($user->isDpgc())
-                            Department Postgraduate Committee (DPGC) Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Department Postgraduate Committee (DPGC)- <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @elseif($user->isHod())
-                            Head of Department Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Head of Department (HOD) - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @else
-                            Departmental Authority Portal - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Departmental Authority - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @endif
                     </p>
                 </div>
@@ -108,9 +98,6 @@
                                             {{ $student->roll_number }}
                                         </span>
                                     </h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        Reg Date: {{ $student->date_registration }} | Joining: {{ $student->date_joining }}
-                                    </p>
                                 </div>
                             </div>
 
@@ -145,6 +132,8 @@
                                                         <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
                                                     @elseif($thesis->pts1Form->status === 'accepted')
                                                         <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                    @elseif($thesis->pts1Form->status === 'rejected')
+                                                        <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
                                                     @endif
                                                 @else
                                                     <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
@@ -153,7 +142,7 @@
 
                                             @if($thesis->pts1Form)
                                                 <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                    <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('M d, Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
+                                                    <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
                                                     <div class="{{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }} font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
                                                 </div>
 
@@ -162,6 +151,12 @@
                                                     <div class="pt-2">
                                                         <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 {{ $user->isDpgc() ? 'bg-purple-600 hover:bg-purple-700' : 'bg-indigo-600 hover:bg-indigo-700' }} text-white font-bold text-xs rounded-lg shadow transition">
                                                             Review & Endorse PTS-1 Form &rarr;
+                                                        </a>
+                                                    </div>
+                                                @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected']))
+                                                    <div class="pt-2">
+                                                        <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            View Submitted PTS-1 Form &rarr;
                                                         </a>
                                                     </div>
                                                 @endif

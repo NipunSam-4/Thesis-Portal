@@ -114,7 +114,7 @@ class Pts1Controller extends Controller
             'seminar_date' => $validated['seminar_date'],
             'seminar_time' => $validated['seminar_time'],
             'seminar_venue' => $validated['seminar_venue'],
-            'meeting_link' => $validated['meeting_link'],
+            'meeting_link' => $validated['meeting_link'] ?? null,
             'publication_norm_fulfillment' => $pubNormFulfilled,
             'special_approval_publication' => $pubSpecialApproval,
             'publication_approval_doc_path' => $pubNormFulfilled ? null : $pubAppPath,
@@ -125,7 +125,7 @@ class Pts1Controller extends Controller
             'publication_list_doc_path' => $pubListPath,
             'work_status' => $validated['work_status'],
             'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
-            'main_supervisor_confidential_remark' => $validated['main_supervisor_confidential_remark'] ?: 'N/A',
+            'main_supervisor_confidential_remark' => $validated['main_supervisor_confidential_remark'] ?? null,
             'main_supervisor_recommendation' => ($validated['work_status'] === 'adequate'),
             'current_stage' => $nextStage,
             'status' => 'in_progress',
@@ -133,6 +133,54 @@ class Pts1Controller extends Controller
         ]);
 
         return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
+    }
+
+    /**
+     * Display view-only submitted PTS-1 form for students and authorities.
+     */
+    public function show(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+        $thesis = $pts1->thesis;
+        $student = $thesis->student;
+
+        // Authorization check: User must be the student, or an assigned faculty/supervisor, or an authority.
+        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
+        $isSupervisorOrFaculty = $user->isFaculty();
+        $isAuthority = ($user->isHod() || $user->isDpgc() || $user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic());
+
+        if (!$isOwnerStudent && !$isSupervisorOrFaculty && !$isAuthority) {
+            abort(403, 'Unauthorized access to view this submission.');
+        }
+
+        $studentUser = $student->user;
+        $mainSupervisor = $student->mainSupervisors->first();
+
+        $coSupervisors = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts1->$col) {
+                $coSupervisors[$i] = User::find($pts1->$col);
+            }
+        }
+
+        $pspcMembers = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "pspc_member_{$i}_id";
+            if ($pts1->$col) {
+                $pspcMembers[$i] = User::find($pts1->$col);
+            }
+        }
+
+        return view('pts1.show', compact(
+            'pts1',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'pspcMembers'
+        ));
     }
 
     /**
@@ -183,18 +231,26 @@ class Pts1Controller extends Controller
     {
         $user = auth()->user();
         $thesis = $pts1->thesis;
-
-        $validated = $request->validate([
-            'recommendation' => 'required|boolean',
-            'student_comment' => 'nullable|string',
-            'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
-        ]);
-
-        $isRecommended = $request->boolean('recommendation');
-        $comment = $validated['student_comment'] ?? null;
-        $remark = $validated['confidential_remark'] ;
-
         $stage = $pts1->current_stage;
+
+        if ($stage === 'section_officer') {
+            $validated = $request->validate([
+                'verified_details' => 'required|accepted',
+                'confidential_remark' => 'required|string',
+            ]);
+            $isRecommended = true;
+            $comment = null;
+            $remark = $validated['confidential_remark'];
+        } else {
+            $validated = $request->validate([
+                'recommendation' => 'required|boolean',
+                'student_comment' => 'nullable|string',
+                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
+            ]);
+            $isRecommended = $request->boolean('recommendation');
+            $comment = $validated['student_comment'] ?? null;
+            $remark = $validated['confidential_remark'] ?? null;
+        }
 
         switch ($stage) {
             case 'co_supervisors':
@@ -326,8 +382,8 @@ class Pts1Controller extends Controller
                     'doaa_student_comment' => $comment,
                     'doaa_approval' => $isRecommended,
                     'doaa_confidential_remark' => $remark,
-                    'current_stage' => 'completed',
-                    'status' => 'accepted',
+                    'current_stage' => $isRecommended ? 'completed' : 'rejected',
+                    'status' => $isRecommended ? 'accepted' : 'rejected',
                     'pts1_submitted_at' => now(),
                 ]);
                 break;

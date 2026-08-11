@@ -105,9 +105,6 @@
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                             1. Student Information
                         </h3>
-                        <span class="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full">
-                            Fetched from Student Record
-                        </span>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -128,27 +125,38 @@
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
+                            <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Seminar & Confirmation Details (Editable by Supervisor) -->
+                <!-- Section 2: Name of Thesis -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-3">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                        2. Name of Thesis
+                    </h3>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title</label>
+                        <input type="text" value="{{ $thesis->title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <!-- Section 3: Open Seminar Details -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Confirmation & Seminar Details
+                        3. Open Seminar Details
                     </h3>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
@@ -165,17 +173,17 @@
                             <input type="text" name="seminar_venue" required value="{{ old('seminar_venue', $pts1->seminar_venue) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
                             <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link', $pts1->meeting_link) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Institute Norms & Requirements -->
+                <!-- Section 4: Institute Norms & Criteria Verification -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        3. Institute Norms & Criteria Verification
+                        4. Institute Norms & Criteria Verification
                     </h3>
 
                     <!-- Publication Norm -->
@@ -363,10 +371,10 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Document Uploads & Live Multi-Sheet XLSX Preview -->
+                <!-- Section 5: Document Uploads & Live Multi-Sheet XLSX Preview -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        4. Uploaded Documents & Replacement Options
+                        5. Uploaded Documents & Replacement Options
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -495,10 +503,10 @@
                     </div>
                 </div>
 
-                <!-- Section 5: Work Status Evaluation & PSPC Discussion Comments -->
+                <!-- Section 6: Work Status Evaluation & PSPC Discussion Comments -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 border-b border-indigo-100 dark:border-indigo-900/50 pb-2 flex items-center">
-                        5. Main Supervisor & PSPC Evaluation
+                        6. Main Supervisor & PSPC Evaluation
                     </h3>
 
                     <!-- Item 1: Work Status Radio Cards -->

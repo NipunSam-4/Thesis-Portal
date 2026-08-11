@@ -76,6 +76,7 @@ class StudentPts1Controller extends Controller
 
         // Standard default php.ini file upload limit: 2 MB (2048 KB)
         $validated = $request->validate([
+            'thesis_title' => 'required|string|max:1000',
             'date_confirmation' => 'required|date',
             'seminar_date' => 'required|date',
             'seminar_time' => 'required|string|max:100',
@@ -124,6 +125,9 @@ class StudentPts1Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Please register your thesis title on your dashboard first before submitting PTS-1.');
         }
 
+        // Update thesis title in database
+        $thesis->update(['title' => $validated['thesis_title']]);
+
         // Handle private local file uploads (storage/app/private/pts1_documents/)
         $pubAppDocPath = null;
         if (!$pubNormFulfilled && $pubSpecialApproval && $request->hasFile('publication_approval_doc')) {
@@ -146,7 +150,7 @@ class StudentPts1Controller extends Controller
             'seminar_date' => $validated['seminar_date'],
             'seminar_time' => $validated['seminar_time'],
             'seminar_venue' => $validated['seminar_venue'],
-            'meeting_link' => $validated['meeting_link'],
+            'meeting_link' => $validated['meeting_link'] ?? null,
             'publication_norm_fulfillment' => $pubNormFulfilled,
             'special_approval_publication' => $pubSpecialApproval,
             'publication_approval_doc_path' => $pubAppDocPath,

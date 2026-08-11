@@ -86,3 +86,7 @@ body.dark .password-tooltip .tooltip-box,
     border: 1px solid #e5e7eb !important;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
 }
+
+[x-cloak] {
+    display: none !important;
+}

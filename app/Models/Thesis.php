@@ -41,4 +41,32 @@ class Thesis extends Model
     {
         return ucwords(str_replace('_', ' ', $this->status ?? ''));
     }
+
+    /**
+     * Accessor to dynamically determine the currently active form ('pts1', 'pts2', etc.).
+     */
+    public function getActiveFormAttribute(): string
+    {
+        if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
+            return 'pts1';
+        }
+        if (!$this->pts2Form || $this->pts2Form->status !== 'accepted') {
+            return 'pts2';
+        }
+        return 'completed';
+    }
+
+    /**
+     * Accessor to get the human-readable stage of the active form.
+     */
+    public function getActiveStageLabelAttribute(): string
+    {
+        if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
+            return $this->pts1Form ? ucwords(str_replace('_', ' ', $this->pts1Form->current_stage)) : 'PTS-1 Not Submitted';
+        }
+        if (!$this->pts2Form || $this->pts2Form->status !== 'accepted') {
+            return $this->pts2Form ? ucwords(str_replace('_', ' ', $this->pts2Form->current_stage)) : 'PTS-2 Not Submitted';
+        }
+        return 'Thesis Workflow Completed';
+    }
 }

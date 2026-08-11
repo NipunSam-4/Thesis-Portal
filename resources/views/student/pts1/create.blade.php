@@ -85,27 +85,39 @@
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
+                            <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Seminar & Confirmation Details -->
+                <!-- Section 2: Name of Thesis -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-3">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                        2. Name of Thesis
+                    </h3>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $thesis->title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white font-medium focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
+                    </div>
+                </div>
+
+                <!-- Section 3: Open Seminar Details -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Confirmation & Open Seminar Details
+                        3. Open Seminar Details
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_confirmation" required value="{{ $pts1Form ? $student->date_confirmation : '' }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                        </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
@@ -122,17 +134,17 @@
                             <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required value="{{ old('seminar_venue') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
                             <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Publication & Minimum Time Criteria -->
+                <!-- Section 4: Publication & Minimum Time Criteria -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        3. Institute Norms & Requirements
+                        4. Institute Norms & Requirements
                     </h3>
 
                     <!-- Publication Norm -->

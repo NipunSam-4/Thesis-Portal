@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pts/document/{formType}/{id}/{field}', [PtsDocumentController::class, 'serveDocument'])->name('pts.document.serve');
 
     // Universal Dedicated Review & Endorsement Full-Page Views
+    Route::get('/pts1/{pts1}/show', [Pts1Controller::class, 'show'])->name('pts1.show');
     Route::get('/pts1/{pts1}/review-endorse', [Pts1Controller::class, 'showReview'])->name('pts1.review_endorse');
     Route::get('/pts2/{pts2}/review-endorse', [Pts2Controller::class, 'showReview'])->name('pts2.review_endorse');
 

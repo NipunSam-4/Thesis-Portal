@@ -23,6 +23,15 @@ class Student extends Model
         'date_confirmation',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'date_registration' => 'date:d-m-Y',
+            'date_joining' => 'date:d-m-Y',
+            'date_confirmation' => 'date:d-m-Y',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
