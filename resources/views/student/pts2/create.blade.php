@@ -21,9 +21,9 @@
             this.fileError = '';
             if (!file) return;
 
-            // File size validation: 2 MB limit (2048 KB)
-            if (file.size > 2048 * 1024) {
-                this.fileError = 'File size exceeds the 2 MB limit (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller file.';
+            // File size validation: 10 MB limit (10240 KB)
+            if (file.size > 10240 * 1024) {
+                this.fileError = 'File size exceeds the 10 MB limit (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB). Please choose a smaller file.';
                 event.target.value = '';
                 return;
             }
@@ -96,7 +96,7 @@
                     <!-- Synopsis Report Document Upload Card -->
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
-                            Upload Synopsis Report Document (PDF/DOCX, Max 2 MB) <span class="text-red-500">*</span>
+                            Upload Synopsis Report Document (PDF/DOCX, Max 10 MB) <span class="text-red-500">*</span>
                         </label>
 
                         <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center bg-gray-50/50 dark:bg-gray-800/50 space-y-4">
@@ -108,7 +108,7 @@
                                 <button type="button" @click="triggerFileInput()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Select Synopsis File
                                 </button>
-                                <p class="text-xs text-gray-500">Allowed formats: PDF, DOC, DOCX (Limit: 2 MB / 2048 KB)</p>
+                                <p class="text-xs text-gray-500">Allowed formats: PDF, DOC, DOCX (Limit: 10 MB)</p>
                             </div>
 
                             <!-- Selected File Card -->

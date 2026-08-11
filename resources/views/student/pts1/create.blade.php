@@ -70,31 +70,31 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
-                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
                             <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                     </h3>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $thesis->title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white font-medium focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
+                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $thesis->title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
                     </div>
                 </div>
 
@@ -121,7 +121,7 @@
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="date" name="seminar_date" required value="{{ old('seminar_date') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="date" name="seminar_date" required min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ old('seminar_date') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
@@ -146,6 +146,87 @@
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
                         4. Institute Norms & Requirements
                     </h3>
+
+                    <!-- Minimum Time Requirement -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-4">
+                        <label class="block font-medium text-gray-900 dark:text-white text-sm">
+                            Are you fulfilling the minimum time requirement criteria for thesis submission? <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex items-center space-x-6">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="min_time_req_fulfilled" value="1" required x-model="timeNorm" class="text-blue-600">
+                                <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="min_time_req_fulfilled" value="0" required x-model="timeNorm" class="text-blue-600">
+                                <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
+                            </label>
+                        </div>
+                        
+                        <!-- If No: Special Approval Question -->
+                        <div x-show="timeNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
+                            <label class="block font-medium text-gray-900 dark:text-white text-sm">
+                                Have you taken special approval for minimum time relaxation? <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex items-center space-x-6">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="special_approval_min_time" value="1" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
+                                    <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="special_approval_min_time" value="0" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
+                                    <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
+                                </label>
+                            </div>
+                            
+                            <div x-show="timeApproval === '1'" class="pt-2">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Upload Special Minimum Time Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                    </label>
+                                    <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
+                                </div>
+                                
+                                <div x-show="!fileStates.timeApp.name">
+                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1'" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                
+                                <!-- File Size Error Alert -->
+                                <div x-show="fileErrors.timeApp" x-cloak class="mt-2 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-2.5 rounded-lg border border-red-200 dark:border-red-800">
+                                    <span x-text="fileErrors.timeApp"></span>
+                                </div>
+                                
+                                <div x-show="fileStates.timeApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center space-x-3 truncate">
+                                        <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <div class="truncate">
+                                            <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold uppercase">Selected Approval File</div>
+                                            <div class="text-sm font-semibold text-gray-900 dark:text-white truncate" x-text="fileStates.timeApp.name"></div>
+                                            <div class="text-[11px] text-gray-500" x-text="fileStates.timeApp.size"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2 shrink-0">
+                                        <a :href="fileStates.timeApp.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
+                                            📄 View File
+                                        </a>
+                                        <button type="button" @click="clearFile('timeApp', 'timeAppInput')" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold shadow-sm hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center">
+                                            <svg class="w-3.5 h-3.5 mr-1 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Delete File
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div x-show="timeApproval === '0'" class="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-semibold flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                                Please take the approval from respective authority then proceed.
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Publication Norm -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-4">
@@ -227,87 +308,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Minimum Time Requirement -->
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-4">
-                        <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                            Are you fulfilling the minimum time requirement criteria for thesis submission? <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex items-center space-x-6">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="min_time_req_fulfilled" value="1" required x-model="timeNorm" class="text-blue-600">
-                                <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="min_time_req_fulfilled" value="0" required x-model="timeNorm" class="text-blue-600">
-                                <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
-                            </label>
-                        </div>
-
-                        <!-- If No: Special Approval Question -->
-                        <div x-show="timeNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
-                            <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                                Have you taken special approval for minimum time relaxation? <span class="text-red-500">*</span>
-                            </label>
-                            <div class="flex items-center space-x-6">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_min_time" value="1" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
-                                    <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">Yes</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="special_approval_min_time" value="0" :required="timeNorm === '0'" x-model="timeApproval" class="text-blue-600">
-                                    <span class="ml-2 text-sm text-gray-800 dark:text-gray-200">No</span>
-                                </label>
-                            </div>
-
-                            <div x-show="timeApproval === '1'" class="pt-2">
-                                <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload Special Minimum Time Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
-                                    </label>
-                                    <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
-                                </div>
-
-                                <div x-show="!fileStates.timeApp.name">
-                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1'" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                </div>
-
-                                <!-- File Size Error Alert -->
-                                <div x-show="fileErrors.timeApp" x-cloak class="mt-2 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 p-2.5 rounded-lg border border-red-200 dark:border-red-800">
-                                    <span x-text="fileErrors.timeApp"></span>
-                                </div>
-
-                                <div x-show="fileStates.timeApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
-                                    <div class="flex items-center space-x-3 truncate">
-                                        <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <div class="truncate">
-                                            <div class="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold uppercase">Selected Approval File</div>
-                                            <div class="text-sm font-semibold text-gray-900 dark:text-white truncate" x-text="fileStates.timeApp.name"></div>
-                                            <div class="text-[11px] text-gray-500" x-text="fileStates.timeApp.size"></div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-2 shrink-0">
-                                        <a :href="fileStates.timeApp.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
-                                            📄 View File
-                                        </a>
-                                        <button type="button" @click="clearFile('timeApp', 'timeAppInput')" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg text-xs font-bold shadow-sm hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center">
-                                            <svg class="w-3.5 h-3.5 mr-1 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                            Delete File
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div x-show="timeApproval === '0'" class="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-semibold flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-                                Please take the approval from respective authority then proceed.
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Section 4: Document Uploads & Live Multi-Sheet XLSX Preview -->
@@ -323,12 +323,10 @@
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
                                     Upload Draft Synopsis Report (.pdf, .docx) <span class="text-red-500">*</span>
                                 </label>
-                                <span class="text-[11px] text-gray-400">Max 2 MB</span>
+                                <span class="text-[11px] text-gray-400">Max 10 MB</span>
                             </div>
 
-                            <div class="h-8">
-
-                            </div>
+                            <div class="h-8"></div>
 
                             <div x-show="!fileStates.synopsis.name">
                                 <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" required @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
@@ -456,9 +454,9 @@
                 timeNorm: '1',
                 timeApproval: '1',
 
-                // Standard default PHP php.ini upload limit (2 MB = 2048 KB)
+                // Standard default PHP php.ini upload limit (10 MB = 10240 KB)
                 maxSizes: {
-                    synopsis: 2, // 2 MB limit
+                    synopsis: 10, // 10 MB limit
                     pubList: 2,  // 2 MB limit
                     pubApp: 2,   // 2 MB limit
                     timeApp: 2   // 2 MB limit

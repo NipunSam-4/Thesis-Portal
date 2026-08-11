@@ -67,7 +67,7 @@ class Pts1Controller extends Controller
             'special_approval_min_time' => 'nullable|boolean',
             'min_time_approval_doc' => ($requireMinTimeDoc ? 'required' : 'nullable') . '|file|mimes:pdf,png,jpg,jpeg|max:2048',
 
-            'draft_synopsis_report' => 'nullable|file|mimes:pdf,docx|max:2048',
+            'draft_synopsis_report' => 'nullable|file|mimes:pdf,docx|max:10240',
             'publication_list' => 'nullable|file|mimes:xlsx,xls|max:2048',
 
             'work_status' => 'required|in:adequate,inadequate',

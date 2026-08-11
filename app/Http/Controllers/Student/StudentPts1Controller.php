@@ -74,7 +74,7 @@ class StudentPts1Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        // Standard default php.ini file upload limit: 2 MB (2048 KB)
+        // Standard default php.ini file upload limit: 10 MB (10240 KB)
         $validated = $request->validate([
             'thesis_title' => 'required|string|max:1000',
             'date_confirmation' => 'required|date',
@@ -97,7 +97,7 @@ class StudentPts1Controller extends Controller
                 Rule::requiredIf(fn() => !$request->boolean('min_time_req_fulfilled') && $request->boolean('special_approval_min_time'))
             ],
 
-            'draft_synopsis_report' => 'required|file|mimes:pdf,docx|max:2048',
+            'draft_synopsis_report' => 'required|file|mimes:pdf,docx|max:10240',
             'publication_list' => 'required|file|mimes:xlsx,xls|max:2048',
         ]);
 
