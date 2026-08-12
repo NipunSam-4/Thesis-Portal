@@ -12,16 +12,19 @@ class GlobalAuthorityDashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Fetch all institute students with eager loaded theses and PTS forms
+        // Fetch all institute students with eager loaded relationships
         $allStudents = Student::with([
             'user',
             'department',
             'supervisors',
+            'pspcMembers',
             'theses.pts1Form',
             'theses.pts2Form'
-        ])
-        ->get();
+        ])->get();
 
-        return view('global_authorities.dashboard', compact('user', 'allStudents'));
+        $phdStudents = $allStudents->filter(fn($s) => $s->isPhd());
+        $msrStudents = $allStudents->filter(fn($s) => $s->isMsr());
+
+        return view('global_authorities.dashboard', compact('user', 'phdStudents', 'msrStudents'));
     }
 }

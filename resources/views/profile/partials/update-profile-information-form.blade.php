@@ -5,13 +5,13 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Your official account details as registered with Academic Administration.") }}
+            {{ __("Your official account details as registered with the Academic Office.") }}
         </p>
     </header>
 
     @if($user->isStudent())
         <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-xs font-semibold text-amber-800 dark:text-amber-300">
-            🔒 Note: Student profile details (Name & Email) are managed centrally by Academic Administration and cannot be edited.
+            🔒 Note: Student profile details are managed centrally by Academic Office and cannot be edited.
         </div>
     @endif
 

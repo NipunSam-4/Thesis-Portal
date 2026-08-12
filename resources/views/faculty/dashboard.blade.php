@@ -178,7 +178,7 @@
                     </h3>
 
                     @forelse($mainStudents as $student)
-                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && (!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim()))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('main-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -187,8 +187,9 @@
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-gray-900 dark:text-white text-base flex items-center">
-                                            {{ $student->user->name }}
-                                            <span class="ml-2 text-xs font-mono font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                                            <span>{{ $student->user->name }}</span>
+                                            <x-student-info-modal :student="$student" />
+                                            <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                                                 {{ $student->roll_number }}
                                             </span>
                                         </h4>
@@ -245,10 +246,11 @@
                                                                 Review & Evaluate PTS-1 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected']))
+                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-1 Form &rarr;
+                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
                                                             </a>
                                                         </div>
                                                     @endif
@@ -310,7 +312,7 @@
                     </h3>
 
                     @forelse($coStudents as $student)
-                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && (!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim()))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('co-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -319,8 +321,9 @@
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-gray-900 dark:text-white text-base flex items-center">
-                                            {{ $student->user->name }}
-                                            <span class="ml-2 text-xs font-mono font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                                            <span>{{ $student->user->name }}</span>
+                                            <x-student-info-modal :student="$student" />
+                                            <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                                                 {{ $student->roll_number }}
                                             </span>
                                         </h4>
@@ -393,10 +396,11 @@
                                                                 </a>
                                                             </div>
                                                         @endif
-                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected']))
+                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-1 Form &rarr;
+                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
                                                             </a>
                                                         </div>
                                                     @endif
@@ -464,7 +468,7 @@
                     </h3>
 
                     @forelse($pspcStudents as $student)
-                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && (!searchQuery.trim() || '{{ addslashes(mb_strtolower(($student->user->name ?? '') . ' ' . ($student->roll_number ?? '') . ' ' . ($student->user->email ?? '') . ' ' . ($student->theses->pluck('title')->join(' ') ?? ''))) }}'.includes(searchQuery.toLowerCase().trim()))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('pspc-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -473,8 +477,9 @@
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-gray-900 dark:text-white text-base flex items-center">
-                                            {{ $student->user->name }}
-                                            <span class="ml-2 text-xs font-mono font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                                            <span>{{ $student->user->name }}</span>
+                                            <x-student-info-modal :student="$student" />
+                                            <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                                                 {{ $student->roll_number }}
                                             </span>
                                         </h4>
@@ -547,10 +552,11 @@
                                                                 </a>
                                                             </div>
                                                         @endif
-                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected']))
+                                                    @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-1 Form &rarr;
+                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
                                                             </a>
                                                         </div>
                                                     @endif

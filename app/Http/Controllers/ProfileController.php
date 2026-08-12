@@ -16,8 +16,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $student = null;
+
+        if ($user->isStudent()) {
+            $user->load(['student.department', 'student.supervisors', 'student.pspcMembers']);
+            $student = $user->student;
+        }
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'student' => $student,
         ]);
     }
 
@@ -29,7 +38,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->isStudent()) {
-            return Redirect::route('profile.edit')->with('warning', 'Student profile details (Name & Email) are managed by Academic Administration and cannot be edited.');
+            return Redirect::route('profile.edit')->with('warning', 'Student profile details are managed by Academic Office and cannot be edited.');
         }
 
         $user->fill($request->validated());

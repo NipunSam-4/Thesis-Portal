@@ -26,12 +26,22 @@ class Thesis extends Model
 
     public function pts1Form(): HasOne
     {
-        return $this->hasOne(Pts1Form::class);
+        return $this->hasOne(Pts1Form::class)->latestOfMany();
+    }
+
+    public function pts1Forms(): HasMany
+    {
+        return $this->hasMany(Pts1Form::class);
     }
 
     public function pts2Form(): HasOne
     {
         return $this->hasOne(Pts2Form::class);
+    }
+
+    public function pts2Forms(): HasMany
+    {
+        return $this->hasMany(Pts2Form::class);
     }
 
     /**

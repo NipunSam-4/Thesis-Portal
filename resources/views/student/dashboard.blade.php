@@ -54,29 +54,46 @@
                     
                     <!-- My Academic Profile Card -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
                             <h3 class="font-bold text-gray-900 dark:text-white">My Academic Profile</h3>
+                            <a href="{{ route('profile.edit') }}" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                View Full Profile &rarr;
+                            </a>
                         </div>
-                        <div class="p-6 pt-2 space-y-2">
+                        <div class="p-6 pt-2 space-y-2.5">
                             <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Roll Number</label>
-                                <div class="mt-1 text-gray-900 dark:text-gray-100 font-medium">{{ $student->roll_number }}</div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Roll Number</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->roll_number }}</div>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Program</label>
-                                <div class="mt-1 text-gray-900 dark:text-gray-100 font-medium">{{ $student->isPhd() ? 'PhD' : 'MS(Research)' }}</div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Program</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->isPhd() ? 'Ph.D.' : 'M.S. (Research)' }}</div>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</label>
-                                <div class="mt-1 text-gray-900 dark:text-gray-100 font-medium">{{ $student->department->name ?? 'Not Assigned' }}</div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Department</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->department->name ?? 'Not Assigned' }}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-gray-100 dark:border-gray-700/60">
+                                <div>
+                                    <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Joining Date</label>
+                                    <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Registration Date</label>
+                                    <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}</div>
+                                </div>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Supervisor(s)</label>
-                                <div class="mt-1 text-gray-900 dark:text-gray-100 font-medium">{{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
+                                <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Confirmation Date</label>
+                                <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A' }}</div>
+                            </div>
+                            <div class="pt-1 border-t border-gray-100 dark:border-gray-700/60">
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Supervisor(s)</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">PSPC Member(s)</label>
-                                <div class="mt-1 text-gray-900 dark:text-gray-100 font-medium">{{ $student->pspcMembers->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">PSPC Member(s)</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->pspcMembers->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
                             </div>
                         </div>
                     </div>
@@ -174,7 +191,7 @@
                         </div>
                     @else
                         <!-- THESIS REGISTERED MAIN MILESTONE CONTAINER -->
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4" x-data="{ activeTab: 'in_progress' }">
                             
                             <!-- Registered Thesis Title Header directly above Milestones -->
                             <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -193,8 +210,31 @@
                                 </span>
                             </div>
                             
+                            <!-- Tabs Navigation -->
+                            <div class="flex border-b border-gray-200 dark:border-gray-700">
+                                <button 
+                                    @click="activeTab = 'in_progress'"
+                                    :class="activeTab === 'in_progress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="w-1/2 py-2 px-1 text-center border-b-2 font-semibold text-sm transition focus:outline-none flex items-center justify-center space-x-1.5"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Active / In Progress</span>
+                                </button>
+                                <button 
+                                    @click="activeTab = 'rejected'"
+                                    :class="activeTab === 'rejected' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="w-1/2 py-2 px-1 text-center border-b-2 font-semibold text-sm transition focus:outline-none flex items-center justify-center space-x-1.5"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Rejected History</span>
+                                        <span class="ml-1.5 bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                            {{ $rejectedForms->count() }}
+                                        </span>
+                                </button>
+                            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- In Progress Tab Content -->
+                            <div x-show="activeTab === 'in_progress'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 
                                 <!-- PTS-1 Milestone Card (With Embedded Action Button) -->
                                 <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
@@ -207,6 +247,8 @@
                                                 <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Approved</span>
                                             @elseif($pts1Form->status === 'reverted')
                                                 <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Reverted</span>
+                                            @elseif($pts1Form->status === 'rejected')
+                                                <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Rejected</span>
                                             @else
                                                 <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">In Progress</span>
                                             @endif
@@ -236,7 +278,7 @@
                                             </a>
                                         @elseif($pts1Form->status === 'reverted')
                                             <div class="space-y-2">
-                                                <a href="{{ route('student.pts1.create') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                <a href="{{ route('student.pts1.edit') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                  Edit your {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form &rarr;
                                                 </a>
                                             </div>
@@ -254,11 +296,18 @@
                                                 </a>
                                             </div>
                                         @elseif($pts1Form->status === 'rejected')
-                                            <div class="flex items-center justify-between pt-1">
-                                                <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form Rejected</span>
-                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                    View Submission &rarr;
-                                                </a>
+                                            <div class="space-y-2">
+                                                <div class="flex items-center justify-between pt-1">
+                                                    <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form Rejected</span>
+                                                    <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                        View Submission &rarr;
+                                                    </a>
+                                                </div>
+                                                <div class="pt-2">
+                                                    <a href="{{ route('student.pts1.create') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                        Create New {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form &rarr;
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -369,6 +418,59 @@
                                 </div>
 
                             </div>
+
+                            <!-- Rejected Tab Content -->
+                            <div x-show="activeTab === 'rejected'" class="space-y-4" style="display: none;">
+                                @if($rejectedForms->isEmpty())
+                                    <div class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                                        No rejected PTS forms found for this thesis.
+                                    </div>
+                                @else
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3">Form Type</th>
+                                                    <th scope="col" class="px-6 py-3">Submitted At</th>
+                                                    <th scope="col" class="px-6 py-3">Rejection Stage</th>
+                                                    <th scope="col" class="px-6 py-3">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($rejectedForms as $form)
+                                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">
+                                                            @if($form instanceof \App\Models\Pts1Form)
+                                                                {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 (Open Seminar)
+                                                            @else
+                                                                {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 (Synopsis)
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            {{ $form->created_at ? $form->created_at->format('d-M-Y H:i') : 'N/A' }}
+                                                        </td>
+                                                        <td class="px-6 py-4 capitalize font-semibold text-red-600">
+                                                            {{ str_replace('_', ' ', $form->current_stage) }}
+                                                        </td>
+                                                        <td class="px-6 py-4">
+                                                            @if($form instanceof \App\Models\Pts1Form)
+                                                                <a href="{{ route('pts1.show', $form->id) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Form &rarr;
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ route('pts2.review_endorse', $form->id) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Form &rarr;
+                                                                </a>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+
                         </div>
                     @endif
 

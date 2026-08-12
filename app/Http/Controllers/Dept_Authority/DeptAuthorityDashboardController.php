@@ -19,11 +19,15 @@ class DeptAuthorityDashboardController extends Controller
                 'user',
                 'department',
                 'supervisors',
+                'pspcMembers',
                 'theses.pts1Form',
                 'theses.pts2Form'
             ])
             ->get();
 
-        return view('dept_authorities.dashboard', compact('user', 'departmentStudents'));
+        $phdStudents = $departmentStudents->filter(fn($s) => $s->isPhd());
+        $msrStudents = $departmentStudents->filter(fn($s) => $s->isMsr());
+
+        return view('dept_authorities.dashboard', compact('user', 'phdStudents', 'msrStudents'));
     }
 }

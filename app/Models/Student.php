@@ -52,6 +52,20 @@ class Student extends Model
         return $this->program_name === 'msr';
     }
 
+    public function getSearchableTextAttribute(): string
+    {
+        $parts = [
+            $this->user->name ?? '',
+            $this->roll_number ?? '',
+            $this->user->email ?? '',
+            $this->department->code ?? '',
+            $this->department->name ?? '',
+            $this->theses?->pluck('title')->join(' ') ?? '',
+        ];
+
+        return strtolower(implode(' ', array_filter($parts)));
+    }
+
 
     public function theses(): HasMany
     {

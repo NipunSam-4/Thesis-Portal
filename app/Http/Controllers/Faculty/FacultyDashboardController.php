@@ -21,6 +21,7 @@ class FacultyDashboardController extends Controller
             'user',
             'department',
             'supervisors',
+            'pspcMembers',
             'theses.pts1Form',
             'theses.pts2Form'
         ])
@@ -40,6 +41,7 @@ class FacultyDashboardController extends Controller
             'user',
             'department',
             'supervisors',
+            'pspcMembers',
             'theses.pts1Form',
             'theses.pts2Form'
         ])
@@ -58,6 +60,8 @@ class FacultyDashboardController extends Controller
         ->with([
             'user',
             'department',
+            'supervisors',
+            'pspcMembers',
             'theses.pts1Form',
             'theses.pts2Form'
         ])

@@ -78,6 +78,7 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
     Route::post('/thesis/store', [StudentThesisController::class, 'store'])->name('student.thesis.store');
     
     Route::get('/pts1/create', [StudentPts1Controller::class, 'create'])->name('student.pts1.create');
+    Route::get('/pts1/edit', [StudentPts1Controller::class, 'edit'])->name('student.pts1.edit');
     Route::post('/pts1/store', [StudentPts1Controller::class, 'store'])->name('student.pts1.store');
     Route::get('/pts1/template/download', [StudentPts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
     

@@ -59,7 +59,7 @@
                         <span class="text-xs uppercase text-purple-300 font-bold">PhD Student Profile</span>
                         <h3 class="text-2xl font-bold mt-0.5">{{ $studentUser->name }}</h3>
                     </div>
-                    <span class="bg-purple-700 text-purple-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-purple-600">
+                    <span class="bg-purple-700 text-purple-100 text-xs font-semibold font-bold px-3 py-1 rounded-full border border-purple-600">
                         Roll: {{ $student->roll_number }}
                     </span>
                 </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div>
                         <span class="text-purple-300 block">Registration Date:</span>
-                        <strong class="text-white font-semibold text-sm">{{ $student->date_registration }}</strong>
+                        <strong class="text-white font-semibold text-sm">{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}</strong>
                     </div>
                     <div>
                         <span class="text-purple-300 block">Thesis Status:</span>

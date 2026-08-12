@@ -15,9 +15,7 @@
                     </span>
                 @endif
             </div>
-            <a href="{{ route('student.dashboard') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                &larr; Back to Dashboard
-            </a>
+            <x-back-to-dashboard-button />
         </div>
     </x-slot>
 

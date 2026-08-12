@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Submit PTS-1 Form (Open Seminar & Thesis Progress)') }}
+                {{ __('Edit and Resubmit PTS-1 Form (Open Seminar & Thesis Progress)') }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -43,6 +43,20 @@
 
     <div class="py-8" x-data="pts1Form()">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <!-- Reversion Comment Box -->
+            @if($pts1Form->status === 'reverted')
+                <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl">
+                    <div class="font-bold text-amber-900 dark:text-amber-200 text-sm">
+                        ⚠️ Reverted by {{ $pts1Form->getRevertedByRoleLabel() }}
+                    </div>
+                    @if($pts1Form->getReversionComment())
+                        <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded border border-amber-200 dark:border-amber-900 mt-2 text-xs">
+                            "{{ $pts1Form->getReversionComment() }}"
+                        </p>
+                    @endif
+                </div>
+            @endif
 
             <!-- Error Alerts -->
             @if($errors->any())
@@ -116,25 +130,24 @@
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="date" name="seminar_date" required min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ old('seminar_date') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="date" name="seminar_date" required min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ old('seminar_date', $pts1Form->seminar_date ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Time of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="time" name="seminar_time" required value="{{ old('seminar_time') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="time" name="seminar_time" required value="{{ old('seminar_time', $pts1Form->seminar_time) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Venue of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required value="{{ old('seminar_venue') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required value="{{ old('seminar_venue', $pts1Form->seminar_venue) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
-                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link', $pts1Form->meeting_link) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
@@ -180,13 +193,16 @@
                             <div x-show="timeApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
                                     <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload Special Minimum Time Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                        Upload Special Minimum Time Approval Copy (Max 2 MB) 
+                                        @if(!$pts1Form->min_time_approval_doc_path)
+                                            <span class="text-red-500">*</span>
+                                        @endif
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
                                 
                                 <div x-show="!fileStates.timeApp.name">
-                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1'" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1' && !@js($pts1Form->min_time_approval_doc_path)" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
                                 
                                 <!-- File Size Error Alert -->
@@ -219,6 +235,12 @@
                                 </div>
                             </div>
                             
+                            @if($pts1Form->min_time_approval_doc_path)
+                                <div class="mt-2 text-xs text-gray-500">
+                                    Current File: <a href="{{ route('pts.document.serve', ['formType' => 'pts1', 'id' => $pts1Form->id, 'field' => 'min_time_approval_doc_path']) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">📄 View Existing Approval Copy</a>
+                                </div>
+                            @endif
+
                             <div x-show="timeApproval === '0'" class="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-semibold flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
                                 Please take the approval from respective authority then proceed.
@@ -261,13 +283,16 @@
                             <div x-show="pubApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
                                     <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload Special Publication Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                        Upload Special Publication Approval Copy (Max 2 MB)
+                                        @if(!$pts1Form->publication_approval_doc_path)
+                                            <span class="text-red-500">*</span>
+                                        @endif
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
 
                                 <div x-show="!fileStates.pubApp.name">
-                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="pubNorm === '0' && pubApproval === '1'" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="pubNorm === '0' && pubApproval === '1' && !@js($pts1Form->publication_approval_doc_path)" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
 
                                 <!-- File Size Error Alert -->
@@ -299,6 +324,12 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            @if($pts1Form->publication_approval_doc_path)
+                                <div class="mt-2 text-xs text-gray-500">
+                                    Current File: <a href="{{ route('pts.document.serve', ['formType' => 'pts1', 'id' => $pts1Form->id, 'field' => 'publication_approval_doc_path']) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">📄 View Existing Approval Copy</a>
+                                </div>
+                            @endif
 
                             <div x-show="pubApproval === '0'" class="p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-semibold flex items-center">
                                 <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
@@ -308,10 +339,10 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Document Uploads & Live Multi-Sheet XLSX Preview -->
+                <!-- Section 5: Document Uploads & Publication Preview -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        4. Document Uploads & Publication Preview
+                        5. Document Uploads & Publication Preview
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -319,7 +350,10 @@
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Draft Synopsis Report (.pdf, .docx) <span class="text-red-500">*</span>
+                                    Upload Draft Synopsis Report (.pdf, .docx) 
+                                    @if(!$pts1Form->draft_synopsis_report_doc_path)
+                                        <span class="text-red-500">*</span>
+                                    @endif
                                 </label>
                                 <span class="text-[11px] text-gray-400">Max 10 MB</span>
                             </div>
@@ -327,7 +361,7 @@
                             <div class="h-8"></div>
 
                             <div x-show="!fileStates.synopsis.name">
-                                <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" required @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" :required="!@js($pts1Form->draft_synopsis_report_doc_path)" @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
 
                             <!-- File Size Error Alert -->
@@ -358,13 +392,22 @@
                                     </button>
                                 </div>
                             </div>
+                            
+                            @if($pts1Form->draft_synopsis_report_doc_path)
+                                <div class="mt-2 text-xs text-gray-500">
+                                    Current File: <a href="{{ route('pts.document.serve', ['formType' => 'pts1', 'id' => $pts1Form->id, 'field' => 'draft_synopsis_report_doc_path']) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">📄 View Existing Draft Synopsis Report</a>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Publication List Upload -->
                         <div>
                             <div class="flex justify-between items-center">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Publication List + Other Recognition (.xlsx) <span class="text-red-500">*</span>
+                                    Upload Publication List + Other Recognition (.xlsx) 
+                                    @if(!$pts1Form->publication_list_doc_path)
+                                        <span class="text-red-500">*</span>
+                                    @endif
                                 </label>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[11px] text-gray-400">Max 2 MB</span>
@@ -378,7 +421,7 @@
                             </div>
 
                             <div x-show="!fileStates.pubList.name">
-                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" required @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" :required="!@js($pts1Form->publication_list_doc_path)" @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
 
                             <!-- File Size Error Alert -->
@@ -388,7 +431,7 @@
 
                             <div x-show="fileStates.pubList.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
                                 <div class="flex items-center space-x-3 truncate">
-                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 text-emerald-700 dark:text-emerald-300">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     </div>
                                     <div class="truncate">
@@ -409,6 +452,12 @@
                                     </button>
                                 </div>
                             </div>
+                            
+                            @if($pts1Form->publication_list_doc_path)
+                                <div class="mt-2 text-xs text-gray-500">
+                                    Current File: <a href="{{ route('pts.document.serve', ['formType' => 'pts1', 'id' => $pts1Form->id, 'field' => 'publication_list_doc_path']) }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">📄 View Existing Publication List</a>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -447,10 +496,76 @@
     <script>
         function pts1Form() {
             return {
-                pubNorm: '1',
-                pubApproval: '1',
-                timeNorm: '1',
-                timeApproval: '1',
+                pubNorm: @js($pts1Form->publication_norm_fulfillment ? '1' : '0'),
+                pubApproval: @js($pts1Form->special_approval_publication ? '1' : '0'),
+                timeNorm: @js($pts1Form->min_time_req_fulfilled ? '1' : '0'),
+                timeApproval: @js($pts1Form->special_approval_min_time ? '1' : '0'),
+
+                init() {
+                    if (@js($pts1Form->publication_list_doc_path)) {
+                        this.loadExistingExcelPreview();
+                    }
+                },
+
+                loadExistingExcelPreview() {
+                    const container = document.getElementById('excelPreviewContainer');
+                    const sheetsOutput = document.getElementById('sheetsOutput');
+                    const sheetTabsBar = document.getElementById('sheetTabsBar');
+                    const sheetCountSpan = document.getElementById('excelSheetCount');
+
+                    sheetsOutput.innerHTML = '';
+                    sheetTabsBar.innerHTML = '';
+                    container.classList.remove('hidden');
+
+                    const tabBtn = document.createElement('div');
+                    tabBtn.className = 'text-xs text-gray-500 font-semibold mb-2 flex items-center';
+                    tabBtn.innerHTML = 'Loading existing publication list preview...';
+                    sheetTabsBar.appendChild(tabBtn);
+
+                    fetch("{{ route('pts.document.serve', ['pts1', $pts1Form->id, 'publication_list_doc_path']) }}")
+                        .then(res => {
+                            if (!res.ok) throw new Error('Failed to load excel document.');
+                            return res.arrayBuffer();
+                        })
+                        .then(data => {
+                            sheetTabsBar.innerHTML = '';
+                            const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
+                            const sheetNames = workbook.SheetNames;
+                            sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
+
+                            sheetNames.forEach((sheetName, index) => {
+                                const worksheet = workbook.Sheets[sheetName];
+                                if (!worksheet) return;
+
+                                const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
+
+                                const tabLink = document.createElement('a');
+                                tabLink.href = `#sheet-block-${index}`;
+                                tabLink.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
+                                tabLink.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
+                                sheetTabsBar.appendChild(tabLink);
+
+                                const sheetBlock = document.createElement('div');
+                                sheetBlock.id = `sheet-block-${index}`;
+                                sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
+                                sheetBlock.innerHTML = `
+                                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+                                        <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
+                                            Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
+                                        </h5>
+                                    </div>
+                                    <div class="overflow-x-auto sheet-table-container">
+                                        ${htmlString}
+                                    </div>
+                                `;
+                                sheetsOutput.appendChild(sheetBlock);
+                            });
+                        })
+                        .catch(err => {
+                            sheetTabsBar.innerHTML = `<span class="text-xs text-red-500 font-semibold">${err.message}</span>`;
+                        });
+                },
 
                 // Standard default PHP php.ini upload limit (10 MB = 10240 KB)
                 maxSizes: {

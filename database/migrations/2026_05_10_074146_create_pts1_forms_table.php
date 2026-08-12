@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             
             // 1-to-1 Unique Relationship with Thesis
-            $table->foreignId('thesis_id')->unique()->constrained('theses')->cascadeOnDelete();
+            $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
             
             // Core Seminar & Form Details
             $table->date('seminar_date');

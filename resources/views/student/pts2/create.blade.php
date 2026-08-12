@@ -71,7 +71,7 @@
                     </div>
                     <div>
                         <span class="text-gray-500 block">Roll Number</span>
-                        <strong class="text-gray-900 dark:text-white font-mono text-sm">{{ $student->roll_number }}</strong>
+                        <strong class="text-gray-900 dark:text-white font-semibold text-sm">{{ $student->roll_number }}</strong>
                     </div>
                     <div>
                         <span class="text-gray-500 block">Department</span>

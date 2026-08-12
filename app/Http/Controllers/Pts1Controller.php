@@ -172,6 +172,18 @@ class Pts1Controller extends Controller
             }
         }
 
+        if ($pts1->status === 'reverted') {
+            return view('pts1.reverted', compact(
+                'pts1',
+                'thesis',
+                'student',
+                'studentUser',
+                'mainSupervisor',
+                'coSupervisors',
+                'pspcMembers'
+            ));
+        }
+
         return view('pts1.show', compact(
             'pts1',
             'thesis',

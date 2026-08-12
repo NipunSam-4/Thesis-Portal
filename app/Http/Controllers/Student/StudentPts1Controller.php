@@ -63,6 +63,32 @@ class StudentPts1Controller extends Controller
     }
 
     /**
+     * Display the PTS-1 edit form for reverted submissions.
+     */
+    public function edit()
+    {
+        $user = auth()->user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
+        }
+
+        // Check if student has an active thesis with status in_progress
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        if (!$pts1Form || $pts1Form->status !== 'reverted') {
+            return redirect()->route('student.dashboard')->with('warning', 'You do not have a reverted PTS-1 form to edit.');
+        }
+
+        return view('student.pts1.edit', compact('user', 'student', 'thesis', 'pts1Form'));
+    }
+
+    /**
      * Store a newly created PTS-1 submission in storage.
      */
     public function store(Request $request)
@@ -73,6 +99,15 @@ class StudentPts1Controller extends Controller
         if (!$student) {
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
+
+        // Fetch the student's registered active thesis from the theses table
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('error', 'Please register your thesis title on your dashboard first before submitting PTS-1.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        $hasExisting = $pts1Form && $pts1Form->status === 'reverted';
 
         // Standard default php.ini file upload limit: 10 MB (10240 KB)
         $validated = $request->validate([
@@ -87,18 +122,34 @@ class StudentPts1Controller extends Controller
             'special_approval_publication' => 'nullable|boolean',
             'publication_approval_doc' => [
                 'nullable', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:2048',
-                Rule::requiredIf(fn() => !$request->boolean('publication_norm_fulfillment') && $request->boolean('special_approval_publication'))
+                Rule::requiredIf(function() use ($request, $hasExisting, $pts1Form) {
+                    if ($request->boolean('publication_norm_fulfillment') || !$request->boolean('special_approval_publication')) {
+                        return false;
+                    }
+                    return !$hasExisting || !$pts1Form->publication_approval_doc_path;
+                })
             ],
 
             'min_time_req_fulfilled' => 'required|boolean',
             'special_approval_min_time' => 'nullable|boolean',
             'min_time_approval_doc' => [
                 'nullable', 'file', 'mimes:pdf,png,jpg,jpeg', 'max:2048',
-                Rule::requiredIf(fn() => !$request->boolean('min_time_req_fulfilled') && $request->boolean('special_approval_min_time'))
+                Rule::requiredIf(function() use ($request, $hasExisting, $pts1Form) {
+                    if ($request->boolean('min_time_req_fulfilled') || !$request->boolean('special_approval_min_time')) {
+                        return false;
+                    }
+                    return !$hasExisting || !$pts1Form->min_time_approval_doc_path;
+                })
             ],
 
-            'draft_synopsis_report' => 'required|file|mimes:pdf,docx|max:10240',
-            'publication_list' => 'required|file|mimes:xlsx,xls|max:2048',
+            'draft_synopsis_report' => [
+                'file', 'mimes:pdf,docx', 'max:10240',
+                $hasExisting && $pts1Form->draft_synopsis_report_doc_path ? 'nullable' : 'required'
+            ],
+            'publication_list' => [
+                'file', 'mimes:xlsx,xls', 'max:2048',
+                $hasExisting && $pts1Form->publication_list_doc_path ? 'nullable' : 'required'
+            ],
         ]);
 
         $pubNormFulfilled = $request->boolean('publication_norm_fulfillment');
@@ -119,34 +170,46 @@ class StudentPts1Controller extends Controller
         // Update student confirmation date
         $student->update(['date_confirmation' => $validated['date_confirmation']]);
 
-        // Fetch the student's registered active thesis from the theses table
-        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
-        if (!$thesis) {
-            return redirect()->route('student.dashboard')->with('error', 'Please register your thesis title on your dashboard first before submitting PTS-1.');
-        }
-
         // Update thesis title in database
         $thesis->update(['title' => $validated['thesis_title']]);
 
         // Handle private local file uploads (storage/app/private/pts1_documents/)
         $pubAppDocPath = null;
-        if (!$pubNormFulfilled && $pubSpecialApproval && $request->hasFile('publication_approval_doc')) {
-            $pubAppDocPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
+        if (!$pubNormFulfilled && $pubSpecialApproval) {
+            if ($request->hasFile('publication_approval_doc')) {
+                $pubAppDocPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
+            } elseif ($hasExisting) {
+                $pubAppDocPath = $pts1Form->publication_approval_doc_path;
+            }
         }
 
         $minTimeAppDocPath = null;
-        if (!$minTimeFulfilled && $minTimeSpecialApproval && $request->hasFile('min_time_approval_doc')) {
-            $minTimeAppDocPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
+        if (!$minTimeFulfilled && $minTimeSpecialApproval) {
+            if ($request->hasFile('min_time_approval_doc')) {
+                $minTimeAppDocPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
+            } elseif ($hasExisting) {
+                $minTimeAppDocPath = $pts1Form->min_time_approval_doc_path;
+            }
         }
 
-        $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
-        $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
+        if ($request->hasFile('draft_synopsis_report')) {
+            $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
+        } else {
+            $synopsisPath = $pts1Form->draft_synopsis_report_doc_path;
+        }
+
+        if ($request->hasFile('publication_list')) {
+            $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
+        } else {
+            $pubListPath = $pts1Form->publication_list_doc_path;
+        }
 
         // Committee Co-Supervisors & PSPC IDs
         $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
         $pspcMembers = $student->pspcMembers()->pluck('users.id')->all();
 
         $formData = [
+            'thesis_id' => $thesis->id,
             'seminar_date' => $validated['seminar_date'],
             'seminar_time' => $validated['seminar_time'],
             'seminar_venue' => $validated['seminar_venue'],
@@ -169,12 +232,9 @@ class StudentPts1Controller extends Controller
             $formData["pspc_member_{$i}_id"] = $pspcMembers[$i - 1] ?? null;
         }
 
-        // Create or Update PTS-1 Form
-        Pts1Form::updateOrCreate(
-            ['thesis_id' => $thesis->id],
-            $formData
-        );
+        // Create new active PTS-1 Form
+        Pts1Form::create($formData);
 
-        return redirect()->route('student.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to your Main Supervisor for review!');
+        return redirect()->route('student.dashboard')->with('success', 'PTS-1 form resubmitted successfully and forwarded to your Main Supervisor for review!');
     }
 }

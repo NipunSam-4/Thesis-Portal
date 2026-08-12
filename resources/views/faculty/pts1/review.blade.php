@@ -4,9 +4,7 @@
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Main Supervisor Review: PTS-1 Form') }} &mdash; {{ $studentUser->name }} ({{ $student->roll_number }})
             </h2>
-            <a href="{{ route('faculty.dashboard') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
-                &larr; Back to Dashboard
-            </a>
+            <x-back-to-dashboard-button />
         </div>
     </x-slot>
 

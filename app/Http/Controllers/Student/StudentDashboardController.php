@@ -31,6 +31,14 @@ class StudentDashboardController extends Controller
         // PTS-2 is unlocked when PTS-1 is approved (status === 'accepted')
         $pts1Approved = $pts1Form && $pts1Form->status === 'accepted';
 
-        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'pts1Form', 'pts2Form', 'pts1Approved'));
+        // Fetch rejected forms
+        $rejectedForms = collect();
+        if ($activeThesis) {
+            $rejectedPts1 = $activeThesis->pts1Forms()->where('status', 'rejected')->get();
+            $rejectedPts2 = $activeThesis->pts2Forms()->where('status', 'rejected')->get();
+            $rejectedForms = $rejectedPts1->concat($rejectedPts2)->sortByDesc('created_at');
+        }
+
+        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'pts1Form', 'pts2Form', 'pts1Approved', 'rejectedForms'));
     }
 }

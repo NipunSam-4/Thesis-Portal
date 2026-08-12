@@ -29,7 +29,7 @@
                         <span class="text-xs uppercase text-indigo-300 font-bold">PhD Student Profile (Read-Only)</span>
                         <h3 class="text-2xl font-bold mt-0.5">{{ $student->user->name }}</h3>
                     </div>
-                    <span class="bg-indigo-700 text-indigo-100 text-xs font-mono font-bold px-3 py-1 rounded-full border border-indigo-600">
+                    <span class="bg-indigo-700 text-indigo-100 text-xs font-semibold font-bold px-3 py-1 rounded-full border border-indigo-600">
                         Roll: {{ $student->roll_number }}
                     </span>
                 </div>
@@ -41,11 +41,11 @@
                     </div>
                     <div>
                         <span class="text-indigo-300 block">Registration Date:</span>
-                        <strong class="text-white font-semibold text-sm">{{ $student->date_registration }}</strong>
+                        <strong class="text-white font-semibold text-sm">{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}</strong>
                     </div>
                     <div>
                         <span class="text-indigo-300 block">Joining Date:</span>
-                        <strong class="text-white font-semibold text-sm">{{ $student->date_joining }}</strong>
+                        <strong class="text-white font-semibold text-sm">{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}</strong>
                     </div>
                 </div>
             </div>
