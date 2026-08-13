@@ -3,7 +3,13 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('PTS-1 Review Portal') }}
+                    @if($pts1->status == 'accepted' && $pts1->current_stage == 'completed')
+                        {{ __('Approved PTS-1 Form Details & Remarks') }}
+                    @elseif($pts1->status == 'rejected' && $pts1->current_stage == 'rejected')
+                        {{ __('Rejected PTS-1 Form Details & Remarks') }}
+                    @else
+                        {{ __('PTS-1 Review Portal') }}
+                    @endif
                 </h2>
                 @if(in_array($pts1->current_stage, ['completed', 'rejected']))
                     @if($pts1->status === 'accepted')
@@ -251,7 +257,7 @@
 
                     <!-- Publication List Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
-                        <div class="text-xs font-bold text-gray-500 uppercase">Publication List</div>
+                        <div class="text-xs font-bold text-gray-500 uppercase">Publication and Other Recognition List</div>
                         @if($pts1->publication_list_doc_path)
                             <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📊 Download / View Publication List
@@ -287,10 +293,10 @@
                 $passedDoaa           = ($currentWeight > 7) || !is_null($pts1->doaa_approval) || !is_null($pts1->pts1_submitted_at);
             @endphp
 
-            <!-- Section 6: Previous Authority Recommendations & Comments Audit Trail -->
+            <!-- Section 6: Authority Recommendations & Remarks -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                    6. Previous Authority Recommendations & Audit Trail
+                    6. Authority Recommendations & Remarks
                 </h3>
 
                 <div class="space-y-4">
@@ -539,7 +545,7 @@
                             <div class="flex justify-between font-bold text-rose-900 dark:text-rose-200">
                                 <h5 class="text-s">Section Officer</h5>
                                 <span class="font-bold text-xs text-emerald-600">
-                                    ✓ Details Verified & Forwarded
+                                    ✓ Verified & Forwarded
                                 </span>
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
@@ -806,7 +812,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                 </svg>
-                                Submit @if($pts1->current_stage !== 'doaa') &amp; Forward @endif
+                                Submit &amp; Forward
                             </button>
                         @else
                             <button type="submit" 

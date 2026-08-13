@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Submit PTS-1 Form (Open Seminar & Thesis Progress)') }}
+                {{ __('Submit PTS-1 Form') }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -58,6 +58,25 @@
 
             <form action="{{ route('student.pts1.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 @csrf
+
+                @if(isset($pts1Form) && $pts1Form->status === 'reverted')
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span class="font-bold text-sm">Form Reverted by {{ $pts1Form->getRevertedByRoleLabel() }}</span>
+                        </div>
+                        @if($pts1Form->reversion_comment)
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Reversion Comment:</strong>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1">
+                                    {{ $pts1Form->reversion_comment }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                @endif
 
                 <!-- Section 1: Pre-filled Student Details (Read-Only) -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
@@ -119,22 +138,22 @@
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="date" name="seminar_date" required min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ old('seminar_date') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="date" name="seminar_date" required min="{{ isset($pts1Form) && $pts1Form->seminar_date ? (\Carbon\Carbon::parse($pts1Form->seminar_date)->lt(\Carbon\Carbon::today()) ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : \Carbon\Carbon::today()->format('Y-m-d')) : \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ old('seminar_date', isset($pts1Form) && $pts1Form->seminar_date ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Time of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="time" name="seminar_time" required value="{{ old('seminar_time') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="time" name="seminar_time" required value="{{ old('seminar_time', isset($pts1Form) ? $pts1Form->seminar_time : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Venue of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required value="{{ old('seminar_venue') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required value="{{ old('seminar_venue', isset($pts1Form) ? $pts1Form->seminar_venue : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
-                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link', isset($pts1Form) ? $pts1Form->meeting_link : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
@@ -186,7 +205,7 @@
                                 </div>
                                 
                                 <div x-show="!fileStates.timeApp.name">
-                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1'" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="timeAppInput" name="min_time_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="timeNorm === '0' && timeApproval === '1' && !fileStates.timeApp.name" @change="handleFileSelect($event, 'timeApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
                                 
                                 <!-- File Size Error Alert -->
@@ -267,7 +286,7 @@
                                 </div>
 
                                 <div x-show="!fileStates.pubApp.name">
-                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="pubNorm === '0' && pubApproval === '1'" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <input type="file" id="pubAppInput" name="publication_approval_doc" accept=".pdf,.png,.jpg,.jpeg" :required="pubNorm === '0' && pubApproval === '1' && !fileStates.pubApp.name" @change="handleFileSelect($event, 'pubApp')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                                 </div>
 
                                 <!-- File Size Error Alert -->
@@ -327,7 +346,7 @@
                             <div class="h-8"></div>
 
                             <div x-show="!fileStates.synopsis.name">
-                                <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" required @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" :required="!fileStates.synopsis.name" @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
 
                             <!-- File Size Error Alert -->
@@ -364,7 +383,7 @@
                         <div>
                             <div class="flex justify-between items-center">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Publication List + Other Recognition (.xlsx) <span class="text-red-500">*</span>
+                                    Upload Publication and Other Recognition List (.xlsx, .xls) <span class="text-red-500">*</span>
                                 </label>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[11px] text-gray-400">Max 2 MB</span>
@@ -378,7 +397,7 @@
                             </div>
 
                             <div x-show="!fileStates.pubList.name">
-                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" required @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" id="pubListInput" name="publication_list" accept=".xlsx,.xls" :required="!fileStates.pubList.name" @change="if (handleFileSelect($event, 'pubList')) { handleExcelPreview($event); }" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
 
                             <!-- File Size Error Alert -->
@@ -446,11 +465,12 @@
 
     <script>
         function pts1Form() {
+            const existingPts1 = @js(isset($pts1Form) ? $pts1Form : null);
             return {
-                pubNorm: '1',
-                pubApproval: '1',
-                timeNorm: '1',
-                timeApproval: '1',
+                pubNorm: @js(old('publication_norm_fulfillment', isset($pts1Form) ? ($pts1Form->publication_norm_fulfillment ? '1' : '0') : '1')),
+                pubApproval: @js(old('special_approval_publication', isset($pts1Form) ? ($pts1Form->special_approval_publication ? '1' : '0') : '1')),
+                timeNorm: @js(old('min_time_req_fulfilled', isset($pts1Form) ? ($pts1Form->min_time_req_fulfilled ? '1' : '0') : '1')),
+                timeApproval: @js(old('special_approval_min_time', isset($pts1Form) ? ($pts1Form->special_approval_min_time ? '1' : '0') : '1')),
 
                 // Standard default PHP php.ini upload limit (10 MB = 10240 KB)
                 maxSizes: {
@@ -468,10 +488,80 @@
                 },
 
                 fileStates: {
-                    synopsis: { name: '', size: '', url: null },
-                    pubList: { name: '', size: '', url: null },
-                    pubApp: { name: '', size: '', url: null },
-                    timeApp: { name: '', size: '', url: null }
+                    synopsis: existingPts1 && existingPts1.draft_synopsis_report_doc_path ? {
+                        name: existingPts1.draft_synopsis_report_doc_path.split('/').pop(),
+                        size: 'Uploaded Document',
+                        url: "{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'draft_synopsis_report_doc_path']) }}"
+                    } : { name: '', size: '', url: null },
+
+                    pubList: existingPts1 && existingPts1.publication_list_doc_path ? {
+                        name: existingPts1.publication_list_doc_path.split('/').pop(),
+                        size: 'Uploaded Document',
+                        url: "{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'publication_list_doc_path']) }}"
+                    } : { name: '', size: '', url: null },
+
+                    pubApp: existingPts1 && existingPts1.publication_approval_doc_path ? {
+                        name: existingPts1.publication_approval_doc_path.split('/').pop(),
+                        size: 'Uploaded Document',
+                        url: "{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'publication_approval_doc_path']) }}"
+                    } : { name: '', size: '', url: null },
+
+                    timeApp: existingPts1 && existingPts1.min_time_approval_doc_path ? {
+                        name: existingPts1.min_time_approval_doc_path.split('/').pop(),
+                        size: 'Uploaded Document',
+                        url: "{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'min_time_approval_doc_path']) }}"
+                    } : { name: '', size: '', url: null }
+                },
+
+                init() {
+                    if (existingPts1 && existingPts1.publication_list_doc_path) {
+                        fetch("{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'publication_list_doc_path']) }}")
+                            .then(res => res.ok ? res.arrayBuffer() : null)
+                            .then(data => {
+                                if (!data) return;
+                                const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
+                                const container = document.getElementById('excelPreviewContainer');
+                                const sheetsOutput = document.getElementById('sheetsOutput');
+                                const sheetTabsBar = document.getElementById('sheetTabsBar');
+                                const sheetCountSpan = document.getElementById('excelSheetCount');
+
+                                sheetsOutput.innerHTML = '';
+                                sheetTabsBar.innerHTML = '';
+                                container.classList.remove('hidden');
+
+                                const sheetNames = workbook.SheetNames;
+                                sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
+
+                                sheetNames.forEach((sheetName, index) => {
+                                    const worksheet = workbook.Sheets[sheetName];
+                                    if (!worksheet) return;
+
+                                    const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
+
+                                    const tabBtn = document.createElement('a');
+                                    tabBtn.href = `#sheet-block-${index}`;
+                                    tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
+                                    tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
+                                    sheetTabsBar.appendChild(tabBtn);
+
+                                    const sheetBlock = document.createElement('div');
+                                    sheetBlock.id = `sheet-block-${index}`;
+                                    sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
+                                    sheetBlock.innerHTML = `
+                                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+                                            <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
+                                                Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
+                                            </h5>
+                                        </div>
+                                        <div class="overflow-x-auto sheet-table-container">
+                                            ${htmlString}
+                                        </div>
+                                    `;
+                                    sheetsOutput.appendChild(sheetBlock);
+                                });
+                            }).catch(() => {});
+                    }
                 },
                 
                 get isBlocked() {
@@ -497,7 +587,7 @@
 
                     this.fileErrors[key] = '';
 
-                    if (this.fileStates[key].url) {
+                    if (this.fileStates[key].url && !this.fileStates[key].url.includes('/pts/document/serve/')) {
                         URL.revokeObjectURL(this.fileStates[key].url);
                     }
 
@@ -512,7 +602,7 @@
 
                 clearFile(key, inputId) {
                     this.fileErrors[key] = '';
-                    if (this.fileStates[key].url) {
+                    if (this.fileStates[key].url && !this.fileStates[key].url.includes('/pts/document/serve/')) {
                         URL.revokeObjectURL(this.fileStates[key].url);
                     }
                     this.fileStates[key] = { name: '', size: '', url: null };

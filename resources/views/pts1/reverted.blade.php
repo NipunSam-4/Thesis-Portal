@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('PTS-1 Reverted Submission View') }}
+                    {{ __('Reverted PTS-1 Form Details & Remarks') }}
                 </h2>
                 <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
                     ⚠️ Reverted
@@ -13,53 +13,45 @@
         </div>
     </x-slot>
 
-    <!-- Custom CSS for Live Excel Table Previews -->
-    <style>
-        .sheet-table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.825rem;
-            margin-top: 0.5rem;
-        }
-        .sheet-table-container th, .sheet-table-container td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-        }
-        .sheet-table-container tr:first-child, .sheet-table-container td[id*="s2id"] {
-            background-color: #f3f4f6;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .sheet-table-container tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        .dark .sheet-table-container th, .dark .sheet-table-container td {
-            border-color: #374151;
-        }
-        .dark .sheet-table-container tr:first-child {
-            background-color: #374151;
-            color: #f9fafb;
-        }
-        .dark .sheet-table-container tr:nth-child(even) {
-            background-color: #1f2937;
-        }
-    </style>
-
     <div class="py-8">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Reversion Comment Box -->
-            <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl">
-                <div class="font-bold text-amber-900 dark:text-amber-200 text-sm">
-                    ⚠️ Reverted by {{ $pts1->getRevertedByRoleLabel() }}
+            <!-- Flash Session Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
                 </div>
-                @if($pts1->getReversionComment())
-                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded border border-amber-200 dark:border-amber-900 mt-2 text-xs">
-                        "{{ $pts1->getReversionComment() }}"
-                    </p>
-                @endif
-            </div>
+            @endif
+
+            @if(session('warning'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('warning') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 text-red-800 dark:text-red-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('info') }}</span>
+                    </div>
+                </div>
+            @endif
 
             <!-- Section 1: Read-Only Student Information -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
@@ -109,7 +101,7 @@
                 </h3>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title</label>
-                    <input type="text" value="{{ $pts1->thesis->title ?? '' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    <input type="text" value="{{ $thesis->title ?? ($pts1->thesis->title ?? '') }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                 </div>
             </div>
 
@@ -120,9 +112,10 @@
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar</label>
-                        <input type="text" value="{{ $pts1->seminar_date ? $pts1->seminar_date->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $pts1->seminar_date ? \Carbon\Carbon::parse($pts1->seminar_date)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
@@ -234,7 +227,7 @@
 
                     <!-- Publication List Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
-                        <div class="text-xs font-bold text-gray-500 uppercase">Publication List</div>
+                        <div class="text-xs font-bold text-gray-500 uppercase">Publication and Other Recognition List</div>
                         @if($pts1->publication_list_doc_path)
                             <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📊 Download / View Publication List
@@ -246,153 +239,97 @@
                 </div>
             </div>
 
-            @if($pts1->publication_list_doc_path)
-                <!-- SheetJS Excel Preview Container -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6" x-data="excelPreview()">
-                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
-                        <h4 class="text-md font-bold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Publication and Other Recognition Preview
-                        </h4>
-                        <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-3 py-1 rounded-full" x-show="sheetCount" x-text="sheetCount"></span>
-                    </div>
-
-                    <!-- Loading Spinner -->
-                    <div x-show="loading" class="flex justify-center items-center py-8 space-x-2">
-                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-                        <span class="text-xs text-gray-500 font-semibold">Loading publication preview...</span>
-                    </div>
-
-                    <!-- Error Alert -->
-                    <div x-show="error" class="p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-xs" x-text="error"></div>
-
-                    <!-- Sheet Tabs Navigation Bar -->
-                    <div id="sheetTabsBar" class="flex flex-wrap gap-2 pb-2" x-show="!loading && !error"></div>
-
-                    <!-- All Sheet Content Containers -->
-                    <div id="sheetsOutput" class="space-y-8" x-show="!loading && !error"></div>
-                </div>
-
-                <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-                <script>
-                    function excelPreview() {
-                        return {
-                            loading: true,
-                            error: null,
-                            sheetCount: '',
-                            init() {
-                                fetch("{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}")
-                                    .then(res => {
-                                        if (!res.ok) throw new Error('Failed to load excel document.');
-                                        return res.arrayBuffer();
-                                    })
-                                    .then(data => {
-                                        const workbook = XLSX.read(new Uint8Array(data), { type: 'array', cellDates: true });
-                                        const sheetsOutput = document.getElementById('sheetsOutput');
-                                        const sheetTabsBar = document.getElementById('sheetTabsBar');
-
-                                        sheetsOutput.innerHTML = '';
-                                        sheetTabsBar.innerHTML = '';
-
-                                        const sheetNames = workbook.SheetNames;
-                                        this.sheetCount = `${sheetNames.length} Sheet(s) Found`;
-
-                                        sheetNames.forEach((sheetName, index) => {
-                                            const worksheet = workbook.Sheets[sheetName];
-                                            if (!worksheet) return;
-
-                                            // Convert to html
-                                            const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
-
-                                            // Create Tab Button
-                                            const tabBtn = document.createElement('a');
-                                            tabBtn.href = `#sheet-block-${index}`;
-                                            tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
-                                            tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
-                                            sheetTabsBar.appendChild(tabBtn);
-
-                                            // Create Sheet block
-                                            const sheetBlock = document.createElement('div');
-                                            sheetBlock.id = `sheet-block-${index}`;
-                                            sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
-                                            sheetBlock.innerHTML = `
-                                                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-                                                    <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
-                                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
-                                                        Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
-                                                    </h5>
-                                                </div>
-                                                <div class="overflow-x-auto sheet-table-container">
-                                                    ${htmlString}
-                                                </div>
-                                            `;
-                                            sheetsOutput.appendChild(sheetBlock);
-                                        });
-
-                                        this.loading = false;
-                                    })
-                                    .catch(err => {
-                                        this.error = err.message;
-                                        this.loading = false;
-                                    });
-                            }
-                        }
-                    }
-                </script>
-            @endif
-
-            <!-- Section 6: Authority Comments -->
+            <!-- Section 6: Authority Recommendations & Remarks -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                    6. Authority Endorsements & Remarks
+                    6. Authority Recommendations & Remarks
                 </h3>
 
-                <div class="space-y-4">
-                    <!-- Main Supervisor Evaluation -->
-                    @if(!is_null($pts1->main_supervisor_recommendation))
-                        <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                            <div class="flex items-center justify-between font-bold text-indigo-900 dark:text-indigo-200">
-                                <span>Main Supervisor Evaluation</span>
-                                <span class="{{ $pts1->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                </span>
+                @php
+                    $hasCoSigs = false;
+                    for ($i = 1; $i <= 10; $i++) {
+                        $recCol = "co_supervisor_{$i}_recommendation";
+                        if (!is_null($pts1->$recCol)) {
+                            $hasCoSigs = true;
+                            break;
+                        }
+                    }
+                    $hasPspcSigs = false;
+                    for ($i = 1; $i <= 10; $i++) {
+                        $recCol = "pspc_member_{$i}_recommendation";
+                        if (!is_null($pts1->$recCol)) {
+                            $hasPspcSigs = true;
+                            break;
+                        }
+                    }
+                    $hasAnyComment = !is_null($pts1->main_supervisor_recommendation) 
+                        || $hasCoSigs 
+                        || $hasPspcSigs 
+                        || !is_null($pts1->dpgc_recommendation) 
+                        || !is_null($pts1->hod_recommendation) 
+                        || !is_null($pts1->section_officer_recommendation) 
+                        || !is_null($pts1->doaa_recommendation);
+                @endphp
+
+                @if($hasAnyComment)
+                    <div class="space-y-4">
+                        <!-- Main Supervisor Evaluation -->
+                        @if(!is_null($pts1->main_supervisor_recommendation))
+                            <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between text-s">
+                                    <span class="font-bold text-indigo-900 dark:text-indigo-200">
+                                        Main Supervisor
+                                    </span>
+                                    @if($pts1->work_status)
+                                        <span class="px-2.5 py-0.5 bg-emerald-600 text-white font-bold rounded-full uppercase text-[10px]">
+                                            Open Seminar Status: {{ strtoupper($pts1->work_status) }}
+                                        </span>
+                                    @elseif(!is_null($pts1->main_supervisor_recommendation))
+                                        <span class="font-bold {{ $pts1->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $pts1->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="text-xs text-gray-700 dark:text-gray-300">
+                                    <strong>Additional Comment:</strong>
+                                    @if($pts1->main_supervisor_student_comment)
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
+                                            {{ $pts1->main_supervisor_student_comment }}
+                                        </p>
+                                    @else
+                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                            </svg>
+                                            <span class="italic font-normal">Student Comment not provided</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
+                                    <strong>Main Supervisor Remark:</strong>
+                                    @if($pts1->main_supervisor_confidential_remark)
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
+                                            {{ $pts1->main_supervisor_confidential_remark }}
+                                        </p>
+                                    @else
+                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                            </svg>
+                                            <span class="italic font-normal">Confidential Remark not provided</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <div><strong>Open Seminar Status:</strong> <span class="capitalize font-semibold">{{ $pts1->work_status }}</span></div>
-                                <div><strong>Confidential Remarks:</strong></div>
-                                @if($pts1->main_supervisor_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        {{ $pts1->main_supervisor_confidential_remark }}
-                                    </p>
-                                @else
-                                    <p class="italic text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        Confidential Remark not Provided
-                                    </p>
-                                @endif
-                                @if($pts1->main_supervisor_student_comment)
-                                    <div class="mt-2"><strong>Feedback to Student:</strong></div>
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        {{ $pts1->main_supervisor_student_comment }}
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
+                        @endif
 
                     <!-- Co-Supervisors Endorsements -->
-                    @php
-                        $hasCoSigs = false;
-                        for ($i = 1; $i <= 10; $i++) {
-                            $recCol = "co_supervisor_{$i}_recommendation";
-                            if (!is_null($pts1->$recCol)) {
-                                $hasCoSigs = true;
-                                break;
-                            }
-                        }
-                    @endphp
                     @if($hasCoSigs)
                         <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-3">
-                            <h5 class="text-s font-bold text-blue-900 dark:text-blue-200">Co-Supervisor Recommendations</h5>
+                            <h5 class="text-s font-bold text-blue-900 dark:text-blue-200">Co-Supervisor</h5>
                             @for($i = 1; $i <= 10; $i++)
                                 @php
                                     $idCol = "co_supervisor_{$i}_id";
@@ -403,20 +340,25 @@
                                 @if($coUser && !is_null($pts1->$recCol))
                                     <div class="text-xs space-y-1 pt-1 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
                                         <div class="flex justify-between font-semibold">
-                                            <span>{{ $coUser->name }} (Co-Supervisor {{ $i }})</span>
-                                            <span class="font-bold {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
-                                                {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                            </span>
+                                            <span>{{ $coUser->name }} (Co-Supervisor {{ $i }}) Remark:</span>
+                                            @if(!is_null($pts1->$recCol))
+                                                <span class="font-bold {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
+                                                    {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            @endif
                                         </div>
-                                        <div><strong>Confidential Remarks:</strong></div>
                                         @if($pts1->$remCol)
                                             <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1">
                                                 {{ $pts1->$remCol }}
                                             </p>
                                         @else
-                                            <p class="italic text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1">
-                                                Confidential Remark not Provided
-                                            </p>
+                                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                                </svg>
+                                                <span class="italic font-normal">Confidential Remark not provided</span>
+                                            </div>
                                         @endif
                                     </div>
                                 @endif
@@ -425,19 +367,9 @@
                     @endif
 
                     <!-- PSPC Committee Endorsements -->
-                    @php
-                        $hasPspcSigs = false;
-                        for ($i = 1; $i <= 10; $i++) {
-                            $recCol = "pspc_member_{$i}_recommendation";
-                            if (!is_null($pts1->$recCol)) {
-                                $hasPspcSigs = true;
-                                break;
-                            }
-                        }
-                    @endphp
                     @if($hasPspcSigs)
                         <div class="p-4 bg-purple-50/70 dark:bg-purple-950/40 border-l-4 border-purple-500 rounded-xl space-y-3">
-                            <h5 class="text-s font-bold text-purple-900 dark:text-purple-200">PSPC Committee Recommendations</h5>
+                            <h5 class="text-s font-bold text-purple-900 dark:text-purple-200">PSPC Committee</h5>
                             @for($i = 1; $i <= 10; $i++)
                                 @php
                                     $idCol = "pspc_member_{$i}_id";
@@ -445,23 +377,28 @@
                                     $remCol = "pspc_member_{$i}_confidential_remark";
                                     $pspcUser = $pts1->$idCol ? \App\Models\User::find($pts1->$idCol) : null;
                                 @endphp
-                                @if($pspcUser && !is_null($pts1->$recCol))
+                                @if($pspcUser && (!is_null($pts1->$recCol)))
                                     <div class="text-xs space-y-1 pt-1 {{ $i > 1 ? 'border-t border-purple-100 dark:border-purple-900' : '' }}">
                                         <div class="flex justify-between font-semibold">
-                                            <span>{{ $pspcUser->name }} (PSPC Member {{ $i }})</span>
-                                            <span class="font-bold {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
-                                                {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                            </span>
+                                            <span>{{ $pspcUser->name }} (PSPC Member {{ $i }}) Remark:</span>
+                                            @if(!is_null($pts1->$recCol))
+                                                <span class="font-bold {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
+                                                    {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            @endif
                                         </div>
-                                        <div><strong>Confidential Remarks:</strong></div>
                                         @if($pts1->$remCol)
                                             <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1">
                                                 {{ $pts1->$remCol }}
                                             </p>
                                         @else
-                                            <p class="italic text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1">
-                                                Confidential Remark not Provided
-                                            </p>
+                                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                                </svg>
+                                                <span class="italic font-normal">Confidential Remark not provided</span>
+                                            </div>
                                         @endif
                                     </div>
                                 @endif
@@ -472,56 +409,92 @@
                     <!-- DPGC Endorsement -->
                     @if(!is_null($pts1->dpgc_recommendation))
                         <div class="p-4 bg-teal-50/70 dark:bg-teal-950/40 border-l-4 border-teal-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-teal-900 dark:text-teal-200">
-                                <span>Department Postgraduate Committee (DPGC)</span>
-                                <span class="{{ $pts1->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                </span>
+                            <div class="flex justify-between font-bold text-teal-900 dark:text-teal-200">
+                                <h5 class="text-s">Department Postgraduate Committee (DPGC)</h5>
+                                @if(!is_null($pts1->dpgc_recommendation))
+                                    <span class="font-bold text-xs {{ $pts1->dpgc_recommendation ? 'text-emerald-600' : 'text-red-600' }}">
+                                        {{ $pts1->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                @endif
                             </div>
-                            @if($pts1->dpgc_remarks)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Remarks:</strong>
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-1">
-                                        {{ $pts1->dpgc_remarks }}
-                                    </p>
-                                </div>
-                            @endif
-                            @if($pts1->dpgc_student_comment)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Feedback to Student:</strong>
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Student Comment:</strong>
+                                @if($pts1->dpgc_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
                                         {{ $pts1->dpgc_student_comment }}
                                     </p>
-                                </div>
-                            @endif
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Student Comment not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
+                                <strong>DPGC Remark:</strong>
+                                @if($pts1->dpgc_remarks || $pts1->dpgc_confidential_remark)
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
+                                        {{ $pts1->dpgc_remarks ?? $pts1->dpgc_confidential_remark }}
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Confidential Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     @endif
 
                     <!-- HOD Endorsement -->
                     @if(!is_null($pts1->hod_recommendation))
                         <div class="p-4 bg-amber-50/70 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-amber-900 dark:text-amber-200">
-                                <span>Head of Department (HOD)</span>
-                                <span class="{{ $pts1->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                </span>
+                            <div class="flex justify-between font-bold text-amber-900 dark:text-amber-200">
+                                <h5 class="text-s">Head of Department (HOD)</h5>
+                                @if(!is_null($pts1->hod_recommendation))
+                                    <span class="font-bold text-xs {{ $pts1->hod_recommendation ? 'text-emerald-600' : 'text-red-600' }}">
+                                        {{ $pts1->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                @endif
                             </div>
-                            @if($pts1->hod_remarks)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Remarks:</strong>
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-1">
-                                        {{ $pts1->hod_remarks }}
-                                    </p>
-                                </div>
-                            @endif
-                            @if($pts1->hod_student_comment)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Feedback to Student:</strong>
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Student Comment:</strong>
+                                @if($pts1->hod_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
                                         {{ $pts1->hod_student_comment }}
                                     </p>
-                                </div>
-                            @endif
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Student Comment not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
+                                <strong>HOD Remark:</strong>
+                                @if($pts1->hod_remarks || $pts1->hod_confidential_remark)
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
+                                        {{ $pts1->hod_remarks ?? $pts1->hod_confidential_remark }}
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Confidential Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     @endif
 
@@ -529,19 +502,27 @@
                     @if(!is_null($pts1->section_officer_recommendation))
                         <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-2">
                             <div class="flex justify-between text-s font-bold text-blue-900 dark:text-blue-200">
-                                <span>Section Officer (Academic)</span>
-                                <span class="{{ $pts1->section_officer_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->section_officer_recommendation ? '✓ Verified' : '❌ Not Verified' }}
+                                <h5 class="text-s">Section Officer</h5>
+                                <span class="font-bold text-xs text-emerald-600">
+                                    ✓ Verified & Forwarded
                                 </span>
                             </div>
-                            @if($pts1->section_officer_remarks)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Remarks:</strong>
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Verification Remark:</strong>
+                                @if($pts1->section_officer_remarks)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1">
                                         {{ $pts1->section_officer_remarks }}
                                     </p>
-                                </div>
-                            @endif
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Verification Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     @endif
 
@@ -549,30 +530,57 @@
                     @if(!is_null($pts1->doaa_recommendation))
                         <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
                             <div class="flex justify-between text-s font-bold text-emerald-900 dark:text-emerald-200">
-                                <span>Dean of Academic Affairs (DOAA)</span>
-                                <span class="{{ $pts1->doaa_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->doaa_recommendation ? '✓ Approved' : '❌ Not Approved' }}
-                                </span>
+                                <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
+                                @if(!is_null($pts1->doaa_recommendation))
+                                    <span class="font-bold text-xs {{ $pts1->doaa_recommendation ? 'text-emerald-600' : 'text-red-600' }}">
+                                        {{ $pts1->doaa_recommendation ? '✓ Approved' : '❌ Not Approved' }}
+                                    </span>
+                                @endif
                             </div>
-                            @if($pts1->doaa_remarks)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Remarks:</strong>
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-1">
-                                        {{ $pts1->doaa_remarks }}
-                                    </p>
-                                </div>
-                            @endif
-                            @if($pts1->doaa_student_comment)
-                                <div class="text-xs text-gray-700 dark:text-gray-300">
-                                    <strong>Feedback to Student:</strong>
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Student Comment:</strong>
+                                @if($pts1->doaa_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
                                         {{ $pts1->doaa_student_comment }}
                                     </p>
-                                </div>
-                            @endif
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Student Comment not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
+                                <strong>DOAA Remark:</strong>
+                                @if($pts1->doaa_remarks)
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
+                                        {{ $pts1->doaa_remarks }}
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                        </svg>
+                                        <span class="italic font-normal">Confidential Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
+                    </div>
                     @endif
-                </div>
+                @else
+                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/60">
+                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                        </svg>
+                        <span class="italic font-normal">No comments</span>
+                    </div>
+                @endif
             </div>
 
             <!-- Section 7: Reversion Log -->
@@ -582,7 +590,7 @@
                 </h3>
                 <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl">
                     <div class="font-bold text-amber-900 dark:text-amber-200 text-sm">
-                        ⚠️ Form Reverted by {{ $pts1->getRevertedByRoleLabel() }}
+                        ⚠️ Reverted by {{ $pts1->getRevertedByRoleLabel() }}
                     </div>
                     @if($pts1->getReversionComment())
                         <div class="mt-2 text-xs text-gray-700 dark:text-gray-300">
@@ -594,9 +602,8 @@
                     @else
                         <p class="text-xs italic text-gray-500 mt-1">No written reversion comment provided.</p>
                     @endif
+                </div>
             </div>
-            </div>
-
         </div>
     </div>
 </x-app-layout>

@@ -317,7 +317,7 @@
                                 <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
-                                            <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2: Synopsis Report</span>
+                                            <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2: Synopsis Report Submission</span>
                                             @if(!$pts1Approved)
                                                 <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                             @elseif(!$pts2Form)
@@ -355,11 +355,11 @@
                                             </button>
                                         @elseif(!$pts2Form)
                                             <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                Create {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Synopsis Form &rarr;
+                                                Create {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
                                             </a>
                                         @elseif($pts2Form->status === 'reverted')
                                             <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                Resubmit {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Synopsis Form &rarr;
+                                                Resubmit {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
                                             </a>
                                         @elseif($pts2Form->status === 'in_progress')
                                             <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold text-center py-1">

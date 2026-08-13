@@ -3,7 +3,13 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('PTS-1 Submission View') }}
+                    @if($pts1->status == 'accepted' && $pts1->current_stage == 'completed')
+                        {{ __('Approved PTS-1 Form Details & Remarks') }}
+                    @elseif($pts1->status == 'rejected' && $pts1->current_stage == 'rejected')
+                        {{ __('Rejected PTS-1 Form Details & Remarks') }}
+                    @else
+                        {{ __('PTS-1 Submission View') }}
+                    @endif
                 </h2>
                 @if($pts1->status === 'accepted')
                     <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
@@ -233,7 +239,7 @@
 
                     <!-- Publication List Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
-                        <div class="text-xs font-bold text-gray-500 uppercase">Publication List</div>
+                        <div class="text-xs font-bold text-gray-500 uppercase">Publication and Other Recognition List</div>
                         @if($pts1->publication_list_doc_path)
                             <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📊 Download / View Publication List
@@ -253,104 +259,103 @@
 
                 <div class="space-y-4">
                     <!-- Main Supervisor Evaluation -->
-                        <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                            <div class="flex items-center justify-between text-s">
-                                <span class="font-bold text-indigo-900 dark:text-indigo-200">
-                                    Main Supervisor
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300">
-                                <strong>Student Comment:</strong>
-                                @if($pts1->main_supervisor_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        {{ $pts1->main_supervisor_student_comment }}
-                                    </p>
-                                @else
-                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                                        </svg>
-                                        <span class="italic font-normal">Student Comment not provided</span>
-                                    </div>
-                                @endif
-                            </div>
+                    <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between text-s">
+                            <span class="font-bold text-indigo-900 dark:text-indigo-200">
+                                Main Supervisor
+                            </span>
                         </div>
+                        <div class="text-xs text-gray-700 dark:text-gray-300">
+                            <strong>Additional Comment:</strong>
+                            @if($pts1->main_supervisor_student_comment)
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
+                                    {{ $pts1->main_supervisor_student_comment }}
+                                </p>
+                            @else
+                                <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                    </svg>
+                                    <span class="italic font-normal">Student Comment not provided</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
 
 
                     <!-- DPGC Endorsement -->
-                        <div class="p-4 bg-teal-50/70 dark:bg-teal-950/40 border-l-4 border-teal-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-teal-900 dark:text-teal-200">
-                                <span>Department Postgraduate Committee (DPGC)</span>
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300">
-                                <strong>Student Comment:</strong>
-                                @if($pts1->dpgc_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
-                                        {{ $pts1->dpgc_student_comment }}
-                                    </p>
-                                @else
-                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
-                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                                        </svg>
-                                        <span class="italic font-normal">Student Comment not provided</span>
-                                    </div>
-                                @endif
-                            </div>
+                    <div class="p-4 bg-teal-50/70 dark:bg-teal-950/40 border-l-4 border-teal-500 rounded-xl space-y-2">
+                        <div class="flex justify-between text-s font-bold text-teal-900 dark:text-teal-200">
+                            <span>Department Postgraduate Committee (DPGC)</span>
                         </div>
+                        <div class="text-xs text-gray-700 dark:text-gray-300">
+                            <strong>Student Comment:</strong>
+                            @if($pts1->dpgc_student_comment)
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
+                                    {{ $pts1->dpgc_student_comment }}
+                                </p>
+                            @else
+                                <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                    </svg>
+                                    <span class="italic font-normal">Student Comment not provided</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
 
 
                     <!-- HOD Endorsement -->
-                        <div class="p-4 bg-amber-50/70 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-amber-900 dark:text-amber-200">
-                                <span>Head of Department (HOD)</span>
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300">
-                                <strong>Student Comment:</strong>
-                                @if($pts1->hod_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
-                                        {{ $pts1->hod_student_comment }}
-                                    </p>
-                                @else
-                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
-                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                                        </svg>
-                                        <span class="italic font-normal">Student Comment not provided</span>
-                                    </div>
-                                @endif
-                            </div>
+                    <div class="p-4 bg-amber-50/70 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
+                        <div class="flex justify-between text-s font-bold text-amber-900 dark:text-amber-200">
+                            <span>Head of Department (HOD)</span>
                         </div>
+                        <div class="text-xs text-gray-700 dark:text-gray-300">
+                            <strong>Student Comment:</strong>
+                            @if($pts1->hod_student_comment)
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
+                                    {{ $pts1->hod_student_comment }}
+                                </p>
+                            @else
+                                <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                    </svg>
+                                    <span class="italic font-normal">Student Comment not provided</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     
 
                     <!-- DOAA Approval -->
-                        <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-emerald-900 dark:text-emerald-200">
-                                <span>Dean of Academic Affairs (DOAA)</span>
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300">
-                                <strong>Student Comment:</strong>
-                                @if($pts1->doaa_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
-                                        {{ $pts1->doaa_student_comment }}
-                                    </p>
-                                @else
-                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
-                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                                        </svg>
-                                        <span class="italic font-normal">Student Comment not provided</span>
-                                    </div>
-                                @endif
-                            </div>
+                    <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
+                        <div class="flex justify-between text-s font-bold text-emerald-900 dark:text-emerald-200">
+                            <span>Dean of Academic Affairs (DOAA)</span>
                         </div>
+                        <div class="text-xs text-gray-700 dark:text-gray-300">
+                            <strong>Student Comment:</strong>
+                            @if($pts1->doaa_student_comment)
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
+                                    {{ $pts1->doaa_student_comment }}
+                                </p>
+                            @else
+                                <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
+                                    </svg>
+                                    <span class="italic font-normal">Student Comment not provided</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

@@ -147,10 +147,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-3 text-xs font-bold">
-                                    <span class="{{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }}">
-                                        {{ $student->theses->count() }} Registered Thesis(es)
+                                <div class="flex items-center space-x-2 text-xs font-bold">
+                                    @php
+                                        $stageLabel = $student->getThesisStageLabel();
+                                        $needsAction = $student->requiresActionFromUser($user);
+                                    @endphp
+
+                                    @if($needsAction)
+                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                                            Action Required
+                                        </span>
+                                    @endif
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
+                                        @if($stageLabel === 'Unregistered')
+                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                                        @else
+                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                                        @endif
+                                    ">
+                                        {{ $stageLabel }}
                                     </span>
+
                                     <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === {{ $student->id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
@@ -278,10 +296,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-3 text-xs font-bold">
-                                    <span class="text-blue-600 dark:text-blue-400">
-                                        {{ $student->theses->count() }} Registered Thesis(es)
+                                <div class="flex items-center space-x-2 text-xs font-bold">
+                                    @php
+                                        $stageLabel = $student->getThesisStageLabel();
+                                        $needsAction = $student->requiresActionFromUser($user);
+                                    @endphp
+
+                                    @if($needsAction)
+                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                                            Action Required
+                                        </span>
+                                    @endif
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
+                                        @if($stageLabel === 'Unregistered')
+                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                                        @else
+                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                                        @endif
+                                    ">
+                                        {{ $stageLabel }}
                                     </span>
+
                                     <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === {{ $student->id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>

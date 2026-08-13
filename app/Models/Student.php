@@ -123,4 +123,127 @@ class Student extends Model
     {
         return $this->pspcMembers()->where('users.id', $user->id)->exists();
     }
+
+    /**
+     * Determine the current thesis stage for the student.
+     * Possible stages: Unregistered, PTS-1, PTS-2/PTS-3, PTS-4, PTS-5, PTS-6, Rejected
+     */
+    public function getThesisStageLabel(): string
+    {
+        $thesis = $this->theses->last();
+
+        if (!$thesis) {
+            return 'Unregistered';
+        }
+
+        $pts1 = $thesis->pts1Form;
+        $pts2 = $thesis->pts2Form;
+
+        // If any active form is rejected
+        // if (($pts1 && $pts1->status === 'rejected') || ($pts2 && $pts2->status === 'rejected')) {
+        //     return 'Rejected';
+        // }
+
+        // If PTS-1 is not yet approved
+        if (!$pts1 || $pts1->status !== 'accepted') {
+            return 'PTS-1';
+        }
+
+        // If PTS-1 is approved, student moves to PTS-2 / PTS-3
+        if (!$pts2 || $pts2->status !== 'accepted') {
+            return 'PTS-2/PTS-3';
+        }
+
+        return 'PTS-4';
+    }
+
+    /**
+     * Check whether an active form for this student requires endorsement/evaluation by the given faculty user.
+     * Optionally filtered by role: 'main', 'co', 'pspc', 'dpgc', 'hod', 'section_officer', 'doaa'.
+     */
+    public function requiresActionFromUser(User $user, ?string $roleFilter = null): bool
+    {
+        $thesis = $this->theses->last();
+        if (!$thesis) {
+            return false;
+        }
+
+        // Check PTS-1 Action
+        $pts1 = $thesis->pts1Form;
+        if ($pts1 && $pts1->status === 'in_progress') {
+            if ((!$roleFilter || $roleFilter === 'main') && $pts1->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'co') && $pts1->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
+                        return true;
+                    }
+                }
+            }
+            if ((!$roleFilter || $roleFilter === 'pspc') && $pts1->current_stage === 'pspc_members') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "pspc_member_{$i}_id";
+                    $recCol = "pspc_member_{$i}_recommendation";
+                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
+                        return true;
+                    }
+                }
+            }
+            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts1->current_stage === 'dpgc' && $user->isDpgc()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'hod') && $pts1->current_stage === 'hod' && $user->isHod()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts1->current_stage === 'doaa' && $user->isDoaa()) {
+                return true;
+            }
+        }
+
+        // Check PTS-2 Action
+        $pts2 = $thesis->pts2Form;
+        if ($pts2 && $pts2->status === 'in_progress') {
+            if ((!$roleFilter || $roleFilter === 'main') && $pts2->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'co') && $pts2->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 3; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
+                        return true;
+                    }
+                }
+            }
+            if ((!$roleFilter || $roleFilter === 'pspc') && $pts2->current_stage === 'pspc_members') {
+                for ($i = 1; $i <= 3; $i++) {
+                    $idCol = "pspc_member_{$i}_id";
+                    $recCol = "pspc_member_{$i}_recommendation";
+                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
+                        return true;
+                    }
+                }
+            }
+            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts2->current_stage === 'dpgc' && $user->isDpgc()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'hod') && $pts2->current_stage === 'hod' && $user->isHod()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2->current_stage === 'doaa' && $user->isDoaa()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

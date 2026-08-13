@@ -38,6 +38,9 @@ class StudentPts1Controller extends Controller
             if ($pts1Form->status === 'accepted') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form has already been approved.');
             }
+            if ($pts1Form->status !== 'reverted') {
+                $pts1Form = null;
+            }
         }
 
         return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
@@ -85,7 +88,7 @@ class StudentPts1Controller extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You do not have a reverted PTS-1 form to edit.');
         }
 
-        return view('student.pts1.edit', compact('user', 'student', 'thesis', 'pts1Form'));
+        return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
     }
 
     /**
@@ -195,13 +198,13 @@ class StudentPts1Controller extends Controller
         if ($request->hasFile('draft_synopsis_report')) {
             $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
         } else {
-            $synopsisPath = $pts1Form->draft_synopsis_report_doc_path;
+            $synopsisPath = $hasExisting ? $pts1Form->draft_synopsis_report_doc_path : null;
         }
 
         if ($request->hasFile('publication_list')) {
             $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
         } else {
-            $pubListPath = $pts1Form->publication_list_doc_path;
+            $pubListPath = $hasExisting ? $pts1Form->publication_list_doc_path : null;
         }
 
         // Committee Co-Supervisors & PSPC IDs
@@ -235,6 +238,8 @@ class StudentPts1Controller extends Controller
         // Create new active PTS-1 Form
         Pts1Form::create($formData);
 
-        return redirect()->route('student.dashboard')->with('success', 'PTS-1 form resubmitted successfully and forwarded to your Main Supervisor for review!');
+        $actionVerb = $hasExisting ? 'resubmitted' : 'submitted';
+
+        return redirect()->route('student.dashboard')->with('success', "PTS-1 form {$actionVerb} successfully and forwarded to your Main Supervisor for review!");
     }
 }

@@ -177,7 +177,19 @@
                         Students Supervised as Main Supervisor (<span x-show="programTab === 'phd'">{{ $mainStudents->filter(fn($s) => $s->isPhd())->count() }}</span><span x-show="programTab === 'msr'">{{ $mainStudents->filter(fn($s) => $s->isMsr())->count() }}</span>)
                     </h3>
 
-                    @forelse($mainStudents as $student)
+                    @php
+                        $phdMainCount = $mainStudents->filter(fn($s) => $s->isPhd())->count();
+                        $msrMainCount = $mainStudents->filter(fn($s) => $s->isMsr())->count();
+                    @endphp
+
+                    <div x-show="programTab === 'phd' && {{ $phdMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
+                    </div>
+                    <div x-show="programTab === 'msr' && {{ $msrMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
+                    </div>
+
+                    @foreach($mainStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('main-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
@@ -196,10 +208,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-3 text-xs font-bold">
-                                    <span class="text-indigo-600 dark:text-indigo-400">
-                                        {{ $student->theses->count() }} Registered Thesis(es)
+                                <div class="flex items-center space-x-2 text-xs font-bold">
+                                    @php
+                                        $stageLabel = $student->getThesisStageLabel();
+                                        $needsAction = $student->requiresActionFromUser($user, 'main');
+                                    @endphp
+
+                                    @if($needsAction)
+                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                                            Action Required
+                                        </span>
+                                    @endif
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
+                                        @if($stageLabel === 'Unregistered')
+                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                                        @else
+                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                                        @endif
+                                    ">
+                                        {{ $stageLabel }}
                                     </span>
+
                                     <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === 'main-{{ $student->id }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
@@ -298,9 +328,7 @@
                                 @endforeach
                             </div>
                         </div>
-                    @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No students assigned as Main Supervisor.</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
 
@@ -311,7 +339,19 @@
                         Students Supervised as Co-Supervisor (<span x-show="programTab === 'phd'">{{ $coStudents->filter(fn($s) => $s->isPhd())->count() }}</span><span x-show="programTab === 'msr'">{{ $coStudents->filter(fn($s) => $s->isMsr())->count() }}</span>)
                     </h3>
 
-                    @forelse($coStudents as $student)
+                    @php
+                        $phdCoCount = $coStudents->filter(fn($s) => $s->isPhd())->count();
+                        $msrCoCount = $coStudents->filter(fn($s) => $s->isMsr())->count();
+                    @endphp
+
+                    <div x-show="programTab === 'phd' && {{ $phdCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
+                    </div>
+                    <div x-show="programTab === 'msr' && {{ $msrCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
+                    </div>
+
+                    @foreach($coStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('co-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
@@ -333,10 +373,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-3 text-xs font-bold">
-                                    <span class="text-blue-600 dark:text-blue-400">
-                                        {{ $student->theses->count() }} Registered Thesis(es)
+                                <div class="flex items-center space-x-2 text-xs font-bold">
+                                    @php
+                                        $stageLabel = $student->getThesisStageLabel();
+                                        $needsAction = $student->requiresActionFromUser($user, 'co');
+                                    @endphp
+
+                                    @if($needsAction)
+                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                                            Action Required
+                                        </span>
+                                    @endif
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
+                                        @if($stageLabel === 'Unregistered')
+                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                                        @else
+                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                                        @endif
+                                    ">
+                                        {{ $stageLabel }}
                                     </span>
+
                                     <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === 'co-{{ $student->id }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
@@ -454,9 +512,7 @@
                                 @endforeach
                             </div>
                         </div>
-                    @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No students assigned as Co-Supervisor.</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
 
@@ -467,7 +523,19 @@
                         Students Assigned for PSPC Committee (<span x-show="programTab === 'phd'">{{ $pspcStudents->filter(fn($s) => $s->isPhd())->count() }}</span><span x-show="programTab === 'msr'">{{ $pspcStudents->filter(fn($s) => $s->isMsr())->count() }}</span>)
                     </h3>
 
-                    @forelse($pspcStudents as $student)
+                    @php
+                        $phdPspcCount = $pspcStudents->filter(fn($s) => $s->isPhd())->count();
+                        $msrPspcCount = $pspcStudents->filter(fn($s) => $s->isMsr())->count();
+                    @endphp
+
+                    <div x-show="programTab === 'phd' && {{ $phdPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
+                    </div>
+                    <div x-show="programTab === 'msr' && {{ $msrPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
+                    </div>
+
+                    @foreach($pspcStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent('pspc-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
@@ -489,10 +557,28 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-3 text-xs font-bold">
-                                    <span class="text-purple-600 dark:text-purple-400">
-                                        {{ $student->theses->count() }} Registered Thesis(es)
+                                <div class="flex items-center space-x-2 text-xs font-bold">
+                                    @php
+                                        $stageLabel = $student->getThesisStageLabel();
+                                        $needsAction = $student->requiresActionFromUser($user, 'pspc');
+                                    @endphp
+
+                                    @if($needsAction)
+                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
+                                            Action Required
+                                        </span>
+                                    @endif
+
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
+                                        @if($stageLabel === 'Unregistered')
+                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                                        @else
+                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                                        @endif
+                                    ">
+                                        {{ $stageLabel }}
                                     </span>
+
                                     <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === 'pspc-{{ $student->id }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
@@ -593,9 +679,7 @@
                                 @endforeach
                             </div>
                         </div>
-                    @empty
-                        <p class="text-sm text-gray-500 text-center py-6">No students assigned for PSPC Committee.</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
 

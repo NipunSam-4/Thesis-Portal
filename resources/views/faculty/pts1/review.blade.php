@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Main Supervisor Review: PTS-1 Form') }} &mdash; {{ $studentUser->name }} ({{ $student->roll_number }})
+                {{ __('PTS-1 Review Portal') }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -433,7 +433,7 @@
                         <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl space-y-3">
                             <div class="flex justify-between items-center">
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
-                                    Publication List (.xlsx, .xls)
+                                    Publication and Other Recognition List (.xlsx, .xls)
                                 </label>
                                 <span class="text-[11px] text-gray-400">Max 2 MB</span>
                             </div>
