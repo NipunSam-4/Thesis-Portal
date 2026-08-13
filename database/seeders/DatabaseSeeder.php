@@ -104,7 +104,7 @@ class DatabaseSeeder extends Seeder
 
         // 6. PhD Student (With existing thesis & PTS-1/PTS-2)
         $phdStudentUser = User::firstOrCreate(
-            ['email' => 'phdstudent@iiti.ac.in'],
+            ['email' => 'phdstudent1@iiti.ac.in'],
             ['name' => 'PhD Student 1', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
@@ -137,7 +137,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $phdStudentUser1 = User::firstOrCreate(
-            ['email' => 'phdstudent1@iiti.ac.in'],
+            ['email' => 'phdstudent2@iiti.ac.in'],
             ['name' => 'PhD Student 2', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
@@ -170,8 +170,8 @@ class DatabaseSeeder extends Seeder
         }
 
        $msrStudentUser = User::firstOrCreate(
-            ['email' => 'msrstudent@iiti.ac.in'],
-            ['name' => 'MS(R) Student', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['email' => 'msrstudent1@iiti.ac.in'],
+            ['name' => 'MS(R) Student 1', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
         $msrStudent = Student::firstOrCreate(
@@ -199,6 +199,38 @@ class DatabaseSeeder extends Seeder
 
         if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
             $msrStudent->pspcMembers()->attach($faculty3->id);
+        }
+
+       $msrStudentUser2 = User::firstOrCreate(
+            ['email' => 'msrstudent2@iiti.ac.in'],
+            ['name' => 'MS(R) Student 2', 'password' => $password, 'role' => 'student', 'is_active' => true]
+        );
+
+        $msrStudent2 = Student::firstOrCreate(
+            ['user_id' => $msrStudentUser2->id],
+            [
+                'roll_number' => '230002002',
+                'department_id' => $dept->id,
+                'program_name'=>'msr',
+                'date_joining' => '2023-08-01',
+                'date_registration' => '2023-08-15',
+            ]
+        );
+
+        if (!$msrStudent2->supervisors()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $msrStudent2->supervisors()->attach($faculty2->id, ['supervisor_type' => 'main']);
+        }
+
+        if (!$msrStudent2->supervisors()->where('faculty_user_id', $faculty1->id)->exists()) {
+            $msrStudent2->supervisors()->attach($faculty1->id, ['supervisor_type' => 'co']);
+        }
+
+        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
+            $msrStudent2->pspcMembers()->attach($faculty2->id);
+        }
+
+        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $msrStudent2->pspcMembers()->attach($faculty3->id);
         }
 
         $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Student!');

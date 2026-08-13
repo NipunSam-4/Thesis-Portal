@@ -4,7 +4,7 @@
     $studentUser = $student->user;
 @endphp
 
-<div class="inline-flex items-center">
+<div class="inline-flex items-center" @click.stop>
     <!-- Info Trigger Button -->
     <button type="button" 
             @click.stop="$dispatch('open-modal', 'student-info-modal-{{ $student->id }}')" 

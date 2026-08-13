@@ -1,7 +1,7 @@
 <section class="space-y-6">
     <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
         <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <span>🎓 Academic Profile</span>
+            <span>Academic Profile</span>
         </h2>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Official student record details as registered with Academic Office.
