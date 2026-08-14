@@ -13,6 +13,8 @@ use App\Http\Controllers\Pts1Controller;
 use App\Http\Controllers\Pts2Controller;
 use App\Http\Controllers\Dept_Authority\DeptAuthorityDashboardController;
 use App\Http\Controllers\GlobalAuthority\GlobalAuthorityDashboardController;
+use App\Http\Controllers\Student\StudentDraftSynopsisController;
+use App\Http\Controllers\DraftSynopsisReviewController;
 use App\Http\Controllers\ProfileController;
 
 // Default welcome page
@@ -63,6 +65,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/pts1/{pts1}/review-endorse', [Pts1Controller::class, 'showReview'])->name('pts1.review_endorse');
     Route::get('/pts2/{pts2}/review-endorse', [Pts2Controller::class, 'showReview'])->name('pts2.review_endorse');
 
+    // Draft Synopsis Circulation Authority Review & Document Streaming
+    Route::get('/draft-synopsis/{id}/review', [DraftSynopsisReviewController::class, 'show'])->name('draft_synopsis.review');
+    Route::post('/draft-synopsis/{id}/comment', [DraftSynopsisReviewController::class, 'comment'])->name('draft_synopsis.comment');
+    Route::get('/draft-synopsis/{id}/document', [DraftSynopsisReviewController::class, 'serveDocument'])->name('draft_synopsis.document.serve');
+
     // Universal PTS-1 Endorsement & Reversion Action Routes
     Route::post('/pts1/{pts1}/endorse', [Pts1Controller::class, 'endorse'])->name('pts1.endorse');
     Route::post('/pts1/{pts1}/revert', [Pts1Controller::class, 'revert'])->name('pts1.revert');
@@ -77,6 +84,10 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
     Route::post('/thesis/store', [StudentThesisController::class, 'store'])->name('student.thesis.store');
     
+    // Draft Synopsis Circulation Routes
+    Route::get('/draft-synopsis', [StudentDraftSynopsisController::class, 'show'])->name('student.draft_synopsis.show');
+    Route::post('/draft-synopsis/store', [StudentDraftSynopsisController::class, 'store'])->name('student.draft_synopsis.store');
+
     Route::get('/pts1/create', [StudentPts1Controller::class, 'create'])->name('student.pts1.create');
     Route::get('/pts1/edit', [StudentPts1Controller::class, 'edit'])->name('student.pts1.edit');
     Route::post('/pts1/store', [StudentPts1Controller::class, 'store'])->name('student.pts1.store');

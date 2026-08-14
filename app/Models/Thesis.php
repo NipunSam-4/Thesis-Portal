@@ -24,6 +24,11 @@ class Thesis extends Model
         return $this->belongsTo(Student::class);
     }
 
+    public function draftSynopsisCirculation(): HasOne
+    {
+        return $this->hasOne(DraftSynopsisCirculation::class)->latestOfMany();
+    }
+
     public function pts1Form(): HasOne
     {
         return $this->hasOne(Pts1Form::class)->latestOfMany();

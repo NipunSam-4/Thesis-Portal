@@ -1,0 +1,147 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ __('Draft Synopsis Review Portal') }}
+            </h2>
+            <x-back-to-dashboard-button />
+        </div>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <!-- Success/Error Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-sm font-semibold text-sm space-y-1">
+                    @foreach($errors->all() as $error)
+                        <div>• {{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
+
+            <!-- Section 1: Student & Circulated Synopsis Info Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-3 flex justify-between items-start">
+                    <div>
+                        <span class="text-xs uppercase font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
+                            Circulated Draft Synopsis Report
+                        </span>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                            {{ $student->user->name }}
+                            <span class="text-sm font-semibold text-gray-500">({{ $student->roll_number }})</span>
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Department of {{ $student->department->name ?? 'N/A' }} | {{ strtoupper($student->program_name) }} Program
+                        </p>
+                    </div>
+
+                    <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 text-xs font-bold rounded-full">
+                        Circulated
+                    </span>
+                </div>
+
+                <!-- Thesis Title Field -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Thesis Title</label>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600">
+                        {{ $thesis->title }}
+                    </div>
+                </div>
+
+                <!-- Circulated Document Badge -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Circulated Synopsis Document</label>
+                    <div class="flex items-center justify-between p-3 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                        <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
+                            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Draft Synopsis Report File</span>
+                        </div>
+                        <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                            View / Download Document &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Authority Feedback Submission Form -->
+            <form action="{{ route('draft_synopsis.comment', $circulation->id) }}" method="POST" class="space-y-6">
+                @csrf
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-3 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                                Feedback for Draft Synopsis Report
+                            </h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                Provide your comment on the student's draft synopsis report below.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <textarea name="comment" 
+                                  rows="4" 
+                                  required 
+                                  placeholder="Type your feedback, observations, or suggestions on the draft synopsis report..." 
+                                  class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500 p-3">{{ old('comment', $userComment?->comment) }}</textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow transition">
+                            {{ $userComment ? 'Update Feedback Comment' : 'Submit Feedback Comment' }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Section 3: Ordered Authority Comments Trail -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                        All Authority Feedback & Comments
+                    </h3>
+                    <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full">
+                        {{ $comments->count() }} {{ Str::plural('Comment', $comments->count()) }}
+                    </span>
+                </div>
+
+                @if($comments->isEmpty())
+                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/60">
+                        <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M16 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
+                        </svg>
+                        <span class="italic font-normal text-sm">No authority comments submitted yet.</span>
+                    </div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($comments as $comment)
+                            <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">
+                                        {{ $comment->authority_label }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                                        {{ $comment->created_at->format('d M Y, h:i A') }}
+                                    </span>
+                                </div>
+                                <p class="italic text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                    {{ $comment->comment }}
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+        </div>
+    </div>
+</x-app-layout>

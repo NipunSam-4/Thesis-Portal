@@ -20,6 +20,7 @@ class DeptAuthorityDashboardController extends Controller
                 'department',
                 'supervisors',
                 'pspcMembers',
+                'theses.draftSynopsisCirculation.comments',
                 'theses.pts1Form',
                 'theses.pts2Form'
             ])

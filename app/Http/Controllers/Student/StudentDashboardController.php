@@ -19,12 +19,14 @@ class StudentDashboardController extends Controller
             'department', 
             'supervisors',
             'pspcMembers',
+            'theses.draftSynopsisCirculation',
             'theses.pts1Form',
             'theses.pts2Form'
         ])->firstOrFail();
 
         $activeThesis = $student->theses->firstWhere('status', 'in_progress');
         $latestThesis = $activeThesis;
+        $draftSynopsis = $activeThesis ? $activeThesis->draftSynopsisCirculation : null;
         $pts1Form = $activeThesis ? $activeThesis->pts1Form : null;
         $pts2Form = $activeThesis ? $activeThesis->pts2Form : null;
 
@@ -39,6 +41,6 @@ class StudentDashboardController extends Controller
             $rejectedForms = $rejectedPts1->concat($rejectedPts2)->sortByDesc('created_at');
         }
 
-        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'pts1Form', 'pts2Form', 'pts1Approved', 'rejectedForms'));
+        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'draftSynopsis', 'pts1Form', 'pts2Form', 'pts1Approved', 'rejectedForms'));
     }
 }

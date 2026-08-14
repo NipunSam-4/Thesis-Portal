@@ -244,6 +244,42 @@
                                         </div>
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Draft Synopsis Circulation Card -->
+                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
+                                                        @if($thesis->draftSynopsisCirculation)
+                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                        @endif
+                                                    </div>
+
+                                                    @if($thesis->draftSynopsisCirculation)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                            <div>Circulated: <strong>{{ $thesis->draftSynopsisCirculation->created_at->format('d-m-Y') }}</strong></div>
+                                                            <div class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                                {{ $thesis->draftSynopsisCirculation->comments->count() }} {{ Str::plural('Comment', $thesis->draftSynopsisCirculation->comments->count()) }}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Student has not circulated a draft synopsis report yet.
+                                                        </p>
+                                                    @endif
+                                                </div>
+
+                                                @if($thesis->draftSynopsisCirculation)
+                                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" 
+                                                           class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            Review & Comment &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- PTS-1 Card -->
                                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
@@ -409,6 +445,42 @@
                                         </div>
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Draft Synopsis Circulation Card -->
+                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
+                                                        @if($thesis->draftSynopsisCirculation)
+                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                        @endif
+                                                    </div>
+
+                                                    @if($thesis->draftSynopsisCirculation)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                            <div>Circulated: <strong>{{ $thesis->draftSynopsisCirculation->created_at->format('d-m-Y') }}</strong></div>
+                                                            <div class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                                {{ $thesis->draftSynopsisCirculation->comments->count() }} {{ Str::plural('Comment', $thesis->draftSynopsisCirculation->comments->count()) }}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Student has not circulated a draft synopsis report yet.
+                                                        </p>
+                                                    @endif
+                                                </div>
+
+                                                @if($thesis->draftSynopsisCirculation)
+                                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" 
+                                                           class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            Review & Comment &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- PTS-1 Card -->
                                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
@@ -593,6 +665,42 @@
                                         </div>
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Draft Synopsis Circulation Card -->
+                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
+                                                        @if($thesis->draftSynopsisCirculation)
+                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                        @endif
+                                                    </div>
+
+                                                    @if($thesis->draftSynopsisCirculation)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                            <div>Circulated: <strong>{{ $thesis->draftSynopsisCirculation->created_at->format('d-m-Y') }}</strong></div>
+                                                            <div class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                                {{ $thesis->draftSynopsisCirculation->comments->count() }} {{ Str::plural('Comment', $thesis->draftSynopsisCirculation->comments->count()) }}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Student has not circulated a draft synopsis report yet.
+                                                        </p>
+                                                    @endif
+                                                </div>
+
+                                                @if($thesis->draftSynopsisCirculation)
+                                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" 
+                                                           class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            Review & Comment &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- PTS-1 Card -->
                                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">

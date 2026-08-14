@@ -73,21 +73,7 @@
                                 <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Department</label>
                                 <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->department->name ?? 'Not Assigned' }}</div>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-gray-100 dark:border-gray-700/60">
-                                <div>
-                                    <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Joining Date</label>
-                                    <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}</div>
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Registration Date</label>
-                                    <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}</div>
-                                </div>
-                            </div>
                             <div>
-                                <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Confirmation Date</label>
-                                <div class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A' }}</div>
-                            </div>
-                            <div class="pt-1 border-t border-gray-100 dark:border-gray-700/60">
                                 <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Supervisor(s)</label>
                                 <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
                             </div>
@@ -235,6 +221,49 @@
 
                             <!-- In Progress Tab Content -->
                             <div x-show="activeTab === 'in_progress'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                <!-- Draft Synopsis Circulation Card -->
+                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-start gap-2">
+                                            <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">Draft Synopsis Circulation</span>
+                                            @if($draftSynopsis)
+                                                <span class="shrink-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Circulated</span>
+                                            @elseif($pts1Approved)
+                                                <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
+                                            @else
+                                                <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Circulate</span>
+                                            @endif
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                            Circulate draft synopsis report to all academic authorities for early comments before Open Seminar.
+                                        </p>
+
+                                        @if($draftSynopsis)
+                                            <div class="p-2.5 bg-indigo-50 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-lg text-xs space-y-1 my-2">
+                                                <div class="font-bold text-indigo-900 dark:text-indigo-200">
+                                                    {{ $draftSynopsis->comments->count() }} {{ Str::plural('Comment', $draftSynopsis->comments->count()) }} Received
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                        @if($draftSynopsis)
+                                            <a href="{{ route('student.draft_synopsis.show') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                View Circulated Synopsis & Comments &rarr;
+                                            </a>
+                                        @elseif($pts1Approved)
+                                            <button type="button" disabled class="block w-full text-center px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                                🔒 Circulation Closed
+                                            </button>
+                                        @else
+                                            <a href="{{ route('student.draft_synopsis.show') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                Circulate Draft Synopsis Report &rarr;
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
                                 
                                 <!-- PTS-1 Milestone Card (With Embedded Action Button) -->
                                 <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
