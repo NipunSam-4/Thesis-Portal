@@ -1,4 +1,6 @@
 <x-app-layout>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js" referrerpolicy="origin"></script>
+
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -88,11 +90,11 @@
                     </div>
 
                     <div>
-                        <textarea name="comment" 
-                                  rows="4" 
-                                  required 
-                                  placeholder="Type your feedback, observations, or suggestions on the draft synopsis report..." 
-                                  class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500 p-3">{{ old('comment', $userComment?->comment) }}</textarea>
+                        <x-tinymce name="comment" 
+                                   id="draft_synopsis_comment"
+                                   :value="$userComment?->comment" 
+                                   placeholder="Type your feedback, observations, or suggestions on the draft synopsis report..."
+                                   :height="350" />
                     </div>
 
                     <div class="flex justify-end">
@@ -133,9 +135,9 @@
                                         {{ $comment->created_at->format('d M Y, h:i A') }}
                                     </span>
                                 </div>
-                                <p class="italic text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                    {{ $comment->comment }}
-                                </p>
+                                <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed">
+                                    {!! \Stevebauman\Purify\Facades\Purify::clean($comment->comment) !!}
+                                </div>
                             </div>
                         @endforeach
                     </div>

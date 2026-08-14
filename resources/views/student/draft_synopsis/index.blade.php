@@ -106,12 +106,12 @@
                                             {{ $comment->authority_label }}
                                         </span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">
-                                            {{ $comment->created_at->format('d-M-Y') }}
+                                            {{ $comment->created_at->format('d M Y, h:i A') }}
                                         </span>
                                     </div>
-                                    <p class="text-xs text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                        {{ $comment->comment }}
-                                    </p>
+                                    <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed">
+                                        {!! \Stevebauman\Purify\Facades\Purify::clean($comment->comment) !!}
+                                    </div>
                                 </div>
                             @endforeach
                         </div>

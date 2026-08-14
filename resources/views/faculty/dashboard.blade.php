@@ -313,12 +313,14 @@
                                                             </a>
                                                         </div>
                                                     @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
-                                                        <div class="pt-2">
-                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
-                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
+                                                            <div class="pt-2">
+                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>
@@ -527,12 +529,14 @@
                                                             </div>
                                                         @endif
                                                     @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
-                                                        <div class="pt-2">
-                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
-                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
+                                                            <div class="pt-2">
+                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>
@@ -747,12 +751,14 @@
                                                             </div>
                                                         @endif
                                                     @elseif(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
-                                                        <div class="pt-2">
-                                                            <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
-                                                               class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
+                                                            <div class="pt-2">
+                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') : ('View Submitted ' . ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Form') }} &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>

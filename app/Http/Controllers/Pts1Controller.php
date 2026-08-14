@@ -173,6 +173,10 @@ class Pts1Controller extends Controller
         }
 
         if ($pts1->status === 'reverted') {
+            if (!$pts1->canUserViewRevertedForm(auth()->user())) {
+                return redirect()->back()->with('warning', 'This PTS-1 form was reverted by ' . $pts1->getRevertedByRoleLabel() . ' and is not accessible at your review stage until resubmitted.');
+            }
+
             return view('pts1.reverted', compact(
                 'pts1',
                 'thesis',

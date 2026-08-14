@@ -86,26 +86,38 @@ class DatabaseSeeder extends Seeder
         // 5. Faculty Members
         $faculty1 = User::firstOrCreate(
             ['email' => 'mainsupervisor@iiti.ac.in'],
-            ['name' => ' Main Supervisor', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['name' => 'Dr. Pulkit Sharma', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty1->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         $faculty2 = User::firstOrCreate(
             ['email' => 'cosupervisor1@iiti.ac.in'],
-            ['name' => 'Co-Supervisor 1', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['name' => 'Dr. Rajeev Sinha', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty2->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         $faculty3 = User::firstOrCreate(
             ['email' => 'cosupervisor2@iiti.ac.in'],
-            ['name' => 'Co Supervisor 2', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+            ['name' => 'Dr. Sreechand', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
         );
         $faculty3->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
+
+        $faculty4 = User::firstOrCreate(
+            ['email' => 'pspcmember1@iiti.ac.in'],
+            ['name' => 'Dr. Rahul Gupta', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+        );
+        $faculty4->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
+
+        $faculty5 = User::firstOrCreate(
+            ['email' => 'pspcmember2@iiti.ac.in'],
+            ['name' => 'Dr. Ankit', 'password' => $password, 'role' => 'faculty', 'is_active' => true]
+        );
+        $faculty5->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
         // 6. PhD Student (With existing thesis & PTS-1/PTS-2)
         $phdStudentUser = User::firstOrCreate(
             ['email' => 'phdstudent1@iiti.ac.in'],
-            ['name' => 'PhD Student 1', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Aarav Agarwal', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
         $phdStudent = Student::firstOrCreate(
@@ -128,17 +140,17 @@ class DatabaseSeeder extends Seeder
             $phdStudent->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $phdStudent->pspcMembers()->attach($faculty2->id);
+        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty4->id)->exists()) {
+            $phdStudent->pspcMembers()->attach($faculty4->id);
         }
 
-        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
-            $phdStudent->pspcMembers()->attach($faculty3->id);
+        if (!$phdStudent->pspcMembers()->where('faculty_user_id', $faculty5->id)->exists()) {
+            $phdStudent->pspcMembers()->attach($faculty5->id);
         }
 
         $phdStudentUser1 = User::firstOrCreate(
             ['email' => 'phdstudent2@iiti.ac.in'],
-            ['name' => 'PhD Student 2', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Aditi Sharma', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
         $phdStudent1 = Student::firstOrCreate(
@@ -161,17 +173,21 @@ class DatabaseSeeder extends Seeder
             $phdStudent1->supervisors()->attach($faculty2->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $phdStudent1->pspcMembers()->attach($faculty2->id);
+        if (!$phdStudent1->supervisors()->where('faculty_user_id', $faculty3->id)->exists()) {
+            $phdStudent1->supervisors()->attach($faculty3->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
-            $phdStudent1->pspcMembers()->attach($faculty3->id);
+        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty4->id)->exists()) {
+            $phdStudent1->pspcMembers()->attach($faculty4->id);
+        }
+
+        if (!$phdStudent1->pspcMembers()->where('faculty_user_id', $faculty5->id)->exists()) {
+            $phdStudent1->pspcMembers()->attach($faculty5->id);
         }
 
        $msrStudentUser = User::firstOrCreate(
             ['email' => 'msrstudent1@iiti.ac.in'],
-            ['name' => 'MS(R) Student 1', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Rohan Mehta', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
         $msrStudent = Student::firstOrCreate(
@@ -193,17 +209,17 @@ class DatabaseSeeder extends Seeder
             $msrStudent->supervisors()->attach($faculty1->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $msrStudent->pspcMembers()->attach($faculty2->id);
-        }
-
         if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
             $msrStudent->pspcMembers()->attach($faculty3->id);
         }
 
+        if (!$msrStudent->pspcMembers()->where('faculty_user_id', $faculty4->id)->exists()) {
+            $msrStudent->pspcMembers()->attach($faculty4->id);
+        }
+
        $msrStudentUser2 = User::firstOrCreate(
             ['email' => 'msrstudent2@iiti.ac.in'],
-            ['name' => 'MS(R) Student 2', 'password' => $password, 'role' => 'student', 'is_active' => true]
+            ['name' => 'Priya Sharma', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
         $msrStudent2 = Student::firstOrCreate(
@@ -225,12 +241,12 @@ class DatabaseSeeder extends Seeder
             $msrStudent2->supervisors()->attach($faculty1->id, ['supervisor_type' => 'co']);
         }
 
-        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty2->id)->exists()) {
-            $msrStudent2->pspcMembers()->attach($faculty2->id);
+        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty4->id)->exists()) {
+            $msrStudent2->pspcMembers()->attach($faculty4->id);
         }
 
-        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty3->id)->exists()) {
-            $msrStudent2->pspcMembers()->attach($faculty3->id);
+        if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty5->id)->exists()) {
+            $msrStudent2->pspcMembers()->attach($faculty5->id);
         }
 
         $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Student!');

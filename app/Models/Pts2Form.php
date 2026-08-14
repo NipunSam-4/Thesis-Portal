@@ -102,21 +102,127 @@ class Pts2Form extends Model
         return $this->belongsTo(User::class, 'pspc_member_3_id');
     }
 
+    /**
+     * Get numerical rank for role in workflow hierarchy.
+     */
+    public static function getRoleRank(?string $role): int
+    {
+        if (!$role) {
+            return 999;
+        }
+        if (str_starts_with($role, 'co_supervisor')) {
+            return 2;
+        }
+        if (str_starts_with($role, 'pspc_member')) {
+            return 3;
+        }
+
+        return match ($role) {
+            'student' => 0,
+            'main_supervisor' => 1,
+            'dpgc' => 4,
+            'hod' => 5,
+            'section_officer' => 6,
+            'doaa', 'adoaa' => 7,
+            default => 999,
+        };
+    }
+
+    /**
+     * Check if a given user is allowed to view the reverted form.
+     */
+    public function canUserViewRevertedForm(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->status !== 'reverted') {
+            return true;
+        }
+
+        $revertingRank = self::getRoleRank($this->reverted_by_role);
+
+        $student = $this->thesis?->student;
+        if ($student && (int)$user->id === (int)$student->user_id) {
+            return true;
+        }
+
+        $userRanks = [];
+        if ($student) {
+            if ($student->isMainSupervisor($user)) {
+                $userRanks[] = self::getRoleRank('main_supervisor');
+            }
+            if ($student->isCoSupervisor($user)) {
+                $userRanks[] = self::getRoleRank('co_supervisor');
+            }
+            if ($student->isPspcMember($user)) {
+                $userRanks[] = self::getRoleRank('pspc_member');
+            }
+        }
+
+        if ($user->isDpgc()) {
+            $userRanks[] = self::getRoleRank('dpgc');
+        }
+        if ($user->isHod()) {
+            $userRanks[] = self::getRoleRank('hod');
+        }
+        if ($user->isSectionOfficer()) {
+            $userRanks[] = self::getRoleRank('section_officer');
+        }
+        if ($user->isDoaa() || $user->isAdoaa()) {
+            $userRanks[] = self::getRoleRank('doaa');
+        }
+
+        if (empty($userRanks)) {
+            return false;
+        }
+
+        $minUserRank = min($userRanks);
+        return $minUserRank <= $revertingRank;
+    }
+
     public function getRevertedByRoleLabel(): string
     {
-        return match ($this->reverted_by_role) {
-            'main_supervisor' => 'Main Supervisor',
-            'co_supervisor_1' => 'Co-Supervisor 1',
-            'co_supervisor_2' => 'Co-Supervisor 2',
-            'co_supervisor_3' => 'Co-Supervisor 3',
-            'pspc_member_1' => 'PSPC Member 1',
-            'pspc_member_2' => 'PSPC Member 2',
-            'pspc_member_3' => 'PSPC Member 3',
+        $role = $this->reverted_by_role ?? '';
+
+        if ($role === 'main_supervisor') {
+            $name = $this->thesis?->student?->mainSupervisors?->first()?->name;
+            return 'Main Supervisor' . ($name ? " ({$name})" : '');
+        }
+
+        if (str_starts_with($role, 'co_supervisor')) {
+            if (preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
+                $idx = (int)$matches[1];
+                $col = "co_supervisor_{$idx}_id";
+                $userId = $this->$col;
+                $user = $userId ? User::find($userId) : null;
+                if (!$user) {
+                    $user = $this->thesis?->student?->coSupervisors?->get($idx - 1);
+                }
+                return 'Co-Supervisor' . ($user ? " ({$user->name})" : '');
+            }
+            $coName = $this->thesis?->student?->coSupervisors?->first()?->name;
+            return 'Co-Supervisor' . ($coName ? " ({$coName})" : '');
+        }
+
+        if (str_starts_with($role, 'pspc_member')) {
+            if (preg_match('/pspc_member_(\d+)/', $role, $matches)) {
+                $idx = (int)$matches[1];
+                $col = "pspc_member_{$idx}_id";
+                $userId = $this->$col;
+                $user = $userId ? User::find($userId) : null;
+                return 'PSPC Member' . ($user ? " ({$user->name})" : '');
+            }
+            return 'PSPC Member';
+        }
+
+        return match ($role) {
             'dpgc' => 'DPGC Convenor',
             'hod' => 'Head of Department (HOD)',
             'section_officer' => 'Section Officer (Academic)',
             'doaa' => 'Dean of Academic Affairs (DOAA)',
-            default => 'Authority',
+            default => $role ?: 'Academic Authority',
         };
     }
 

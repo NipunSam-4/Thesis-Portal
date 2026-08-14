@@ -6,6 +6,7 @@ use App\Models\DraftSynopsisCirculation;
 use App\Models\DraftSynopsisComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Stevebauman\Purify\Facades\Purify;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DraftSynopsisReviewController extends Controller
@@ -42,10 +43,11 @@ class DraftSynopsisReviewController extends Controller
         $student = $circulation->student;
 
         $validated = $request->validate([
-            'comment' => 'required|string|max:3000',
+            'comment' => 'required|string|max:15000',
         ]);
 
         $authorityInfo = $this->resolveAuthorityInfo($user, $student);
+        $sanitizedComment = Purify::clean($validated['comment']);
 
         DraftSynopsisComment::updateOrCreate(
             [
@@ -55,7 +57,7 @@ class DraftSynopsisReviewController extends Controller
             [
                 'authority_role' => $authorityInfo['role'],
                 'authority_label' => $authorityInfo['label'],
-                'comment' => $validated['comment'],
+                'comment' => $sanitizedComment,
             ]
         );
 
