@@ -37,7 +37,7 @@
                         </span>
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                             {{ $student->user->name }}
-                            <span class="text-sm font-semibold text-gray-500">({{ $student->roll_number }})</span>
+                            <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">({{ $student->roll_number }})</span>
                         </h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             Department of {{ $student->department->name ?? 'N/A' }} | {{ strtoupper($student->program_name) }} Program
@@ -51,7 +51,7 @@
 
                 <!-- Thesis Title Field -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Thesis Title</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Thesis Title</label>
                     <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600">
                         {{ $thesis->title }}
                     </div>
@@ -59,7 +59,7 @@
 
                 <!-- Circulated Document Badge -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Circulated Synopsis Document</label>
+                    <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Circulated Synopsis Document</label>
                     <div class="flex items-center justify-between p-3 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg">
                         <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
                             <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@
                                     </span>
                                 </div>
                                 <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed">
-                                    {!! \Stevebauman\Purify\Facades\Purify::clean($comment->comment) !!}
+                                    {!! class_exists(\Stevebauman\Purify\Facades\Purify::class) ? \Stevebauman\Purify\Facades\Purify::clean($comment->comment) : nl2br(e($comment->comment)) !!}
                                 </div>
                             </div>
                         @endforeach

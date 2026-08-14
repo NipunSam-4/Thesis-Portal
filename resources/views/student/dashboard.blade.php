@@ -200,7 +200,7 @@
                             <div class="flex border-b border-gray-200 dark:border-gray-700">
                                 <button 
                                     @click="activeTab = 'in_progress'"
-                                    :class="activeTab === 'in_progress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    :class="activeTab === 'in_progress' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'"
                                     class="w-1/2 py-2 px-1 text-center border-b-2 font-semibold text-sm transition focus:outline-none flex items-center justify-center space-x-1.5"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -208,7 +208,7 @@
                                 </button>
                                 <button 
                                     @click="activeTab = 'rejected'"
-                                    :class="activeTab === 'rejected' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    :class="activeTab === 'rejected' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'"
                                     class="w-1/2 py-2 px-1 text-center border-b-2 font-semibold text-sm transition focus:outline-none flex items-center justify-center space-x-1.5"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -409,9 +409,7 @@
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-4: Thesis Submission
                                             </span>
-                                            <span class="shrink-0 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold px-2 py-0.5 rounded whitespace-nowrap">
-                                                🔒 Locked
-                                            </span>
+                                            <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Submission of the {{ $student->isPhd() ? 'PhD' : 'MS(R)' }} Thesis.
@@ -431,9 +429,7 @@
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-6: Report of {{ $student->isPhd() ? 'PhD' : 'MS(R)' }} Thesis Oral Examination
                                             </span>
-                                            <span class="shrink-0 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-[10px] font-bold px-2 py-0.5 rounded whitespace-nowrap">
-                                                🔒 Locked
-                                            </span>
+                                            <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Report of {{ $student->isPhd() ? 'PhD' : 'MS(R)' }} Thesis Oral Examination.

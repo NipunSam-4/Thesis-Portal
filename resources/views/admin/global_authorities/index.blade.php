@@ -93,7 +93,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="p-8 text-center text-gray-500">
+                                    <td colspan="4" class="p-8 text-center text-gray-500 dark:text-gray-400">
                                         No Global Authorities found. Click "Assign Global Role" to add one!
                                     </td>
                                 </tr>

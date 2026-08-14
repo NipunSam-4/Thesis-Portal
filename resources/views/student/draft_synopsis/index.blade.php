@@ -72,8 +72,12 @@
                                 </svg>
                                 <span>Circulated Draft Synopsis Document</span>
                             </div>
-                            <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                View Document &rarr;
+                            <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <span>View Document &rarr;</span>
                             </a>
                         </div>
                     </div>
@@ -110,7 +114,7 @@
                                         </span>
                                     </div>
                                     <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed">
-                                        {!! \Stevebauman\Purify\Facades\Purify::clean($comment->comment) !!}
+                                        {!! class_exists(\Stevebauman\Purify\Facades\Purify::class) ? \Stevebauman\Purify\Facades\Purify::clean($comment->comment) : nl2br(e($comment->comment)) !!}
                                     </div>
                                 </div>
                             @endforeach
@@ -184,9 +188,18 @@
                                         <span x-text="selectedFile.name" class="truncate"></span>
                                         <span x-text="selectedFile.size" class="text-gray-400"></span>
                                     </div>
-                                    <button type="button" @click="clearSelectedFile()" class="text-red-500 hover:text-red-700 font-bold text-xs px-2 py-1">
-                                        Remove
-                                    </button>
+                                    <div class="flex items-center space-x-2 shrink-0">
+                                        <a :href="selectedFile.url" target="_blank" x-show="selectedFile.url" class="inline-flex items-center space-x-1 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-800/60 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            <span>View Document</span>
+                                        </a>
+                                        <button type="button" @click="clearSelectedFile()" class="text-red-500 hover:text-red-700 font-bold text-xs px-2 py-1">
+                                            Remove
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -212,7 +225,7 @@
     <script>
         function draftSynopsisForm() {
             return {
-                selectedFile: { name: '', size: '' },
+                selectedFile: { name: '', size: '', url: '' },
                 fileError: '',
 
                 handleFileSelect(event) {
@@ -223,21 +236,28 @@
                     if (file.size > maxMB * 1024 * 1024) {
                         this.fileError = `File size exceeds the maximum limit of ${maxMB} MB.`;
                         event.target.value = '';
-                        this.selectedFile = { name: '', size: '' };
+                        this.selectedFile = { name: '', size: '', url: '' };
                         return;
                     }
 
                     this.fileError = '';
+                    if (this.selectedFile.url) {
+                        URL.revokeObjectURL(this.selectedFile.url);
+                    }
                     this.selectedFile = {
                         name: file.name,
-                        size: `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`
+                        size: `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`,
+                        url: URL.createObjectURL(file)
                     };
                 },
 
                 clearSelectedFile() {
                     const input = document.getElementById('synopsisInput');
                     if (input) input.value = '';
-                    this.selectedFile = { name: '', size: '' };
+                    if (this.selectedFile.url) {
+                        URL.revokeObjectURL(this.selectedFile.url);
+                    }
+                    this.selectedFile = { name: '', size: '', url: '' };
                     this.fileError = '';
                 }
             };

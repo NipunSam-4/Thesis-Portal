@@ -21,7 +21,7 @@
             padding: 0.5rem 0.75rem;
             text-align: left;
         }
-        .sheet-table-container tr:first-child, .sheet-table-container td[id*="s2id"] {
+        .sheet-table-container tr:first-child {
             background-color: #f3f4f6;
             font-weight: 700;
             color: #1f2937;
@@ -29,15 +29,30 @@
         .sheet-table-container tr:nth-child(even) {
             background-color: #f9fafb;
         }
-        .dark .sheet-table-container th, .dark .sheet-table-container td {
-            border-color: #374151;
-        }
-        .dark .sheet-table-container tr:first-child {
-            background-color: #374151;
-            color: #f9fafb;
-        }
-        .dark .sheet-table-container tr:nth-child(even) {
-            background-color: #1f2937;
+
+        @media (prefers-color-scheme: dark) {
+            .sheet-table-container th,
+            .sheet-table-container td {
+                border-color: #374151;
+                color: #d1d5db;
+            }
+
+            .sheet-table-container tr:first-child,
+            .sheet-table-container tr:first-child td,
+            .sheet-table-container tr:first-child th {
+                background-color: #374151 !important;
+                color: #ffffff !important;
+                font-weight: 700;
+            }
+
+            .sheet-table-container tr:not(:first-child) {
+                background-color: transparent !important;
+            }
+            .sheet-table-container tr:not(:first-child) td,
+            .sheet-table-container tr:not(:first-child) th {
+                background-color: transparent !important;
+                color: #d1d5db !important;
+            }
         }
     </style>
 

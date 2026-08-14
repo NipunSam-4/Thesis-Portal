@@ -7,7 +7,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" value="Email" />
+            <x-input-label for="email" value="Email" class="dark:text-gray-400" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
                 autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -16,7 +16,7 @@
         <!-- Password -->
         <div class="mt-4">
             <div class="flex items-center gap-1.5">
-                <x-input-label for="password" value="Password" />
+                <x-input-label for="password" value="Password" class="dark:text-gray-400" />
                 <div class="password-tooltip">
                     <svg class="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>

@@ -23,7 +23,7 @@
                 tinymce.get('{{ $elementId }}').remove();
             }
 
-            const isDarkMode = document.documentElement.classList.contains('dark');
+            const isDarkMode = document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
 
             tinymce.init({
                 selector: '#{{ $elementId }}',
@@ -43,6 +43,7 @@
                     editor.on('init', () => {
                         if (isDarkMode) {
                             editor.getContainer().style.backgroundColor = '#1f2937';
+                            editor.getContainer().style.borderColor = '#374151';
                         }
                     });
                     editor.on('change keyup NodeChange Undo Redo', () => {

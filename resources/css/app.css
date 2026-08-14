@@ -77,6 +77,7 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
     }
 }
+
 html.dark .password-tooltip .tooltip-box,
 html[class*="dark"] .password-tooltip .tooltip-box,
 body.dark .password-tooltip .tooltip-box,
@@ -89,4 +90,22 @@ body.dark .password-tooltip .tooltip-box,
 
 [x-cloak] {
     display: none !important;
+}
+
+/* Native Browser Dark Mode: Date & Time Input Picker Icons (White in Dark Mode) */
+@media (prefers-color-scheme: dark) {
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"],
+    input[type="month"] {
+        color-scheme: dark !important;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="month"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(1.8) !important;
+        cursor: pointer;
+    }
 }

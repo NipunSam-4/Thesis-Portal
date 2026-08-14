@@ -100,7 +100,7 @@
                             @click="activeTab = 'main'" 
                             :class="activeTab === 'main' 
                                 ? 'bg-indigo-600 text-white border-2 border-indigo-600 shadow-md ring-2 ring-indigo-500/20 scale-[1.01]' 
-                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'" 
+                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
                             class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 transition-colors" :class="activeTab === 'main' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@
                             @click="activeTab = 'co'" 
                             :class="activeTab === 'co' 
                                 ? 'bg-blue-600 text-white border-2 border-blue-600 shadow-md ring-2 ring-blue-500/20 scale-[1.01]' 
-                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'" 
+                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
                             class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 transition-colors" :class="activeTab === 'co' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@
                             @click="activeTab = 'pspc'" 
                             :class="activeTab === 'pspc' 
                                 ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-md ring-2 ring-emerald-500/20 scale-[1.01]' 
-                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750'" 
+                                : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
                             class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
                         <div class="flex items-center space-x-3">
                             <svg class="w-5 h-5 transition-colors" :class="activeTab === 'pspc' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,17 +182,17 @@
                         $msrMainCount = $mainStudents->filter(fn($s) => $s->isMsr())->count();
                     @endphp
 
-                    <div x-show="programTab === 'phd' && {{ $phdMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'phd' && {{ $phdMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
                     </div>
-                    <div x-show="programTab === 'msr' && {{ $msrMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'msr' && {{ $msrMainCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
                     </div>
 
                     @foreach($mainStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
-                            <div @click="toggleStudent('main-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
+                            <div @click="toggleStudent('main-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-base border border-indigo-200 dark:border-indigo-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -236,7 +236,7 @@
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
                             <div x-show="expandedStudent === 'main-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
-                                @foreach($student->theses as $thesis)
+                                @forelse($student->theses as $thesis)
                                     <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
@@ -363,7 +363,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                @empty
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
+                                @endforelse
                             </div>
                         </div>
                     @endforeach
@@ -382,17 +384,17 @@
                         $msrCoCount = $coStudents->filter(fn($s) => $s->isMsr())->count();
                     @endphp
 
-                    <div x-show="programTab === 'phd' && {{ $phdCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'phd' && {{ $phdCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
                     </div>
-                    <div x-show="programTab === 'msr' && {{ $msrCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'msr' && {{ $msrCoCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
                     </div>
 
                     @foreach($coStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
-                            <div @click="toggleStudent('co-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
+                            <div @click="toggleStudent('co-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-base border border-blue-200 dark:border-blue-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -439,7 +441,7 @@
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
                             <div x-show="expandedStudent === 'co-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
-                                @foreach($student->theses as $thesis)
+                                @forelse($student->theses as $thesis)
                                     <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">Thesis Title</div>
@@ -585,7 +587,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                @empty
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
+                                @endforelse
                             </div>
                         </div>
                     @endforeach
@@ -604,17 +608,17 @@
                         $msrPspcCount = $pspcStudents->filter(fn($s) => $s->isMsr())->count();
                     @endphp
 
-                    <div x-show="programTab === 'phd' && {{ $phdPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'phd' && {{ $phdPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No PhD students assigned to you for this role.</p>
                     </div>
-                    <div x-show="programTab === 'msr' && {{ $msrPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-750/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <div x-show="programTab === 'msr' && {{ $msrPspcCount }} === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No MS(R) students assigned to you for this role.</p>
                     </div>
 
                     @foreach($pspcStudents as $student)
                         <div x-show="(programTab === '{{ $student->isMsr() ? 'msr' : 'phd' }}') && matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
-                            <div @click="toggleStudent('pspc-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
+                            <div @click="toggleStudent('pspc-{{ $student->id }}')" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-base border border-purple-200 dark:border-purple-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -661,7 +665,7 @@
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
                             <div x-show="expandedStudent === 'pspc-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
-                                @foreach($student->theses as $thesis)
+                                @forelse($student->theses as $thesis)
                                     <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400">Thesis Title</div>
@@ -790,7 +794,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                @empty
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
+                                @endforelse
                             </div>
                         </div>
                     @endforeach

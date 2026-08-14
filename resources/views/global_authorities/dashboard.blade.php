@@ -129,7 +129,7 @@
                     @forelse($phdStudents as $student)
                         <div x-show="matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
-                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
+                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-base border border-indigo-200 dark:border-indigo-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -287,12 +287,12 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-xs text-gray-500">No theses registered for this student.</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
                                 @endforelse
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No PhD students registered in the institute.
                         </div>
                     @endforelse
@@ -303,7 +303,7 @@
                     @forelse($msrStudents as $student)
                         <div x-show="matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
-                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
+                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-base border border-blue-200 dark:border-blue-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -461,12 +461,12 @@
                                         </div>
                                     </div>
                                 @empty
-                                    <p class="text-xs text-gray-500">No theses registered for this student.</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
                                 @endforelse
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No MS(R) students registered in the institute.
                         </div>
                     @endforelse
