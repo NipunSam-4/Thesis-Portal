@@ -30,7 +30,11 @@ class PtsDocumentController extends Controller
                 'publication_approval_doc_path',
                 'min_time_approval_doc_path',
                 'draft_synopsis_report_doc_path',
-                'publication_list_doc_path'
+                'publication_list_doc_path',
+                'main_supervisor_publication_approval_doc_path',
+                'main_supervisor_min_time_approval_doc_path',
+                'main_supervisor_draft_synopsis_report_doc_path',
+                'main_supervisor_publication_list_doc_path',
             ];
 
             if (!in_array($field, $allowedFields, true)) {

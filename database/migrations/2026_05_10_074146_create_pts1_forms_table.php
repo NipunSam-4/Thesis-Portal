@@ -58,6 +58,10 @@ return new class extends Migration
             $table->boolean('main_supervisor_recommendation')->nullable();
             $table->text('main_supervisor_confidential_remark')->nullable();
             $table->timestamp('main_supervisor_submitted_at')->nullable();
+            $table->string('main_supervisor_draft_synopsis_report_doc_path')->nullable();
+            $table->string('main_supervisor_publication_list_doc_path')->nullable();
+            $table->string('main_supervisor_publication_approval_doc_path')->nullable();
+            $table->string('main_supervisor_min_time_approval_doc_path')->nullable();
 
 
             // 2. Co-Supervisors (Up to 10)

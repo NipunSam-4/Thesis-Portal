@@ -174,9 +174,9 @@
                                     {{ $pts1->special_approval_publication ? 'Yes' : 'No' }}
                                 </span>
                             </div>
-                            @if($pts1->publication_approval_doc_path)
+                            @if($pts1->getEffectivePublicationApprovalPath())
                                 <div class="pt-1">
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                         📄 View Special Publication Approval Copy
                                     </a>
                                 </div>
@@ -206,9 +206,9 @@
                                     {{ $pts1->special_approval_min_time ? 'Yes' : 'No' }}
                                 </span>
                             </div>
-                            @if($pts1->min_time_approval_doc_path)
+                            @if($pts1->getEffectiveMinTimeApprovalPath())
                                 <div class="pt-1">
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                         📄 View Special Minimum Time Approval Copy
                                     </a>
                                 </div>
@@ -228,8 +228,8 @@
                     <!-- Draft Synopsis Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
                         <div class="text-xs font-bold text-gray-500 uppercase">Draft Synopsis Report</div>
-                        @if($pts1->draft_synopsis_report_doc_path)
-                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
+                        @if($pts1->getEffectiveDraftSynopsisPath())
+                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_draft_synopsis_report_doc_path']) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📄 View Draft Synopsis Report
                             </a>
                         @else
@@ -240,8 +240,8 @@
                     <!-- Publication List Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
                         <div class="text-xs font-bold text-gray-500 uppercase">Publication and Other Recognition List</div>
-                        @if($pts1->publication_list_doc_path)
-                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
+                        @if($pts1->getEffectivePublicationListPath())
+                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📊 Download / View Publication List
                             </a>
                         @else

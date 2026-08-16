@@ -27,11 +27,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{
-        showRevertModal: false,
-        recommendation: '1',
-        isVerified: false
-    }">
+    <div class="py-8" x-data="pts1EndorseForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -192,9 +188,9 @@
                                 {{ $pts1->special_approval_min_time ? 'Yes' : 'No' }}
                             </span>
                         </div>
-                        @if($pts1->min_time_approval_doc_path)
+                        @if($pts1->getEffectiveMinTimeApprovalPath())
                         <div class="pt-1">
-                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                 📄 View Special Minimum Time Approval Copy
                             </a>
                         </div>
@@ -224,9 +220,9 @@
                                     {{ $pts1->special_approval_publication ? 'Yes' : 'No' }}
                                 </span>
                             </div>
-                            @if($pts1->publication_approval_doc_path)
+                            @if($pts1->getEffectivePublicationApprovalPath())
                                 <div class="pt-1">
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
                                         📄 View Special Publication Approval Copy
                                     </a>
                                 </div>
@@ -246,8 +242,8 @@
                     <!-- Draft Synopsis Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
                         <div class="text-xs font-bold text-gray-500 uppercase">Draft Synopsis Report</div>
-                        @if($pts1->draft_synopsis_report_doc_path)
-                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
+                        @if($pts1->getEffectiveDraftSynopsisPath())
+                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_draft_synopsis_report_doc_path']) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📄 View Draft Synopsis Report
                             </a>
                         @else
@@ -258,8 +254,8 @@
                     <!-- Publication List Card -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
                         <div class="text-xs font-bold text-gray-500 uppercase">Publication and Other Recognition List</div>
-                        @if($pts1->publication_list_doc_path)
-                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
+                        @if($pts1->getEffectivePublicationListPath())
+                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                                 📊 Download / View Publication List
                             </a>
                         @else
@@ -647,7 +643,7 @@
 
             @if($showActionForm)
                 <!-- Section 6: Action Required (Evaluation & Decision) -->
-                <form action="{{ route('pts1.endorse', $pts1->id) }}" method="POST" class="space-y-8">
+                <form action="{{ route('pts1.endorse', $pts1->id) }}" method="POST" class="space-y-8" @submit="clearDraft()">
                     @csrf
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
@@ -761,20 +757,23 @@
                             <textarea name="confidential_remark" 
                             rows="3" 
                             required 
+                            x-model="confidentialRemark"
                             placeholder="Provide mandatory verification remarks" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
                             @elseif($pts1->current_stage === 'doaa')
                             <textarea name="confidential_remark" 
                             rows="3" 
                             :required="recommendation === '0'" 
+                            x-model="confidentialRemark"
                             :placeholder="recommendation === '1' ? 'Optional approval remarks' : 'Provide mandatory non-approval remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
                             @else
                             <textarea name="confidential_remark" 
                             rows="3" 
                             :required="recommendation === '0'" 
+                            x-model="confidentialRemark"
                             :placeholder="recommendation === '1' ? 'Optional recommendation remarks' : 'Provide mandatory non-recommendation remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
                             @endif
                         </div>
 
@@ -784,7 +783,7 @@
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Student Comment (Optional)
                                 </label>
-                                <textarea name="student_comment" rows="3" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                                <textarea name="student_comment" rows="3" x-model="studentComment" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('student_comment') }}</textarea>
                             </div>
                         @endif 
                     </div>
@@ -891,4 +890,46 @@
 
         </div>
     </div>
+
+    <script>
+        function pts1EndorseForm() {
+            const draftKey = 'pts1_endorse_draft_thesis_' + @js($pts1->thesis_id);
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
+            return {
+                showRevertModal: false,
+                recommendation: @js(old('recommendation')) || savedDraft.recommendation || '1',
+                isVerified: savedDraft.isVerified !== undefined ? savedDraft.isVerified : false,
+                confidentialRemark: @js(old('confidential_remark')) || savedDraft.confidentialRemark || '',
+                studentComment: @js(old('student_comment')) || savedDraft.studentComment || '',
+
+                init() {
+                    const watchFields = ['recommendation', 'isVerified', 'confidentialRemark', 'studentComment'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            recommendation: this.recommendation,
+                            isVerified: this.isVerified,
+                            confidentialRemark: this.confidentialRemark,
+                            studentComment: this.studentComment,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
+                }
+            }
+        }
+    </script>
 </x-app-layout>

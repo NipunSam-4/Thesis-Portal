@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
+    <div class="py-8" x-data="draftSynopsisReviewForm()">
         <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Error Alerts -->
@@ -75,7 +75,7 @@
             </div>
 
             <!-- Section 2: Authority Feedback Submission Form -->
-            <form action="{{ route('draft_synopsis.comment', $circulation->id) }}" method="POST" class="space-y-6">
+            <form action="{{ route('draft_synopsis.comment', $circulation->id) }}" method="POST" class="space-y-6" @submit="clearDraft()">
                 @csrf
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                     <div class="border-b border-gray-100 dark:border-gray-700 pb-3 flex justify-between items-center">
@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div @input="comment = $event.target.value">
                         <x-tinymce name="comment" 
                                    id="draft_synopsis_comment"
                                    :value="$userComment?->comment" 
@@ -146,4 +146,46 @@
 
         </div>
     </div>
+
+    <script>
+        function draftSynopsisReviewForm() {
+            const draftKey = 'draft_synopsis_review_draft_thesis_' + @js($circulation->thesis_id);
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
+            return {
+                comment: @js(old('comment')) || savedDraft.comment || @js($userComment?->comment ?? ''),
+
+                init() {
+                    this.$watch('comment', () => this.saveDraft());
+
+                    // Restore draft into TinyMCE editor once initialized
+                    if (savedDraft.comment && savedDraft.comment !== @js($userComment?->comment ?? '')) {
+                        const checkTinyMCE = setInterval(() => {
+                            if (typeof tinymce !== 'undefined' && tinymce.get('draft_synopsis_comment')) {
+                                tinymce.get('draft_synopsis_comment').setContent(savedDraft.comment);
+                                clearInterval(checkTinyMCE);
+                            }
+                        }, 100);
+                    }
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            comment: this.comment,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
+                }
+            }
+        }
+    </script>
 </x-app-layout>

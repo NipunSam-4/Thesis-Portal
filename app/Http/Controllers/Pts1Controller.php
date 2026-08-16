@@ -76,24 +76,24 @@ class Pts1Controller extends Controller
         ]);
 
         // Optional File Replacements by Main Supervisor
-        $pubAppPath = $pts1->publication_approval_doc_path;
+        $msPubAppPath = $pts1->main_supervisor_publication_approval_doc_path;
         if (!$pubNormFulfilled && $pubSpecialApproval && $request->hasFile('publication_approval_doc')) {
-            $pubAppPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
+            $msPubAppPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
         }
 
-        $minTimeAppPath = $pts1->min_time_approval_doc_path;
+        $msMinTimeAppPath = $pts1->main_supervisor_min_time_approval_doc_path;
         if (!$minTimeFulfilled && $minTimeSpecialApproval && $request->hasFile('min_time_approval_doc')) {
-            $minTimeAppPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
+            $msMinTimeAppPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
         }
 
-        $synopsisPath = $pts1->draft_synopsis_report_doc_path;
+        $msSynopsisPath = $pts1->main_supervisor_draft_synopsis_report_doc_path;
         if ($request->hasFile('draft_synopsis_report')) {
-            $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
+            $msSynopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
         }
 
-        $pubListPath = $pts1->publication_list_doc_path;
+        $msPubListPath = $pts1->main_supervisor_publication_list_doc_path;
         if ($request->hasFile('publication_list')) {
-            $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
+            $msPubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
         }
 
         // Update Student confirmation date
@@ -117,12 +117,16 @@ class Pts1Controller extends Controller
             'meeting_link' => $validated['meeting_link'] ?? null,
             'publication_norm_fulfillment' => $pubNormFulfilled,
             'special_approval_publication' => $pubSpecialApproval,
-            'publication_approval_doc_path' => $pubNormFulfilled ? null : $pubAppPath,
+            'publication_approval_doc_path' => $pubNormFulfilled ? null : $pts1->publication_approval_doc_path,
             'min_time_req_fulfilled' => $minTimeFulfilled,
             'special_approval_min_time' => $minTimeSpecialApproval,
-            'min_time_approval_doc_path' => $minTimeFulfilled ? null : $minTimeAppPath,
-            'draft_synopsis_report_doc_path' => $synopsisPath,
-            'publication_list_doc_path' => $pubListPath,
+            'min_time_approval_doc_path' => $minTimeFulfilled ? null : $pts1->min_time_approval_doc_path,
+            'draft_synopsis_report_doc_path' => $pts1->draft_synopsis_report_doc_path,
+            'publication_list_doc_path' => $pts1->publication_list_doc_path,
+            'main_supervisor_draft_synopsis_report_doc_path' => $msSynopsisPath,
+            'main_supervisor_publication_list_doc_path' => $msPubListPath,
+            'main_supervisor_publication_approval_doc_path' => $pubNormFulfilled ? null : $msPubAppPath,
+            'main_supervisor_min_time_approval_doc_path' => $minTimeFulfilled ? null : $msMinTimeAppPath,
             'work_status' => $validated['work_status'],
             'main_supervisor_student_comment' => $validated['main_supervisor_student_comment'],
             'main_supervisor_confidential_remark' => $validated['main_supervisor_confidential_remark'] ?? null,

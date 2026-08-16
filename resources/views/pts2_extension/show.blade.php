@@ -209,7 +209,7 @@
                     $viewerRank = \App\Models\Pts2Extension::getRoleRank($viewerRole);
                 @endphp
 
-                @if($viewerRank>1)
+                @if($viewerRank>1 || $extension->reverted_by_role !== 'main_supervisor')
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
                         4. Authority Recommendations & Confidential Remarks

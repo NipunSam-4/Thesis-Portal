@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{ showRevertModal: false, recommendation: '1', isVerified: false }">
+    <div class="py-8" x-data="pts2ExtensionReviewForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -211,7 +211,7 @@
 
             <!-- Section 4: Action Required (Evaluation & Decision - Exact PTS-1 Format) -->
             @if($extension->current_stage === $userRole)
-                <form action="{{ route('pts2_extension.submit_review', $extension->id) }}" method="POST" class="space-y-8">
+                <form action="{{ route('pts2_extension.submit_review', $extension->id) }}" method="POST" class="space-y-8" @submit="clearDraft()">
                     @csrf
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
@@ -250,6 +250,7 @@
                                 <textarea name="confidential_remark" 
                                           rows="3" 
                                           required 
+                                          x-model="confidentialRemark"
                                           placeholder="Provide mandatory verification remarks" 
                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500">{{ old('confidential_remark') }}</textarea>
                             </div>
@@ -302,6 +303,7 @@
                                 <textarea name="confidential_remark" 
                                           rows="3" 
                                           :required="recommendation === '0'" 
+                                          x-model="confidentialRemark"
                                           :placeholder="recommendation === '1' ? 'Optional evaluation remarks for higher academic authorities' : 'Provide mandatory non-recommendation remarks'" 
                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500">{{ old('confidential_remark') }}</textarea>
                             </div>
@@ -317,6 +319,7 @@
                                        name="approved_extended_until_date" 
                                        :required="recommendation === '1'" 
                                        :disabled="recommendation !== '1'"
+                                       x-model="approvedExtendedUntilDate"
                                        value="{{ old('approved_extended_until_date', $extension->extended_until_date ? $extension->extended_until_date->format('Y-m-d') : '') }}" 
                                        class="w-full md:w-1/2 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500">
                                 <p class="text-xs text-purple-700 dark:text-purple-300">
@@ -331,6 +334,7 @@
                                 <textarea name="adoaa_student_comment" 
                                           rows="3" 
                                           required 
+                                          x-model="adoaaStudentComment"
                                           placeholder="Enter comments specifically visible to the student upon completion..." 
                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">{{ old('adoaa_student_comment') }}</textarea>
                             </div>
@@ -440,4 +444,48 @@
 
         </div>
     </div>
+
+    <script>
+        function pts2ExtensionReviewForm() {
+            const draftKey = 'pts2_extension_review_draft_thesis_' + @js($extension->thesis_id);
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
+            return {
+                showRevertModal: false,
+                recommendation: @js(old('recommendation')) || savedDraft.recommendation || '1',
+                isVerified: savedDraft.isVerified !== undefined ? savedDraft.isVerified : false,
+                confidentialRemark: @js(old('confidential_remark')) || savedDraft.confidentialRemark || '',
+                approvedExtendedUntilDate: @js(old('approved_extended_until_date')) || savedDraft.approvedExtendedUntilDate || @js($extension->extended_until_date ? $extension->extended_until_date->format('Y-m-d') : ''),
+                adoaaStudentComment: @js(old('adoaa_student_comment')) || savedDraft.adoaaStudentComment || '',
+
+                init() {
+                    const watchFields = ['recommendation', 'isVerified', 'confidentialRemark', 'approvedExtendedUntilDate', 'adoaaStudentComment'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            recommendation: this.recommendation,
+                            isVerified: this.isVerified,
+                            confidentialRemark: this.confidentialRemark,
+                            approvedExtendedUntilDate: this.approvedExtendedUntilDate,
+                            adoaaStudentComment: this.adoaaStudentComment,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
+                }
+            }
+        }
+    </script>
 </x-app-layout>

@@ -36,6 +36,10 @@ class Pts1Form extends Model
         'main_supervisor_recommendation',
         'main_supervisor_confidential_remark',
         'main_supervisor_submitted_at',
+        'main_supervisor_draft_synopsis_report_doc_path',
+        'main_supervisor_publication_list_doc_path',
+        'main_supervisor_publication_approval_doc_path',
+        'main_supervisor_min_time_approval_doc_path',
 
         'co_supervisor_1_id', 'co_supervisor_1_recommendation', 'co_supervisor_1_confidential_remark',
         'co_supervisor_2_id', 'co_supervisor_2_recommendation', 'co_supervisor_2_confidential_remark',
@@ -274,5 +278,28 @@ class Pts1Form extends Model
     public function getReversionComment(): ?string
     {
         return $this->reversion_comment;
+    }
+
+    /**
+     * Main Supervisor document path helpers (returns null if not populated).
+     */
+    public function getEffectiveDraftSynopsisPath(): ?string
+    {
+        return $this->main_supervisor_draft_synopsis_report_doc_path;
+    }
+
+    public function getEffectivePublicationListPath(): ?string
+    {
+        return $this->main_supervisor_publication_list_doc_path;
+    }
+
+    public function getEffectivePublicationApprovalPath(): ?string
+    {
+        return $this->main_supervisor_publication_approval_doc_path;
+    }
+
+    public function getEffectiveMinTimeApprovalPath(): ?string
+    {
+        return $this->main_supervisor_min_time_approval_doc_path;
     }
 }

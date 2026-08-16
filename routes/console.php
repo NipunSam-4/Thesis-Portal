@@ -9,4 +9,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('workflow:auto-recommend')->hourly();
+Schedule::command('workflow:auto-recommend')->everyMinute();

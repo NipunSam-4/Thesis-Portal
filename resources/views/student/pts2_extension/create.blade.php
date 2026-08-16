@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
+    <div class="py-8" x-data="pts2ExtensionForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Error Alerts -->
@@ -23,7 +23,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('student.pts2_extension.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('student.pts2_extension.store') }}" method="POST" class="space-y-6" @submit="clearDraft()">
                 @csrf
 
                 <!-- Reversion Alert Banner (If form was reverted) -->
@@ -100,6 +100,7 @@
                                    name="extended_until_date" 
                                    required 
                                    min="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
+                                   x-model="extendedUntilDate"
                                    value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : '') }}" 
                                    class="w-full md:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -114,6 +115,7 @@
                             <textarea name="reason_for_extension" 
                                       rows="5" 
                                       required 
+                                      x-model="reasonForExtension"
                                       placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
                                       class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
                         </div>
@@ -134,4 +136,39 @@
 
         </div>
     </div>
+
+    <script>
+        function pts2ExtensionForm() {
+            const draftKey = 'pts2_extension_student_draft_thesis_' + @js($thesis->id);
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
+            return {
+                extendedUntilDate: @js(old('extended_until_date')) || savedDraft.extendedUntilDate || @js(isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ''),
+                reasonForExtension: @js(old('reason_for_extension')) || savedDraft.reasonForExtension || @js(isset($pts2Extension) ? $pts2Extension->reason_for_extension : ''),
+
+                init() {
+                    this.$watch('extendedUntilDate', () => this.saveDraft());
+                    this.$watch('reasonForExtension', () => this.saveDraft());
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            extendedUntilDate: this.extendedUntilDate,
+                            reasonForExtension: this.reasonForExtension,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
+                }
+            }
+        }
+    </script>
 </x-app-layout>

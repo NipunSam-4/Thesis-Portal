@@ -124,7 +124,7 @@
 
             @else
                 <!-- EDITABLE SUBMISSION FORM (First Time Before Submission) -->
-                <form action="{{ route('student.draft_synopsis.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('student.draft_synopsis.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="clearDraft()">
                     @csrf
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
@@ -146,6 +146,7 @@
                                    name="thesis_title" 
                                    value="{{ old('thesis_title', $thesis->title) }}" 
                                    required 
+                                   x-model="thesisTitle"
                                    placeholder="Enter your thesis title..." 
                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
@@ -224,9 +225,20 @@
 
     <script>
         function draftSynopsisForm() {
+            const draftKey = 'draft_synopsis_student_draft_thesis_' + @js($thesis->id);
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
             return {
+                thesisTitle: @js(old('thesis_title')) || savedDraft.thesisTitle || @js($thesis->title),
                 selectedFile: { name: '', size: '', url: '' },
                 fileError: '',
+
+                init() {
+                    this.$watch('thesisTitle', () => this.saveDraft());
+                },
 
                 handleFileSelect(event) {
                     const file = event.target.files[0];
@@ -259,6 +271,20 @@
                     }
                     this.selectedFile = { name: '', size: '', url: '' };
                     this.fileError = '';
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            thesisTitle: this.thesisTitle,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
                 }
             };
         }

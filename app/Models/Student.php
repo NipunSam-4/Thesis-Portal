@@ -244,6 +244,26 @@ class Student extends Model
             }
         }
 
+        // Check PTS-2 Extension Action
+        $pts2Ext = $thesis->pts2Extension;
+        if ($pts2Ext && $pts2Ext->status === 'in_progress') {
+            if ((!$roleFilter || $roleFilter === 'main') && $pts2Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts2Ext->current_stage === 'dpgc' && $user->isDpgc()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'hod') && $pts2Ext->current_stage === 'hod' && $user->isHod()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+                return true;
+            }
+            if ((!$roleFilter || $roleFilter === 'adoaa' || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'adoaa' && ($user->isAdoaa() || $user->isDoaa())) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

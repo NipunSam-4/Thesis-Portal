@@ -225,6 +225,10 @@ class StudentPts1Controller extends Controller
             'min_time_approval_doc_path' => $minTimeAppDocPath,
             'draft_synopsis_report_doc_path' => $synopsisPath,
             'publication_list_doc_path' => $pubListPath,
+            'main_supervisor_draft_synopsis_report_doc_path' => $synopsisPath,
+            'main_supervisor_publication_list_doc_path' => $pubListPath,
+            'main_supervisor_publication_approval_doc_path' => $pubAppDocPath,
+            'main_supervisor_min_time_approval_doc_path' => $minTimeAppDocPath,
             'current_stage' => 'main_supervisor',
             'status' => 'in_progress',
         ];

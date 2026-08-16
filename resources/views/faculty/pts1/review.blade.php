@@ -108,7 +108,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('faculty.pts1.update', $pts1->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="{{ route('faculty.pts1.update', $pts1->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8" @submit="clearDraft()">
                 @csrf
                 @method('PUT')
 
@@ -231,11 +231,11 @@
                             </div>
                             
                             <div x-show="timeApproval === '1'" class="pt-2 space-y-3">
-                                @if($pts1->min_time_approval_doc_path)
+                                @if($pts1->getEffectiveMinTimeApprovalPath())
                                 <div class="p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                                     <div class="flex items-center space-x-3">
                                         <span class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Existing File:</span>
-                                        <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'min_time_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                                        <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_min_time_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center">
                                             📄 View Minimum Time Approval Copy
                                         </a>
                                     </div>
@@ -323,11 +323,11 @@
                             </div>
 
                             <div x-show="pubApproval === '1'" class="pt-2 space-y-3">
-                                @if($pts1->publication_approval_doc_path)
+                                @if($pts1->getEffectivePublicationApprovalPath())
                                     <div class="p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between">
                                         <div class="flex items-center space-x-3">
                                             <span class="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Existing File:</span>
-                                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                                            <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_approval_doc_path']) }}" target="_blank" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center">
                                                 📄 View Publication Approval Copy
                                             </a>
                                         </div>
@@ -400,10 +400,10 @@
                                 <span class="text-[11px] text-gray-400">Max 2 MB</span>
                             </div>
 
-                            @if($pts1->draft_synopsis_report_doc_path)
+                            @if($pts1->getEffectiveDraftSynopsisPath())
                                 <div class="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
                                     <span class="text-xs text-indigo-800 dark:text-indigo-300 font-semibold">Existing File:</span>
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'draft_synopsis_report_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded-md text-xs font-bold shadow-sm hover:bg-indigo-100 flex items-center">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_draft_synopsis_report_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded-md text-xs font-bold shadow-sm hover:bg-indigo-100 flex items-center">
                                         📄 View Existing Synopsis
                                     </a>
                                 </div>
@@ -453,10 +453,10 @@
                                 <span class="text-[11px] text-gray-400">Max 2 MB</span>
                             </div>
 
-                            @if($pts1->publication_list_doc_path)
+                            @if($pts1->getEffectivePublicationListPath())
                                 <div class="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-center justify-between">
                                     <span class="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">Existing File:</span>
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-md text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-md text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
                                         📄 View Existing Publication List
                                     </a>
                                 </div>
@@ -567,7 +567,7 @@
                                   rows="3" 
                                   :required="workStatus === 'inadequate'" 
                                   :placeholder="workStatus === 'adequate' ? 'Optional recommendation remarks for next stage...' : 'Provide mandatory non-recommendation remarks...'" 
-                                  class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                                  class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_confidential_remark', $pts1->main_supervisor_confidential_remark) }}</textarea>
                     </div>
 
                     <!-- Item 3: PSPC Comments Textarea -->
@@ -575,7 +575,7 @@
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
                             3. Additional comments / observations / recommendations of the PSPC <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed PSPC comments, observations, and recommendations..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"></textarea>
+                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed PSPC comments, observations, and recommendations..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment', $pts1->main_supervisor_student_comment) }}</textarea>
                     </div>
                 </div>
 
@@ -678,13 +678,21 @@
 
     <script>
         function pts1ReviewForm() {
+            const draftKey = 'pts1_supervisor_draft_thesis_' + @js($pts1->thesis_id);
+
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
             return {
                 showRevertModal: false,
-                workStatus: '{{ old('work_status', $pts1->work_status ?? 'adequate') }}',
-                pubNorm: '{{ old('publication_norm_fulfillment', $pts1->publication_norm_fulfillment ? '1' : '0') }}',
-                pubApproval: '{{ old('special_approval_publication', $pts1->special_approval_publication ? '1' : '0') }}',
-                timeNorm: '{{ old('min_time_req_fulfilled', $pts1->min_time_req_fulfilled ? '1' : '0') }}',
-                timeApproval: '{{ old('special_approval_min_time', $pts1->special_approval_min_time ? '1' : '0') }}',
+                workStatus: @js(old('work_status')) || savedDraft.workStatus || @js($pts1->work_status ?? 'adequate'),
+                pubNorm: @js(old('publication_norm_fulfillment')) || savedDraft.pubNorm || @js($pts1->publication_norm_fulfillment ? '1' : '0'),
+                pubApproval: @js(old('special_approval_publication')) || savedDraft.pubApproval || @js($pts1->special_approval_publication ? '1' : '0'),
+                timeNorm: @js(old('min_time_req_fulfilled')) || savedDraft.timeNorm || @js($pts1->min_time_req_fulfilled ? '1' : '0'),
+                timeApproval: @js(old('special_approval_min_time')) || savedDraft.timeApproval || @js($pts1->special_approval_min_time ? '1' : '0'),
+
                 existingPubListUrl: @json($existingPubListUrl),
 
                 maxSizes: {
@@ -709,6 +717,10 @@
                 },
 
                 init() {
+                    const watchFields = ['workStatus', 'pubNorm', 'pubApproval', 'timeNorm', 'timeApproval'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
                     if (this.existingPubListUrl) {
                         this.loadExcelFromUrl(this.existingPubListUrl, 'Existing Publication List Preview');
                     }
@@ -745,7 +757,7 @@
                     const limitMB = this.maxSizes[key] || 2;
 
                     if (sizeInMB > limitMB) {
-                        this.fileErrors[key] = `File size (${sizeInMB.toFixed(2)} MB) exceeds limit of ${limitMB} MB. Please select a smaller file.`;
+                        this.fileErrors[key] = `File size (${sizeInMB.toFixed(2)} MB) exceeds standard default PHP limit of ${limitMB} MB. Please select a smaller file.`;
                         event.target.value = '';
                         this.clearFile(key, event.target.id);
                         return false;
@@ -779,12 +791,9 @@
                         if (this.existingPubListUrl) {
                             this.loadExcelFromUrl(this.existingPubListUrl, 'Existing Publication List Preview');
                         } else {
-                            const container = document.getElementById('excelPreviewContainer');
-                            if (container) container.classList.add('hidden');
-                            const sheetsOutput = document.getElementById('sheetsOutput');
-                            if (sheetsOutput) sheetsOutput.innerHTML = '';
-                            const sheetTabsBar = document.getElementById('sheetTabsBar');
-                            if (sheetTabsBar) sheetTabsBar.innerHTML = '';
+                            document.getElementById('excelPreviewContainer').classList.add('hidden');
+                            document.getElementById('sheetsOutput').innerHTML = '';
+                            document.getElementById('sheetTabsBar').innerHTML = '';
                         }
                     }
                 },
@@ -793,17 +802,16 @@
                     const file = event.target.files[0];
                     if (!file) return;
 
-                    const self = this;
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = (e) => {
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                        self.renderWorkbook(workbook, 'New Selected File Preview');
+                        this.renderWorkbook(workbook, 'New Selected Publication List Preview');
                     };
                     reader.readAsArrayBuffer(file);
                 },
 
-                renderWorkbook(workbook, titlePrefix = 'Publication and Other Recognition Preview') {
+                renderWorkbook(workbook, titlePrefix = 'Publication List Preview') {
                     const container = document.getElementById('excelPreviewContainer');
                     const sheetsOutput = document.getElementById('sheetsOutput');
                     const sheetTabsBar = document.getElementById('sheetTabsBar');
@@ -849,6 +857,24 @@
                         `;
                         sheetsOutput.appendChild(sheetBlock);
                     });
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            workStatus: this.workStatus,
+                            pubNorm: this.pubNorm,
+                            pubApproval: this.pubApproval,
+                            timeNorm: this.timeNorm,
+                            timeApproval: this.timeApproval,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
                 }
             }
         }

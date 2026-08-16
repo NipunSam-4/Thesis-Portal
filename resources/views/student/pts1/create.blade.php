@@ -71,7 +71,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('student.pts1.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="{{ route('student.pts1.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8" @submit="clearDraft()">
                 @csrf
 
                 @if(isset($pts1Form) && $pts1Form->status === 'reverted')
@@ -481,6 +481,13 @@
     <script>
         function pts1Form() {
             const existingPts1 = @js(isset($pts1Form) ? $pts1Form : null);
+            const draftKey = 'pts1_student_draft_thesis_' + @js($thesis->id);
+
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
             return {
                 pubNorm: @js(old('publication_norm_fulfillment', isset($pts1Form) ? ($pts1Form->publication_norm_fulfillment ? '1' : '0') : '1')),
                 pubApproval: @js(old('special_approval_publication', isset($pts1Form) ? ($pts1Form->special_approval_publication ? '1' : '0') : '1')),
@@ -529,6 +536,10 @@
                 },
 
                 init() {
+                    const watchFields = ['pubNorm', 'pubApproval', 'timeNorm', 'timeApproval'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
                     if (existingPts1 && existingPts1.publication_list_doc_path) {
                         fetch("{{ route('pts.document.serve', ['pts1', $pts1Form->id ?? 0, 'publication_list_doc_path']) }}")
                             .then(res => res.ok ? res.arrayBuffer() : null)
@@ -687,6 +698,23 @@
                         });
                     };
                     reader.readAsArrayBuffer(file);
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            pubNorm: this.pubNorm,
+                            pubApproval: this.pubApproval,
+                            timeNorm: this.timeNorm,
+                            timeApproval: this.timeApproval,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
                 }
             }
         }
