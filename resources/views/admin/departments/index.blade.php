@@ -11,7 +11,7 @@
     </x-slot>
 
     <div class="py-12" x-data="{ createModalOpen: false, editModalOpen: false, editId: '', editName: '', editCode: '' }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             @if(session('success'))
                 <div class="bg-green-50 text-green-700 p-4 rounded-lg shadow-sm border border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400 flex items-center">

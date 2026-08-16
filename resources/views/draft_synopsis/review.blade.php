@@ -11,7 +11,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Error Alerts -->
             @if(session('success'))
@@ -109,7 +109,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                 <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                        All Authority Feedback & Comments
+                        Authority Feedback & Comments
                     </h3>
                     <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full">
                         {{ $comments->count() }} {{ Str::plural('Comment', $comments->count()) }}

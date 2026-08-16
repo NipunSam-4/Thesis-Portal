@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Info Flash Alerts -->
             @if(session('success'))
@@ -54,13 +54,13 @@
                     
                     <!-- My Academic Profile Card -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
+                        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
                             <h3 class="font-bold text-gray-900 dark:text-white">My Academic Profile</h3>
                             <a href="{{ route('profile.edit') }}" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                 View Full Profile &rarr;
                             </a>
                         </div>
-                        <div class="p-6 pt-2 space-y-2.5">
+                        <div class="p-3 sm:p-6 pt-2 space-y-2.5">
                             <div>
                                 <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Roll Number</label>
                                 <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->roll_number }}</div>
@@ -85,7 +85,7 @@
                     </div>
 
                     <!-- Form Action Center -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-3 sm:p-6 space-y-4">
                         <h3 class="font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
                             Thesis Action Center
                         </h3>
@@ -177,7 +177,7 @@
                         </div>
                     @else
                         <!-- THESIS REGISTERED MAIN MILESTONE CONTAINER -->
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4" x-data="{ activeTab: 'in_progress' }">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-3 sm:p-6 space-y-4" x-data="{ activeTab: 'in_progress' }">
                             
                             <!-- Registered Thesis Title Header directly above Milestones -->
                             <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -223,7 +223,7 @@
                             <div x-show="activeTab === 'in_progress'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                 <!-- Draft Synopsis Circulation Card -->
-                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">Draft Synopsis Circulation</span>
@@ -266,7 +266,7 @@
                                 </div>
                                 
                                 <!-- PTS-1 Milestone Card (With Embedded Action Button) -->
-                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1: Open Seminar Report</span>
@@ -343,7 +343,7 @@
                                 </div>
 
                                 <!-- PTS-2 Milestone Card (With Embedded Action Button) -->
-                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2: Synopsis Report Submission</span>
@@ -403,7 +403,7 @@
                                 </div>
 
                                 <!-- PTS-4 Dummy Milestone Card (Thesis Submission) -->
-                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40 space-y-3 opacity-80 flex flex-col justify-between">
+                                <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40 space-y-3 opacity-80 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
@@ -423,7 +423,7 @@
                                 </div>
 
                                 <!-- PTS-6 Dummy Milestone Card (Oral Examination Report) -->
-                                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40 space-y-3 opacity-80 flex flex-col justify-between">
+                                <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40 space-y-3 opacity-80 flex flex-col justify-between">
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">

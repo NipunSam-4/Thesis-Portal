@@ -57,7 +57,7 @@
     </style>
 
     <div class="py-8" x-data="pts1Form()">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Error Alerts -->
             @if($errors->any())

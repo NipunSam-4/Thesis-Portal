@@ -46,7 +46,7 @@
             if (input) input.value = '';
         }
     }">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Reversion Feedback Banner -->
             @if($pts2 && $pts2->status === 'reverted')

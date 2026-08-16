@@ -27,7 +27,7 @@
             return target.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
         }
     }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Warning Flash Alerts -->
             @if(session('success'))
@@ -94,21 +94,21 @@
             <!-- Navigation Sub-Tabs & Search Input Bar -->
             <div class="space-y-4">
                 <!-- Role-Based Navigation Sub-Tabs -->
-                <div class="grid grid-cols-3 sm:grid-cols-3 gap-4 w-full">
+                <div class="grid grid-cols-3 gap-2 sm:gap-4 w-full">
                     <!-- Main Supervisor Tab Card -->
                     <button type="button" 
                             @click="activeTab = 'main'" 
                             :class="activeTab === 'main' 
                                 ? 'bg-indigo-600 text-white border-2 border-indigo-600 shadow-md ring-2 ring-indigo-500/20 scale-[1.01]' 
                                 : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
-                            class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 transition-colors" :class="activeTab === 'main' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full px-2 sm:px-5 py-2 rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center sm:justify-between group text-center sm:text-left">
+                        <div class="flex items-center space-x-1.5 sm:space-x-3">
+                            <svg class="hidden sm:block w-5 h-5 transition-colors" :class="activeTab === 'main' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                             <span class="font-bold tracking-wide" :class="activeTab === 'main' ? 'text-white' : 'text-gray-800 dark:text-gray-100'">Main supervisor</span>
                         </div>
-                        <span class="font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'main' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                        <span class="hidden sm:inline-flex font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'main' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                             <span x-show="programTab === 'phd'">{{ $mainStudents->filter(fn($s) => $s->isPhd())->count() }}</span>
                             <span x-show="programTab === 'msr'">{{ $mainStudents->filter(fn($s) => $s->isMsr())->count() }}</span>
                         </span>
@@ -120,14 +120,14 @@
                             :class="activeTab === 'co' 
                                 ? 'bg-blue-600 text-white border-2 border-blue-600 shadow-md ring-2 ring-blue-500/20 scale-[1.01]' 
                                 : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
-                            class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 transition-colors" :class="activeTab === 'co' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full px-2 sm:px-5 py-2 rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center sm:justify-between group text-center sm:text-left">
+                        <div class="flex items-center space-x-1.5 sm:space-x-3">
+                            <svg class="hidden sm:block w-5 h-5 transition-colors" :class="activeTab === 'co' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                             <span class="font-bold tracking-wide" :class="activeTab === 'co' ? 'text-white' : 'text-gray-800 dark:text-gray-100'">Co-supervisor</span>
                         </div>
-                        <span class="font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'co' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
+                        <span class="hidden sm:inline-flex font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'co' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
                             <span x-show="programTab === 'phd'">{{ $coStudents->filter(fn($s) => $s->isPhd())->count() }}</span>
                             <span x-show="programTab === 'msr'">{{ $coStudents->filter(fn($s) => $s->isMsr())->count() }}</span>
                         </span>
@@ -139,15 +139,15 @@
                             :class="activeTab === 'pspc' 
                                 ? 'bg-emerald-600 text-white border-2 border-emerald-600 shadow-md ring-2 ring-emerald-500/20 scale-[1.01]' 
                                 : 'bg-white dark:bg-gray-800/90 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'" 
-                            class="w-full px-5 py-2 rounded-2xl font-semibold text-sm transition-all duration-200 flex items-center justify-between group">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 transition-colors" :class="activeTab === 'pspc' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-full px-2 sm:px-5 py-2 rounded-2xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center sm:justify-between group text-center sm:text-left">
+                        <div class="flex items-center space-x-1.5 sm:space-x-3">
+                            <svg class="hidden sm:block w-5 h-5 transition-colors" :class="activeTab === 'pspc' ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
                             </svg>
                             <span class="font-bold tracking-wide" :class="activeTab === 'pspc' ? 'text-white' : 'text-gray-800 dark:text-gray-100'">PSPC member</span>
                         </div>
-                        <span class="font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'pspc' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'">
+                        <span class="hidden sm:inline-flex font-extrabold text-sm px-2.5 py-0.5 rounded-lg transition-colors" :class="activeTab === 'pspc' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'">
                             <span x-show="programTab === 'phd'">{{ $pspcStudents->filter(fn($s) => $s->isPhd())->count() }}</span>
                             <span x-show="programTab === 'msr'">{{ $pspcStudents->filter(fn($s) => $s->isMsr())->count() }}</span>
                         </span>
@@ -235,9 +235,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === 'main-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === 'main-{{ $student->id }}'" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -245,7 +245,7 @@
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- Draft Synopsis Circulation Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
@@ -281,7 +281,7 @@
                                             </div>
 
                                             <!-- PTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -326,7 +326,7 @@
                                             </div>
 
                                             <!-- PTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
@@ -440,9 +440,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === 'co-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === 'co-{{ $student->id }}'" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -450,7 +450,7 @@
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- Draft Synopsis Circulation Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
@@ -486,7 +486,7 @@
                                             </div>
 
                                             <!-- PTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -544,7 +544,7 @@
                                             </div>
 
                                             <!-- PTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
@@ -664,9 +664,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === 'pspc-{{ $student->id }}'" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === 'pspc-{{ $student->id }}'" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -674,7 +674,7 @@
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- Draft Synopsis Circulation Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
@@ -710,7 +710,7 @@
                                             </div>
 
                                             <!-- PTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -768,7 +768,7 @@
                                             </div>
 
                                             <!-- PTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')

@@ -20,7 +20,7 @@
             }
         }
     }">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Read-Only Student Profile -->
             <div class="bg-indigo-900 text-white rounded-xl p-6 shadow-sm space-y-3">

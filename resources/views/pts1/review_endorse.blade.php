@@ -32,7 +32,7 @@
         recommendation: '1',
         isVerified: false
     }">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
             @if(session('success'))

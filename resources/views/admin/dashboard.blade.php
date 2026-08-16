@@ -11,7 +11,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row gap-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-6">
             
             <aside class="w-full md:w-1/4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 h-fit sticky top-6">
                 <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4 px-3">Management Menu</h3>

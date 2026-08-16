@@ -13,7 +13,7 @@
     <div class="py-8" x-data="{
         action: 'approve'
     }">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
             @if(session('success'))

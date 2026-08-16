@@ -31,7 +31,7 @@
             return targetText.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
         }
     }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Alerts -->
             @if(session('success'))
@@ -175,9 +175,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -186,7 +186,7 @@
                                         <!-- PTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- PTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -242,7 +242,7 @@
                                             </div>
 
                                             <!-- PTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
@@ -349,9 +349,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -360,7 +360,7 @@
                                         <!-- MSRTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- MSRTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -416,7 +416,7 @@
                                             </div>
 
                                             <!-- MSRTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')

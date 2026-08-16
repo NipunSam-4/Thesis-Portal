@@ -69,12 +69,12 @@
                 <!-- Navigation Bar Header Content -->
                 <div class="flex items-center justify-between min-h-[72px] md:min-h-[96px] py-2">
 
-                    <!-- Mobile & Desktop Left: Hamburger Button (Mobile) + Icon + Thesis Management Portal Title ONLY -->
-                    <div class="flex items-center space-x-3">
+                    <!-- Mobile & Desktop Left: Hamburger Button (Mobile) + Icon + Thesis Management Portal Title -->
+                    <div class="flex items-center space-x-2.5 sm:space-x-3">
                         <!-- Mobile Left Hamburger Icon Button (Before Icon) -->
                         <button @click="mobileMenuOpen = !mobileMenuOpen" 
                                 type="button" 
-                                class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none transition-colors shadow-sm"
+                                class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none transition-colors shadow-sm shrink-0"
                                 aria-label="Open Navigation Menu">
                             <!-- Hamburger Icon -->
                             <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +86,7 @@
                             </svg>
                         </button>
 
-                        <a href="{{ url('/') }}" class="flex items-center space-x-2.5 sm:space-x-3 group">
+                        <a href="{{ url('/') }}" class="flex items-center space-x-2 sm:space-x-3 group">
                             <img src="{{ asset('images/iiti_logo.png') }}" alt="IIT Indore"
                                 class="h-10 sm:h-14 lg:h-16 w-auto object-contain bg-white dark:bg-white rounded-xl p-1 sm:p-1.5 shadow-sm border border-slate-200 dark:border-slate-700 transition-transform group-hover:scale-105 duration-300 shrink-0" />
                             <div class="flex flex-col">
@@ -133,7 +133,7 @@
                  class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs"></div>
 
             <!-- Sidebar Panel Container (Full 100vh Screen Height, Slide from Left) -->
-            <div class="fixed inset-y-0 left-0 max-w-xs w-full h-full min-h-screen bg-white dark:bg-slate-900 shadow-2xl border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between overflow-y-auto z-50"
+            <div class="fixed inset-y-0 left-0 max-w-xs w-full h-full max-h-[100dvh] bg-white dark:bg-slate-900 shadow-2xl border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between overflow-hidden z-50"
                  x-show="mobileMenuOpen"
                  x-transition:enter="transition ease-in-out duration-300 transform"
                  x-transition:enter-start="-translate-x-full"
@@ -142,11 +142,11 @@
                  x-transition:leave-start="translate-x-0"
                  x-transition:leave-end="-translate-x-full">
                 
-                <div class="p-5 space-y-5 flex-1 flex flex-col">
+                <div class="p-4 space-y-4 flex-1 overflow-y-auto flex flex-col">
                     <!-- Top Header of Sidebar: Title + Close Button -->
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 shrink-0">
                         <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700 dark:text-white">Navigation Menu</span>
-                        <button @click="mobileMenuOpen = false" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <button @click="mobileMenuOpen = false" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -155,24 +155,24 @@
 
                     <!-- 1. USER NAME & EMAIL (TOP OF SIDEBAR) -->
                     @if($authUser)
-                        <div class="flex items-center space-x-3 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+                        <div class="flex items-center space-x-2.5 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
                                 {{ strtoupper(substr($authUser->name ?? 'U', 0, 1)) }}
                             </div>
                             <div class="overflow-hidden">
-                                <div class="font-bold text-sm text-slate-900 dark:text-white leading-tight truncate">
+                                <div class="font-bold text-xs text-slate-900 dark:text-white leading-tight truncate">
                                     {{ $authUser->name }}
                                 </div>
-                                <div class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                                     {{ $authUser->email }}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. ASSIGNED ROLE / TRANSFER ROLE (TOP OF SIDEBAR BELOW NAME) -->
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-white block">Assigned Role</label>
-                            <div class="p-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-xl flex items-center justify-between">
+                        <!-- 2. ASSIGNED ROLE / TRANSFER ROLE -->
+                        <div class="space-y-1 shrink-0">
+                            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-white block">Assigned Role</label>
+                            <div class="p-2.5 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-xl flex items-center justify-between">
                                 <span class="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                     {{ $userRoleLabel }}
@@ -184,7 +184,7 @@
                         <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800 flex-1">
                             <!-- Dashboard Link -->
                             <a href="{{ route('dashboard') }}" 
-                               class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
+                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
                                 <svg class="w-4 h-4 {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                                 </svg>
@@ -193,7 +193,7 @@
 
                             <!-- Profile Settings Link -->
                             <a href="{{ route('profile.edit') }}" 
-                               class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('profile.edit') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
+                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ request()->routeIs('profile.edit') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
                                 <svg class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
@@ -204,13 +204,13 @@
                 </div>
 
                 <!-- Footer of Mobile Sidebar Drawer: Always-Visible Log Out Button -->
-                <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                     @if($authUser)
                         <!-- Log Out Form & Button -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" 
-                                    class="w-full flex items-center justify-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800/50 transition shadow-sm">
+                                    class="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800/50 transition shadow-sm">
                                 <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>

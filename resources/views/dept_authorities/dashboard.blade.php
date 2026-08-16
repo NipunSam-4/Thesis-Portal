@@ -27,7 +27,7 @@
             return targetText.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
         }
     }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Alerts -->
             @if(session('success'))
@@ -56,7 +56,7 @@
                         @endif
                     </p>
                 </div>
-                <div class="text-right text-xs bg-white/10 px-4 py-2 rounded-lg">
+                <div class="text-right text-xs bg-white/10 px-4 py-2 rounded-lg hidden sm:block">
                     <div class="font-bold text-base">{{ $phdStudents->count() + $msrStudents->count() }}</div>
                     <div>Department Students</div>
                 </div>
@@ -70,15 +70,15 @@
                         :class="programTab === 'phd' 
                             ? '{{ $user->isDpgc() ? 'bg-purple-600' : 'bg-indigo-600' }} text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">PhD Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">PhD Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                         {{ $phdStudents->count() }}
                     </span>
                 </button>
@@ -89,15 +89,15 @@
                         :class="programTab === 'msr' 
                             ? '{{ $user->isDpgc() ? 'bg-purple-600' : 'bg-indigo-600' }} text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.6 15.12a2 2 0 00-1.183.184l-1.02.51a2 2 0 00-1.107 1.789v.894a2 2 0 002 2h15.428a2 2 0 002-2v-.894a2 2 0 00-1.107-1.789l-1.02-.51z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12a4 4 0 108 0 4 4 0 00-8 0z"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">MS(R) Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">MS(R) Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
                         {{ $msrStudents->count() }}
                     </span>
                 </button>
@@ -174,9 +174,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold {{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }}">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -185,7 +185,7 @@
                                         <!-- PTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- PTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -230,7 +230,7 @@
                                             </div>
 
                                             <!-- PTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
@@ -244,7 +244,7 @@
                                                             <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                         @endif
                                                     @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
+                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Submitted</span>
                                                     @endif
                                                 </div>
 
@@ -325,9 +325,9 @@
                             </div>
 
                             <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-5">
+                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
                                 @forelse($student->theses as $thesis)
-                                    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-4">
+                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
                                             <div class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
@@ -336,7 +336,7 @@
                                         <!-- MSRTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <!-- MSRTS-1 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-1 (Open Seminar)</span>
                                                     @if($thesis->pts1Form)
@@ -381,7 +381,7 @@
                                             </div>
 
                                             <!-- MSRTS-2 Card -->
-                                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-2 (Synopsis Report)</span>
                                                     @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
