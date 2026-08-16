@@ -286,6 +286,7 @@ class Pts1Controller extends Controller
                 $pts1->update([
                     "co_supervisor_{$roleKey}_recommendation" => $isRecommended,
                     "co_supervisor_{$roleKey}_confidential_remark" => $remark,
+                    "co_supervisor_{$roleKey}_submitted_at" => now(),
                 ]);
 
                 // Check if all assigned co-supervisors have submitted recommendations
@@ -333,6 +334,7 @@ class Pts1Controller extends Controller
                 $pts1->update([
                     "pspc_member_{$roleKey}_recommendation" => $isRecommended,
                     "pspc_member_{$roleKey}_confidential_remark" => $remark,
+                    "pspc_member_{$roleKey}_submitted_at" => now(),
                 ]);
 
                 // Check if all assigned PSPC members have submitted recommendations
@@ -362,6 +364,7 @@ class Pts1Controller extends Controller
                     'dpgc_student_comment' => $comment,
                     'dpgc_recommendation' => $isRecommended,
                     'dpgc_confidential_remark' => $remark,
+                    'dpgc_submitted_at' => now(),
                     'current_stage' => 'hod',
                 ]);
                 break;
@@ -374,6 +377,7 @@ class Pts1Controller extends Controller
                     'hod_student_comment' => $comment,
                     'hod_recommendation' => $isRecommended,
                     'hod_confidential_remark' => $remark,
+                    'hod_submitted_at' => now(),
                     'current_stage' => 'section_officer',
                 ]);
                 break;
@@ -386,6 +390,7 @@ class Pts1Controller extends Controller
                     'section_officer_student_comment' => $comment,
                     'section_officer_recommendation' => $isRecommended,
                     'section_officer_confidential_remark' => $remark,
+                    'section_officer_submitted_at' => now(),
                     'current_stage' => 'doaa',
                 ]);
                 break;
@@ -398,6 +403,7 @@ class Pts1Controller extends Controller
                     'doaa_student_comment' => $comment,
                     'doaa_approval' => $isRecommended,
                     'doaa_confidential_remark' => $remark,
+                    'doaa_submitted_at' => now(),
                     'current_stage' => $isRecommended ? 'completed' : 'rejected',
                     'status' => $isRecommended ? 'accepted' : 'rejected',
                     'pts1_submitted_at' => now(),

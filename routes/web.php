@@ -15,6 +15,7 @@ use App\Http\Controllers\Dept_Authority\DeptAuthorityDashboardController;
 use App\Http\Controllers\GlobalAuthority\GlobalAuthorityDashboardController;
 use App\Http\Controllers\Student\StudentDraftSynopsisController;
 use App\Http\Controllers\DraftSynopsisReviewController;
+use App\Http\Controllers\Pts2ExtensionController;
 use App\Http\Controllers\ProfileController;
 
 // Default welcome page
@@ -77,6 +78,11 @@ Route::middleware('auth')->group(function () {
     // Universal PTS-2 Endorsement & Reversion Action Routes
     Route::post('/pts2/{pts2}/endorse', [Pts2Controller::class, 'endorse'])->name('pts2.endorse');
     Route::post('/pts2/{pts2}/revert', [Pts2Controller::class, 'revert'])->name('pts2.revert');
+
+    // Universal PTS-2 Extension Form Routes
+    Route::get('/pts2-extension/{id}/show', [Pts2ExtensionController::class, 'show'])->name('pts2_extension.show');
+    Route::get('/pts2-extension/{id}/review', [Pts2ExtensionController::class, 'review'])->name('pts2_extension.review');
+    Route::post('/pts2-extension/{id}/submit-review', [Pts2ExtensionController::class, 'submitReview'])->name('pts2_extension.submit_review');
 });
 
 // Student Routes
@@ -96,6 +102,10 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
     // PTS-2 Synopsis Form Routes
     Route::get('/pts2/create', [StudentPts2Controller::class, 'create'])->name('student.pts2.create');
     Route::post('/pts2/store', [StudentPts2Controller::class, 'store'])->name('student.pts2.store');
+
+    // PTS-2 Extension Form Routes
+    Route::get('/pts2-extension/create', [Pts2ExtensionController::class, 'create'])->name('student.pts2_extension.create');
+    Route::post('/pts2-extension/store', [Pts2ExtensionController::class, 'store'])->name('student.pts2_extension.store');
 });
 
 // Faculty Routes (Supervisors & PSPC)
@@ -104,8 +114,7 @@ Route::prefix('faculty')->middleware(['auth', 'role:faculty'])->group(function (
     Route::get('/pts1/{pts1}/review', [Pts1Controller::class, 'edit'])->name('faculty.pts1.edit');
     Route::match(['post', 'put'], '/pts1/{pts1}/update', [Pts1Controller::class, 'update'])->name('faculty.pts1.update');
     
-    Route::get('/pts2/{pts2}/review', [FacultyPts2Controller::class, 'edit'])->name('faculty.pts2.edit');
-    Route::match(['post', 'put'], '/pts2/{pts2}/update', [FacultyPts2Controller::class, 'update'])->name('faculty.pts2.update');
+    Route::get('/pts2/{pts2}/review', [Pts2Controller::class, 'showReview'])->name('faculty.pts2.edit');
 });
 
 // Departmental Authorities Routes (HOD & DPGC)

@@ -1,0 +1,137 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                {{ $isReverted ? __('Resubmit PTS-2 Extension Application') : __('Apply for PTS-2 Extension') }}
+            </h2>
+            <x-back-to-dashboard-button />
+        </div>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+
+            <!-- Error Alerts -->
+            @if($errors->any())
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm">
+                    <div class="font-bold">Please correct the errors below:</div>
+                    <ul class="mt-1 list-disc list-inside text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('student.pts2_extension.store') }}" method="POST" class="space-y-6">
+                @csrf
+
+                <!-- Reversion Alert Banner (If form was reverted) -->
+                @if(($isReverted || (isset($pts2Extension) && $pts2Extension->status === 'reverted')) && $pts2Extension)
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span class="font-bold text-sm">Application Reverted by {{ $pts2Extension->getRevertedByRoleLabel() }}</span>
+                        </div>
+                        @if($pts2Extension->reversion_comment)
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Reversion Comment:</strong>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1">
+                                    {{ $pts2Extension->reversion_comment }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                <!-- Section 1: Pre-filled Student Details (Read-Only Card 1 - Exact PTS-1 Design) -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                        1. Student Information
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
+                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
+                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
+                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
+                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
+                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation</label>
+                            <input type="text" value="{{ $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Extension Details -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                        2. Extension Details
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                Extended Date Required <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" 
+                                   name="extended_until_date" 
+                                   required 
+                                   min="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
+                                   value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : '') }}" 
+                                   class="w-full md:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Select the extended deadline date till which you are requesting extension for PTS-2 form submission.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                Detailed Reason for Extension <span class="text-red-500">*</span>
+                            </label>
+                            <textarea name="reason_for_extension" 
+                                      rows="5" 
+                                      required 
+                                      placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
+                                      class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button Container -->
+                <div class="flex justify-end pt-4">
+                    <button type="submit" 
+                            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center space-x-2">
+                        <span>{{'Submit for approval' }}</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</x-app-layout>

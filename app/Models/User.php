@@ -78,6 +78,16 @@ class User extends Authenticatable
         return $this->role === 'doaa';
     }
 
+    public function isDeptAuthority(): bool
+    {
+        return in_array($this->role, ['dpgc', 'hod']);
+    }
+
+    public function isGlobalAuthority(): bool
+    {
+        return in_array($this->role, ['section_officer', 'adoaa', 'doaa', 'senate_chairperson', 'ar', 'dr', 'academic_office']);
+    }
+
     public function isSenateChairperson(): bool
     {
         return $this->role === 'senate_chairperson';

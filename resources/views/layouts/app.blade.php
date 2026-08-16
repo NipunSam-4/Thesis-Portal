@@ -86,17 +86,9 @@
                             </svg>
                         </button>
 
-                        <a href="{{ url('/') }}" class="flex items-center space-x-2 sm:space-x-3 group">
+                        <a href="{{ url('/') }}" class="flex items-center space-x-2.5 sm:space-x-3 group">
                             <img src="{{ asset('images/iiti_logo.png') }}" alt="IIT Indore"
                                 class="h-10 sm:h-14 lg:h-16 w-auto object-contain bg-white dark:bg-white rounded-xl p-1 sm:p-1.5 shadow-sm border border-slate-200 dark:border-slate-700 transition-transform group-hover:scale-105 duration-300 shrink-0" />
-                            <div class="flex flex-col">
-                                <span class="text-base sm:text-xl font-bold text-slate-900 dark:text-white leading-tight">
-                                    Thesis Management Portal
-                                </span>
-                                <span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">
-                                    Indian Institute of Technology Indore
-                                </span>
-                            </div>
                         </a>
                     </div>
 

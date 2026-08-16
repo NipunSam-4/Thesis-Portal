@@ -230,7 +230,7 @@
                                             @if($draftSynopsis)
                                                 <span class="shrink-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Circulated</span>
                                             @elseif($pts1Approved)
-                                                <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
+                                                <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Disabled</span>
                                             @else
                                                 <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Circulate</span>
                                             @endif
@@ -255,7 +255,7 @@
                                             </a>
                                         @elseif($pts1Approved)
                                             <button type="button" disabled class="block w-full text-center px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                🔒 Circulation Closed
+                                                Circulation Closed
                                             </button>
                                         @else
                                             <a href="{{ route('student.draft_synopsis.show') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
@@ -375,9 +375,69 @@
                                                 @endif
                                             </div>
                                         @endif
+
+                                        @if($pts2Extension)
+                                            <div class="p-3 rounded-xl border text-xs my-2 space-y-2 {{ $pts2Extension->status === 'accepted' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : ($pts2Extension->status === 'reverted' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200' : ($pts2Extension->status === 'rejected' ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200' : 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200')) }}">
+                                                <div class="flex items-center justify-between font-bold">
+                                                    <span>📅 PTS-2 Extension</span>
+                                                    @if($pts2Extension->status !== 'reverted')
+                                                        <span class="text-[10px] px-2.5 py-0.5 rounded-full uppercase font-extrabold tracking-wider {{ $pts2Extension->status === 'accepted' ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300' : ($pts2Extension->status === 'reverted' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300' : ($pts2Extension->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300' : 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300')) }}">
+                                                            @if($pts2Extension->status === 'accepted')
+                                                                ✓ Approved
+                                                            @elseif($pts2Extension->status === 'rejected')
+                                                                ❌ Rejected
+                                                            @else
+                                                                {{ str_replace('_', ' ', $pts2Extension->status) }}
+                                                            @endif
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                @if($pts2Extension->status === 'in_progress')
+                                                    <div class="text-[11px] flex justify-between items-center pt-0.5">
+                                                        <span class="font-semibold text-purple-800 dark:text-purple-300">⏳ Stage: {{ ucwords(str_replace('_', ' ', $pts2Extension->current_stage)) }}</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-purple-600">View Submitted Form &rarr;</a>
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'accepted')
+                                                    <div class="text-[11px] flex justify-between items-center pt-1">
+                                                        <span>Extended Until: {{ ($pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700">View Approved Form &rarr;</a>
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'reverted')
+                                                    <div class="p-3 pt-2 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
+                                                        <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                            ⚠️ Reverted by {{ $pts2Extension->getRevertedByRoleLabel() }}
+                                                        </div>
+                                                        @if($pts2Extension->getReversionComment())
+                                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1">
+                                                                "{{ $pts2Extension->getReversionComment() }}"
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'rejected')
+                                                    <div class="text-[11px] flex justify-between items-center pt-1">
+                                                        <span>Application Rejected</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700">View Rejected Form &rarr;</a>
+                                                    </div>
+                                                @endif
+
+                                                <!-- Apply for Extension Button -->
+                                                @if($pts1Approved)
+                                                    @if(!$pts2Extension || $pts2Extension->status === 'accepted' || $pts2Extension->status === 'rejected')
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold text-xs rounded-lg transition border border-gray-300 dark:border-gray-600">
+                                                            📅 Apply for PTS-2 Extension &rarr;
+                                                        </a>
+                                                    @elseif($pts2Extension->status === 'reverted')
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            ⚠️ Resubmit PTS-2 Extension &rarr;
+                                                        </a>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
 
-                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
                                         @if(!$pts1Approved)
                                             <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
                                                 Requires {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Approval

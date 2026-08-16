@@ -24,7 +24,8 @@ class FacultyDashboardController extends Controller
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
-            'theses.pts2Form'
+            'theses.pts2Form',
+            'theses.pts2Extension'
         ])
         ->get();
 
@@ -45,7 +46,8 @@ class FacultyDashboardController extends Controller
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
-            'theses.pts2Form'
+            'theses.pts2Form',
+            'theses.pts2Extension'
         ])
         ->get();
 
@@ -66,7 +68,8 @@ class FacultyDashboardController extends Controller
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
-            'theses.pts2Form'
+            'theses.pts2Form',
+            'theses.pts2Extension'
         ])
         ->get();
 

@@ -1,0 +1,334 @@
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                    {{ __('PTS-2 Extension Application Details') }}
+                </h2>
+                @if($extension->status === 'accepted')
+                    <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        ✓ Approved
+                    </span>
+                @elseif($extension->status === 'rejected')
+                    <span class="px-3 py-1 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        ❌ Rejected
+                    </span>
+                @elseif($extension->status === 'reverted')
+                    <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        ⚠️ Reverted
+                    </span>
+                @else
+                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        In Progress
+                    </span>
+                @endif
+            </div>
+            <x-back-to-dashboard-button />
+        </div>
+    </x-slot>
+
+    <div class="py-8">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+
+            <!-- Flash Session Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Section 1: Pre-filled Student Details (Read-Only Card 1 - Exact PTS-1 Design) -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                    1. Student Information
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
+                        <input type="text" value="{{ $extension->thesis->student->user->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
+                        <input type="text" value="{{ $extension->student->roll_number ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
+                        <input type="text" value="{{ $extension->student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
+                        <input type="text" value="{{ $extension->student->date_registration ? \Carbon\Carbon::parse($extension->student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
+                        <input type="text" value="{{ $extension->student->date_joining ? \Carbon\Carbon::parse($extension->student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation</label>
+                        <input type="text" value="{{ $extension->student->date_confirmation ? \Carbon\Carbon::parse($extension->student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Extension Details -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                    2. Extension Application Details
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Extended Deadline Requested</label>
+                        <input type="text" value="📅 {{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 rounded-lg border-purple-200 dark:border-purple-800 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Application Date</label>
+                        <input type="text" value="{{ $extension->created_at ? $extension->created_at->format('d-M-Y H:i') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Reason for Extension</label>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
+                </div>
+            </div>
+
+            <!-- Section 3: Final Decision & Remarks -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                    3. Evaluation Status & Comment
+                </h3>
+
+                @if($extension->status === 'reverted')
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span class="font-bold text-sm">Application Reverted by {{ $extension->getRevertedByRoleLabel() }}</span>
+                        </div>
+                        @if($extension->reversion_comment)
+                            <div class="text-xs text-gray-700 dark:text-gray-300">
+                                <strong>Reversion Comment:</strong>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1">
+                                    {{ $extension->reversion_comment }}
+                                </p>
+                            </div>
+                        @endif
+
+                        @if($user->isStudent())
+                            <div class="pt-2">
+                                <a href="{{ route('student.pts2_extension.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                    Edit & Resubmit Extension Application &rarr;
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @elseif($extension->status === 'accepted')
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-3">
+                        <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-900">
+                            <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase mb-1">Approved Extension Until Date</label>
+                            <div class="text-base font-bold text-emerald-900 dark:text-emerald-200">
+                                📅 {{ ($extension->approved_extended_until_date)?->format('d-M-Y') }}
+                            </div>
+                        </div>
+
+                        @if($extension->adoaa_student_comment)
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase">ADoAA Student Comment</label>
+                                    <span class="px-2.5 py-0.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full  tracking-wider flex items-center shadow-sm">
+                                        ✓ Approved
+                                    </span>
+                                </div>
+                                <p class="text-xs italic text-emerald-900 dark:text-emerald-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900">{{ trim($extension->adoaa_student_comment) }}</p>
+                            </div>
+                        @else
+                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                <span class="italic font-normal">Comment not provided</span>
+                            </div>
+                        @endif
+                    </div>
+                @elseif($extension->status === 'rejected')
+                    <div class="p-4 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 rounded-xl space-y-3">
+                        @if($extension->adoaa_student_comment)
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-semibold text-red-800 dark:text-red-300 uppercase">ADoAA Student Comment</label>
+                                    <span class="px-2.5 py-0.5 text-red-800 dark:text-red-300 text-xs font-bold rounded-full tracking-wider flex items-center shadow-sm">
+                                        ❌ Rejected
+                                    </span>
+                                </div>
+                                <p class="text-xs italic text-red-900 dark:text-red-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-900">{{ trim($extension->adoaa_student_comment) }}</p>
+                            </div>
+                        @else
+                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                <span class="italic font-normal">Comment not provided</span>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <div class="p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-blue-900 dark:text-blue-200 text-sm">⏳ Application Under Review</span>
+                            <span class="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
+                                Stage: {{ ucwords(str_replace('_', ' ', $extension->current_stage)) }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-blue-700 dark:text-blue-300">
+                            Your PTS-2 Extension application is currently progressing through the academic evaluation chain.
+                        </p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Section 4: Authority Recommendations & Remarks Trail (For Authorities) -->
+            @if($user->isFaculty() || $user->isDeptAuthority() || $user->isGlobalAuthority())
+                @php
+                    $viewerRole = $user->isFaculty() ? 'main_supervisor' : (
+                        $user->isDpgc() ? 'dpgc' : (
+                            $user->isHod() ? 'hod' : (
+                                $user->isSectionOfficer() ? 'section_officer' : (
+                                    $user->isAdoaa() ? 'adoaa' : 'student'
+                                )
+                            )
+                        )
+                    );
+                    $viewerRank = \App\Models\Pts2Extension::getRoleRank($viewerRole);
+                @endphp
+
+                @if($viewerRank>1)
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                        4. Authority Recommendations & Confidential Remarks
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Main Supervisor Evaluation (Rank 1) -->
+                        @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Main Supervisor Remark</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                </div>
+                                @if($extension->main_supervisor_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        "{{ $extension->main_supervisor_confidential_remark }}"
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                        <span class="italic font-normal">Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <!-- DPGC Evaluation (Rank 2) -->
+                        @if($viewerRank >= 2 && $extension->dpgc_recommendation !== null)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">DPGC Remark</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                </div>
+                                @if($extension->dpgc_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        "{{ $extension->dpgc_confidential_remark }}"
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                        <span class="italic font-normal">Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <!-- HOD Evaluation (Rank 3) -->
+                        @if($viewerRank >= 3 && $extension->hod_recommendation !== null)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">HOD Remark</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                </div>
+                                @if($extension->hod_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        "{{ $extension->hod_confidential_remark }}"
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                        <span class="italic font-normal">Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <!-- Section Officer Evaluation (Rank 4) -->
+                        @if($viewerRank >= 4 && $extension->section_officer_recommendation !== null)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Section Officer Verification</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+                                        ✓ Verified &amp; Forwarded
+                                    </span>
+                                </div>
+                                @if($extension->section_officer_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        "{{ $extension->section_officer_confidential_remark }}"
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                        <span class="italic font-normal">Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        <!-- ADoAA Decision (Rank 5) -->
+                        @if($viewerRank >= 5 && $extension->adoaa_recommendation !== null)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">ADoAA Remark</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->adoaa_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $extension->adoaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
+                                    </span>
+                                </div>
+                                @if($extension->adoaa_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        "{{ $extension->adoaa_confidential_remark }}"
+                                    </p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                        <span class="italic font-normal">Remark not provided</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+            @endif
+        </div>
+    </div>
+</x-app-layout>

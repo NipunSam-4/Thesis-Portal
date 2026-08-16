@@ -21,7 +21,8 @@ class StudentDashboardController extends Controller
             'pspcMembers',
             'theses.draftSynopsisCirculation',
             'theses.pts1Form',
-            'theses.pts2Form'
+            'theses.pts2Form',
+            'theses.pts2Extension'
         ])->firstOrFail();
 
         $activeThesis = $student->theses->firstWhere('status', 'in_progress');
@@ -29,6 +30,7 @@ class StudentDashboardController extends Controller
         $draftSynopsis = $activeThesis ? $activeThesis->draftSynopsisCirculation : null;
         $pts1Form = $activeThesis ? $activeThesis->pts1Form : null;
         $pts2Form = $activeThesis ? $activeThesis->pts2Form : null;
+        $pts2Extension = $activeThesis ? $activeThesis->pts2Extension : null;
 
         // PTS-2 is unlocked when PTS-1 is approved (status === 'accepted')
         $pts1Approved = $pts1Form && $pts1Form->status === 'accepted';
@@ -41,6 +43,6 @@ class StudentDashboardController extends Controller
             $rejectedForms = $rejectedPts1->concat($rejectedPts2)->sortByDesc('created_at');
         }
 
-        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'draftSynopsis', 'pts1Form', 'pts2Form', 'pts1Approved', 'rejectedForms'));
+        return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'draftSynopsis', 'pts1Form', 'pts2Form', 'pts2Extension', 'pts1Approved', 'rejectedForms'));
     }
 }

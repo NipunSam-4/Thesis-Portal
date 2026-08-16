@@ -262,6 +262,54 @@
                                                         </div>
                                                     @endif
                                                 @endif
+
+                                                @if($thesis->pts2Extension)
+                                                    @php
+                                                        $extRole = $user->isDpgc() ? 'dpgc' : 'hod';
+                                                        $extViewerRank = \App\Models\Pts2Extension::getRoleRank($extRole);
+                                                        $extStageRank = \App\Models\Pts2Extension::getRoleRank($thesis->pts2Extension->current_stage);
+                                                    @endphp
+                                                    <div class="mt-3 p-2.5 rounded-lg border text-xs space-y-2 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800">
+                                                        <div class="flex justify-between items-center font-bold text-purple-900 dark:text-purple-200">
+                                                            <span>📅 PTS-2 Extension Requested</span>
+                                                            <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 rounded font-extrabold uppercase">
+                                                                {{ str_replace('_', ' ', $thesis->pts2Extension->status) }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="text-[11px] text-purple-800 dark:text-purple-300">
+                                                            Requested Until: <strong>{{ $thesis->pts2Extension->extended_until_date?->format('d-M-Y') }}</strong>
+                                                        </div>
+
+                                                        @if($thesis->pts2Extension->status === 'in_progress')
+                                                            <div class="text-[11px] font-semibold text-purple-800 dark:text-purple-300">
+                                                                ⏳ Current Stage: {{ ucwords(str_replace('_', ' ', $thesis->pts2Extension->current_stage)) }}
+                                                            </div>
+                                                        @endif
+
+                                                        @if(($user->isDpgc() && $thesis->pts2Extension->current_stage === 'dpgc' && $thesis->pts2Extension->status === 'in_progress') || ($user->isHod() && $thesis->pts2Extension->current_stage === 'hod' && $thesis->pts2Extension->status === 'in_progress'))
+                                                            <div class="pt-1">
+                                                                <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-2 Extension &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @elseif(in_array($thesis->pts2Extension->status, ['accepted', 'rejected', 'reverted']))
+                                                            @if($thesis->pts2Extension->status !== 'reverted' || $thesis->pts2Extension->canUserViewRevertedForm($user))
+                                                                <div class="pt-1">
+                                                                    <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
+                                                                       class="block w-full text-center px-3 py-1.5 {{ $thesis->pts2Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
+                                                                        {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : 'View Extension Details' }} &rarr;
+                                                                    </a>
+                                                                </div>
+                                                            @endif
+                                                        @elseif($extViewerRank < $extStageRank)
+                                                            <div class="pt-1">
+                                                                <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold text-xs rounded-lg transition">
+                                                                    View Extension Details &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

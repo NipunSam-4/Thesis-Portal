@@ -49,6 +49,16 @@ class Thesis extends Model
         return $this->hasMany(Pts2Form::class);
     }
 
+    public function pts2Extension(): HasOne
+    {
+        return $this->hasOne(Pts2Extension::class)->latestOfMany();
+    }
+
+    public function pts2Extensions(): HasMany
+    {
+        return $this->hasMany(Pts2Extension::class);
+    }
+
     /**
      * Accessor to get human-readable formatted status (e.g. 'in_progress' -> 'In Progress').
      */
