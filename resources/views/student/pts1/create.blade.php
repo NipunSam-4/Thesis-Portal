@@ -198,7 +198,7 @@
                         <!-- If No: Special Approval Question -->
                         <div x-show="timeNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
                             <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                                Have you taken special approval for minimum time relaxation? <span class="text-red-500">*</span>
+                                Have you taken special approval for the same? <span class="text-red-500">*</span>
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
@@ -214,7 +214,7 @@
                             <div x-show="timeApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
                                     <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload Special Minimum Time Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                        Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span>
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
@@ -279,7 +279,7 @@
                         <!-- If No: Special Approval Question -->
                         <div x-show="pubNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
                             <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                                Have you taken special approval for publication norm relaxation? <span class="text-red-500">*</span>
+                                Have you taken special approval for the same? <span class="text-red-500">*</span>
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
@@ -295,7 +295,7 @@
                             <div x-show="pubApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1">
                                     <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload Special Publication Approval Copy (Max 2 MB) <span class="text-red-500">*</span>
+                                        Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span>
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>

@@ -414,26 +414,29 @@
                                                             </p>
                                                         @endif
                                                     </div>
+                                                    <div class="pt-1">
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            ⚠️ Resubmit PTS-2 Extension &rarr;
+                                                        </a>
+                                                    </div>
                                                 @elseif($pts2Extension->status === 'rejected')
                                                     <div class="text-[11px] flex justify-between items-center pt-1">
                                                         <span>Application Rejected</span>
                                                         <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700">View Rejected Form &rarr;</a>
                                                     </div>
                                                 @endif
-
-                                                <!-- Apply for Extension Button -->
-                                                @if($pts1Approved)
-                                                    @if(!$pts2Extension || $pts2Extension->status === 'accepted' || $pts2Extension->status === 'rejected')
-                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold text-xs rounded-lg transition border border-gray-300 dark:border-gray-600">
-                                                            📅 Apply for PTS-2 Extension &rarr;
-                                                        </a>
-                                                    @elseif($pts2Extension->status === 'reverted')
-                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                            ⚠️ Resubmit PTS-2 Extension &rarr;
-                                                        </a>
-                                                    @endif
-                                                @endif
                                             </div>
+                                        @endif
+
+                                        <!-- Apply for Extension Button (shown when PTS-1 is approved and no pending in_progress extension) -->
+                                        @if($pts1Approved && (!$pts2Form || $pts2Form->status !== 'accepted'))
+                                            @if(!$pts2Extension || $pts2Extension->status === 'accepted' || $pts2Extension->status === 'rejected')
+                                                <div class="my-2">
+                                                    <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold text-xs rounded-lg transition border border-gray-300 dark:border-gray-600">
+                                                        📅 Apply for PTS-2 Extension &rarr;
+                                                    </a>
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
 
