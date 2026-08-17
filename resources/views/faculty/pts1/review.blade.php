@@ -537,7 +537,7 @@
                                         (a) ADEQUATE for Thesis Submission
                                     </span>
                                     <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
-                                        <strong>ADEQUATE</strong> for the submission of the PhD Synopsis and Thesis to be submitted within maximum <strong>ONE month</strong> from the date of <strong>OPEN SEMINAR</strong>, incorporating the suggestions (if any) made in additional comments, in consultation with the PhD Supervisor.
+                                        <strong>ADEQUATE</strong> for the submission of the PhD Synopsis within maximum <strong>15 days</strong> and Thesis to be submitted within maximum <strong>ONE month</strong> from the date of <strong>OPEN SEMINAR</strong>, incorporating the suggestions (if any) made in additional comments, in consultation with the PhD Supervisor.
                                     </p>
                                 </div>
                             </label>
@@ -566,16 +566,16 @@
                         <textarea name="main_supervisor_confidential_remark" 
                                   rows="3" 
                                   :required="workStatus === 'inadequate'" 
-                                  :placeholder="workStatus === 'adequate' ? 'Optional recommendation remarks for next stage...' : 'Provide mandatory non-recommendation remarks...'" 
+                                  :placeholder="workStatus === 'adequate' ? 'Optional confidential remarks' : 'Provide mandatory confidential remark'" 
                                   class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_confidential_remark', $pts1->main_supervisor_confidential_remark) }}</textarea>
                     </div>
 
                     <!-- Item 3: PSPC Comments Textarea -->
                     <div class="space-y-2 pt-2">
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
-                            3. Additional comments / observations / recommendations of the PSPC <span class="text-red-500">*</span>
+                            3. Additional comments / observations / recommendations of the PSPC (for the Student)<span class="text-red-500">*</span>
                         </label>
-                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed PSPC comments, observations, and recommendations..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment', $pts1->main_supervisor_student_comment) }}</textarea>
+                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment', $pts1->main_supervisor_student_comment) }}</textarea>
                     </div>
                 </div>
 
@@ -673,7 +673,9 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     @php
-        $existingPubListUrl = $pts1->publication_list_doc_path ? route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) : null;
+        $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
+            ? route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) 
+            : ($pts1->publication_list_doc_path ? route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) : null);
     @endphp
 
     <script>
