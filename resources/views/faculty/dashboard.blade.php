@@ -302,7 +302,7 @@
                                                 @if($thesis->pts1Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                                         <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
-                                                        <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
+                                                        <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
 
                                                     <!-- Main Supervisor Review Action for PTS-1 -->
@@ -348,7 +348,7 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
+                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
                                                     </div>
 
                                                     <!-- Main Supervisor Review Action for PTS-2 -->
@@ -375,7 +375,7 @@
 
                                                         @if($thesis->pts2Extension->status === 'in_progress')
                                                             <div class="text-[11px] font-semibold text-purple-800 dark:text-purple-300">
-                                                                ⏳ Current Stage: {{ ucwords(str_replace('_', ' ', $thesis->pts2Extension->current_stage)) }}
+                                                                ⏳ Current Stage: {{ $thesis->pts2Extension->stage_label }}
                                                             </div>
                                                         @endif
 
@@ -542,7 +542,7 @@
                                                 @if($thesis->pts1Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                                         <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong></div>
-                                                        <div class="text-blue-600 dark:text-blue-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
+                                                        <div class="text-blue-600 dark:text-blue-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
 
                                                     <!-- Dedicated Co-Supervisor Review Action for PTS-1 -->
@@ -599,7 +599,7 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
+                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
                                                     </div>
 
                                                     <!-- Dedicated Co-Supervisor Review Action for PTS-2 -->
@@ -766,7 +766,7 @@
                                                 @if($thesis->pts1Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                                         <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong></div>
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts1Form->current_stage) }}</div>
+                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
 
                                                     <!-- Dedicated PSPC Review Action for PTS-1 -->
@@ -823,7 +823,7 @@
 
                                                 @if($thesis->pts2Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ str_replace('_', ' ', $thesis->pts2Form->current_stage) }}</div>
+                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
                                                     </div>
                                                 @endif
                                             </div>

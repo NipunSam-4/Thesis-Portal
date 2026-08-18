@@ -302,4 +302,13 @@ class Pts1Form extends Model
     {
         return $this->main_supervisor_min_time_approval_doc_path;
     }
+
+    /**
+     * Accessor for human-readable stage label mapped from ThesisController.
+     * Usage in Blade: {{ $pts1Form->stage_label }}
+     */
+    public function getStageLabelAttribute(): string
+    {
+        return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
+    }
 }

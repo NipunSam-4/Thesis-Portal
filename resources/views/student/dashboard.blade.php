@@ -314,7 +314,7 @@
                                         @elseif($pts1Form->status === 'in_progress')
                                             <div class="flex items-center justify-between pt-1">
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1">
-                                                    ⏳ Under Review Stage: {{ str_replace('_', ' ', $pts1Form->current_stage) }}
+                                                    ⏳ Under Review Stage: {{ $pts1Form->stage_label }}
                                                 </div>
                                             </div>
                                         @elseif($pts1Form->status === 'accepted')
@@ -395,7 +395,7 @@
 
                                                 @if($pts2Extension->status === 'in_progress')
                                                     <div class="text-[11px] flex justify-between items-center pt-0.5">
-                                                        <span class="font-semibold text-purple-800 dark:text-purple-300">⏳ Stage: {{ ucwords(str_replace('_', ' ', $pts2Extension->current_stage)) }}</span>
+                                                        <span class="font-semibold text-purple-800 dark:text-purple-300">⏳ Stage: {{ $pts2Extension->stage_label }}</span>
                                                         <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-purple-600">View Submitted Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'accepted')
@@ -431,10 +431,19 @@
                                         <!-- Apply for Extension Button (shown when PTS-1 is approved and no pending in_progress extension) -->
                                         @if($pts1Approved && (!$pts2Form || $pts2Form->status !== 'accepted'))
                                             @if(!$pts2Extension || $pts2Extension->status === 'accepted' || $pts2Extension->status === 'rejected')
-                                                <div class="my-2">
-                                                    <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold text-xs rounded-lg transition border border-gray-300 dark:border-gray-600">
-                                                        📅 Apply for PTS-2 Extension &rarr;
-                                                    </a>
+                                                <div class="my-2 space-y-1">
+                                                    @if($activeThesis->canApplyForPts2Extension())
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold text-xs rounded-lg transition border border-gray-300 dark:border-gray-600">
+                                                            📅 Apply for PTS-2 (Synopsis) Extension &rarr;
+                                                        </a>
+                                                        <div class="text-[10px] text-gray-500 dark:text-gray-400 text-center">
+                                                            Extension window open till {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }} (30 days from Open Seminar)
+                                                        </div>
+                                                    @else
+                                                        <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-[10px] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                                                            🔒 Extension application window closed (30 days from Open Seminar elapsed on {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }}).
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @endif
                                         @endif
@@ -445,22 +454,47 @@
                                             <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
                                                 Requires {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Approval
                                             </button>
-                                        @elseif(!$pts2Form)
-                                            <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                Create {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
-                                            </a>
-                                        @elseif($pts2Form->status === 'reverted')
-                                            <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                Resubmit {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
-                                            </a>
-                                        @elseif($pts2Form->status === 'in_progress')
-                                            <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold text-center py-1">
-                                                ⏳ Under Review Stage: {{ str_replace('_', ' ', $pts2Form->current_stage) }}
-                                            </div>
-                                        @elseif($pts2Form->status === 'accepted')
+                                        @elseif($pts2Form && $pts2Form->status === 'accepted')
                                             <div class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold text-center py-1 flex items-center justify-center">
                                                 <span>✓ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form Approved</span>
                                             </div>
+                                        @elseif($pts2Form && $pts2Form->status === 'in_progress')
+                                            <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold text-center py-1">
+                                                ⏳ Under Review Stage: {{ $pts2Form->stage_label }}
+                                            </div>
+                                        @elseif($activeThesis->isPts2SubmissionActive())
+                                            @php
+                                                $pts2Deadline = $activeThesis->getPts2Deadline();
+                                                $hasApprovedExt = $pts2Extension && $pts2Extension->status === 'accepted';
+                                            @endphp
+                                            @if(!$pts2Form)
+                                                <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    Create {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
+                                                </a>
+                                                <div class="text-[10px] text-purple-700 dark:text-purple-300 text-center font-medium">
+                                                    ⏳ Submission Deadline: <strong>{{ $pts2Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '15 days from Open Seminar' }})
+                                                </div>
+                                            @elseif($pts2Form->status === 'reverted')
+                                                <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    Resubmit {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
+                                                </a>
+                                                <div class="text-[10px] text-amber-700 dark:text-amber-300 text-center font-medium">
+                                                    ⏳ Submission Deadline: <strong>{{ $pts2Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '15 days from Open Seminar' }})
+                                                </div>
+                                            @endif
+                                        @else
+                                            @php
+                                                $pts2Deadline = $activeThesis->getPts2Deadline();
+                                            @endphp
+                                            <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                                Submission Deadline Passed ({{ $pts2Deadline?->format('d-M-Y') }})
+                                            </button>
+                                            <p class="text-[11px] text-red-600 dark:text-red-400 text-center leading-tight">
+                                                PTS-2 submission window closed on {{ $pts2Deadline?->format('d-M-Y') }}.
+                                                @if($activeThesis->canApplyForPts2Extension())
+                                                    You may apply for an extension above.
+                                                @endif
+                                            </p>
                                         @endif
                                     </div>
                                 </div>
@@ -538,7 +572,7 @@
                                                             {{ $form->created_at ? $form->created_at->format('d-M-Y H:i') : 'N/A' }}
                                                         </td>
                                                         <td class="px-6 py-4 capitalize font-semibold text-red-600">
-                                                            {{ str_replace('_', ' ', $form->current_stage) }}
+                                                            {{ $form->stage_label }}
                                                         </td>
                                                         <td class="px-6 py-4">
                                                             @if($form instanceof \App\Models\Pts1Form)

@@ -181,4 +181,13 @@ class Pts2Extension extends Model
     {
         return $this->reversion_comment;
     }
+
+    /**
+     * Accessor for human-readable stage label mapped from ThesisController.
+     * Usage in Blade: {{ $pts2Extension->stage_label }}
+     */
+    public function getStageLabelAttribute(): string
+    {
+        return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
+    }
 }

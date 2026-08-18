@@ -184,7 +184,7 @@
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-blue-900 dark:text-blue-200 text-sm">⏳ Application Under Review</span>
                             <span class="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
-                                Stage: {{ ucwords(str_replace('_', ' ', $extension->current_stage)) }}
+                                Stage: {{ $extension->stage_label }}
                             </span>
                         </div>
                         <p class="text-xs text-blue-700 dark:text-blue-300">

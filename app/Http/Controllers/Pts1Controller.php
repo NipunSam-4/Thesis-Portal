@@ -73,6 +73,7 @@ class Pts1Controller extends Controller
             'work_status' => 'required|in:adequate,inadequate',
             'main_supervisor_student_comment' => 'required|string',
             'main_supervisor_confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string' : 'nullable|string',
+            'pspc_undertaking' => 'required|accepted',
         ]);
 
         // Optional File Replacements by Main Supervisor

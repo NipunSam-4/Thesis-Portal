@@ -319,11 +319,13 @@
                                        name="approved_extended_until_date" 
                                        :required="recommendation === '1'" 
                                        :disabled="recommendation !== '1'"
+                                       min="{{ isset($minExtensionDate) && $minExtensionDate ? $minExtensionDate->format('Y-m-d') : '' }}"
+                                       max="{{ isset($maxExtensionDate) && $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
                                        x-model="approvedExtendedUntilDate"
                                        value="{{ old('approved_extended_until_date', $extension->extended_until_date ? $extension->extended_until_date->format('Y-m-d') : '') }}" 
                                        class="w-full md:w-1/2 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500">
                                 <p class="text-xs text-purple-700 dark:text-purple-300">
-                                    Defaults to student's requested extension date ({{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}). You may adjust this date if needed.
+                                    Must be between 16 days ({{ isset($minExtensionDate) && $minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A' }}) and 30 days ({{ isset($maxExtensionDate) && $maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A' }}) from Open Seminar. Defaults to student's requested date ({{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}).
                                 </p>
                             </div>
 

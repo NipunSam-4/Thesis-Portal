@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ $isReverted ? __('Resubmit PTS-2 Extension Application') : __('Apply for PTS-2 Extension') }}
+                {{ $isReverted ? __('Resubmit PTS-2 Extension Application') : __('Apply for PTS-2(Synopsis) Extension') }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -92,6 +92,19 @@
                     </h3>
 
                     <div class="space-y-4">
+                        @if(isset($seminarDate) && $seminarDate)
+                            <div class="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl flex items-center justify-between text-xs">
+                                <div>
+                                    <span class="font-bold text-purple-900 dark:text-purple-200">Open Seminar Date:</span>
+                                    <span class="text-purple-700 dark:text-purple-300 font-semibold">{{ $seminarDate->format('d-M-Y') }}</span>
+                                </div>
+                                <div class="text-purple-800 dark:text-purple-300">
+                                    <span class="font-bold">Permitted Range:</span>
+                                    <span>{{ $minExtensionDate?->format('d-M-Y') }} &mdash; {{ $maxExtensionDate?->format('d-M-Y') }} (16 to 30 days)</span>
+                                </div>
+                            </div>
+                        @endif
+
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                 Extended Date Required <span class="text-red-500">*</span>
@@ -99,9 +112,10 @@
                             <input type="date" 
                                    name="extended_until_date" 
                                    required 
-                                   min="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
+                                   min="{{ $minExtensionDate ? $minExtensionDate->format('Y-m-d') : \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
+                                   max="{{ $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
                                    x-model="extendedUntilDate"
-                                   value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : '') }}" 
+                                   value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : '')) }}" 
                                    class="w-full md:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Select the extended deadline date till which you are requesting extension for PTS-2 form submission.

@@ -516,10 +516,10 @@
                     </div>
                 </div>
 
-                <!-- Section 6: Work Status Evaluation & PSPC Discussion Comments -->
+                <!-- Section 5: Work Status Evaluation & PSPC Discussion Comments -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 border-b border-indigo-100 dark:border-indigo-900/50 pb-2 flex items-center">
-                        6. Main Supervisor & PSPC Evaluation
+                        5. Main Supervisor & PSPC Evaluation
                     </h3>
 
                     <!-- Item 1: Work Status Radio Cards -->
@@ -579,6 +579,33 @@
                     </div>
                 </div>
 
+                <!-- Section 6: Declaration -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 border-b border-indigo-100 dark:border-indigo-900/50 pb-2 flex items-center">
+                        6. Declaration
+                    </h3>
+
+                    <label class="p-4 rounded-xl border-2 transition-all flex items-start space-x-3 cursor-pointer"
+                           :class="pspcUndertaking ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30' : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-950/20 hover:border-indigo-400'">
+                        <input type="checkbox" 
+                               name="pspc_undertaking" 
+                               value="1" 
+                               x-model="pspcUndertaking" 
+                               required
+                               class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-5 h-5 cursor-pointer">
+                        <div class="space-y-1">
+                            <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                                I hereby confirm and declare that all the above details, evaluation remarks, and recommendations have been discussed with the PSPC members and are correct.
+                            </p>
+                        </div>
+                    </label>
+
+                    <div x-show="!pspcUndertaking" class="text-xs text-amber-600 dark:text-amber-400 flex items-center font-medium pl-1">
+                        <svg class="w-4 h-4 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Please confirm the undertaking checkbox above to enable submission.</span>
+                    </div>
+                </div>
+
                 <!-- Submit & Revert Action Buttons Bar -->
                 <div class="flex items-center justify-end space-x-4 pt-4">
                     <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
@@ -594,7 +621,7 @@
                     <!-- Main Submit Button (Forwards to Next Stage) -->
                     <button type="submit" 
                             :disabled="isBlocked" 
-                            :class="isBlocked ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-emerald-600 hover:bg-emerald-700'" 
+                            :class="isBlocked ? 'opacity-50 cursor-not-allowed bg-gray-400 dark:bg-gray-600' : 'bg-emerald-600 hover:bg-emerald-700'" 
                             class="text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -689,6 +716,7 @@
 
             return {
                 showRevertModal: false,
+                pspcUndertaking: false,
                 workStatus: @js(old('work_status')) || savedDraft.workStatus || @js($pts1->work_status ?? 'adequate'),
                 pubNorm: @js(old('publication_norm_fulfillment')) || savedDraft.pubNorm || @js($pts1->publication_norm_fulfillment ? '1' : '0'),
                 pubApproval: @js(old('special_approval_publication')) || savedDraft.pubApproval || @js($pts1->special_approval_publication ? '1' : '0'),
@@ -745,6 +773,7 @@
                 },
 
                 get isBlocked() {
+                    if (!this.pspcUndertaking) return true;
                     if (this.pubNorm === '0' && this.pubApproval === '0') return true;
                     if (this.timeNorm === '0' && this.timeApproval === '0') return true;
                     if (this.fileErrors.synopsis || this.fileErrors.pubList || this.fileErrors.pubApp || this.fileErrors.timeApp) return true;

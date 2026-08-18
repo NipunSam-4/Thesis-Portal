@@ -30,6 +30,17 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have an active thesis registered to apply for PTS-2 extension.');
         }
 
+        // Must have an APPROVED PTS-1 Form (status === 'accepted')
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+            return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
+        }
+
+        // Extension application is allowed up to 30 days after open seminar
+        if (!$thesis->canApplyForPts2Extension()) {
+            $maxExtDate = $thesis->getMaxExtensionDate();
+            return redirect()->route('student.dashboard')->with('warning', 'The window to apply for PTS-2 extension has expired (maximum 30 days from Open Seminar passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
+        }
+
         $existingExtension = Pts2Extension::where('thesis_id', $thesis->id)->latest()->first();
 
         if ($existingExtension && $existingExtension->status === 'in_progress') {
@@ -39,7 +50,11 @@ class Pts2ExtensionController extends Controller
         $isReverted = $existingExtension && $existingExtension->status === 'reverted';
         $pts2Extension = $isReverted ? $existingExtension : null;
 
-        return view('student.pts2_extension.create', compact('user', 'student', 'thesis', 'pts2Extension', 'isReverted'));
+        $seminarDate = $thesis->getOpenSeminarDate();
+        $minExtensionDate = $thesis->getMinExtensionDate();
+        $maxExtensionDate = $thesis->getMaxExtensionDate();
+
+        return view('student.pts2_extension.create', compact('user', 'student', 'thesis', 'pts2Extension', 'isReverted', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
     }
 
     /**
@@ -59,9 +74,28 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Active thesis not found.');
         }
 
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+            return redirect()->route('student.dashboard')->with('error', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
+        }
+
+        if (!$thesis->canApplyForPts2Extension()) {
+            return redirect()->route('student.dashboard')->with('error', 'The window to apply for PTS-2 extension has expired (maximum 30 days from Open Seminar).');
+        }
+
+        $minExtensionDate = $thesis->getMinExtensionDate();
+        $maxExtensionDate = $thesis->getMaxExtensionDate();
+
         $request->validate([
             'reason_for_extension' => 'required|string|max:5000',
-            'extended_until_date' => 'required|date|after:today',
+            'extended_until_date' => [
+                'required',
+                'date',
+                'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
+                'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+30 days'),
+            ],
+        ], [
+            'extended_until_date.after_or_equal' => 'Extension date must be at least 15 days from Open Seminar (' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . ').',
+            'extended_until_date.before_or_equal' => 'Extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
         ]);
 
         $existingExtension = Pts2Extension::where('thesis_id', $thesis->id)->latest()->first();
@@ -117,7 +151,11 @@ class Pts2ExtensionController extends Controller
             abort(403, 'You are not authorized to evaluate this extension request.');
         }
 
-        return view('pts2_extension.review', compact('extension', 'user', 'userRole'));
+        $seminarDate = $extension->thesis?->getOpenSeminarDate();
+        $minExtensionDate = $extension->thesis?->getMinExtensionDate();
+        $maxExtensionDate = $extension->thesis?->getMaxExtensionDate();
+
+        return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
     }
 
     /**
@@ -155,17 +193,33 @@ class Pts2ExtensionController extends Controller
         }
 
         // 2. Handle Recommendation / Approval Form
+        $minExtensionDate = $extension->thesis?->getMinExtensionDate();
+        $maxExtensionDate = $extension->thesis?->getMaxExtensionDate();
+
         if ($userRole === 'section_officer') {
             $request->validate([
                 'confidential_remark' => 'required|string|max:3000',
             ]);
             $isRecommended = true;
         } else {
+            $approvedDateRules = ['nullable', 'date'];
+            if ($userRole === 'adoaa' && $request->recommendation == '1') {
+                $approvedDateRules = [
+                    'required',
+                    'date',
+                    'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
+                    'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+30 days'),
+                ];
+            }
+
             $request->validate([
                 'recommendation' => 'required|in:1,0',
                 'confidential_remark' => $request->recommendation === '0' ? 'required|string|max:3000' : 'nullable|string|max:3000',
                 'adoaa_student_comment' => $userRole === 'adoaa' ? 'required|string|max:3000' : 'nullable|string|max:3000',
-                'approved_extended_until_date' => $userRole === 'adoaa' && $request->recommendation == '1' ? 'required|date' : 'nullable|date',
+                'approved_extended_until_date' => $approvedDateRules,
+            ], [
+                'approved_extended_until_date.after_or_equal' => 'Approved extension date must be at least 15 days from Open Seminar (' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . ').',
+                'approved_extended_until_date.before_or_equal' => 'Approved extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
             ]);
             $isRecommended = $request->recommendation == '1';
         }

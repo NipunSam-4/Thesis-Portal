@@ -25,6 +25,54 @@
         </div>
     </x-slot>
 
+    <!-- Custom CSS for Live Excel Table Previews -->
+    <style>
+        .sheet-table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.825rem;
+            margin-top: 0.5rem;
+        }
+        .sheet-table-container th, .sheet-table-container td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        .sheet-table-container tr:first-child {
+            background-color: #f3f4f6;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .sheet-table-container tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .sheet-table-container th,
+            .sheet-table-container td {
+                border-color: #374151;
+                color: #d1d5db;
+            }
+
+            .sheet-table-container tr:first-child,
+            .sheet-table-container tr:first-child td,
+            .sheet-table-container tr:first-child th {
+                background-color: #374151 !important;
+                color: #ffffff !important;
+                font-weight: 700;
+            }
+
+            .sheet-table-container tr:not(:first-child) {
+                background-color: transparent !important;
+            }
+            .sheet-table-container tr:not(:first-child) td,
+            .sheet-table-container tr:not(:first-child) th {
+                background-color: transparent !important;
+                color: #d1d5db !important;
+            }
+        }
+    </style>
+
     <div class="py-8">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
@@ -249,6 +297,23 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- Live SheetJS Excel Preview Container (Renders ALL sheets) -->
+                <div id="excelPreviewContainer" class="mt-6 hidden space-y-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-md font-bold text-indigo-900 dark:text-indigo-300 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span id="excelPreviewTitle">Publication and Other Recognition Preview</span>
+                        </h4>
+                        <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-3 py-1 rounded-full" id="excelSheetCount"></span>
+                    </div>
+
+                    <!-- Sheet Tabs Navigation Bar -->
+                    <div id="sheetTabsBar" class="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-2"></div>
+
+                    <!-- All Sheet Content Containers -->
+                    <div id="sheetsOutput" class="space-y-8"></div>
+                </div>
             </div>
 
             <!-- Section 6: Authority Comments -->
@@ -358,4 +423,82 @@
             </div>
         </div>
     </div>
+
+    <!-- Load SheetJS for Client-Side Multi-Sheet Excel Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    @php
+        $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
+            ? route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) 
+            : ($pts1->publication_list_doc_path ? route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) : null);
+    @endphp
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pubListUrl = @json($existingPubListUrl);
+            if (!pubListUrl) return;
+
+            fetch(pubListUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load publication list');
+                    return res.arrayBuffer();
+                })
+                .then(ab => {
+                    const data = new Uint8Array(ab);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                    renderWorkbook(workbook, 'Publication and Other Recognition Preview');
+                })
+                .catch(err => {
+                    console.error('Error previewing publication list:', err);
+                });
+
+            function renderWorkbook(workbook, titlePrefix = 'Publication and Other Recognition Preview') {
+                const container = document.getElementById('excelPreviewContainer');
+                const sheetsOutput = document.getElementById('sheetsOutput');
+                const sheetTabsBar = document.getElementById('sheetTabsBar');
+                const sheetCountSpan = document.getElementById('excelSheetCount');
+                const titleSpan = document.getElementById('excelPreviewTitle');
+
+                if (!container || !sheetsOutput) return;
+
+                sheetsOutput.innerHTML = '';
+                sheetTabsBar.innerHTML = '';
+                container.classList.remove('hidden');
+
+                if (titleSpan) titleSpan.innerText = titlePrefix;
+
+                const sheetNames = workbook.SheetNames;
+                if (sheetCountSpan) sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
+
+                sheetNames.forEach((sheetName, index) => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    if (!worksheet) return;
+
+                    const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
+
+                    const tabBtn = document.createElement('a');
+                    tabBtn.href = `#sheet-block-${index}`;
+                    tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
+                    tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
+                    sheetTabsBar.appendChild(tabBtn);
+
+                    const sheetBlock = document.createElement('div');
+                    sheetBlock.id = `sheet-block-${index}`;
+                    sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
+                    sheetBlock.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+                            <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
+                                Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
+                            </h5>
+                        </div>
+                        <div class="overflow-x-auto sheet-table-container">
+                            ${htmlString}
+                        </div>
+                    `;
+                    sheetsOutput.appendChild(sheetBlock);
+                });
+            }
+        });
+    </script>
 </x-app-layout>

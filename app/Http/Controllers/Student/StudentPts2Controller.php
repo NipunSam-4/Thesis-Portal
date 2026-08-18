@@ -30,6 +30,12 @@ class StudentPts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'PTS-2 Synopsis Form is locked until your PTS-1 Form is fully approved by DOAA.');
         }
 
+        // Must be within the 15-day Open Seminar deadline (or approved extension deadline)
+        if (!$thesis->isPts2SubmissionActive()) {
+            $deadline = $thesis->getPts2Deadline();
+            return redirect()->route('student.dashboard')->with('warning', 'The PTS-2 submission deadline passed on ' . ($deadline ? $deadline->format('d-M-Y') : 'the deadline') . '. Please apply for a PTS-2 extension if eligible.');
+        }
+
         $pts2 = $thesis->pts2Form;
 
         return view('student.pts2.create', compact('student', 'thesis', 'pts2'));
@@ -44,10 +50,16 @@ class StudentPts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->firstOrFail();
+        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form', 'pts2Extension'])->firstOrFail();
 
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
             return redirect()->route('student.dashboard')->with('error', 'Unauthorized: PTS-1 is not approved.');
+        }
+
+        // Must be within the 15-day Open Seminar deadline (or approved extension deadline)
+        if (!$thesis->isPts2SubmissionActive()) {
+            $deadline = $thesis->getPts2Deadline();
+            return redirect()->route('student.dashboard')->with('error', 'Cannot submit PTS-2: the submission deadline passed on ' . ($deadline ? $deadline->format('d-M-Y') : 'N/A') . '.');
         }
 
         $pts2 = $thesis->pts2Form;

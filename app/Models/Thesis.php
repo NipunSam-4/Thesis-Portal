@@ -87,11 +87,96 @@ class Thesis extends Model
     public function getActiveStageLabelAttribute(): string
     {
         if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
-            return $this->pts1Form ? ucwords(str_replace('_', ' ', $this->pts1Form->current_stage)) : 'PTS-1 Not Submitted';
+            return $this->pts1Form ? $this->pts1Form->stage_label : 'PTS-1 Not Submitted';
         }
         if (!$this->pts2Form || $this->pts2Form->status !== 'accepted') {
-            return $this->pts2Form ? ucwords(str_replace('_', ' ', $this->pts2Form->current_stage)) : 'PTS-2 Not Submitted';
+            return $this->pts2Form ? $this->pts2Form->stage_label : 'PTS-2 Not Submitted';
         }
         return 'Thesis Workflow Completed';
+    }
+
+    /**
+     * Get Open Seminar date from PTS-1 form.
+     */
+    public function getOpenSeminarDate(): ?\Carbon\Carbon
+    {
+        return $this->pts1Form?->seminar_date ? \Carbon\Carbon::parse($this->pts1Form->seminar_date)->startOfDay() : null;
+    }
+
+    /**
+     * Min extension date: 16 days from open seminar date.
+     */
+    public function getMinExtensionDate(): ?\Carbon\Carbon
+    {
+        $seminarDate = $this->getOpenSeminarDate();
+        return $seminarDate ? $seminarDate->copy()->addDays(16)->startOfDay() : null;
+    }
+
+    /**
+     * Max extension date: 30 days from open seminar date.
+     */
+    public function getMaxExtensionDate(): ?\Carbon\Carbon
+    {
+        $seminarDate = $this->getOpenSeminarDate();
+        return $seminarDate ? $seminarDate->copy()->addDays(30)->startOfDay() : null;
+    }
+
+    /**
+     * Check if student can apply for PTS-2 extension (active up to 30 days after open seminar).
+     */
+    public function canApplyForPts2Extension(): bool
+    {
+        if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
+            return false;
+        }
+
+        $seminarDate = $this->getOpenSeminarDate();
+        if (!$seminarDate) {
+            return false;
+        }
+
+        $extensionDeadline = $seminarDate->copy()->addDays(30)->endOfDay();
+        return now()->lte($extensionDeadline);
+    }
+
+    /**
+     * Get PTS-2 submission deadline date.
+     * Default: 16 days from open seminar date.
+     * If extension is approved: extended date.
+     */
+    public function getPts2Deadline(): ?\Carbon\Carbon
+    {
+        if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
+            return null;
+        }
+
+        $extension = $this->pts2Extension;
+        if ($extension && $extension->status === 'accepted') {
+            $extendedDate = $extension->approved_extended_until_date ?? $extension->extended_until_date;
+            if ($extendedDate) {
+                return \Carbon\Carbon::parse($extendedDate)->endOfDay();
+            }
+        }
+
+        $seminarDate = $this->getOpenSeminarDate();
+        return $seminarDate ? $seminarDate->copy()->addDays(16)->endOfDay() : null;
+    }
+
+    /**
+     * Check if PTS-2 form button/submission is active.
+     * Active till 16 days from open seminar unless extension is approved (then active till extended date).
+     */
+    public function isPts2SubmissionActive(): bool
+    {
+        if (!$this->pts1Form || $this->pts1Form->status !== 'accepted') {
+            return false;
+        }
+
+        $deadline = $this->getPts2Deadline();
+        if (!$deadline) {
+            return false;
+        }
+
+        return now()->lte($deadline);
     }
 }
