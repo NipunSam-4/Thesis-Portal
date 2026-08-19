@@ -45,9 +45,23 @@ class Pts2Controller extends Controller
     public function endorse(Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
-        $comment = $request->input('comment') ?: 'N/A';
+        $comment = $request->input('comment') ?: '';
 
         switch ($pts2->current_stage) {
+            case 'main_supervisor':
+                if ($user->id !== $pts2->thesis->student->main_supervisor_id && $user->id !== $pts2->thesis->main_supervisor_id) {
+                    return back()->with('error', 'Unauthorized access.');
+                }
+
+                $nextStage = ($pts2->co_supervisor_1_id ? 'co_supervisors' : 'dpgc');
+                $pts2->update([
+                    'main_supervisor_recommendation' => true,
+                    'main_supervisor_confidential_remark' => $comment,
+                    'main_supervisor_submitted_at' => now(),
+                    'current_stage' => $nextStage,
+                ]);
+                break;
+
             case 'co_supervisors':
                 $roleKey = null;
                 if ($pts2->co_supervisor_1_id === $user->id) $roleKey = 1;
@@ -59,8 +73,9 @@ class Pts2Controller extends Controller
                 }
 
                 $pts2->update([
-                    "co_supervisor_{$roleKey}_endorsement" => true,
-                    "co_supervisor_{$roleKey}_comment" => $comment,
+                    "co_supervisor_{$roleKey}_recommendation" => true,
+                    "co_supervisor_{$roleKey}_confidential_remark" => $comment,
+                    "co_supervisor_{$roleKey}_submitted_at" => now(),
                 ]);
 
                 $co1Done = !$pts2->co_supervisor_1_id || $pts2->co_supervisor_1_recommendation;
@@ -68,39 +83,45 @@ class Pts2Controller extends Controller
                 $co3Done = !$pts2->co_supervisor_3_id || $pts2->co_supervisor_3_recommendation;
 
                 if ($co1Done && $co2Done && $co3Done) {
-                    $pts2->update(['current_stage' => 'dpgc']);
+                    $pts2->update([
+                        'co_supervisors_submitted_at' => now(),
+                        'current_stage' => 'dpgc'
+                    ]);
                 }
                 break;
 
             case 'dpgc':
-                if ($user->role !== 'dpgc') {
+                if (!$user->isDpgc() && $user->role !== 'dpgc') {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
                     'dpgc_recommendation' => true,
                     'dpgc_confidential_remark' => $comment,
+                    'dpgc_submitted_at' => now(),
                     'current_stage' => 'hod',
                 ]);
                 break;
 
             case 'hod':
-                if ($user->role !== 'hod') {
+                if (!$user->isHod() && $user->role !== 'hod') {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
                     'hod_recommendation' => true,
                     'hod_confidential_remark' => $comment,
+                    'hod_submitted_at' => now(),
                     'current_stage' => 'section_officer',
                 ]);
                 break;
 
             case 'section_officer':
-                if ($user->role !== 'section_officer') {
+                if (!$user->isSectionOfficer() && $user->role !== 'section_officer') {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts2->update([
-                    'section_officer_recommendation' => true,
-                    'section_officer_confidential_remark' => $comment,
+                    'academic_office_recommendation' => true,
+                    'academic_office_confidential_remark' => $comment,
+                    'academic_office_submitted_at' => now(),
                     'current_stage' => 'doaa',
                 ]);
                 break;
@@ -112,6 +133,8 @@ class Pts2Controller extends Controller
                 $pts2->update([
                     'doaa_approval' => true,
                     'doaa_confidential_remark' => $comment,
+                    'doaa_submitted_at' => now(),
+                    'pts2_submitted_at' => now(),
                     'current_stage' => 'completed',
                     'status' => 'accepted',
                 ]);
@@ -128,64 +151,81 @@ class Pts2Controller extends Controller
         $request->validate(['reversion_comment' => 'required|string']);
         $comment = $request->input('reversion_comment');
 
-        switch ($pts2->current_stage) {
-            case 'co_supervisors':
-                $roleKey = null;
-                if ($pts2->co_supervisor_1_id === $user->id) $roleKey = 'co_supervisor_1';
-                elseif ($pts2->co_supervisor_2_id === $user->id) $roleKey = 'co_supervisor_2';
-                elseif ($pts2->co_supervisor_3_id === $user->id) $roleKey = 'co_supervisor_3';
+        $student = $pts2->thesis?->student;
+        $isMainSup = $student && ($student->isMainSupervisor($user) || $student->mainSupervisors->pluck('id')->contains($user->id));
 
-                if (!$roleKey) {
-                    return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
+        $stage = $pts2->current_stage;
+        $revertedRole = null;
+
+        if ($stage === 'main_supervisor' || $isMainSup) {
+            if (!$isMainSup && !$user->isFaculty()) {
+                return back()->with('error', 'Unauthorized access. Only Main Supervisor can revert at this stage.');
+            }
+            $revertedRole = 'main_supervisor';
+        } elseif ($stage === 'co_supervisors') {
+            for ($i = 1; $i <= 10; $i++) {
+                $col = "co_supervisor_{$i}_id";
+                if ($pts2->$col === $user->id) {
+                    $revertedRole = "co_supervisor_{$i}";
+                    break;
                 }
-
-                $pts2->update([
-                    'reversion_comment' => $comment,
-                    'reverted_by_role' => $roleKey,
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
-
-            case 'dpgc':
-                if ($user->role !== 'dpgc') {
-                    return back()->with('error', 'Unauthorized access.');
+            }
+            if (!$revertedRole && $isMainSup) {
+                $revertedRole = 'main_supervisor';
+            }
+            if (!$revertedRole) {
+                return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
+            }
+        } elseif ($stage === 'pspc_members') {
+            for ($i = 1; $i <= 10; $i++) {
+                $col = "pspc_member_{$i}_id";
+                if ($pts2->$col === $user->id) {
+                    $revertedRole = "pspc_member_{$i}";
+                    break;
                 }
-                $pts2->update([
-                    'reversion_comment' => $comment,
-                    'reverted_by_role' => 'dpgc',
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
-
-            case 'hod':
-                if ($user->role !== 'hod') {
-                    return back()->with('error', 'Unauthorized access.');
-                }
-                $pts2->update([
-                    'reversion_comment' => $comment,
-                    'reverted_by_role' => 'hod',
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
-
-
-
-            case 'doaa':
-                if (!$user->isDoaa() && !$user->isAdoaa() && !$user->isSenateChairperson() && !$user->isArAcademic()) {
-                    return back()->with('error', 'Unauthorized access.');
-                }
-                $pts2->update([
-                    'reversion_comment' => $comment,
-                    'reverted_by_role' => 'doaa',
-                    'status' => 'reverted',
-                    'current_stage' => 'rejected',
-                ]);
-                break;
+            }
+            if (!$revertedRole && $isMainSup) {
+                $revertedRole = 'main_supervisor';
+            }
+            if (!$revertedRole) {
+                return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
+            }
+        } elseif ($stage === 'dpgc') {
+            if (!$user->isDpgc() && !$isMainSup) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+            $revertedRole = $user->isDpgc() ? 'dpgc' : 'main_supervisor';
+        } elseif ($stage === 'hod') {
+            if (!$user->isHod() && !$isMainSup) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+            $revertedRole = $user->isHod() ? 'hod' : 'main_supervisor';
+        } elseif ($stage === 'academic_office' || $stage === 'section_officer') {
+            if (!$user->isSectionOfficer() && !$isMainSup) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+            $revertedRole = $user->isSectionOfficer() ? 'section_officer' : 'main_supervisor';
+        } elseif ($stage === 'doaa') {
+            if (!($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) && !$isMainSup) {
+                return back()->with('error', 'Unauthorized access.');
+            }
+            $revertedRole = $isMainSup ? 'main_supervisor' : 'doaa';
+        } else {
+            if ($isMainSup) {
+                $revertedRole = 'main_supervisor';
+            } else {
+                return back()->with('error', 'Invalid stage for reversion.');
+            }
         }
 
-        return redirect()->route('dashboard')->with('warning', 'PTS-2 form has been reverted to the student for resubmission.');
+        $pts2->update([
+            'reversion_comment' => $comment,
+            'reverted_by_role' => $revertedRole,
+            'status' => 'reverted',
+            'current_stage' => 'reverted',
+        ]);
+
+        $redirectRoute = $user->isFaculty() ? 'faculty.dashboard' : 'dashboard';
+        return redirect()->route($redirectRoute)->with('warning', 'PTS-2 form has been reverted to the student for resubmission.');
     }
 }

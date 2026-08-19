@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="pts2ExtensionForm()">
+    <div class="py-4" x-data="pts2ExtensionForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Error Alerts -->
@@ -23,7 +23,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('student.pts2_extension.store') }}" method="POST" class="space-y-6" @submit="clearDraft()">
+            <form action="{{ route('student.pts2_extension.store') }}" method="POST" class="space-y-2" @submit="clearDraft()">
                 @csrf
 
                 <!-- Reversion Alert Banner (If form was reverted) -->
@@ -91,22 +91,17 @@
                         2. Extension Details
                     </h3>
 
-                    <div class="space-y-4">
-                        @if(isset($seminarDate) && $seminarDate)
-                            <div class="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl flex items-center justify-between text-xs">
-                                <div>
-                                    <span class="font-bold text-purple-900 dark:text-purple-200">Open Seminar Date:</span>
-                                    <span class="text-purple-700 dark:text-purple-300 font-semibold">{{ $seminarDate->format('d-M-Y') }}</span>
-                                </div>
-                                <div class="text-purple-800 dark:text-purple-300">
-                                    <span class="font-bold">Permitted Range:</span>
-                                    <span>{{ $minExtensionDate?->format('d-M-Y') }} &mdash; {{ $maxExtensionDate?->format('d-M-Y') }} (16 to 30 days)</span>
-                                </div>
-                            </div>
-                        @endif
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
+                            <input type="text" 
+                                   value="{{ isset($seminarDate) && $seminarDate ? $seminarDate->format('d-M-Y') : 'N/A' }}" 
+                                   readonly 
+                                   class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed text-sm">
+                        </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">
                                 Extended Date Required <span class="text-red-500">*</span>
                             </label>
                             <input type="date" 
@@ -116,30 +111,35 @@
                                    max="{{ $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
                                    x-model="extendedUntilDate"
                                    value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : '')) }}" 
-                                   class="w-full md:w-1/2 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500">
+                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Select the extended deadline date till which you are requesting extension for PTS-2 form submission.
                             </p>
+                            @if(isset($minExtensionDate) && isset($maxExtensionDate))
+                                <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 font-medium">
+                                    Permitted Range: {{ $minExtensionDate->format('d-M-Y') }} &mdash; {{ $maxExtensionDate->format('d-M-Y') }} (16 to 30 days)
+                                </p>
+                            @endif
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Detailed Reason for Extension <span class="text-red-500">*</span>
-                            </label>
-                            <textarea name="reason_for_extension" 
-                                      rows="5" 
-                                      required 
-                                      x-model="reasonForExtension"
-                                      placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
-                                      class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            Detailed Reason for Extension <span class="text-red-500">*</span>
+                        </label>
+                        <textarea name="reason_for_extension" 
+                                    rows="5" 
+                                    required 
+                                    x-model="reasonForExtension"
+                                    placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
                     </div>
                 </div>
 
                 <!-- Submit Button Container -->
-                <div class="flex justify-end pt-4">
+                <div class="flex justify-center sm:justify-end pt-4">
                     <button type="submit" 
-                            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center space-x-2">
+                            class="w-full sm:w-auto justify-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center space-x-2">
                         <span>{{'Submit for approval' }}</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>

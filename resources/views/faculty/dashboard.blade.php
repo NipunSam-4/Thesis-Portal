@@ -249,11 +249,14 @@
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
-                                                        @if($thesis->draftSynopsisCirculation)
-                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
-                                                        @endif
+                                                        <div class="flex items-center gap-1">
+                                                            <x-submission-timeline-modal :form="$thesis->draftSynopsisCirculation" title="Draft Synopsis Timeline" />
+                                                            @if($thesis->draftSynopsisCirculation)
+                                                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                            @else
+                                                                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
 
                                                     @if($thesis->draftSynopsisCirculation)
@@ -280,23 +283,26 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-1 Card -->
+                                            <!-- PTS-1 / MSRTS-1 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
-                                                    @if($thesis->pts1Form)
-                                                        @if($thesis->pts1Form->status === 'in_progress')
-                                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts1Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts1Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                        @elseif($thesis->pts1Form->status === 'rejected')
-                                                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-1' : 'MSRTS-1' }} (Open Seminar)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts1Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts1Form" :title="($student->isPhd() ? 'PTS-1' : 'MSRTS-1') . ' Submission Timeline'" />
+                                                            @if($thesis->pts1Form->status === 'in_progress')
+                                                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts1Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts1Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts1Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts1Form)
@@ -325,25 +331,30 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-2 Card -->
+                                            <!-- PTS-2 / MSRTS-2 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
-                                                    @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
-                                                    @elseif($thesis->pts2Form)
-                                                        @if($thesis->pts2Form->status === 'in_progress')
-                                                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts2Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts2Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                        @elseif($thesis->pts2Form->status === 'rejected')
-                                                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-2' : 'MSRTS-2' }} (Synopsis Report)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts2Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts2Form" :title="($student->isPhd() ? 'PTS-2' : 'MSRTS-2') . ' Submission Timeline'" />
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
+                                                        @elseif($thesis->pts2Form)
+                                                            @if($thesis->pts2Form->status === 'in_progress')
+                                                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts2Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts2Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts2Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts2Form)
@@ -363,11 +374,14 @@
 
                                                 @if($thesis->pts2Extension)
                                                     <div class="mt-3 p-2.5 rounded-lg border text-xs space-y-2 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800">
-                                                        <div class="flex justify-between items-center font-bold text-purple-900 dark:text-purple-200">
+                                                        <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200">
                                                             <span>📅 PTS-2 Extension Requested</span>
-                                                            <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 rounded font-extrabold uppercase">
-                                                                {{ str_replace('_', ' ', $thesis->pts2Extension->status) }}
-                                                            </span>
+                                                            <div class="flex items-center gap-1">
+                                                                <x-submission-timeline-modal :form="$thesis->pts2Extension" title="PTS-2 Extension Timeline" />
+                                                                <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 rounded font-extrabold uppercase">
+                                                                    {{ str_replace('_', ' ', $thesis->pts2Extension->status) }}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <div class="text-[11px] text-purple-800 dark:text-purple-300">
                                                             Requested Until: <strong>{{ $thesis->pts2Extension->extended_until_date?->format('d-M-Y') }}</strong>
@@ -489,11 +503,14 @@
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
-                                                        @if($thesis->draftSynopsisCirculation)
-                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
-                                                        @endif
+                                                        <div class="flex items-center gap-1">
+                                                            <x-submission-timeline-modal :form="$thesis->draftSynopsisCirculation" title="Draft Synopsis Timeline" />
+                                                            @if($thesis->draftSynopsisCirculation)
+                                                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                            @else
+                                                                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
 
                                                     @if($thesis->draftSynopsisCirculation)
@@ -520,23 +537,26 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-1 Card -->
+                                            <!-- PTS-1 / MSRTS-1 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
-                                                    @if($thesis->pts1Form)
-                                                        @if($thesis->pts1Form->status === 'in_progress')
-                                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts1Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts1Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                        @elseif($thesis->pts1Form->status === 'rejected')
-                                                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-1' : 'MSRTS-1' }} (Open Seminar)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts1Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts1Form" :title="($student->isPhd() ? 'PTS-1' : 'MSRTS-1') . ' Submission Timeline'" />
+                                                            @if($thesis->pts1Form->status === 'in_progress')
+                                                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts1Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts1Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts1Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts1Form)
@@ -578,23 +598,28 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-2 Card -->
+                                            <!-- PTS-2 / MSRTS-2 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
-                                                    @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
-                                                    @elseif($thesis->pts2Form)
-                                                        @if($thesis->pts2Form->status === 'in_progress')
-                                                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts2Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts2Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-2' : 'MSRTS-2' }} (Synopsis Report)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts2Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts2Form" :title="($student->isPhd() ? 'PTS-2' : 'MSRTS-2') . ' Submission Timeline'" />
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
+                                                        @elseif($thesis->pts2Form)
+                                                            @if($thesis->pts2Form->status === 'in_progress')
+                                                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts2Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts2Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts2Form)
@@ -713,11 +738,14 @@
                                                 <div class="space-y-2">
                                                     <div class="flex justify-between items-center">
                                                         <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
-                                                        @if($thesis->draftSynopsisCirculation)
-                                                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
-                                                        @endif
+                                                        <div class="flex items-center gap-1">
+                                                            <x-submission-timeline-modal :form="$thesis->draftSynopsisCirculation" title="Draft Synopsis Timeline" />
+                                                            @if($thesis->draftSynopsisCirculation)
+                                                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                            @else
+                                                                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
 
                                                     @if($thesis->draftSynopsisCirculation)
@@ -744,23 +772,26 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-1 Card -->
+                                            <!-- PTS-1 / MSRTS-1 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
-                                                    @if($thesis->pts1Form)
-                                                        @if($thesis->pts1Form->status === 'in_progress')
-                                                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts1Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts1Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                        @elseif($thesis->pts1Form->status === 'rejected')
-                                                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-1' : 'MSRTS-1' }} (Open Seminar)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts1Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts1Form" :title="($student->isPhd() ? 'PTS-1' : 'MSRTS-1') . ' Submission Timeline'" />
+                                                            @if($thesis->pts1Form->status === 'in_progress')
+                                                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts1Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts1Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts1Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts1Form)
@@ -802,23 +833,28 @@
                                                 @endif
                                             </div>
 
-                                            <!-- PTS-2 Card -->
+                                            <!-- PTS-2 / MSRTS-2 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
-                                                    @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
-                                                    @elseif($thesis->pts2Form)
-                                                        @if($thesis->pts2Form->status === 'in_progress')
-                                                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                        @elseif($thesis->pts2Form->status === 'reverted')
-                                                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
-                                                        @elseif($thesis->pts2Form->status === 'accepted')
-                                                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">{{ $student->isPhd() ? 'PTS-2' : 'MSRTS-2' }} (Synopsis Report)</span>
+                                                    <div class="flex items-center gap-1">
+                                                        @if($thesis->pts2Form)
+                                                            <x-submission-timeline-modal :form="$thesis->pts2Form" :title="($student->isPhd() ? 'PTS-2' : 'MSRTS-2') . ' Submission Timeline'" />
                                                         @endif
-                                                    @else
-                                                        <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                    @endif
+                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
+                                                        @elseif($thesis->pts2Form)
+                                                            @if($thesis->pts2Form->status === 'in_progress')
+                                                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
+                                                            @elseif($thesis->pts2Form->status === 'reverted')
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
+                                                            @elseif($thesis->pts2Form->status === 'accepted')
+                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($thesis->pts2Form)

@@ -27,7 +27,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8">
+    <div class="py-6">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -85,10 +85,19 @@
                     2. Extension Application Details
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @php
+                    $seminarDate = $extension->thesis?->getOpenSeminarDate();
+                @endphp
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
+                        <input type="text" value="{{ $seminarDate ? $seminarDate->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Extended Deadline Requested</label>
-                        <input type="text" value="📅 {{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 rounded-lg border-purple-200 dark:border-purple-800 cursor-not-allowed">
+                        <input type="text" value="📅 {{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 rounded-lg border-purple-200 dark:border-purple-800 cursor-not-allowed font-medium">
                     </div>
 
                     <div>
@@ -145,7 +154,7 @@
 
                         @if($extension->adoaa_student_comment)
                             <div>
-                                <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
                                     <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase">ADoAA Student Comment</label>
                                     <span class="px-2.5 py-0.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full  tracking-wider flex items-center shadow-sm">
                                         ✓ Approved
@@ -164,7 +173,7 @@
                     <div class="p-4 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 rounded-xl space-y-3">
                         @if($extension->adoaa_student_comment)
                             <div>
-                                <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
                                     <label class="block text-xs font-semibold text-red-800 dark:text-red-300 uppercase">ADoAA Student Comment</label>
                                     <span class="px-2.5 py-0.5 text-red-800 dark:text-red-300 text-xs font-bold rounded-full tracking-wider flex items-center shadow-sm">
                                         ❌ Rejected
@@ -181,7 +190,7 @@
                     </div>
                 @else
                     <div class="p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-2">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-2 sm:gap-4">
                             <span class="font-bold text-blue-900 dark:text-blue-200 text-sm">⏳ Application Under Review</span>
                             <span class="text-xs font-bold text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-900 px-3 py-1 rounded-full">
                                 Stage: {{ $extension->stage_label }}
@@ -219,9 +228,9 @@
                         <!-- Main Supervisor Evaluation (Rank 1) -->
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">Main Supervisor Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -241,9 +250,9 @@
                         <!-- DPGC Evaluation (Rank 2) -->
                         @if($viewerRank >= 2 && $extension->dpgc_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">DPGC Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -263,9 +272,9 @@
                         <!-- HOD Evaluation (Rank 3) -->
                         @if($viewerRank >= 3 && $extension->hod_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">HOD Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -285,9 +294,9 @@
                         <!-- Section Officer Evaluation (Rank 4) -->
                         @if($viewerRank >= 4 && $extension->section_officer_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">Section Officer Verification</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
                                 </div>

@@ -235,6 +235,8 @@ class SystemAdminController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'roll_number' => 'required|string|max:50|unique:students',
             'department_id' => 'required|exists:departments,id',
+            'admission_category' => 'nullable|string|max:100',
+            'course_credits_earned' => 'nullable|numeric|min:0',
             'thesis_title' => 'nullable|string|max:255',
             'main_supervisor_id' => 'required|exists:users,id',
             'co_supervisor_ids' => 'nullable|array',
@@ -254,6 +256,8 @@ class SystemAdminController extends Controller
         $student = $user->student()->create([
             'roll_number' => strtoupper($request->roll_number),
             'department_id' => $request->department_id,
+            'admission_category' => $request->admission_category ?? 'TA',
+            'course_credits_earned' => $request->course_credits_earned ?? 0,
         ]);
 
         $thesis = $student->theses()->create([

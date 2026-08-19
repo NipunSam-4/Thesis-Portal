@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="pts2ExtensionReviewForm()">
+    <div class="py-6" x-data="pts2ExtensionReviewForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -88,10 +88,15 @@
                     2. Extension Application Details
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
+                        <input type="text" value="{{ $seminarDate ? $seminarDate->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Extended Deadline Requested</label>
-                        <input type="text" value="📅 {{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 rounded-lg border-purple-200 dark:border-purple-800 cursor-not-allowed">
+                        <input type="text" value="📅 {{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}" readonly class="w-full bg-purple-50 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200 rounded-lg border-purple-200 dark:border-purple-800 cursor-not-allowed font-medium">
                     </div>
 
                     <div>
@@ -121,9 +126,9 @@
                         <!-- Main Supervisor Evaluation (Rank 1) -->
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">Main Supervisor Recommendation</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -143,9 +148,9 @@
                         <!-- DPGC Evaluation (Rank 2) -->
                         @if($viewerRank > 2 && $extension->dpgc_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">DPGC Recommendation</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -165,9 +170,9 @@
                         <!-- HOD Evaluation (Rank 3) -->
                         @if($viewerRank > 3 && $extension->hod_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">HOD Recommendation</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
@@ -187,9 +192,9 @@
                         <!-- Section Officer Evaluation (Rank 4) -->
                         @if($viewerRank > 4 && $extension->section_officer_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-gray-900 dark:text-white">Section Officer Verification</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
                                 </div>
@@ -344,12 +349,12 @@
                     </div>
 
                     <!-- Submit & Revert Action Buttons Bar (Exact PTS-1 Layout) -->
-                    <div class="flex items-center justify-end space-x-4 pt-4">
+                    <div class="flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-3 pt-4">
                         @if($userRole !== 'section_officer')
                             <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
                             <button type="button" 
                                     @click="showRevertModal = true" 
-                                    class="bg-red-600 hover:bg-red-700 text-white text-base font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
+                                    class="w-full sm:w-auto justify-center bg-red-600 hover:bg-red-700 text-white text-base font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                                 </svg>
@@ -362,7 +367,7 @@
                             <button type="submit" 
                                     :disabled="!isVerified" 
                                     :class="!isVerified ? 'bg-gray-400 opacity-50 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg'"
-                                    class="text-white text-base font-bold px-8 py-3 rounded-xl transition flex items-center">
+                                    class="w-full sm:w-auto justify-center text-white text-base font-bold px-8 py-3 rounded-xl transition flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                 </svg>
@@ -370,7 +375,7 @@
                             </button>
                         @else
                             <button type="submit" 
-                                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
+                                    class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                 </svg>

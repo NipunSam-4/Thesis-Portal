@@ -227,13 +227,16 @@
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">Draft Synopsis Circulation</span>
-                                            @if($draftSynopsis)
-                                                <span class="shrink-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Circulated</span>
-                                            @elseif($pts1Approved)
-                                                <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Disabled</span>
-                                            @else
-                                                <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Circulate</span>
-                                            @endif
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <x-submission-timeline-modal :form="$draftSynopsis" title="Draft Synopsis Timeline" />
+                                                @if($draftSynopsis)
+                                                    <span class="shrink-0 bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Circulated</span>
+                                                @elseif($pts1Approved)
+                                                    <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Disabled</span>
+                                                @else
+                                                    <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Circulate</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Circulate draft synopsis report to all academic authorities for early comments before Open Seminar.
@@ -270,17 +273,20 @@
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1: Open Seminar Report</span>
-                                            @if(!$pts1Form)
-                                                <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Submit</span>
-                                            @elseif($pts1Form->status === 'accepted')
-                                                <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                            @elseif($pts1Form->status === 'reverted')
-                                                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                            @elseif($pts1Form->status === 'rejected')
-                                                <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Rejected</span>
-                                            @else
-                                                <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                            @endif
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <x-submission-timeline-modal :form="$pts1Form" title="PTS-1 Submission Timeline" />
+                                                @if(!$pts1Form)
+                                                    <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Submit</span>
+                                                @elseif($pts1Form->status === 'accepted')
+                                                    <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Approved</span>
+                                                @elseif($pts1Form->status === 'reverted')
+                                                    <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Reverted</span>
+                                                @elseif($pts1Form->status === 'rejected')
+                                                    <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Rejected</span>
+                                                @else
+                                                    <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">In Progress</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Submission of open seminar details, institute norms, draft synopsis report, publication and other recognitions list.
@@ -347,17 +353,20 @@
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-start gap-2">
                                             <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2: Synopsis Report Submission</span>
-                                            @if(!$pts1Approved)
-                                                <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
-                                            @elseif(!$pts2Form)
-                                                <span class="shrink-0 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Submit</span>
-                                            @elseif($pts2Form->status === 'accepted')
-                                                <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                            @elseif($pts2Form->status === 'reverted')
-                                                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                            @else
-                                                <span class="shrink-0 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                            @endif
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <x-submission-timeline-modal :form="$pts2Form" title="PTS-2 Submission Timeline" />
+                                                @if(!$pts1Approved)
+                                                    <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
+                                                @elseif(!$pts2Form)
+                                                    <span class="shrink-0 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Ready to Submit</span>
+                                                @elseif($pts2Form->status === 'accepted')
+                                                    <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Approved</span>
+                                                @elseif($pts2Form->status === 'reverted')
+                                                    <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">Reverted</span>
+                                                @else
+                                                    <span class="shrink-0 bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">In Progress</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Submission and sequential endorsement of the {{ $student->isPhd() ? 'PhD' : 'MS(R)' }} Synopsis Report.
@@ -380,17 +389,20 @@
                                             <div class="p-3 rounded-xl border text-xs my-2 space-y-2 {{ $pts2Extension->status === 'accepted' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : ($pts2Extension->status === 'reverted' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200' : ($pts2Extension->status === 'rejected' ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200' : 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200')) }}">
                                                 <div class="flex items-center justify-between font-bold">
                                                     <span>📅 PTS-2 Extension</span>
-                                                    @if($pts2Extension->status !== 'reverted')
-                                                        <span class="text-[10px] px-2.5 py-0.5 rounded-full uppercase font-extrabold tracking-wider {{ $pts2Extension->status === 'accepted' ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300' : ($pts2Extension->status === 'reverted' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300' : ($pts2Extension->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300' : 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300')) }}">
-                                                            @if($pts2Extension->status === 'accepted')
-                                                                ✓ Approved
-                                                            @elseif($pts2Extension->status === 'rejected')
-                                                                ❌ Rejected
-                                                            @else
-                                                                {{ str_replace('_', ' ', $pts2Extension->status) }}
-                                                            @endif
-                                                        </span>
-                                                    @endif
+                                                    <div class="flex items-center gap-1">
+                                                        <x-submission-timeline-modal :form="$pts2Extension" title="PTS-2 Extension Timeline" />
+                                                        @if($pts2Extension->status !== 'reverted')
+                                                            <span class="text-[10px] px-2.5 py-0.5 rounded-full uppercase font-extrabold tracking-wider {{ $pts2Extension->status === 'accepted' ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300' : ($pts2Extension->status === 'reverted' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300' : ($pts2Extension->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300' : 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300')) }}">
+                                                                @if($pts2Extension->status === 'accepted')
+                                                                    ✓ Approved
+                                                                @elseif($pts2Extension->status === 'rejected')
+                                                                    ❌ Rejected
+                                                                @else
+                                                                    {{ str_replace('_', ' ', $pts2Extension->status) }}
+                                                                @endif
+                                                            </span>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 @if($pts2Extension->status === 'in_progress')
@@ -548,39 +560,35 @@
                                         No rejected PTS forms found for this thesis.
                                     </div>
                                 @else
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
+                                    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 min-w-[500px]">
+                                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700/80 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">
                                                 <tr>
-                                                    <th scope="col" class="px-6 py-3">Form Type</th>
-                                                    <th scope="col" class="px-6 py-3">Submitted At</th>
-                                                    <th scope="col" class="px-6 py-3">Rejection Stage</th>
-                                                    <th scope="col" class="px-6 py-3">Actions</th>
+                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[160px]">Form Type</th>
+                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[160px]">Submitted At</th>
+                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[100px] text-center">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                                                 @foreach($rejectedForms as $form)
-                                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">
+                                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                                                        <td class="px-4 py-4 font-bold text-gray-900 dark:text-white whitespace-nowrap">
                                                             @if($form instanceof \App\Models\Pts1Form)
                                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 (Open Seminar)
                                                             @else
                                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 (Synopsis)
                                                             @endif
                                                         </td>
-                                                        <td class="px-6 py-4">
+                                                        <td class="px-4 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300 font-medium">
                                                             {{ $form->created_at ? $form->created_at->format('d-M-Y H:i') : 'N/A' }}
                                                         </td>
-                                                        <td class="px-6 py-4 capitalize font-semibold text-red-600">
-                                                            {{ $form->stage_label }}
-                                                        </td>
-                                                        <td class="px-6 py-4">
+                                                        <td class="px-4 py-4 whitespace-nowrap text-center">
                                                             @if($form instanceof \App\Models\Pts1Form)
-                                                                <a href="{{ route('pts1.show', $form->id) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                <a href="{{ route('pts1.show', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     View Form &rarr;
                                                                 </a>
                                                             @else
-                                                                <a href="{{ route('pts2.review_endorse', $form->id) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                <a href="{{ route('pts2.review_endorse', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     View Form &rarr;
                                                                 </a>
                                                             @endif
@@ -592,13 +600,10 @@
                                     </div>
                                 @endif
                             </div>
-
                         </div>
                     @endif
-
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

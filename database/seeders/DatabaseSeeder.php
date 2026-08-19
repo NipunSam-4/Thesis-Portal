@@ -120,12 +120,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Aarav Agarwal', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        $phdStudent = Student::firstOrCreate(
-            ['user_id' => $phdStudentUser->id],
+        $phdStudent = Student::updateOrCreate(
+            ['roll_number' => '230001001'],
             [
-                'roll_number' => '230001001',
+                'user_id' => $phdStudentUser->id,
                 'department_id' => $dept->id,
                 'program_name'=>'phd',
+                'admission_category' => 'TA (Teaching Assistantship)',
+                'course_credits_earned' => 36.0,
                 'date_joining' => '2023-08-01',
                 'date_registration' => '2023-08-15',
                 'date_confirmation' => '2024-08-01',
@@ -153,12 +155,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Aditi Sharma', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        $phdStudent1 = Student::firstOrCreate(
-            ['user_id' => $phdStudentUser1->id],
+        $phdStudent1 = Student::updateOrCreate(
+            ['roll_number' => '230001002'],
             [
-                'roll_number' => '230001002',
+                'user_id' => $phdStudentUser1->id,
                 'department_id' => $dept->id,
                 'program_name'=>'phd',
+                'admission_category' => 'FA (Fellowship Awardee)',
+                'course_credits_earned' => 48.5,
                 'date_joining' => '2023-08-01',
                 'date_registration' => '2023-08-15',
             ]
@@ -190,12 +194,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Rohan Mehta', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        $msrStudent = Student::firstOrCreate(
-            ['user_id' => $msrStudentUser->id],
+        $msrStudent = Student::updateOrCreate(
+            ['roll_number' => '230002001'],
             [
-                'roll_number' => '230002001',
+                'user_id' => $msrStudentUser->id,
                 'department_id' => $dept->id,
                 'program_name'=>'msr',
+                'admission_category' => 'TA (Teaching Assistantship)',
+                'course_credits_earned' => 32.0,
                 'date_joining' => '2023-08-01',
                 'date_registration' => '2023-08-15',
             ]
@@ -222,12 +228,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Priya Sharma', 'password' => $password, 'role' => 'student', 'is_active' => true]
         );
 
-        $msrStudent2 = Student::firstOrCreate(
-            ['user_id' => $msrStudentUser2->id],
+        $msrStudent2 = Student::updateOrCreate(
+            ['roll_number' => '230002002'],
             [
-                'roll_number' => '230002002',
+                'user_id' => $msrStudentUser2->id,
                 'department_id' => $dept->id,
                 'program_name'=>'msr',
+                'admission_category' => 'Self-Financed',
+                'course_credits_earned' => 30.5,
                 'date_joining' => '2023-08-01',
                 'date_registration' => '2023-08-15',
             ]

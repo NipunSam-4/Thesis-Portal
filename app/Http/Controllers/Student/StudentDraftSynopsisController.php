@@ -89,6 +89,7 @@ class StudentDraftSynopsisController extends Controller
             ['thesis_id' => $thesis->id],
             [
                 'student_id' => $student->id,
+                'thesis_title' => $validated['thesis_title'],
                 'draft_synopsis_doc_path' => $docPath,
                 'status' => 'circulated',
             ]

@@ -18,6 +18,8 @@ class Student extends Model
         'user_id',
         'department_id',
         'program_name',
+        'admission_category',
+        'course_credits_earned',
         'roll_number',
         'name',
         'date_confirmation',
@@ -26,6 +28,7 @@ class Student extends Model
     protected function casts(): array
     {
         return [
+            'course_credits_earned' => 'float',
             'date_registration' => 'date:d-m-Y',
             'date_joining' => 'date:d-m-Y',
             'date_confirmation' => 'date:d-m-Y',
@@ -166,6 +169,23 @@ class Student extends Model
         $thesis = $this->theses->last();
         if (!$thesis) {
             return false;
+        }
+
+        // Check Draft Synopsis Action
+        $draftSynopsis = $thesis->draftSynopsisCirculation;
+        if ($draftSynopsis && $draftSynopsis->status === 'circulated') {
+            $hasCommented = $draftSynopsis->comments->where('user_id', $user->id)->isNotEmpty();
+            if (!$hasCommented) {
+                if ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user)) {
+                    return true;
+                }
+                if ((!$roleFilter || $roleFilter === 'co') && $this->isCoSupervisor($user)) {
+                    return true;
+                }
+                if ((!$roleFilter || $roleFilter === 'pspc') && $this->isPspcMember($user)) {
+                    return true;
+                }
+            }
         }
 
         // Check PTS-1 Action

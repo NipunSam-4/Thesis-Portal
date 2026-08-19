@@ -16,6 +16,7 @@ return new class extends Migration
             
             // 1-to-1 Unique Relationship with Thesis
             $table->foreignId('thesis_id')->unique()->constrained('theses')->cascadeOnDelete();
+            $table->text('thesis_title')->nullable();
             
             // Student Synopsis Upload
             $table->string('synopsis_report_doc_path');
@@ -39,7 +40,7 @@ return new class extends Migration
             $table->text('reversion_comment')->nullable();
 
             // 1. Main Supervisor Endorsement
-            $table->text('main_supervisor_student_comment')->default('N/A');
+            $table->text('main_supervisor_student_comment')->nullable();
             $table->boolean('main_supervisor_recommendation')->nullable();
             $table->text('main_supervisor_confidential_remark')->nullable();
             $table->timestamp('main_supervisor_submitted_at')->nullable();
@@ -84,7 +85,6 @@ return new class extends Migration
             $table->foreignId('co_supervisor_10_id')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('co_supervisor_10_recommendation')->nullable();
             $table->text('co_supervisor_10_confidential_remark')->nullable();
-
             $table->timestamp('co_supervisors_submitted_at')->nullable();
 
             // 3. PSPC Committee Members (Up to 10)
@@ -98,27 +98,32 @@ return new class extends Migration
             $table->foreignId('pspc_member_8_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('pspc_member_9_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('pspc_member_10_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('pspc_members_submitted_at')->nullable();
 
             // 4. DPGC Convenor
             $table->text('dpgc_student_comment')->nullable();
             $table->boolean('dpgc_recommendation')->nullable();
             $table->text('dpgc_confidential_remark')->nullable();
+            $table->timestamp('dpgc_submitted_at')->nullable();
 
             // 5. Head of Department (HOD)
             $table->text('hod_student_comment')->nullable();
             $table->boolean('hod_recommendation')->nullable();
             $table->text('hod_confidential_remark')->nullable();
+            $table->timestamp('hod_submitted_at')->nullable();
 
             // 6. Academic Office
             $table->text('academic_office_student_comment')->nullable();
             $table->float('course_credits')->default('0.0');
             $table->boolean('academic_office_recommendation')->nullable();
             $table->text('academic_office_confidential_remark')->nullable();
+            $table->timestamp('academic_office_submitted_at')->nullable();
 
             // 7. Dean of Academic Affairs (DOAA)
             $table->text('doaa_student_comment')->nullable();
             $table->boolean('doaa_approval')->nullable();
             $table->text('doaa_confidential_remark')->nullable();
+            $table->timestamp('doaa_submitted_at')->nullable();
             $table->timestamp('pts2_submitted_at')->nullable();
 
             $table->timestamps();

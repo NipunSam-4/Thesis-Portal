@@ -59,6 +59,22 @@
                 </div>
             </div>
 
+            <!-- Admission Category -->
+            <div>
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Admission Category</label>
+                <div class="text-base font-medium text-gray-900 dark:text-gray-100">
+                    {{ $student->admission_category ?: 'TA (Teaching Assistantship)' }}
+                </div>
+            </div>
+
+            <!-- Course Credits Earned -->
+            <div>
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned</label>
+                <div class="text-base font-medium text-gray-900 dark:text-gray-100">
+                    {{ is_numeric($student->course_credits_earned) ? ($student->course_credits_earned == (int)$student->course_credits_earned ? (int)$student->course_credits_earned : $student->course_credits_earned) : 0 }} Credits
+                </div>
+            </div>
+
             <!-- Date of Joining -->
             <div>
                 <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Date of Joining</label>
@@ -84,7 +100,7 @@
             </div>
 
             <!-- Supervisor(s) -->
-            <div class="md:col-span-2 lg:col-span-3">
+            <div>
                 <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Supervisor(s)</label>
                 <div class="text-base font-medium text-gray-900 dark:text-gray-100">
                     {{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}
@@ -92,7 +108,7 @@
             </div>
 
             <!-- PSPC Committee Member(s) -->
-            <div class="md:col-span-2 lg:col-span-3">
+            <div>
                 <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">PSPC Committee Member(s)</label>
                 <div class="text-base font-medium text-gray-900 dark:text-gray-100">
                     {{ $student->pspcMembers->pluck('name')->join(', ') ?: 'Not Assigned' }}

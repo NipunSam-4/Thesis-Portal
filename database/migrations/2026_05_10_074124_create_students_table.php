@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('date_joining');
             $table->string('date_registration');
             $table->string('date_confirmation')->nullable();
+            $table->string('admission_category')->nullable()->default('TA');
+            $table->float('course_credits_earned')->default(0);
             $table->timestamps();
         });
     }

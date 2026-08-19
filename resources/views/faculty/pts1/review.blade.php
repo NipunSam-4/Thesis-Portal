@@ -56,7 +56,7 @@
         }
     </style>
 
-    <div class="py-8" x-data="pts1ReviewForm()">
+    <div class="py-6" x-data="pts1ReviewForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -160,7 +160,7 @@
                     </h3>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title</label>
-                        <input type="text" value="{{ $thesis->title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $pts1->thesis_title ?? $thesis->title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
                 </div>
 
@@ -259,9 +259,9 @@
                                         <span x-text="fileErrors.timeApp"></span>
                                     </div>
                                     
-                                    <div x-show="fileStates.timeApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
-                                        <div class="flex items-center space-x-3 truncate">
-                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                                    <div x-show="fileStates.timeApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center space-x-3 min-w-0 truncate">
+                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 shrink-0">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                             </div>
                                             <div class="truncate">
@@ -270,7 +270,7 @@
                                                 <div class="text-[11px] text-gray-500" x-text="fileStates.timeApp.size"></div>
                                             </div>
                                         </div>
-                                        <div class="flex items-center space-x-2 shrink-0">
+                                        <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                                             <a :href="fileStates.timeApp.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
                                                 📄 View File
                                             </a>
@@ -351,9 +351,9 @@
                                         <span x-text="fileErrors.pubApp"></span>
                                     </div>
 
-                                    <div x-show="fileStates.pubApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
-                                        <div class="flex items-center space-x-3 truncate">
-                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                                    <div x-show="fileStates.pubApp.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center space-x-3 min-w-0 truncate">
+                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 shrink-0">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                             </div>
                                             <div class="truncate">
@@ -362,7 +362,7 @@
                                                 <div class="text-[11px] text-gray-500" x-text="fileStates.pubApp.size"></div>
                                             </div>
                                         </div>
-                                        <div class="flex items-center space-x-2 shrink-0">
+                                        <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                                             <a :href="fileStates.pubApp.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
                                                 📄 View File
                                             </a>
@@ -419,9 +419,9 @@
                                 <span x-text="fileErrors.synopsis"></span>
                             </div>
 
-                            <div x-show="fileStates.synopsis.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center space-x-3 truncate">
-                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                            <div x-show="fileStates.synopsis.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center space-x-3 min-w-0 truncate">
+                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     </div>
                                     <div class="truncate">
@@ -430,7 +430,7 @@
                                         <div class="text-[11px] text-gray-500" x-text="fileStates.synopsis.size"></div>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-2 shrink-0">
+                                <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                                     <a :href="fileStates.synopsis.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
                                         📄 View File
                                     </a>
@@ -472,9 +472,9 @@
                                 <span x-text="fileErrors.pubList"></span>
                             </div>
 
-                            <div x-show="fileStates.pubList.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
-                                <div class="flex items-center space-x-3 truncate">
-                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300">
+                            <div x-show="fileStates.pubList.name" x-cloak class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center space-x-3 min-w-0 truncate">
+                                    <div class="p-2 bg-emerald-100 dark:bg-emerald-800 rounded-lg text-emerald-700 dark:text-emerald-300 shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     </div>
                                     <div class="truncate">
@@ -483,7 +483,7 @@
                                         <div class="text-[11px] text-gray-500" x-text="fileStates.pubList.size"></div>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-2 shrink-0">
+                                <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                                     <a :href="fileStates.pubList.url" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
                                         📄 View File
                                     </a>
@@ -575,7 +575,7 @@
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
                             3. Additional comments / observations / recommendations of the PSPC (for the Student)<span class="text-red-500">*</span>
                         </label>
-                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment', $pts1->main_supervisor_student_comment) }}</textarea>
+                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment') }}</textarea>
                     </div>
                 </div>
 
@@ -607,11 +607,11 @@
                 </div>
 
                 <!-- Submit & Revert Action Buttons Bar -->
-                <div class="flex items-center justify-end space-x-4 pt-4">
+                <div class="flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-3 pt-4">
                     <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
                     <button type="button" 
                             @click="showRevertModal = true" 
-                            class="bg-red-600 hover:bg-red-700 text-white text-base font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
+                            class="w-full sm:w-auto justify-center bg-red-600 hover:bg-red-700 text-white text-base font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                         </svg>
@@ -622,11 +622,11 @@
                     <button type="submit" 
                             :disabled="isBlocked" 
                             :class="isBlocked ? 'opacity-50 cursor-not-allowed bg-gray-400 dark:bg-gray-600' : 'bg-emerald-600 hover:bg-emerald-700'" 
-                            class="text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
+                            class="w-full sm:w-auto justify-center text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
-                        Submit & Forward
+                        Submit &amp; Forward
                     </button>
                 </div>
             </form>

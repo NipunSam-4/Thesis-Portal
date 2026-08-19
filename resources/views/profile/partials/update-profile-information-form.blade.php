@@ -15,20 +15,16 @@
         </div>
     @endif
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
-        @csrf
-        @method('patch')
-
+    <div class="mt-6 space-y-6">
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('name', $user->name)" :disabled="true" :readonly="true" required autocomplete="name" />
+            <x-text-input id="name" name="name" type="text" class="mt-1 block bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('name', $user->name)" :disabled="true" :readonly="true" required autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
-
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('email', $user->email)" :disabled="true" :readonly="true" required autocomplete="username" />
+            <x-text-input id="email" name="email" type="email" class="mt-1 block bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" :value="old('email', $user->email)" :disabled="true" :readonly="true" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
-    </form>
+    </div>
 </section>

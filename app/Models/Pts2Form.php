@@ -14,6 +14,7 @@ class Pts2Form extends Model
 
     protected $fillable = [
         'thesis_id',
+        'thesis_title',
         'remarks',
         'synopsis_report_doc_path',
         'current_stage',
@@ -238,5 +239,88 @@ class Pts2Form extends Model
     public function getStageLabelAttribute(): string
     {
         return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
+    }
+
+    /**
+     * Get array of completed submission timestamps for all authorities and student.
+     */
+    public function getSubmittedTimeline(): array
+    {
+        $timeline = [];
+
+        if ($this->created_at) {
+            $timeline[] = [
+                'role' => 'Student Submission',
+                'name' => $this->thesis?->student?->user?->name ?? 'Student',
+                'submitted_at' => $this->created_at,
+            ];
+        }
+
+        if ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) {
+            $mainSup = $this->thesis?->student?->mainSupervisors?->first();
+            $timeline[] = [
+                'role' => 'Main Supervisor',
+                'name' => $mainSup?->name ?? 'Main Supervisor',
+                'submitted_at' => $this->main_supervisor_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        for ($i = 1; $i <= 10; $i++) {
+            $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
+            if ($submittedAt) {
+                $coSup = $this->{"coSupervisor{$i}"};
+                $timeline[] = [
+                    'role' => 'Co-Supervisor',
+                    'name' => $coSup?->name ?? "Co-Supervisor {$i}",
+                    'submitted_at' => $submittedAt,
+                ];
+            }
+        }
+
+        for ($i = 1; $i <= 10; $i++) {
+            $submittedAt = $this->{"pspc_member_{$i}_submitted_at"} ?? ($this->pspc_members_submitted_at && $this->{"pspc_member_{$i}_recommendation"} !== null ? $this->pspc_members_submitted_at : null);
+            if ($submittedAt) {
+                $pspc = $this->{"pspcMember{$i}"};
+                $timeline[] = [
+                    'role' => 'PSPC Member',
+                    'name' => $pspc?->name ?? "PSPC Member {$i}",
+                    'submitted_at' => $submittedAt,
+                ];
+            }
+        }
+
+        if ($this->dpgc_submitted_at || $this->dpgc_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'DPGC Convenor',
+                'name' => 'DPGC Convenor',
+                'submitted_at' => $this->dpgc_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->hod_submitted_at || $this->hod_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'Head of Department',
+                'name' => 'HOD',
+                'submitted_at' => $this->hod_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->academic_office_submitted_at || $this->academic_office_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'Academic Office (SO)',
+                'name' => 'Section Officer',
+                'submitted_at' => $this->academic_office_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->doaa_submitted_at || $this->doaa_approval !== null) {
+            $timeline[] = [
+                'role' => 'Dean of Academic Affairs',
+                'name' => 'DOAA',
+                'submitted_at' => $this->doaa_submitted_at ?? $this->pts2_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        return $timeline;
     }
 }

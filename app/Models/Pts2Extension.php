@@ -190,4 +190,63 @@ class Pts2Extension extends Model
     {
         return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
     }
+
+    /**
+     * Get array of completed submission timestamps for all authorities and student.
+     */
+    public function getSubmittedTimeline(): array
+    {
+        $timeline = [];
+
+        if ($this->created_at) {
+            $timeline[] = [
+                'role' => 'Student Application',
+                'name' => $this->thesis?->student?->user?->name ?? 'Student',
+                'submitted_at' => $this->created_at,
+            ];
+        }
+
+        if ($this->main_supervisor_submitted_at) {
+            $mainSup = $this->thesis?->student?->mainSupervisor;
+            $timeline[] = [
+                'role' => 'Main Supervisor',
+                'name' => $mainSup?->name ?? 'Main Supervisor',
+                'submitted_at' => $this->main_supervisor_submitted_at,
+            ];
+        }
+
+        if ($this->dpgc_submitted_at || $this->dpgc_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'DPGC Convenor',
+                'name' => 'DPGC Convenor',
+                'submitted_at' => $this->dpgc_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->hod_submitted_at || $this->hod_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'Head of Department',
+                'name' => 'HOD',
+                'submitted_at' => $this->hod_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->section_officer_submitted_at || $this->section_officer_recommendation !== null) {
+            $timeline[] = [
+                'role' => 'Academic Office (SO)',
+                'name' => 'Section Officer',
+                'submitted_at' => $this->section_officer_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->adoaa_submitted_at || $this->adoaa_approval !== null) {
+            $timeline[] = [
+                'role' => 'Associate Dean (ADoAA)',
+                'name' => 'ADoAA',
+                'submitted_at' => $this->adoaa_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        return $timeline;
+    }
 }

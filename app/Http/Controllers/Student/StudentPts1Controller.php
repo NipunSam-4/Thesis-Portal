@@ -213,6 +213,7 @@ class StudentPts1Controller extends Controller
 
         $formData = [
             'thesis_id' => $thesis->id,
+            'thesis_title' => $validated['thesis_title'],
             'seminar_date' => $validated['seminar_date'],
             'seminar_time' => $validated['seminar_time'],
             'seminar_venue' => $validated['seminar_venue'],

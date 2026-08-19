@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{
+    <div class="py-6" x-data="{
         action: 'approve',
         selectedFileName: '',
         handleFileSelect(event) {
@@ -73,9 +73,9 @@
 
                     <!-- Submitted File Display & Optional Replacement -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/40 rounded-xl border border-gray-200 dark:border-gray-600 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Submitted Synopsis Report Document</span>
-                            <a href="{{ route('pts.document.serve', ['pts2', $pts2->id, 'synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded hover:bg-blue-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase min-w-0 truncate">Submitted Synopsis Report Document</span>
+                            <a href="{{ route('pts.document.serve', ['pts2', $pts2->id, 'synopsis_report_doc_path']) }}" target="_blank" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded hover:bg-blue-200 shrink-0 text-center">
                                 📄 Inspect Submitted Synopsis File
                             </a>
                         </div>
@@ -122,8 +122,8 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                        <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-center sm:justify-end">
+                        <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="w-full sm:w-auto px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
                             Submit Evaluation & Decision &rarr;
                         </button>
                     </div>

@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="draftSynopsisReviewForm()">
+    <div class="py-6" x-data="draftSynopsisReviewForm()">
         <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Error Alerts -->
@@ -53,21 +53,21 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Thesis Title</label>
                     <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600">
-                        {{ $thesis->title }}
+                        {{ $circulation->thesis_title ?? $thesis->title }}
                     </div>
                 </div>
 
                 <!-- Circulated Document Badge -->
                 <div>
                     <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Circulated Synopsis Document</label>
-                    <div class="flex items-center justify-between p-3 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg">
-                        <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg gap-3">
+                        <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200 min-w-0 truncate">
                             <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <span>Draft Synopsis Report File</span>
+                            <span class="truncate">Draft Synopsis Report File</span>
                         </div>
-                        <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                        <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0">
                             View / Download Document &rarr;
                         </a>
                     </div>
@@ -97,8 +97,8 @@
                                    :height="350" />
                     </div>
 
-                    <div class="flex justify-end">
-                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow transition">
+                    <div class="flex justify-center sm:justify-end">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow transition">
                             {{ $userComment ? 'Update Feedback Comment' : 'Submit Feedback Comment' }}
                         </button>
                     </div>
@@ -107,11 +107,11 @@
 
             <!-- Section 3: Ordered Authority Comments Trail -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
-                <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between">
+                <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between gap-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                         Authority Feedback & Comments
                     </h3>
-                    <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full">
+                    <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full whitespace-nowrap shrink-0">
                         {{ $comments->count() }} {{ Str::plural('Comment', $comments->count()) }}
                     </span>
                 </div>
@@ -127,11 +127,15 @@
                     <div class="space-y-3">
                         @foreach($comments as $comment)
                             <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                                <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center justify-between text-xs gap-2 sm:gap-4">
                                     <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">
-                                        {{ $comment->authority_label }}
+                                        @php
+                                            $label = $comment->authority_label;
+                                            $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-0">$1</span>', e($label));
+                                        @endphp
+                                        {!! $formattedLabel !!}
                                     </span>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold whitespace-nowrap shrink-0">
                                         {{ $comment->created_at->format('d M Y, h:i A') }}
                                     </span>
                                 </div>

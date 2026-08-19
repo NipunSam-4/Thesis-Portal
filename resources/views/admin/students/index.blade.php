@@ -149,6 +149,17 @@
                                 </select>
                             </div>
 
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admission Category</label>
+                                    <input type="text" name="admission_category" placeholder="e.g. TA, FA, Sponsored" class="w-full border-gray-300 rounded-lg shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned</label>
+                                    <input type="number" step="0.5" name="course_credits_earned" placeholder="e.g. 36.5" min="0" class="w-full border-gray-300 rounded-lg shadow-sm">
+                                </div>
+                            </div>
+
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Main Supervisor(s)</label>
                                 <select name="main_supervisor_ids[]" multiple class="w-full border-gray-300 rounded-lg shadow-sm h-32" required>

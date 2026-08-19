@@ -8,8 +8,8 @@
         </div>
     </x-slot>
 
-    <div class="py-8 sm:py-12">
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6">
+        <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             @if(session('warning'))
                 <div class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold text-sm">

@@ -105,10 +105,18 @@
                             </div>
                         @endisset
                     </div>
-
                 </div>
             </div>
         </header>
+
+        @auth
+            @if(!request()->routeIs(['*.dashboard', 'dashboard', 'welcome']))
+                <!-- Mobile-Only 'Back to Dashboard' Button -->
+                <div class="sm:hidden px-4 pt-3 flex justify-end">
+                    <x-back-to-dashboard-button />
+                </div>
+            @endif
+        @endauth
 
         <!-- FULL-SCREEN MOBILE SIDEBAR DRAWER (Root Viewport Level - Full Vertical 100vh Screen Space) -->
         <div x-show="mobileMenuOpen" 

@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{
+    <div class="py-6" x-data="{
         selectedFileName: '{{ $pts2 ? basename($pts2->synopsis_report_doc_path) : '' }}',
         selectedFileSize: '',
         filePreviewUrl: '{{ $pts2 ? route('pts.document.serve', ['pts2', $pts2->id, 'synopsis_report_doc_path']) : '' }}',
@@ -83,6 +83,18 @@
                     @csrf
 
 
+                    <!-- Thesis Title Section -->
+                    <div>
+                        <label for="thesis_title" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                            Thesis Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="thesis_title" id="thesis_title" required
+                            value="{{ old('thesis_title', $pts2->thesis_title ?? $thesis->title) }}"
+                            placeholder="Confirm or update your thesis title..."
+                            class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">Updating the thesis title here will also update your active thesis record.</p>
+                    </div>
+
                     <!-- Additional Remarks -->
                     <div>
                         <label for="remarks" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
@@ -112,19 +124,19 @@
                             </div>
 
                             <!-- Selected File Card -->
-                            <div x-show="selectedFileName" x-cloak class="p-4 bg-white dark:bg-gray-700 rounded-xl border border-indigo-200 dark:border-indigo-800 flex flex-col md:flex-row items-center justify-between gap-4 text-left">
-                                <div class="flex items-center space-x-3">
-                                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300">
+                            <div x-show="selectedFileName" x-cloak class="p-4 bg-white dark:bg-gray-700 rounded-xl border border-indigo-200 dark:border-indigo-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+                                <div class="flex items-center space-x-3 min-w-0 truncate">
+                                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg text-indigo-600 dark:text-indigo-300 shrink-0">
                                         📄
                                     </div>
-                                    <div>
-                                        <div class="font-bold text-xs text-gray-900 dark:text-white" x-text="selectedFileName"></div>
+                                    <div class="truncate">
+                                        <div class="font-bold text-xs text-gray-900 dark:text-white truncate" x-text="selectedFileName"></div>
                                         <div class="text-[10px] text-gray-500" x-text="selectedFileSize"></div>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center space-x-2">
-                                    <a :href="filePreviewUrl" target="_blank" x-show="filePreviewUrl" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-200">
+                                <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
+                                    <a :href="filePreviewUrl" target="_blank" x-show="filePreviewUrl" class="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-200 flex items-center">
                                         📄 View File
                                     </a>
                                     <button type="button" @click="deleteFile()" class="px-3 py-1.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 text-xs font-bold rounded-lg hover:bg-red-200 flex items-center">
@@ -141,8 +153,8 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                        <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow transition">
+                    <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-center sm:justify-end">
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow transition">
                             Submit PTS-2 Synopsis Form &rarr;
                         </button>
                     </div>

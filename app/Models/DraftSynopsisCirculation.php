@@ -14,6 +14,7 @@ class DraftSynopsisCirculation extends Model
     protected $fillable = [
         'thesis_id',
         'student_id',
+        'thesis_title',
         'draft_synopsis_doc_path',
         'status',
     ];
@@ -55,5 +56,42 @@ class DraftSynopsisCirculation extends Model
             $baseWeight = $roleWeights[$comment->authority_role] ?? 99;
             return $baseWeight * 1000 + ($comment->id % 1000);
         })->values();
+    }
+
+    /**
+     * Get array of completed submission timestamps for all reviewing authorities and student.
+     */
+    public function getSubmittedTimeline(): array
+    {
+        $timeline = [];
+
+        if ($this->created_at) {
+            $timeline[] = [
+                'role' => 'Student Circulation',
+                'name' => $this->student?->user?->name ?? 'Student',
+                'submitted_at' => $this->created_at,
+            ];
+        }
+
+        foreach ($this->comments as $comment) {
+            $roleLabel = match ($comment->authority_role) {
+                'main_supervisor' => 'Main Supervisor',
+                'co_supervisor' => 'Co-Supervisor',
+                'pspc_member' => 'PSPC Member',
+                'dpgc' => 'DPGC Convenor',
+                'hod' => 'Head of Department',
+                'section_officer' => 'Section Officer',
+                'doaa' => 'DOAA',
+                default => str_replace('_', ' ', ucfirst($comment->authority_role ?? '')),
+            };
+
+            $timeline[] = [
+                'role' => $roleLabel . ' Review',
+                'name' => $comment->user?->name ?? $roleLabel,
+                'submitted_at' => $comment->created_at,
+            ];
+        }
+
+        return $timeline;
     }
 }

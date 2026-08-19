@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="draftSynopsisForm()">
+    <div class="py-6" x-data="draftSynopsisForm()">
         <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Success/Error Alerts -->
@@ -55,7 +55,7 @@
                             Name of Thesis
                         </label>
                         <input type="text" 
-                               value="{{ $thesis->title }}" 
+                               value="{{ $circulation->thesis_title ?? $thesis->title }}" 
                                readonly 
                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium cursor-not-allowed">
                     </div>
@@ -65,14 +65,14 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
                             Uploaded Draft Synopsis Report
                         </label>
-                        <div class="flex items-center justify-between p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl">
-                            <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl gap-3">
+                            <div class="flex items-center space-x-2 text-xs font-semibold text-indigo-900 dark:text-indigo-200 min-w-0 truncate">
                                 <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <span>Circulated Draft Synopsis Document</span>
+                                <span class="truncate">Circulated Draft Synopsis Document</span>
                             </div>
-                            <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                            <a href="{{ route('draft_synopsis.document.serve', $circulation->id) }}" target="_blank" class="inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -85,11 +85,11 @@
 
                 <!-- Comments Trail Section (Visible After Submission) -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
-                    <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between">
+                    <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between gap-3">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                             Authority Comments
                         </h3>
-                        <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full">
+                        <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full whitespace-nowrap shrink-0">
                             {{ $comments->count() }} {{ Str::plural('Comment', $comments->count()) }}
                         </span>
                     </div>
@@ -105,11 +105,15 @@
                         <div class="space-y-3">
                             @foreach($comments as $comment)
                                 <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                                    <div class="flex items-center justify-between text-xs">
+                                    <div class="flex items-center justify-between text-xs gap-2 sm:gap-4">
                                         <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">
-                                            {{ $comment->authority_label }}
+                                            @php
+                                                $label = $comment->authority_label;
+                                                $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-0">$1</span>', e($label));
+                                            @endphp
+                                            {!! $formattedLabel !!}
                                         </span>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold whitespace-nowrap shrink-0">
                                             {{ $comment->created_at->format('d M Y, h:i A') }}
                                         </span>
                                     </div>
@@ -181,15 +185,15 @@
                                 </div>
 
                                 <!-- Selected File Badge -->
-                                <div x-show="selectedFile.name" x-cloak class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-indigo-200 dark:border-indigo-800">
-                                    <div class="flex items-center space-x-2 text-xs text-gray-800 dark:text-gray-200 font-medium truncate">
+                                <div x-show="selectedFile.name" x-cloak class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-indigo-200 dark:border-indigo-800 gap-3">
+                                    <div class="flex items-center space-x-2 text-xs text-gray-800 dark:text-gray-200 font-medium min-w-0 truncate">
                                         <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
                                         <span x-text="selectedFile.name" class="truncate"></span>
-                                        <span x-text="selectedFile.size" class="text-gray-400"></span>
+                                        <span x-text="selectedFile.size" class="text-gray-400 shrink-0"></span>
                                     </div>
-                                    <div class="flex items-center space-x-2 shrink-0">
+                                    <div class="flex items-center space-x-2 shrink-0 justify-end sm:justify-start">
                                         <a :href="selectedFile.url" target="_blank" x-show="selectedFile.url" class="inline-flex items-center space-x-1 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-800/60 transition">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -208,7 +212,7 @@
                         </div>
 
                         <!-- Action Button -->
-                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-center sm:justify-end">
                             <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow transition flex items-center space-x-2">
                                 <span>Circulate Draft Synopsis Report</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

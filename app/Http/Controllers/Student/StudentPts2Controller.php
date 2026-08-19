@@ -66,9 +66,13 @@ class StudentPts2Controller extends Controller
         $fileRequired = $pts2 && $pts2->synopsis_report_doc_path ? 'nullable' : 'required';
 
         $validated = $request->validate([
+            'thesis_title' => 'required|string|max:1000',
             'remarks' => 'nullable|string',
             'synopsis_report_doc' => "{$fileRequired}|file|mimes:pdf,doc,docx|max:2048",
         ]);
+
+        // Update active thesis title
+        $thesis->update(['title' => $validated['thesis_title']]);
 
         $filePath = $pts2?->synopsis_report_doc_path;
         if ($request->hasFile('synopsis_report_doc')) {
@@ -83,6 +87,7 @@ class StudentPts2Controller extends Controller
         Pts2Form::updateOrCreate(
             ['thesis_id' => $thesis->id],
             [
+                'thesis_title' => $validated['thesis_title'],
                 'remarks' => $validated['remarks'] ?? 'N/A',
                 'synopsis_report_doc_path' => $filePath,
                 'current_stage' => 'main_supervisor',
@@ -94,17 +99,17 @@ class StudentPts2Controller extends Controller
                 'pspc_member_1_id' => $pts1->pspc_member_1_id,
                 'pspc_member_2_id' => $pts1->pspc_member_2_id,
                 'pspc_member_3_id' => $pts1->pspc_member_3_id,
-                'main_supervisor_confidential_remark' => 'N/A',
-                'co_supervisor_1_confidential_remark' => 'N/A',
-                'co_supervisor_2_confidential_remark' => 'N/A',
-                'co_supervisor_3_confidential_remark' => 'N/A',
-                'pspc_member_1_confidential_remark' => 'N/A',
-                'pspc_member_2_confidential_remark' => 'N/A',
-                'pspc_member_3_confidential_remark' => 'N/A',
-                'dpgc_confidential_remark' => 'N/A',
-                'hod_confidential_remark' => 'N/A',
-                'section_officer_confidential_remark' => 'N/A',
-                'doaa_confidential_remark' => 'N/A',
+                'main_supervisor_confidential_remark' => null,
+                'co_supervisor_1_confidential_remark' => null,
+                'co_supervisor_2_confidential_remark' => null,
+                'co_supervisor_3_confidential_remark' => null,
+                'pspc_member_1_confidential_remark' => null,
+                'pspc_member_2_confidential_remark' => null,
+                'pspc_member_3_confidential_remark' => null,
+                'dpgc_confidential_remark' => null,
+                'hod_confidential_remark' => null,
+                'section_officer_confidential_remark' => null,
+                'doaa_confidential_remark' => null,
                 'main_supervisor_recommendation' => false,
                 'co_supervisor_1_recommendation' => false,
                 'co_supervisor_2_recommendation' => false,

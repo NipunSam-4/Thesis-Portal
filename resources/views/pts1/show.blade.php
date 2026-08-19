@@ -73,7 +73,7 @@
         }
     </style>
 
-    <div class="py-8">
+    <div class="py-6">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
             <!-- Flash Session Alerts -->
@@ -161,7 +161,7 @@
                 </h3>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title</label>
-                    <input type="text" value="{{ $pts1->thesis->title ?? '' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    <input type="text" value="{{ $pts1->thesis_title ?? ($pts1->thesis->title ?? '') }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                 </div>
             </div>
 
@@ -201,24 +201,56 @@
                     4. Institute Norms & Criteria Verification
                 </h3>
 
+                <!-- Minimum Time Requirement -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
+                    <div class="flex items-center justify-between gap-2 sm:gap-4">
+                        <span class="font-semibold text-gray-900 dark:text-white text-sm">
+                            Fulfilling minimum time requirement criteria for thesis submission?
+                        </span>
+                        <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts1->min_time_req_fulfilled ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            {{ $pts1->min_time_req_fulfilled ? 'Yes' : 'No' }}
+                        </span>
+                    </div>
+                    
+                    @if(!$pts1->min_time_req_fulfilled)
+                        <div class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
+                            <div class="flex items-center justify-between gap-2 sm:gap-4">
+                                <span class="font-semibold text-gray-900 dark:text-white text-sm">
+                                    Special approval taken for minimum time relaxation?
+                                </span>
+                                <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts1->special_approval_min_time ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $pts1->special_approval_min_time ? 'Yes' : 'No' }}
+                                </span>
+                            </div>
+                            @if($pts1->getEffectiveMinTimeApprovalPath())
+                            <div class="pt-1">
+                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                        📄 View Special Minimum Time Approval Copy
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                
                 <!-- Publication Norm -->
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-2 sm:gap-4">
                         <span class="font-semibold text-gray-900 dark:text-white text-sm">
                             Fulfilling Institute publication norm for open seminar?
                         </span>
-                        <span class="px-3 py-1 text-xs font-bold rounded-full {{ $pts1->publication_norm_fulfillment ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                        <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts1->publication_norm_fulfillment ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
                             {{ $pts1->publication_norm_fulfillment ? 'Yes' : 'No' }}
                         </span>
                     </div>
 
                     @if(!$pts1->publication_norm_fulfillment)
                         <div class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-2 sm:gap-4">
                                 <span class="font-semibold text-gray-900 dark:text-white text-sm">
                                     Special approval taken for publication norm relaxation?
                                 </span>
-                                <span class="px-3 py-1 text-xs font-bold rounded-full {{ $pts1->special_approval_publication ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts1->special_approval_publication ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $pts1->special_approval_publication ? 'Yes' : 'No' }}
                                 </span>
                             </div>
@@ -232,40 +264,7 @@
                         </div>
                     @endif
                 </div>
-
-                <!-- Minimum Time Requirement -->
-                <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="font-semibold text-gray-900 dark:text-white text-sm">
-                            Fulfilling minimum time requirement criteria for thesis submission?
-                        </span>
-                        <span class="px-3 py-1 text-xs font-bold rounded-full {{ $pts1->min_time_req_fulfilled ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                            {{ $pts1->min_time_req_fulfilled ? 'Yes' : 'No' }}
-                        </span>
-                    </div>
-
-                    @if(!$pts1->min_time_req_fulfilled)
-                        <div class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white text-sm">
-                                    Special approval taken for minimum time relaxation?
-                                </span>
-                                <span class="px-3 py-1 text-xs font-bold rounded-full {{ $pts1->special_approval_min_time ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
-                                    {{ $pts1->special_approval_min_time ? 'Yes' : 'No' }}
-                                </span>
-                            </div>
-                            @if($pts1->getEffectiveMinTimeApprovalPath())
-                                <div class="pt-1">
-                                    <a href="{{ route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_min_time_approval_doc_path']) }}" target="_blank" class="inline-flex items-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                                        📄 View Special Minimum Time Approval Copy
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-                </div>
             </div>
-
             <!-- Section 5: Uploaded Documents Inspection (Read-Only) -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
@@ -325,9 +324,9 @@
                 <div class="space-y-4">
                     <!-- Main Supervisor Evaluation -->
                     <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                        <div class="flex items-center justify-between text-s">
+                        <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
                             <span class="font-bold text-indigo-900 dark:text-indigo-200">
-                                Main Supervisor @if(isset($mainSupervisor))({{ $mainSupervisor->name }})@endif
+                                Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
                             </span>
                         </div>
                         <div class="text-xs text-gray-700 dark:text-gray-300">

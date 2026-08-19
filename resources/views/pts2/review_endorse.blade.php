@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-8" x-data="{
+    <div class="py-6" x-data="{
         action: 'approve'
     }">
         <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
@@ -90,7 +90,7 @@
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/40 rounded-xl border border-gray-200 dark:border-gray-600 space-y-3">
                     <div>
                         <span class="text-xs text-gray-500 block">Synopsis Title:</span>
-                        <strong class="text-base text-gray-900 dark:text-white font-bold">{{ $pts2->thesis->title }}</strong>
+                        <strong class="text-base text-gray-900 dark:text-white font-bold">{{ $pts2->thesis_title ?? $pts2->thesis->title }}</strong>
                     </div>
                     @if($pts2->remarks)
                         <div>
@@ -132,9 +132,9 @@
                             
                             @if($coSupervisor1 && $pts2->co_supervisor_1_recommendation)
                                 <div class="text-xs space-y-1">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $coSupervisor1->name }} (Co-Supervisor 1):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $coSupervisor1->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(Co-Supervisor 1)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
                                         {{ $pts2->co_supervisor_1_confidential_remark ?: 'Remark not provided' }}
@@ -144,9 +144,9 @@
 
                             @if($coSupervisor2 && $pts2->co_supervisor_2_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-blue-100 dark:border-blue-900">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $coSupervisor2->name }} (Co-Supervisor 2):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $coSupervisor2->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(Co-Supervisor 2)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
                                         {{ $pts2->co_supervisor_2_confidential_remark ?: 'Remark not provided' }}
@@ -156,9 +156,9 @@
 
                             @if($coSupervisor3 && $pts2->co_supervisor_3_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-blue-100 dark:border-blue-900">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $coSupervisor3->name }} (Co-Supervisor 3):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $coSupervisor3->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(Co-Supervisor 3)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-blue-100 dark:border-blue-900">
                                         {{ $pts2->co_supervisor_3_confidential_remark ?: 'Remark not provided' }}
@@ -175,9 +175,9 @@
                             
                             @if($pspc1 && $pts2->pspc_member_1_recommendation)
                                 <div class="text-xs space-y-1">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $pspc1->name }} (PSPC Member 1):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $pspc1->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(PSPC Member 1)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
                                         {{ $pts2->pspc_member_1_confidential_remark ?: 'Remark not provided' }}
@@ -187,9 +187,9 @@
 
                             @if($pspc2 && $pts2->pspc_member_2_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-purple-100 dark:border-purple-900">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $pspc2->name }} (PSPC Member 2):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $pspc2->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(PSPC Member 2)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
                                         {{ $pts2->pspc_member_2_confidential_remark ?: 'Remark not provided' }}
@@ -199,9 +199,9 @@
 
                             @if($pspc3 && $pts2->pspc_member_3_recommendation)
                                 <div class="text-xs space-y-1 pt-1 border-t border-purple-100 dark:border-purple-900">
-                                    <div class="flex justify-between font-semibold">
-                                        <span>{{ $pspc3->name }} (PSPC Member 3):</span>
-                                        <span class="text-emerald-600 font-bold">✓ Endorsed</span>
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $pspc3->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(PSPC Member 3)</span>:</span>
+                                        <span class="text-emerald-600 font-bold whitespace-nowrap shrink-0">✓ Endorsed</span>
                                     </div>
                                     <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-purple-100 dark:border-purple-900">
                                         {{ $pts2->pspc_member_3_confidential_remark ?: 'Remark not provided' }}
@@ -214,9 +214,9 @@
                     <!-- DPGC Endorsement -->
                     @if($pts2->dpgc_recommendation)
                         <div class="p-4 bg-teal-50/70 dark:bg-teal-950/40 border-l-4 border-teal-500 rounded-xl space-y-2 text-xs">
-                            <div class="flex justify-between font-bold text-teal-900 dark:text-teal-200">
+                            <div class="flex items-center justify-between font-bold text-teal-900 dark:text-teal-200 gap-2 sm:gap-4">
                                 <span>Department Postgraduate Committee (DPGC):</span>
-                                <span class="text-emerald-600">✓ Endorsed</span>
+                                <span class="text-emerald-600 whitespace-nowrap shrink-0">✓ Endorsed</span>
                             </div>
                             <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-teal-100 dark:border-teal-900">
                                 {{ $pts2->dpgc_confidential_remark ?: 'Remark not provided' }}
@@ -227,9 +227,9 @@
                     <!-- HOD Endorsement -->
                     @if($pts2->hod_recommendation)
                         <div class="p-4 bg-amber-50/70 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2 text-xs">
-                            <div class="flex justify-between font-bold text-amber-900 dark:text-amber-200">
+                            <div class="flex items-center justify-between font-bold text-amber-900 dark:text-amber-200 gap-2 sm:gap-4">
                                 <span>Head of Department (HOD):</span>
-                                <span class="text-emerald-600">✓ Endorsed</span>
+                                <span class="text-emerald-600 whitespace-nowrap shrink-0">✓ Endorsed</span>
                             </div>
                             <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-100 dark:border-amber-900">
                                 {{ $pts2->hod_confidential_remark ?: 'Remark not provided' }}
@@ -240,9 +240,9 @@
                     <!-- Section Officer Endorsement -->
                     @if($pts2->section_officer_recommendation)
                         <div class="p-4 bg-rose-50/70 dark:bg-rose-950/40 border-l-4 border-rose-500 rounded-xl space-y-2 text-xs">
-                            <div class="flex justify-between font-bold text-rose-900 dark:text-rose-200">
+                            <div class="flex items-center justify-between font-bold text-rose-900 dark:text-rose-200 gap-2 sm:gap-4">
                                 <span>Academic Section Officer:</span>
-                                <span class="text-emerald-600">✓ Endorsed</span>
+                                <span class="text-emerald-600 whitespace-nowrap shrink-0">✓ Endorsed</span>
                             </div>
                             <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-rose-100 dark:border-rose-900">
                                 {{ $pts2->section_officer_confidential_remark ?: 'Remark not provided' }}
@@ -330,8 +330,8 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                            <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
+                        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-center sm:justify-end">
+                            <button type="submit" :class="action === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'" class="w-full sm:w-auto px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow transition">
                                 Submit Decision &rarr;
                             </button>
                         </div>

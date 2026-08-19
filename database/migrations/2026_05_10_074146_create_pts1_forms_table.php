@@ -16,6 +16,7 @@ return new class extends Migration
             
             // 1-to-1 Unique Relationship with Thesis
             $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
+            $table->text('thesis_title')->nullable();
             
             // Core Seminar & Form Details
             $table->date('seminar_date');
@@ -34,7 +35,7 @@ return new class extends Migration
             $table->string('draft_synopsis_report_doc_path');
             $table->string('publication_list_doc_path');
             $table->enum('work_status', ['adequate', 'inadequate'])->default('adequate');
-            $table->text('main_supervisor_student_comment')->default('N/A');
+            $table->text('main_supervisor_student_comment')->nullable();
 
             // Workflow Tracking
             $table->enum('current_stage', [
