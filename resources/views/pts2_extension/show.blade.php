@@ -150,15 +150,15 @@
                             </div>
                         </div>
 
-                        @if($extension->adoaa_student_comment)
+                        @if($extension->doaa_student_comment)
                             <div>
                                 <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
-                                    <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase">ADoAA Student Comment</label>
+                                    <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase">DOAA Student Comment</label>
                                     <span class="px-2.5 py-0.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full  tracking-wider flex items-center shadow-sm">
                                         ✓ Approved
                                     </span>
                                 </div>
-                                <p class="text-xs italic text-emerald-900 dark:text-emerald-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900 whitespace-pre-wrap">{{ trim($extension->adoaa_student_comment) }}</p>
+                                <p class="text-xs italic text-emerald-900 dark:text-emerald-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900 whitespace-pre-wrap">{{ trim($extension->doaa_student_comment) }}</p>
                             </div>
                         @else
                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
@@ -169,15 +169,15 @@
                     </div>
                 @elseif($extension->status === 'rejected')
                     <div class="p-4 bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 rounded-xl space-y-3">
-                        @if($extension->adoaa_student_comment)
+                        @if($extension->doaa_student_comment)
                             <div>
                                 <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
-                                    <label class="block text-xs font-semibold text-red-800 dark:text-red-300 uppercase">ADoAA Student Comment</label>
+                                    <label class="block text-xs font-semibold text-red-800 dark:text-red-300 uppercase">DOAA Student Comment</label>
                                     <span class="px-2.5 py-0.5 text-red-800 dark:text-red-300 text-xs font-bold rounded-full tracking-wider flex items-center shadow-sm">
                                         ❌ Rejected
                                     </span>
                                 </div>
-                                <p class="text-xs italic text-red-900 dark:text-red-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-900 whitespace-pre-wrap">{{ trim($extension->adoaa_student_comment) }}</p>
+                                <p class="text-xs italic text-red-900 dark:text-red-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-900 whitespace-pre-wrap">{{ trim($extension->doaa_student_comment) }}</p>
                             </div>
                         @else
                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
@@ -208,7 +208,7 @@
                         $user->isDpgc() ? 'dpgc' : (
                             $user->isHod() ? 'hod' : (
                                 $user->isSectionOfficer() ? 'section_officer' : (
-                                    $user->isAdoaa() ? 'adoaa' : 'student'
+                                    ($user->isDoaa()) ? 'doaa' : 'student'
                                 )
                             )
                         )
@@ -303,17 +303,17 @@
                             </div>
                         @endif
 
-                        <!-- ADoAA Decision (Rank 5) -->
-                        @if($viewerRank >= 5 && $extension->adoaa_recommendation !== null)
+                        <!-- DOAA Decision (Rank 5) -->
+                        @if($viewerRank >= 5 && $extension->doaa_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-bold text-sm text-gray-900 dark:text-white">ADoAA Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->adoaa_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $extension->adoaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">DOAA Remark</span>
+                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->doaa_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $extension->doaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
                                     </span>
                                 </div>
-                                @if($extension->adoaa_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->adoaa_confidential_remark) }}"</p>
+                                @if($extension->doaa_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->doaa_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>

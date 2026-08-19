@@ -258,7 +258,7 @@
                             <!-- Item 1: Recommendation Status Radio Cards (Exact PTS-1 Layout) -->
                             <div class="space-y-4">
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
-                                    @if($userRole === 'adoaa')
+                                    @if($userRole === 'doaa')
                                         Approval Status for Candidate PTS-2 Extension Submission: <span class="text-red-500">*</span>
                                     @else
                                         Recommendation Status for Candidate PTS-2 Extension Submission: <span class="text-red-500">*</span>
@@ -271,10 +271,10 @@
                                         <input type="radio" name="recommendation" value="1" required x-model="recommendation" class="mt-1 text-emerald-600 focus:ring-emerald-500">
                                         <div>
                                             <span class="block font-bold text-sm text-emerald-900 dark:text-emerald-300 uppercase tracking-wide">
-                                                {{ $userRole === 'adoaa' ? '(a) APPROVE' : '(a) RECOMMENDED' }}
+                                                {{ $userRole === 'doaa' ? '(a) APPROVE' : '(a) RECOMMENDED' }}
                                             </span>
                                             <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
-                                                {{ $userRole === 'adoaa' ? "Approve the candidate's PTS-2 extension submission." : "Recommend the candidate's PTS-2 extension submission for forwarding to the next stage in the academic pipeline." }}
+                                                {{ $userRole === 'doaa' ? "Approve the candidate's PTS-2 extension submission." : "Recommend the candidate's PTS-2 extension submission for forwarding to the next stage in the academic pipeline." }}
                                             </p>
                                         </div>
                                     </label>
@@ -284,10 +284,10 @@
                                         <input type="radio" name="recommendation" value="0" required x-model="recommendation" class="mt-1 text-red-600 focus:ring-red-500">
                                         <div>
                                             <span class="block font-bold text-sm text-red-900 dark:text-red-300 uppercase tracking-wide">
-                                                {{ $userRole === 'adoaa' ? '(b) DO NOT APPROVE' : '(b) NOT RECOMMENDED' }}
+                                                {{ $userRole === 'doaa' ? '(b) DO NOT APPROVE' : '(b) NOT RECOMMENDED' }}
                                             </span>
                                             <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
-                                                {{ $userRole === 'adoaa' ? "Do not approve the candidate's PTS-2 extension submission." : "Do not recommend the submission in its present form without further improvements." }}
+                                                {{ $userRole === 'doaa' ? "Do not approve the candidate's PTS-2 extension submission." : "Do not recommend the submission in its present form without further improvements." }}
                                             </p>
                                         </div>
                                     </label>
@@ -309,8 +309,8 @@
                             </div>
                         @endif
 
-                        <!-- Item 3: Approved Date & Mandatory Student Remarks specifically for ADoAA -->
-                        @if($userRole === 'adoaa')
+                        <!-- Item 3: Approved Date & Mandatory Student Remarks specifically for DOAA -->
+                        @if($userRole === 'doaa')
                             <div x-show="recommendation === '1'" class="p-4 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-xl space-y-2">
                                 <label class="block text-sm font-bold text-purple-900 dark:text-purple-200">
                                     Approved Extension Until Date <span class="text-red-500">*</span>
@@ -333,12 +333,12 @@
                                 <label class="block text-sm font-bold text-indigo-900 dark:text-indigo-200">
                                     Mandatory Remarks for Student <span class="text-red-500">*</span>
                                 </label>
-                                <textarea name="adoaa_student_comment" 
+                                <textarea name="doaa_student_comment" 
                                           rows="3" 
                                           required 
-                                          x-model="adoaaStudentComment" 
+                                          x-model="doaaStudentComment" 
                                           placeholder="Enter comments specifically visible to the student upon completion..." 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 whitespace-pre-wrap">{{ trim(old('adoaa_student_comment')) }}</textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 whitespace-pre-wrap">{{ trim(old('doaa_student_comment')) }}</textarea>
                             </div>
                         @endif
                     </div>
@@ -374,7 +374,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                 </svg>
-                                Submit @if($userRole !== 'adoaa') &amp; Forward @endif
+                                Submit @if($userRole !== 'doaa') &amp; Forward @endif
                             </button>
                         @endif
                     </div>
@@ -461,10 +461,10 @@
                 isVerified: savedDraft.isVerified !== undefined ? savedDraft.isVerified : false,
                 confidentialRemark: @js(old('confidential_remark')) || savedDraft.confidentialRemark || '',
                 approvedExtendedUntilDate: @js(old('approved_extended_until_date')) || savedDraft.approvedExtendedUntilDate || @js($extension->extended_until_date ? $extension->extended_until_date->format('Y-m-d') : ''),
-                adoaaStudentComment: @js(old('adoaa_student_comment')) || savedDraft.adoaaStudentComment || '',
+                doaaStudentComment: @js(old('doaa_student_comment')) || savedDraft.doaaStudentComment || '',
 
                 init() {
-                    const watchFields = ['recommendation', 'isVerified', 'confidentialRemark', 'approvedExtendedUntilDate', 'adoaaStudentComment'];
+                    const watchFields = ['recommendation', 'isVerified', 'confidentialRemark', 'approvedExtendedUntilDate', 'doaaStudentComment'];
                     watchFields.forEach(field => {
                         this.$watch(field, () => this.saveDraft());
                     });
@@ -477,7 +477,7 @@
                             isVerified: this.isVerified,
                             confidentialRemark: this.confidentialRemark,
                             approvedExtendedUntilDate: this.approvedExtendedUntilDate,
-                            adoaaStudentComment: this.adoaaStudentComment,
+                            doaaStudentComment: this.doaaStudentComment,
                         }));
                     } catch (e) {}
                 },

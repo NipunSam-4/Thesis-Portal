@@ -175,7 +175,7 @@ class Pts2ExtensionController extends Controller
             return redirect()->back()->with('error', 'This extension application is currently not pending at your evaluation stage.');
         }
 
-        // 1. Handle Pop-Up Modal Reversion (All Authorities Including ADoAA)
+        // 1. Handle Pop-Up Modal Reversion (All Authorities Including DOAA)
         if ($request->action === 'revert' || $request->filled('reversion_comment')) {
             $request->validate([
                 'reversion_comment' => 'required|string|max:3000',
@@ -203,7 +203,7 @@ class Pts2ExtensionController extends Controller
             $isRecommended = true;
         } else {
             $approvedDateRules = ['nullable', 'date'];
-            if ($userRole === 'adoaa' && $request->recommendation == '1') {
+            if ($userRole === 'doaa' && $request->recommendation == '1') {
                 $approvedDateRules = [
                     'required',
                     'date',
@@ -215,7 +215,7 @@ class Pts2ExtensionController extends Controller
             $request->validate([
                 'recommendation' => 'required|in:1,0',
                 'confidential_remark' => $request->recommendation === '0' ? 'required|string|max:3000' : 'nullable|string|max:3000',
-                'adoaa_student_comment' => $userRole === 'adoaa' ? 'required|string|max:3000' : 'nullable|string|max:3000',
+                'doaa_student_comment' => $userRole === 'doaa' ? 'required|string|max:3000' : 'nullable|string|max:3000',
                 'approved_extended_until_date' => $approvedDateRules,
             ], [
                 'approved_extended_until_date.after_or_equal' => 'Approved extension date must be at least 16 days from Open Seminar (' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . ').',
@@ -250,14 +250,14 @@ class Pts2ExtensionController extends Controller
                 $extension->section_officer_recommendation = $isRecommended;
                 $extension->section_officer_confidential_remark = $request->confidential_remark;
                 $extension->section_officer_submitted_at = now();
-                $extension->current_stage = 'adoaa';
+                $extension->current_stage = 'doaa';
                 break;
 
-            case 'adoaa':
-                $extension->adoaa_recommendation = $isRecommended;
-                $extension->adoaa_confidential_remark = $request->confidential_remark;
-                $extension->adoaa_student_comment = $request->adoaa_student_comment;
-                $extension->adoaa_submitted_at = now();
+            case 'doaa':
+                $extension->doaa_recommendation = $isRecommended;
+                $extension->doaa_confidential_remark = $request->confidential_remark;
+                $extension->doaa_student_comment = $request->doaa_student_comment;
+                $extension->doaa_submitted_at = now();
                 if ($isRecommended) {
                     $extension->approved_extended_until_date = $request->approved_extended_until_date ?? $extension->extended_until_date;
                     $extension->status = 'accepted';
@@ -297,8 +297,8 @@ class Pts2ExtensionController extends Controller
             return 'section_officer';
         }
 
-        if ($user->isAdoaa() || $user->isDoaa()) {
-            return 'adoaa';
+        if ($user->isDoaa()) {
+            return 'doaa';
         }
 
         return null;

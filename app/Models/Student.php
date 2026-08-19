@@ -279,7 +279,7 @@ class Student extends Model
             if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'adoaa' || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'adoaa' && ($user->isAdoaa() || $user->isDoaa())) {
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'doaa' && $user->isDoaa()) {
                 return true;
             }
         }
@@ -338,7 +338,7 @@ class Student extends Model
             if ($pts2Ext->current_stage === 'dpgc' && $user->isDpgc()) return 20;
             if ($pts2Ext->current_stage === 'hod' && $user->isHod()) return 20;
             if ($pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) return 20;
-            if ($pts2Ext->current_stage === 'adoaa' && ($user->isAdoaa() || $user->isDoaa())) return 20;
+            if ($pts2Ext->current_stage === 'doaa' && $user->isDoaa()) return 20;
         }
 
         // 1.3 PTS-2 action required

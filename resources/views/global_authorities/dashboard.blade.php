@@ -381,7 +381,7 @@
 
                                                 @if($thesis->pts2Extension)
                                                     @php
-                                                        $extRole = $user->isSectionOfficer() ? 'section_officer' : 'adoaa';
+                                                        $extRole = $user->isSectionOfficer() ? 'section_officer' : 'doaa';
                                                         $extViewerRank = \App\Models\Pts2Extension::getRoleRank($extRole);
                                                         $extStageRank = \App\Models\Pts2Extension::getRoleRank($thesis->pts2Extension->current_stage);
                                                     @endphp
@@ -405,7 +405,7 @@
                                                             </div>
                                                         @endif
 
-                                                        @if(($user->isSectionOfficer() && $thesis->pts2Extension->current_stage === 'section_officer' && $thesis->pts2Extension->status === 'in_progress') || (($user->isAdoaa() || $user->isDoaa()) && $thesis->pts2Extension->current_stage === 'adoaa' && $thesis->pts2Extension->status === 'in_progress'))
+                                                        @if(($user->isSectionOfficer() && $thesis->pts2Extension->current_stage === 'section_officer' && $thesis->pts2Extension->status === 'in_progress') || ($user->isDoaa() && $thesis->pts2Extension->current_stage === 'doaa' && $thesis->pts2Extension->status === 'in_progress'))
                                                             <div class="pt-1">
                                                                 <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     Review & Evaluate PTS-2 Extension &rarr;

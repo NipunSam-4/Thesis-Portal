@@ -45,7 +45,7 @@ class CommentSnippetSeeder extends Seeder
             ],
             // PTS-2 Extension Specific
             [
-                'content' => "Verified the extension request timeline, open seminar date, and supporting justifications. Recommended for forwarding to ADoAA.",
+                'content' => "Verified the extension request timeline, open seminar date, and supporting justifications. Recommended for forwarding to DOAA.",
                 'form_type' => 'pts2_extension',
                 'role' => 'section_officer',
                 'sort_order' => 20,

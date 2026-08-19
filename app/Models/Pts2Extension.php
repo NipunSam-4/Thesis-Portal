@@ -33,10 +33,10 @@ class Pts2Extension extends Model
         'section_officer_recommendation',
         'section_officer_confidential_remark',
         'section_officer_submitted_at',
-        'adoaa_recommendation',
-        'adoaa_confidential_remark',
-        'adoaa_student_comment',
-        'adoaa_submitted_at',
+        'doaa_recommendation',
+        'doaa_confidential_remark',
+        'doaa_student_comment',
+        'doaa_submitted_at',
         'approved_extended_until_date',
     ];
 
@@ -53,8 +53,8 @@ class Pts2Extension extends Model
             'hod_submitted_at' => 'datetime',
             'section_officer_recommendation' => 'boolean',
             'section_officer_submitted_at' => 'datetime',
-            'adoaa_recommendation' => 'boolean',
-            'adoaa_submitted_at' => 'datetime',
+            'doaa_recommendation' => 'boolean',
+            'doaa_submitted_at' => 'datetime',
         ];
     }
 
@@ -88,7 +88,7 @@ class Pts2Extension extends Model
             'dpgc' => 2,
             'hod' => 3,
             'section_officer' => 4,
-            'adoaa' => 5,
+            'doaa' => 5,
             default => 999,
         };
     }
@@ -141,8 +141,8 @@ class Pts2Extension extends Model
         if ($user->isSectionOfficer()) {
             $userRanks[] = self::getRoleRank('section_officer');
         }
-        if ($user->isDoaa() || $user->isAdoaa()) {
-            $userRanks[] = self::getRoleRank('adoaa');
+        if ($user->isDoaa()) {
+            $userRanks[] = self::getRoleRank('doaa');
         }
 
         if (empty($userRanks)) {
@@ -169,7 +169,7 @@ class Pts2Extension extends Model
             'dpgc' => 'DPGC Convenor',
             'hod' => 'Head of Department (HOD)',
             'section_officer' => 'Section Officer ',
-            'adoaa' => 'Associate Dean of Academic Affairs(ADoAA)',
+            'doaa' => 'Dean of Academic Affairs (DOAA)',
             default => $role ?: 'Academic Authority',
         };
     }
@@ -239,11 +239,11 @@ class Pts2Extension extends Model
             ];
         }
 
-        if ($this->adoaa_submitted_at || $this->adoaa_approval !== null) {
+        if ($this->doaa_submitted_at || $this->doaa_recommendation !== null) {
             $timeline[] = [
-                'role' => 'Associate Dean (ADoAA)',
-                'name' => 'ADoAA',
-                'submitted_at' => $this->adoaa_submitted_at ?? $this->updated_at,
+                'role' => 'Dean of Academic Affairs (DOAA)',
+                'name' => 'DOAA',
+                'submitted_at' => $this->doaa_submitted_at ?? $this->updated_at,
             ];
         }
 
