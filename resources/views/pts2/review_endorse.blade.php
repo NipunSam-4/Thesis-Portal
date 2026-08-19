@@ -11,7 +11,8 @@
     </x-slot>
 
     <div class="py-6" x-data="{
-        action: 'approve'
+        action: 'approve',
+        comment: ''
     }">
         <div class="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
@@ -320,13 +321,19 @@
                         </div>
 
                         <!-- Comment Input (Required if Revert selected) -->
-                        <div>
-                            <label for="comment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                        <div class="space-y-2">
+                            <label for="comment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
                                 Authority Comments <span x-show="action === 'revert'" class="text-red-500">* (Required for Reversion)</span>
                             </label>
+                            @if($pts2->current_stage === 'section_officer')
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="comment" form-type="pts2" role="section_officer" />
+                                </div>
+                            @endif
                             <textarea :name="action === 'revert' ? 'reversion_comment' : 'comment'" id="comment" rows="3" :required="action === 'revert'"
+                                x-model="comment"
                                 placeholder="Enter endorsement observations or reversion comments..."
-                                class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500"></textarea>
+                                class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white focus:ring-purple-500 focus:border-purple-500 whitespace-pre-wrap"></textarea>
                         </div>
 
                         <!-- Submit Button -->

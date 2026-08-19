@@ -27,54 +27,6 @@
         </div>
     </x-slot>
 
-    <!-- Custom CSS for Live Excel Table Previews -->
-    <style>
-        .sheet-table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.825rem;
-            margin-top: 0.5rem;
-        }
-        .sheet-table-container th, .sheet-table-container td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-        }
-        .sheet-table-container tr:first-child {
-            background-color: #f3f4f6;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .sheet-table-container tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .sheet-table-container th,
-            .sheet-table-container td {
-                border-color: #374151;
-                color: #d1d5db;
-            }
-
-            .sheet-table-container tr:first-child,
-            .sheet-table-container tr:first-child td,
-            .sheet-table-container tr:first-child th {
-                background-color: #374151 !important;
-                color: #ffffff !important;
-                font-weight: 700;
-            }
-
-            .sheet-table-container tr:not(:first-child) {
-                background-color: transparent !important;
-            }
-            .sheet-table-container tr:not(:first-child) td,
-            .sheet-table-container tr:not(:first-child) th {
-                background-color: transparent !important;
-                color: #d1d5db !important;
-            }
-        }
-    </style>
-
     <div class="py-6" x-data="pts1EndorseForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
@@ -375,9 +327,7 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Additional Comment:</strong>
                                 @if($pts1->main_supervisor_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        {{ $pts1->main_supervisor_student_comment }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_student_comment) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,14 +342,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
                                 <strong>Main Supervisor Remark:</strong>
                                 @if($pts1->main_supervisor_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                        {{ $pts1->main_supervisor_confidential_remark }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Remark not provided</span>
                                     </div>
@@ -442,14 +389,11 @@
                                             </span>
                                         </div>
                                         @if($pts1->$remCol)
-                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1">
-                                                {{ $pts1->$remCol }}
-                                            </p>
+                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->$remCol) }}</p>
                                         @else
                                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                                 <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                                 </svg>
                                                 <span class="italic font-normal">Remark not provided</span>
                                             </div>
@@ -494,14 +438,11 @@
                                             </span>
                                         </div>
                                         @if($pts1->$remCol)
-                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1">
-                                                {{ $pts1->$remCol }}
-                                            </p>
+                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->$remCol) }}</p>
                                         @else
                                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                                 <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                                 </svg>
                                                 <span class="italic font-normal">Remark not provided</span>
                                             </div>
@@ -524,14 +465,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Student Comment:</strong>
                                 @if($pts1->dpgc_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
-                                        {{ $pts1->dpgc_student_comment }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_student_comment) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Comment not provided</span>
                                     </div>
@@ -540,14 +478,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                 <strong>DPGC Remark:</strong>
                                 @if($pts1->dpgc_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
-                                        {{ $pts1->dpgc_confidential_remark }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Remark not provided</span>
                                     </div>
@@ -568,14 +503,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Student Comment:</strong>
                                 @if($pts1->hod_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
-                                        {{ $pts1->hod_student_comment }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_student_comment) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Comment not provided</span>
                                     </div>
@@ -584,14 +516,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                 <strong>HOD Remark:</strong>
                                 @if($pts1->hod_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
-                                        {{ $pts1->hod_confidential_remark }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Remark not provided</span>
                                     </div>
@@ -612,14 +541,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                 <strong>Verification Remark:</strong>
                                 @if($pts1->section_officer_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900 mt-0.5">
-                                        {{ $pts1->section_officer_confidential_remark }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->section_officer_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Remark not provided</span>
                                     </div>
@@ -640,14 +566,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Student Comment:</strong>
                                 @if($pts1->doaa_student_comment)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
-                                        {{ $pts1->doaa_student_comment }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_student_comment) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Comment not provided</span>
                                     </div>
@@ -656,14 +579,11 @@
                             <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                 <strong>DOAA Remark:</strong>
                                 @if($pts1->doaa_confidential_remark)
-                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
-                                        {{ $pts1->doaa_confidential_remark }}
-                                    </p>
+                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
                                         </svg>
                                         <span class="italic font-normal">Remark not provided</span>
                                     </div>
@@ -819,26 +739,31 @@
                                 @endif
                             </label>
                             @if($pts1->current_stage === 'section_officer')
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts1" role="section_officer" />
+                                </div>
+                            @endif
+                            @if($pts1->current_stage === 'section_officer')
                             <textarea name="confidential_remark" 
                             rows="3" 
                             required 
-                            x-model="confidentialRemark"
+                            x-model="confidentialRemark" 
                             placeholder="Provide mandatory verification remarks" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             @elseif($pts1->current_stage === 'doaa')
                             <textarea name="confidential_remark" 
                             rows="3" 
                             :required="recommendation === '0'" 
-                            x-model="confidentialRemark"
+                            x-model="confidentialRemark" 
                             :placeholder="recommendation === '1' ? 'Optional approval remarks' : 'Provide mandatory non-approval remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             @else
                             <textarea name="confidential_remark" 
                             rows="3" 
                             :required="recommendation === '0'" 
-                            x-model="confidentialRemark"
+                            x-model="confidentialRemark" 
                             :placeholder="recommendation === '1' ? 'Optional recommendation remarks' : 'Provide mandatory non-recommendation remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('confidential_remark') }}</textarea>
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             @endif
                         </div>
 
@@ -848,7 +773,7 @@
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Student Comment (Optional)
                                 </label>
-                                <textarea name="student_comment" rows="3" x-model="studentComment" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('student_comment') }}</textarea>
+                                <textarea name="student_comment" rows="3" x-model="studentComment" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('student_comment')) }}</textarea>
                             </div>
                         @endif 
                     </div>
@@ -931,7 +856,7 @@
                                           required 
                                           rows="4" 
                                           placeholder="Provide clear reasons/instructions for the student regarding required modifications" 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500"></textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500 whitespace-pre-wrap "></textarea>
                             </div>
 
                             <div class="flex justify-end space-x-3 pt-2">
@@ -955,9 +880,6 @@
 
         </div>
     </div>
-
-    <!-- Load SheetJS for Client-Side Multi-Sheet Excel Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     @php
         $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
@@ -993,80 +915,13 @@
                 },
 
                 loadExcelFromUrl(url, titlePrefix = 'Existing Publication List Preview') {
-                    fetch(url)
-                        .then(res => {
-                            if (!res.ok) throw new Error('Failed to load existing publication list');
-                            return res.arrayBuffer();
-                        })
-                        .then(ab => {
-                            const data = new Uint8Array(ab);
-                            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                            this.renderWorkbook(workbook, titlePrefix);
-                        })
-                        .catch(err => {
-                            console.error('Error previewing existing publication list:', err);
-                        });
+                    window.previewExcelUrl(url, { titlePrefix });
                 },
 
                 handleExcelPreview(event) {
                     const file = event.target.files[0];
                     if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                        this.renderWorkbook(workbook, 'New Selected Publication List Preview');
-                    };
-                    reader.readAsArrayBuffer(file);
-                },
-
-                renderWorkbook(workbook, titlePrefix = 'Publication List Preview') {
-                    const container = document.getElementById('excelPreviewContainer');
-                    const sheetsOutput = document.getElementById('sheetsOutput');
-                    const sheetTabsBar = document.getElementById('sheetTabsBar');
-                    const sheetCountSpan = document.getElementById('excelSheetCount');
-                    const titleSpan = document.getElementById('excelPreviewTitle');
-
-                    if (!container || !sheetsOutput) return;
-
-                    sheetsOutput.innerHTML = '';
-                    sheetTabsBar.innerHTML = '';
-                    container.classList.remove('hidden');
-
-                    if (titleSpan) titleSpan.innerText = titlePrefix;
-
-                    const sheetNames = workbook.SheetNames;
-                    if (sheetCountSpan) sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
-
-                    sheetNames.forEach((sheetName, index) => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) return;
-
-                        const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
-
-                        const tabBtn = document.createElement('a');
-                        tabBtn.href = `#sheet-block-${index}`;
-                        tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
-                        tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
-                        sheetTabsBar.appendChild(tabBtn);
-
-                        const sheetBlock = document.createElement('div');
-                        sheetBlock.id = `sheet-block-${index}`;
-                        sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
-                        sheetBlock.innerHTML = `
-                            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-                                <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
-                                    Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
-                                </h5>
-                            </div>
-                            <div class="overflow-x-auto sheet-table-container">
-                                ${htmlString}
-                            </div>
-                        `;
-                        sheetsOutput.appendChild(sheetBlock);
-                    });
+                    window.previewExcelFile(file, { titlePrefix: 'New Selected Publication List Preview' });
                 },
 
                 saveDraft() {

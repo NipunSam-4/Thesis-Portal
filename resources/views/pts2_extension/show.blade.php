@@ -108,7 +108,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Reason for Extension</label>
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
                 </div>
             </div>
 
@@ -129,9 +129,7 @@
                         @if($extension->reversion_comment)
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Reversion Comment:</strong>
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1">
-                                    {{ $extension->reversion_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($extension->reversion_comment) }}</p>
                             </div>
                         @endif
 
@@ -160,7 +158,7 @@
                                         ✓ Approved
                                     </span>
                                 </div>
-                                <p class="text-xs italic text-emerald-900 dark:text-emerald-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900">{{ trim($extension->adoaa_student_comment) }}</p>
+                                <p class="text-xs italic text-emerald-900 dark:text-emerald-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900 whitespace-pre-wrap">{{ trim($extension->adoaa_student_comment) }}</p>
                             </div>
                         @else
                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
@@ -179,7 +177,7 @@
                                         ❌ Rejected
                                     </span>
                                 </div>
-                                <p class="text-xs italic text-red-900 dark:text-red-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-900">{{ trim($extension->adoaa_student_comment) }}</p>
+                                <p class="text-xs italic text-red-900 dark:text-red-200 bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-900 whitespace-pre-wrap">{{ trim($extension->adoaa_student_comment) }}</p>
                             </div>
                         @else
                             <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
@@ -235,9 +233,7 @@
                                     </span>
                                 </div>
                                 @if($extension->main_supervisor_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->main_supervisor_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->main_supervisor_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -257,9 +253,7 @@
                                     </span>
                                 </div>
                                 @if($extension->dpgc_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->dpgc_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->dpgc_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -279,9 +273,7 @@
                                     </span>
                                 </div>
                                 @if($extension->hod_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->hod_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->hod_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -301,9 +293,7 @@
                                     </span>
                                 </div>
                                 @if($extension->section_officer_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->section_officer_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->section_officer_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -323,9 +313,7 @@
                                     </span>
                                 </div>
                                 @if($extension->adoaa_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->adoaa_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->adoaa_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>

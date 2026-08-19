@@ -1,7 +1,9 @@
 import './bootstrap';
+import './excel-preview';
 
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
 Alpine.start();
+

@@ -107,7 +107,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Reason for Extension</label>
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
                 </div>
             </div>
 
@@ -133,9 +133,7 @@
                                     </span>
                                 </div>
                                 @if($extension->main_supervisor_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->main_supervisor_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->main_supervisor_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -155,9 +153,7 @@
                                     </span>
                                 </div>
                                 @if($extension->dpgc_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->dpgc_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->dpgc_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -177,9 +173,7 @@
                                     </span>
                                 </div>
                                 @if($extension->hod_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->hod_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->hod_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -199,9 +193,7 @@
                                     </span>
                                 </div>
                                 @if($extension->section_officer_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        "{{ $extension->section_officer_confidential_remark }}"
-                                    </p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->section_officer_confidential_remark) }}"</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -252,12 +244,15 @@
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Verification Remark <span class="text-red-500">*</span>
                                 </label>
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="section_officer" />
+                                </div>
                                 <textarea name="confidential_remark" 
                                           rows="3" 
                                           required 
-                                          x-model="confidentialRemark"
+                                          x-model="confidentialRemark" 
                                           placeholder="Provide mandatory verification remarks" 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500">{{ old('confidential_remark') }}</textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             </div>
                         @else
                             <!-- Item 1: Recommendation Status Radio Cards (Exact PTS-1 Layout) -->
@@ -308,9 +303,9 @@
                                 <textarea name="confidential_remark" 
                                           rows="3" 
                                           :required="recommendation === '0'" 
-                                          x-model="confidentialRemark"
+                                          x-model="confidentialRemark" 
                                           :placeholder="recommendation === '1' ? 'Optional evaluation remarks for higher academic authorities' : 'Provide mandatory non-recommendation remarks'" 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500">{{ old('confidential_remark') }}</textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500 whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             </div>
                         @endif
 
@@ -328,7 +323,7 @@
                                        max="{{ isset($maxExtensionDate) && $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
                                        x-model="approvedExtendedUntilDate"
                                        value="{{ old('approved_extended_until_date', $extension->extended_until_date ? $extension->extended_until_date->format('Y-m-d') : '') }}" 
-                                       class="w-full md:w-1/2 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-purple-500">
+                                       class="w-full md:w-1/2 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark] text-sm focus:ring-2 focus:ring-purple-500">
                                 <p class="text-xs text-purple-700 dark:text-purple-300">
                                     Must be between 16 days ({{ isset($minExtensionDate) && $minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A' }}) and 30 days ({{ isset($maxExtensionDate) && $maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A' }}) from Open Seminar. Defaults to student's requested date ({{ $extension->extended_until_date ? $extension->extended_until_date->format('d-M-Y') : 'N/A' }}).
                                 </p>
@@ -341,9 +336,9 @@
                                 <textarea name="adoaa_student_comment" 
                                           rows="3" 
                                           required 
-                                          x-model="adoaaStudentComment"
+                                          x-model="adoaaStudentComment" 
                                           placeholder="Enter comments specifically visible to the student upon completion..." 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">{{ old('adoaa_student_comment') }}</textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 whitespace-pre-wrap">{{ trim(old('adoaa_student_comment')) }}</textarea>
                             </div>
                         @endif
                     </div>
@@ -427,7 +422,7 @@
                                           required 
                                           rows="4" 
                                           placeholder="Provide clear reasons/instructions for the student regarding required modifications" 
-                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500"></textarea>
+                                          class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500 whitespace-pre-wrap"></textarea>
                             </div>
 
                             <div class="flex justify-end space-x-3 pt-2">

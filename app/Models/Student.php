@@ -286,4 +286,124 @@ class Student extends Model
 
         return false;
     }
+
+    /**
+     * Get sorting priority score for a given viewing authority user.
+     * Lower numeric score = higher priority in the list.
+     *
+     * Tier 1 (10-40): Forms requiring THIS user's action (PTS-1 > PTS-2 Ext > PTS-2 > Draft)
+     * Tier 2 (100-130): Forms in progress anywhere in pipeline (lowest PTS form first)
+     * Tier 3 (200-400): Completed/Terminated forms (Reverted > Rejected > Approved)
+     * Tier 4 (500): Pending / Not started forms
+     */
+    public function getAuthoritySortScore($user): int
+    {
+        $thesis = $this->theses->first();
+        if (!$thesis) {
+            return 500; // Tier 4: No thesis registered
+        }
+
+        $pts1 = $thesis->pts1Form;
+        $pts2Ext = $thesis->pts2Extension;
+        $pts2 = $thesis->pts2Form;
+        $draft = $thesis->draftSynopsisCirculation;
+
+        // --- TIER 1: Requires THIS user's action / endorsement ---
+        // 1.1 PTS-1 action required
+        if ($pts1 && $pts1->status === 'in_progress') {
+            if ($pts1->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) return 10;
+            if ($pts1->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) return 10;
+                }
+            }
+            if ($pts1->current_stage === 'pspc_members') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "pspc_member_{$i}_id";
+                    $recCol = "pspc_member_{$i}_recommendation";
+                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) return 10;
+                }
+            }
+            if ($pts1->current_stage === 'dpgc' && $user->isDpgc()) return 10;
+            if ($pts1->current_stage === 'hod' && $user->isHod()) return 10;
+            if ($pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) return 10;
+            if ($pts1->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic())) return 10;
+        }
+
+        // 1.2 PTS-2 Extension action required
+        if ($pts2Ext && $pts2Ext->status === 'in_progress') {
+            if ($pts2Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) return 20;
+            if ($pts2Ext->current_stage === 'dpgc' && $user->isDpgc()) return 20;
+            if ($pts2Ext->current_stage === 'hod' && $user->isHod()) return 20;
+            if ($pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) return 20;
+            if ($pts2Ext->current_stage === 'adoaa' && ($user->isAdoaa() || $user->isDoaa())) return 20;
+        }
+
+        // 1.3 PTS-2 action required
+        if ($pts2 && $pts2->status === 'in_progress') {
+            if ($pts2->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) return 30;
+            if ($pts2->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 3; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) return 30;
+                }
+            }
+            if ($pts2->current_stage === 'pspc_members') {
+                for ($i = 1; $i <= 3; $i++) {
+                    $idCol = "pspc_member_{$i}_id";
+                    $recCol = "pspc_member_{$i}_recommendation";
+                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) return 30;
+                }
+            }
+            if ($pts2->current_stage === 'dpgc' && $user->isDpgc()) return 30;
+            if ($pts2->current_stage === 'hod' && $user->isHod()) return 30;
+            if ($pts2->current_stage === 'section_officer' && $user->isSectionOfficer()) return 30;
+            if ($pts2->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic())) return 30;
+        }
+
+        // 1.4 Draft Synopsis action required
+        if ($draft && $draft->status === 'in_progress') {
+            $hasCommented = $draft->comments->where('user_id', $user->id)->isNotEmpty();
+            if (!$hasCommented) {
+                if ($this->isMainSupervisor($user) || $this->isCoSupervisor($user) || $this->isPspcMember($user)) {
+                    return 40;
+                }
+            }
+        }
+
+        // --- TIER 2: In-Progress in Pipeline (Lowest PTS form first) ---
+        if ($pts1 && $pts1->status === 'in_progress') return 100;
+        if ($pts2Ext && $pts2Ext->status === 'in_progress') return 110;
+        if ($pts2 && $pts2->status === 'in_progress') return 120;
+        if ($draft && $draft->status === 'in_progress') return 130;
+
+        // --- TIER 3: Reverted > Rejected > Approved ---
+        $allForms = array_filter([$pts1, $pts2Ext, $pts2, $draft]);
+        if (!empty($allForms)) {
+            // Check for reverted
+            foreach ($allForms as $f) {
+                if (isset($f->status) && $f->status === 'reverted') {
+                    return 200;
+                }
+            }
+            // Check for rejected
+            foreach ($allForms as $f) {
+                if (isset($f->status) && $f->status === 'rejected') {
+                    return 300;
+                }
+            }
+            // Check for accepted / approved / completed
+            foreach ($allForms as $f) {
+                if (isset($f->status) && in_array($f->status, ['accepted', 'approved', 'completed'])) {
+                    return 400;
+                }
+            }
+        }
+
+        // --- TIER 4: Pending / Not started ---
+        return 500;
+    }
 }

@@ -92,20 +92,201 @@ body.dark .password-tooltip .tooltip-box,
     display: none !important;
 }
 
-/* Native Browser Dark Mode: Date & Time Input Picker Icons (White in Dark Mode) */
+/* Native Browser Dark Mode: Date & Time Input Picker Icons */
 @media (prefers-color-scheme: dark) {
     input[type="date"],
     input[type="time"],
     input[type="datetime-local"],
-    input[type="month"] {
-        color-scheme: dark !important;
+    input[type="month"],
+    input[type="week"] {
+        color-scheme: dark;
     }
 
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-calendar-picker-indicator,
     input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-    input[type="month"]::-webkit-calendar-picker-indicator {
-        filter: invert(1) brightness(1.8) !important;
+    input[type="month"]::-webkit-calendar-picker-indicator,
+    input[type="week"]::-webkit-calendar-picker-indicator {
         cursor: pointer;
     }
+}
+
+html.dark input[type="date"],
+html.dark input[type="time"],
+html.dark input[type="datetime-local"],
+html.dark input[type="month"],
+html.dark input[type="week"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark input[type="month"],
+.dark input[type="week"],
+body.dark input[type="date"],
+body.dark input[type="time"],
+body.dark input[type="datetime-local"],
+body.dark input[type="month"],
+body.dark input[type="week"] {
+    color-scheme: dark !important;
+}
+
+html.dark input[type="date"]::-webkit-calendar-picker-indicator,
+html.dark input[type="time"]::-webkit-calendar-picker-indicator,
+html.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+html.dark input[type="month"]::-webkit-calendar-picker-indicator,
+html.dark input[type="week"]::-webkit-calendar-picker-indicator,
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="month"]::-webkit-calendar-picker-indicator,
+.dark input[type="week"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+/* Global Excel Sheet Table Preview Styles */
+.sheet-table-container {
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.sheet-table-container table {
+    width: 100%;
+    min-width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    background-color: #ffffff;
+    color: #1f2937;
+}
+
+.sheet-table-container th,
+.sheet-table-container td {
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.sheet-table-container tr:first-child,
+.sheet-table-container thead tr,
+.sheet-table-container tr:first-child td,
+.sheet-table-container tr:first-child th {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+.sheet-table-container tbody tr:nth-child(even),
+.sheet-table-container tr:nth-child(even):not(:first-child) {
+    background-color: #f8fafc;
+}
+
+.sheet-table-container tbody tr:hover td,
+.sheet-table-container tr:hover:not(:first-child) td {
+    background-color: #f1f5f9;
+}
+
+.sheet-table-container a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+/* Dark Mode Support for Sheet Tables */
+@media (prefers-color-scheme: dark) {
+    .sheet-table-container table {
+        background-color: #111827 !important;
+        color: #e5e7eb !important;
+    }
+
+    .sheet-table-container th,
+    .sheet-table-container td {
+        border-color: #374151 !important;
+        color: #e5e7eb !important;
+        background-color: #111827 !important;
+    }
+
+    .sheet-table-container tr:first-child,
+    .sheet-table-container thead tr,
+    .sheet-table-container tr:first-child td,
+    .sheet-table-container tr:first-child th {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        font-weight: 700 !important;
+        border-bottom: 2px solid #475569 !important;
+    }
+
+    .sheet-table-container tbody tr:nth-child(even) td,
+    .sheet-table-container tr:nth-child(even):not(:first-child) td {
+        background-color: #1f2937 !important;
+    }
+
+    .sheet-table-container tbody tr:hover td,
+    .sheet-table-container tr:hover:not(:first-child) td {
+        background-color: #374151 !important;
+    }
+
+    .sheet-table-container a {
+        color: #60a5fa !important;
+    }
+}
+
+.dark .sheet-table-container table,
+html.dark .sheet-table-container table,
+body.dark .sheet-table-container table {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+}
+
+.dark .sheet-table-container th,
+.dark .sheet-table-container td,
+html.dark .sheet-table-container th,
+html.dark .sheet-table-container td,
+body.dark .sheet-table-container th,
+body.dark .sheet-table-container td {
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+    background-color: #111827 !important;
+}
+
+.dark .sheet-table-container tr:first-child,
+.dark .sheet-table-container thead tr,
+.dark .sheet-table-container tr:first-child td,
+.dark .sheet-table-container tr:first-child th,
+html.dark .sheet-table-container tr:first-child,
+html.dark .sheet-table-container thead tr,
+html.dark .sheet-table-container tr:first-child td,
+html.dark .sheet-table-container tr:first-child th,
+body.dark .sheet-table-container tr:first-child,
+body.dark .sheet-table-container thead tr,
+body.dark .sheet-table-container tr:first-child td,
+body.dark .sheet-table-container tr:first-child th {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #475569 !important;
+}
+
+.dark .sheet-table-container tbody tr:nth-child(even) td,
+.dark .sheet-table-container tr:nth-child(even):not(:first-child) td,
+html.dark .sheet-table-container tbody tr:nth-child(even) td,
+html.dark .sheet-table-container tr:nth-child(even):not(:first-child) td,
+body.dark .sheet-table-container tbody tr:nth-child(even) td,
+body.dark .sheet-table-container tr:nth-child(even):not(:first-child) td {
+    background-color: #1f2937 !important;
+}
+
+.dark .sheet-table-container tbody tr:hover td,
+.dark .sheet-table-container tr:hover:not(:first-child) td,
+html.dark .sheet-table-container tbody tr:hover td,
+html.dark .sheet-table-container tr:hover:not(:first-child) td,
+body.dark .sheet-table-container tbody tr:hover td,
+body.dark .sheet-table-container tr:hover:not(:first-child) td {
+    background-color: #374151 !important;
+}
+
+.dark .sheet-table-container a,
+html.dark .sheet-table-container a,
+body.dark .sheet-table-container a {
+    color: #60a5fa !important;
 }

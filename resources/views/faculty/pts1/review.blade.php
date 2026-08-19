@@ -8,54 +8,6 @@
         </div>
     </x-slot>
 
-    <!-- Custom CSS for Live Excel Table Previews -->
-    <style>
-        .sheet-table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.825rem;
-            margin-top: 0.5rem;
-        }
-        .sheet-table-container th, .sheet-table-container td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-        }
-        .sheet-table-container tr:first-child {
-            background-color: #f3f4f6;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .sheet-table-container tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .sheet-table-container th,
-            .sheet-table-container td {
-                border-color: #374151;
-                color: #d1d5db;
-            }
-
-            .sheet-table-container tr:first-child,
-            .sheet-table-container tr:first-child td,
-            .sheet-table-container tr:first-child th {
-                background-color: #374151 !important;
-                color: #ffffff !important;
-                font-weight: 700;
-            }
-
-            .sheet-table-container tr:not(:first-child) {
-                background-color: transparent !important;
-            }
-            .sheet-table-container tr:not(:first-child) td,
-            .sheet-table-container tr:not(:first-child) th {
-                background-color: transparent !important;
-                color: #d1d5db !important;
-            }
-        }
-    </style>
-
     <div class="py-6" x-data="pts1ReviewForm()">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
@@ -148,7 +100,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_confirmation" required value="{{ old('date_confirmation', $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="date" name="date_confirmation" required x-model="dateConfirmation" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
                         </div>
                     </div>
                 </div>
@@ -173,22 +125,22 @@
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="date" name="seminar_date" required min="{{ $pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : '' }}" value="{{ old('seminar_date', $pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : '') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"> 
+                            <input type="date" name="seminar_date" required x-model="seminarDate" min="{{ $pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : '' }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"> 
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Time of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="time" name="seminar_time" required value="{{ old('seminar_time', $pts1->seminar_time) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="time" name="seminar_time" required x-model="seminarTime" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Venue of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="text" name="seminar_venue" required value="{{ old('seminar_venue', $pts1->seminar_venue) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="text" name="seminar_venue" required x-model="seminarVenue" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
-                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" value="{{ old('meeting_link', $pts1->meeting_link) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
                 </div>
@@ -566,8 +518,9 @@
                         <textarea name="main_supervisor_confidential_remark" 
                                   rows="3" 
                                   :required="workStatus === 'inadequate'" 
+                                  x-model="confidentialRemark"
                                   :placeholder="workStatus === 'adequate' ? 'Optional confidential remarks' : 'Provide mandatory confidential remark'" 
-                                  class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_confidential_remark', $pts1->main_supervisor_confidential_remark) }}</textarea>
+                                  class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('main_supervisor_confidential_remark', $pts1->main_supervisor_confidential_remark)) }}</textarea>
                     </div>
 
                     <!-- Item 3: PSPC Comments Textarea -->
@@ -575,7 +528,7 @@
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
                             3. Additional comments / observations / recommendations of the PSPC (for the Student)<span class="text-red-500">*</span>
                         </label>
-                        <textarea name="main_supervisor_student_comment" rows="4" required placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">{{ old('main_supervisor_student_comment') }}</textarea>
+                        <textarea name="main_supervisor_student_comment" rows="4" required x-model="studentComment" placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('main_supervisor_student_comment')) }}</textarea>
                     </div>
                 </div>
 
@@ -672,7 +625,7 @@
                                       required 
                                       rows="4" 
                                       placeholder="Provide clear reasons/instructions for the student regarding required modifications..." 
-                                      class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500"></textarea>
+                                      class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500 whitespace-pre-wrap"></textarea>
                         </div>
 
                         <div class="flex justify-end space-x-3 pt-2">
@@ -696,9 +649,6 @@
         </div>
     </div>
 
-    <!-- Load SheetJS for Client-Side Multi-Sheet Excel Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
     @php
         $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
             ? route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) 
@@ -716,12 +666,22 @@
 
             return {
                 showRevertModal: false,
-                pspcUndertaking: false,
+                pspcUndertaking: savedDraft.pspcUndertaking !== undefined ? savedDraft.pspcUndertaking : false,
+
+                dateConfirmation: @js(old('date_confirmation')) || savedDraft.dateConfirmation || @js($student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') : ''),
+                seminarDate: @js(old('seminar_date')) || savedDraft.seminarDate || @js($pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : ''),
+                seminarTime: @js(old('seminar_time')) || savedDraft.seminarTime || @js($pts1->seminar_time ?? ''),
+                seminarVenue: @js(old('seminar_venue')) || savedDraft.seminarVenue || @js($pts1->seminar_venue ?? ''),
+                meetingLink: @js(old('meeting_link')) || savedDraft.meetingLink || @js($pts1->meeting_link ?? ''),
+
                 workStatus: @js(old('work_status')) || savedDraft.workStatus || @js($pts1->work_status ?? 'adequate'),
                 pubNorm: @js(old('publication_norm_fulfillment')) || savedDraft.pubNorm || @js($pts1->publication_norm_fulfillment ? '1' : '0'),
                 pubApproval: @js(old('special_approval_publication')) || savedDraft.pubApproval || @js($pts1->special_approval_publication ? '1' : '0'),
                 timeNorm: @js(old('min_time_req_fulfilled')) || savedDraft.timeNorm || @js($pts1->min_time_req_fulfilled ? '1' : '0'),
                 timeApproval: @js(old('special_approval_min_time')) || savedDraft.timeApproval || @js($pts1->special_approval_min_time ? '1' : '0'),
+
+                confidentialRemark: @js(old('main_supervisor_confidential_remark')) || savedDraft.confidentialRemark || @js($pts1->main_supervisor_confidential_remark ?? ''),
+                studentComment: @js(old('main_supervisor_student_comment')) || savedDraft.studentComment || '',
 
                 existingPubListUrl: @json($existingPubListUrl),
 
@@ -747,7 +707,21 @@
                 },
 
                 init() {
-                    const watchFields = ['workStatus', 'pubNorm', 'pubApproval', 'timeNorm', 'timeApproval'];
+                    const watchFields = [
+                        'pspcUndertaking',
+                        'dateConfirmation',
+                        'seminarDate',
+                        'seminarTime',
+                        'seminarVenue',
+                        'meetingLink',
+                        'workStatus',
+                        'pubNorm',
+                        'pubApproval',
+                        'timeNorm',
+                        'timeApproval',
+                        'confidentialRemark',
+                        'studentComment'
+                    ];
                     watchFields.forEach(field => {
                         this.$watch(field, () => this.saveDraft());
                     });
@@ -757,19 +731,7 @@
                 },
 
                 loadExcelFromUrl(url, titlePrefix = 'Existing Publication List Preview') {
-                    fetch(url)
-                        .then(res => {
-                            if (!res.ok) throw new Error('Failed to load existing publication list');
-                            return res.arrayBuffer();
-                        })
-                        .then(ab => {
-                            const data = new Uint8Array(ab);
-                            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                            this.renderWorkbook(workbook, titlePrefix);
-                        })
-                        .catch(err => {
-                            console.error('Error previewing existing publication list:', err);
-                        });
+                    window.previewExcelUrl(url, { titlePrefix });
                 },
 
                 get isBlocked() {
@@ -822,82 +784,45 @@
                         if (this.existingPubListUrl) {
                             this.loadExcelFromUrl(this.existingPubListUrl, 'Existing Publication List Preview');
                         } else {
-                            document.getElementById('excelPreviewContainer').classList.add('hidden');
-                            document.getElementById('sheetsOutput').innerHTML = '';
-                            document.getElementById('sheetTabsBar').innerHTML = '';
+                            window.clearExcelPreview();
                         }
                     }
                 },
 
-                handleExcelPreview(event) {
+                async handleExcelPreview(event) {
                     const file = event.target.files[0];
                     if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                        this.renderWorkbook(workbook, 'New Selected Publication List Preview');
-                    };
-                    reader.readAsArrayBuffer(file);
-                },
-
-                renderWorkbook(workbook, titlePrefix = 'Publication List Preview') {
-                    const container = document.getElementById('excelPreviewContainer');
-                    const sheetsOutput = document.getElementById('sheetsOutput');
-                    const sheetTabsBar = document.getElementById('sheetTabsBar');
-                    const sheetCountSpan = document.getElementById('excelSheetCount');
-                    const titleSpan = document.getElementById('excelPreviewTitle');
-
-                    if (!container || !sheetsOutput) return;
-
-                    sheetsOutput.innerHTML = '';
-                    sheetTabsBar.innerHTML = '';
-                    container.classList.remove('hidden');
-
-                    if (titleSpan) titleSpan.innerText = titlePrefix;
-
-                    const sheetNames = workbook.SheetNames;
-                    if (sheetCountSpan) sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
-
-                    sheetNames.forEach((sheetName, index) => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        if (!worksheet) return;
-
-                        const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
-
-                        const tabBtn = document.createElement('a');
-                        tabBtn.href = `#sheet-block-${index}`;
-                        tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
-                        tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
-                        sheetTabsBar.appendChild(tabBtn);
-
-                        const sheetBlock = document.createElement('div');
-                        sheetBlock.id = `sheet-block-${index}`;
-                        sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
-                        sheetBlock.innerHTML = `
-                            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-                                <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
-                                    Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
-                                </h5>
-                            </div>
-                            <div class="overflow-x-auto sheet-table-container">
-                                ${htmlString}
-                            </div>
-                        `;
-                        sheetsOutput.appendChild(sheetBlock);
-                    });
+                    try {
+                        const result = await window.previewExcelFile(file, { 
+                            titlePrefix: 'New Selected Publication List Preview',
+                            validatePublications: true 
+                        });
+                        if (result && !result.isValid) {
+                            this.fileErrors.pubList = 'Mandatory publication columns (Title of Paper and Journal/Conference Name) are missing or not filled in one or more rows.';
+                        } else {
+                            this.fileErrors.pubList = '';
+                        }
+                    } catch (e) {
+                        this.fileErrors.pubList = 'Could not parse Excel file. Please ensure it is a valid spreadsheet.';
+                    }
                 },
 
                 saveDraft() {
                     try {
                         sessionStorage.setItem(draftKey, JSON.stringify({
+                            pspcUndertaking: this.pspcUndertaking,
+                            dateConfirmation: this.dateConfirmation,
+                            seminarDate: this.seminarDate,
+                            seminarTime: this.seminarTime,
+                            seminarVenue: this.seminarVenue,
+                            meetingLink: this.meetingLink,
                             workStatus: this.workStatus,
                             pubNorm: this.pubNorm,
                             pubApproval: this.pubApproval,
                             timeNorm: this.timeNorm,
                             timeApproval: this.timeApproval,
+                            confidentialRemark: this.confidentialRemark,
+                            studentComment: this.studentComment,
                         }));
                     } catch (e) {}
                 },

@@ -38,9 +38,7 @@
                         @if($pts2Extension->reversion_comment)
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Reversion Comment:</strong>
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1">
-                                    {{ $pts2Extension->reversion_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts2Extension->reversion_comment) }}</p>
                             </div>
                         @endif
                     </div>
@@ -111,7 +109,7 @@
                                    max="{{ $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
                                    x-model="extendedUntilDate"
                                    value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : '')) }}" 
-                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm">
+                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark] focus:ring-purple-500 focus:border-purple-500 text-sm">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Select the extended deadline date till which you are requesting extension for PTS-2 form submission.
                             </p>
@@ -132,7 +130,7 @@
                                     required 
                                     x-model="reasonForExtension"
                                     placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed whitespace-pre-wrap">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
                     </div>
                 </div>
 

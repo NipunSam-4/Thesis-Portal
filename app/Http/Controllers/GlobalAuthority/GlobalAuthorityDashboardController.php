@@ -4,6 +4,7 @@ namespace App\Http\Controllers\GlobalAuthority;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\Department;
 use Illuminate\Http\Request;
 
 class GlobalAuthorityDashboardController extends Controller
@@ -11,6 +12,9 @@ class GlobalAuthorityDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        // Fetch all active departments for filtering
+        $departments = Department::where('is_active', true)->orderBy('name')->get();
 
         // Fetch all institute students with eager loaded relationships
         $allStudents = Student::with([
@@ -24,9 +28,19 @@ class GlobalAuthorityDashboardController extends Controller
             'theses.pts2Extension'
         ])->get();
 
-        $phdStudents = $allStudents->filter(fn($s) => $s->isPhd());
-        $msrStudents = $allStudents->filter(fn($s) => $s->isMsr());
+        // Sort hierarchy: Tier 1 (Action Required) -> Tier 2 (In-Progress) -> Tier 3 (Reverted/Rejected/Approved) -> Tier 4 (Pending), tie-break by roll_number
+        $sortCallback = function ($a, $b) use ($user) {
+            $scoreA = $a->getAuthoritySortScore($user);
+            $scoreB = $b->getAuthoritySortScore($user);
+            if ($scoreA !== $scoreB) {
+                return $scoreA <=> $scoreB;
+            }
+            return strnatcasecmp($a->roll_number ?? '', $b->roll_number ?? '');
+        };
 
-        return view('global_authorities.dashboard', compact('user', 'phdStudents', 'msrStudents'));
+        $phdStudents = $allStudents->filter(fn($s) => $s->isPhd())->sort($sortCallback)->values();
+        $msrStudents = $allStudents->filter(fn($s) => $s->isMsr())->sort($sortCallback)->values();
+
+        return view('global_authorities.dashboard', compact('user', 'phdStudents', 'msrStudents', 'departments'));
     }
 }

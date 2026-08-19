@@ -20,15 +20,24 @@ class DeptAuthorityDashboardController extends Controller
                 'department',
                 'supervisors',
                 'pspcMembers',
-                'theses.draftSynopsisCirculation.comments',
                 'theses.pts1Form',
                 'theses.pts2Form',
                 'theses.pts2Extension'
             ])
             ->get();
 
-        $phdStudents = $departmentStudents->filter(fn($s) => $s->isPhd());
-        $msrStudents = $departmentStudents->filter(fn($s) => $s->isMsr());
+        // Sort hierarchy: Tier 1 (Action Required) -> Tier 2 (In-Progress) -> Tier 3 (Reverted/Rejected/Approved) -> Tier 4 (Pending), tie-break by roll_number
+        $sortCallback = function ($a, $b) use ($user) {
+            $scoreA = $a->getAuthoritySortScore($user);
+            $scoreB = $b->getAuthoritySortScore($user);
+            if ($scoreA !== $scoreB) {
+                return $scoreA <=> $scoreB;
+            }
+            return strnatcasecmp($a->roll_number ?? '', $b->roll_number ?? '');
+        };
+
+        $phdStudents = $departmentStudents->filter(fn($s) => $s->isPhd())->sort($sortCallback)->values();
+        $msrStudents = $departmentStudents->filter(fn($s) => $s->isMsr())->sort($sortCallback)->values();
 
         return view('dept_authorities.dashboard', compact('user', 'phdStudents', 'msrStudents'));
     }

@@ -25,54 +25,6 @@
         </div>
     </x-slot>
 
-    <!-- Custom CSS for Live Excel Table Previews -->
-    <style>
-        .sheet-table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.825rem;
-            margin-top: 0.5rem;
-        }
-        .sheet-table-container th, .sheet-table-container td {
-            border: 1px solid #e5e7eb;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-        }
-        .sheet-table-container tr:first-child {
-            background-color: #f3f4f6;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        .sheet-table-container tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .sheet-table-container th,
-            .sheet-table-container td {
-                border-color: #374151;
-                color: #d1d5db;
-            }
-
-            .sheet-table-container tr:first-child,
-            .sheet-table-container tr:first-child td,
-            .sheet-table-container tr:first-child th {
-                background-color: #374151 !important;
-                color: #ffffff !important;
-                font-weight: 700;
-            }
-
-            .sheet-table-container tr:not(:first-child) {
-                background-color: transparent !important;
-            }
-            .sheet-table-container tr:not(:first-child) td,
-            .sheet-table-container tr:not(:first-child) th {
-                background-color: transparent !important;
-                color: #d1d5db !important;
-            }
-        }
-    </style>
-
     <div class="py-6">
         <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
@@ -332,9 +284,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Additional Comment:</strong>
                             @if($pts1->main_supervisor_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1">
-                                    {{ $pts1->main_supervisor_student_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,9 +306,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->dpgc_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5">
-                                    {{ $pts1->dpgc_student_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,9 +328,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->hod_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5">
-                                    {{ $pts1->hod_student_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,9 +350,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->doaa_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5">
-                                    {{ $pts1->doaa_student_comment }}
-                                </p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,9 +367,6 @@
         </div>
     </div>
 
-    <!-- Load SheetJS for Client-Side Multi-Sheet Excel Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
     @php
         $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
             ? route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) 
@@ -435,67 +376,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const pubListUrl = @json($existingPubListUrl);
-            if (!pubListUrl) return;
-
-            fetch(pubListUrl)
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to load publication list');
-                    return res.arrayBuffer();
-                })
-                .then(ab => {
-                    const data = new Uint8Array(ab);
-                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    renderWorkbook(workbook, 'Publication and Other Recognition Preview');
-                })
-                .catch(err => {
-                    console.error('Error previewing publication list:', err);
-                });
-
-            function renderWorkbook(workbook, titlePrefix = 'Publication and Other Recognition Preview') {
-                const container = document.getElementById('excelPreviewContainer');
-                const sheetsOutput = document.getElementById('sheetsOutput');
-                const sheetTabsBar = document.getElementById('sheetTabsBar');
-                const sheetCountSpan = document.getElementById('excelSheetCount');
-                const titleSpan = document.getElementById('excelPreviewTitle');
-
-                if (!container || !sheetsOutput) return;
-
-                sheetsOutput.innerHTML = '';
-                sheetTabsBar.innerHTML = '';
-                container.classList.remove('hidden');
-
-                if (titleSpan) titleSpan.innerText = titlePrefix;
-
-                const sheetNames = workbook.SheetNames;
-                if (sheetCountSpan) sheetCountSpan.innerText = `${sheetNames.length} Sheet(s) Found`;
-
-                sheetNames.forEach((sheetName, index) => {
-                    const worksheet = workbook.Sheets[sheetName];
-                    if (!worksheet) return;
-
-                    const htmlString = XLSX.utils.sheet_to_html(worksheet, { id: 'sheet-table-' + index, editable: false });
-
-                    const tabBtn = document.createElement('a');
-                    tabBtn.href = `#sheet-block-${index}`;
-                    tabBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition flex items-center';
-                    tabBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> ${sheetName}`;
-                    sheetTabsBar.appendChild(tabBtn);
-
-                    const sheetBlock = document.createElement('div');
-                    sheetBlock.id = `sheet-block-${index}`;
-                    sheetBlock.className = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm space-y-3';
-                    sheetBlock.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
-                            <h5 class="font-bold text-sm text-indigo-800 dark:text-indigo-300 uppercase tracking-wider flex items-center">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></span>
-                                Sheet (${index + 1}/${sheetNames.length}): ${sheetName}
-                            </h5>
-                        </div>
-                        <div class="overflow-x-auto sheet-table-container">
-                            ${htmlString}
-                        </div>
-                    `;
-                    sheetsOutput.appendChild(sheetBlock);
+            if (pubListUrl) {
+                window.previewExcelUrl(pubListUrl, {
+                    titlePrefix: 'Publication and Other Recognition Preview'
                 });
             }
         });
