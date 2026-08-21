@@ -48,11 +48,11 @@
                     <h2 class="text-2xl font-bold mb-1">Welcome, {{ $user->name }}</h2>
                     <p class="{{ $user->isDpgc() ? 'text-purple-100' : 'text-indigo-100' }} text-sm">
                         @if($user->isDpgc())
-                            Department Postgraduate Committee (DPGC)- <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Department Postgraduate Committee (DPGC)- <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @elseif($user->isHod())
-                            Head of Department (HOD) - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Head of Department (HOD) - <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @else
-                            Departmental Authority - <strong>{{ $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                            Departmental Authority - <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
                         @endif
                     </p>
                 </div>

@@ -130,5 +130,8 @@ class User extends Authenticatable
         return $this->hasOne(FacultyProfile::class);
     }
 
-
+    public function deptAuthorityProfile(): HasOne
+    {
+        return $this->hasOne(DeptAuthorityProfile::class);
+    }
 }

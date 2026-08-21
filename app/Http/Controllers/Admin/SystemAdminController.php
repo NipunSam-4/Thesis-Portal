@@ -139,7 +139,7 @@ class SystemAdminController extends Controller
     {
         $departments = Department::where('is_active', true)->orderBy('name')->get();
         $authorities = User::whereIn('role', ['hod', 'dpgc', 'section_officer', 'faculty'])
-            ->with(['facultyProfile.department'])
+            ->with(['facultyProfile.department', 'deptAuthorityProfile.department'])
             ->orderBy('name')
             ->get();
 
@@ -157,8 +157,12 @@ class SystemAdminController extends Controller
 
         if ($request->role === 'hod') {
             $existingHod = User::where('role', 'hod')
-                ->whereHas('facultyProfile', function($q) use ($request) {
-                    $q->where('department_id', $request->department_id);
+                ->where(function($query) use ($request) {
+                    $query->whereHas('deptAuthorityProfile', function($q) use ($request) {
+                        $q->where('department_id', $request->department_id);
+                    })->orWhereHas('facultyProfile', function($q) use ($request) {
+                        $q->where('department_id', $request->department_id);
+                    });
                 })->exists();
 
             if ($existingHod) {
@@ -174,9 +178,15 @@ class SystemAdminController extends Controller
             'is_active' => true,
         ]);
 
-        $user->facultyProfile()->create([
-            'department_id' => $request->department_id,
-        ]);
+        if (in_array($request->role, ['hod', 'dpgc'], true)) {
+            $user->deptAuthorityProfile()->create([
+                'department_id' => $request->department_id,
+            ]);
+        } else {
+            $user->facultyProfile()->create([
+                'department_id' => $request->department_id,
+            ]);
+        }
 
         return back()->with('success', $user->name . ' registered successfully as ' . strtoupper(str_replace('_', ' ', $request->role)) . '!');
     }

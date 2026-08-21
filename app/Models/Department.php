@@ -32,5 +32,14 @@ class Department extends Model
     {
         return $this->hasMany(SuperAdmin::class);
     }
-    
+
+    public function facultyProfiles(): HasMany
+    {
+        return $this->hasMany(FacultyProfile::class);
+    }
+
+    public function deptAuthorityProfiles(): HasMany
+    {
+        return $this->hasMany(DeptAuthorityProfile::class);
+    }
 }

@@ -57,8 +57,8 @@
                                     </td>
                                     
                                     <td class="p-4 space-y-1">
-                                        @if($user->role === 'hod') <div class="bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded w-max">Head of Department ({{ $user->facultyProfile->department->code ?? 'N/A' }})</div> @endif
-                                        @if($user->role === 'dpgc') <div class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded w-max">DPGC Member ({{ $user->facultyProfile->department->code ?? 'N/A' }})</div> @endif
+                                        @if($user->role === 'hod') <div class="bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded w-max">Head of Department ({{ $user->deptAuthorityProfile->department->code ?? $user->facultyProfile->department->code ?? 'N/A' }})</div> @endif
+                                        @if($user->role === 'dpgc') <div class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded w-max">DPGC Member ({{ $user->deptAuthorityProfile->department->code ?? $user->facultyProfile->department->code ?? 'N/A' }})</div> @endif
                                         @if($user->role === 'section_officer') <div class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded w-max">Section Officer</div> @endif
                                         @if($user->role === 'faculty') <div class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded w-max">Faculty Member ({{ $user->facultyProfile->department->code ?? 'N/A' }})</div> @endif
                                     </td>

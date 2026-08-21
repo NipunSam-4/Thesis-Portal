@@ -11,7 +11,7 @@ class DeptAuthorityDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $departmentId = $user->facultyProfile?->department_id;
+        $departmentId = $user->deptAuthorityProfile?->department_id;
 
         // Fetch all students belonging to the department with their theses and PTS forms
         $departmentStudents = Student::where('department_id', $departmentId)

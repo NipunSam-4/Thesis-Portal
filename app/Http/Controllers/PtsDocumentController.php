@@ -79,7 +79,7 @@ class PtsDocumentController extends Controller
             if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar', 'section_officer'], true)) {
                 $isAuthorized = true;
             } elseif (in_array($user->role, ['hod', 'dpgc'], true)) {
-                $userDeptId = $user->facultyProfile?->department_id;
+                $userDeptId = $user->deptAuthorityProfile?->department_id ?? $user->facultyProfile?->department_id;
                 if ($userDeptId && $thesis->student && $thesis->student->department_id === $userDeptId) {
                     $isAuthorized = true;
                 }
