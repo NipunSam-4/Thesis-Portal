@@ -126,9 +126,9 @@
                 @else
                     <div class="space-y-3">
                         @foreach($comments as $comment)
-                            <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
-                                <div class="flex items-center justify-between text-xs gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">
+                            <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2 min-w-0 max-w-full">
+                                <div class="flex items-center justify-between text-xs gap-2 sm:gap-4 flex-wrap sm:flex-nowrap min-w-0">
+                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200 min-w-0 break-words">
                                         @php
                                             $label = $comment->authority_label;
                                             $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-0">$1</span>', e($label));
@@ -139,7 +139,7 @@
                                         {{ $comment->created_at->format('d M Y, h:i A') }}
                                     </span>
                                 </div>
-                                <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed">
+                                <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed break-words [overflow-wrap:anywhere] overflow-x-auto">
                                     {!! class_exists(\Stevebauman\Purify\Facades\Purify::class) ? \Stevebauman\Purify\Facades\Purify::clean($comment->comment) : nl2br(e($comment->comment)) !!}
                                 </div>
                             </div>

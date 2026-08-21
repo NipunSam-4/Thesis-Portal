@@ -11,15 +11,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DraftSynopsisReviewController extends Controller
 {
-    /**
-     * Display the review page for academic authorities to inspect draft synopsis & submit feedback.
-     */
+    // Display the review page for academic authorities to inspect draft synopsis & submit feedback.
     public function show($id)
     {
-        $circulation = DraftSynopsisCirculation::with(['thesis', 'student.user'])->findOrFail($id);
+        $circulation = DraftSynopsisCirculation::with(['thesis.student.user'])->findOrFail($id);
         $user = auth()->user();
-        $student = $circulation->student;
         $thesis = $circulation->thesis;
+        $student = $thesis->student;
 
         $authorityInfo = $this->resolveAuthorityInfo($user, $student);
 
@@ -33,14 +31,12 @@ class DraftSynopsisReviewController extends Controller
         return view('draft_synopsis.review', compact('circulation', 'user', 'student', 'thesis', 'authorityInfo', 'userComment', 'comments'));
     }
 
-    /**
-     * Submit or update an authority's feedback comment.
-     */
+    // Submit or update an authority's feedback comment.
     public function comment(Request $request, $id)
     {
-        $circulation = DraftSynopsisCirculation::with('student')->findOrFail($id);
+        $circulation = DraftSynopsisCirculation::with('thesis.student')->findOrFail($id);
         $user = auth()->user();
-        $student = $circulation->student;
+        $student = $circulation->thesis->student;
 
         $validated = $request->validate([
             'comment' => 'required|string|max:15000',
@@ -64,9 +60,7 @@ class DraftSynopsisReviewController extends Controller
         return back()->with('success', 'Your feedback comment on the Draft Synopsis has been submitted successfully!');
     }
 
-    /**
-     * Serve the uploaded draft synopsis document securely.
-     */
+    // Serve the uploaded draft synopsis document securely.
     public function serveDocument($id)
     {
         $circulation = DraftSynopsisCirculation::findOrFail($id);
@@ -79,9 +73,7 @@ class DraftSynopsisReviewController extends Controller
         return response()->file(storage_path('app/private/' . $circulation->draft_synopsis_doc_path));
     }
 
-    /**
-     * Resolve the authority role & label for the given user relative to the student.
-     */
+    // Resolve the authority role & label for the given user relative to the student.
     private function resolveAuthorityInfo($user, $student): array
     {
         if ($student->isMainSupervisor($user)) {

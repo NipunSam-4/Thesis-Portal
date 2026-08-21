@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Pts2ExtensionController extends Controller
 {
-    /**
-     * Show form for student to apply for PTS-2 Extension.
-     */
+    // Show form for student to apply for PTS-2 Extension.
     public function create()
     {
         $user = Auth::user();
@@ -30,8 +28,8 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have an active thesis registered to apply for PTS-2 extension.');
         }
 
-        // Must have an APPROVED PTS-1 Form (status === 'accepted')
-        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+        // Must have an APPROVED PTS-1 Form (status === 'approved')
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
         }
 
@@ -57,9 +55,7 @@ class Pts2ExtensionController extends Controller
         return view('student.pts2_extension.create', compact('user', 'student', 'thesis', 'pts2Extension', 'isReverted', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
     }
 
-    /**
-     * Store or resubmit student PTS-2 extension application.
-     */
+    // Store or resubmit student PTS-2 extension application.
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -74,7 +70,7 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Active thesis not found.');
         }
 
-        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
         }
 
@@ -115,9 +111,7 @@ class Pts2ExtensionController extends Controller
         return redirect()->route('student.dashboard')->with('success', 'PTS-2 Extension application submitted successfully.');
     }
 
-    /**
-     * Show PTS-2 extension view for student or authority.
-     */
+    // Show PTS-2 extension view for student or authority.
     public function show($id)
     {
         $extension = Pts2Extension::with(['thesis.student.user', 'thesis.student.department'])->findOrFail($id);
@@ -137,9 +131,7 @@ class Pts2ExtensionController extends Controller
         return view('pts2_extension.show', compact('extension', 'user'));
     }
 
-    /**
-     * Show evaluation portal for authority.
-     */
+    // Show evaluation portal for authority.
     public function review($id)
     {
         $extension = Pts2Extension::with(['thesis.student.user', 'thesis.student.department'])->findOrFail($id);
@@ -158,9 +150,7 @@ class Pts2ExtensionController extends Controller
         return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
     }
 
-    /**
-     * Handle evaluation submission by an authority.
-     */
+    // Handle evaluation submission by an authority.
     public function submitReview(Request $request, $id)
     {
         $extension = Pts2Extension::findOrFail($id);
@@ -260,7 +250,7 @@ class Pts2ExtensionController extends Controller
                 $extension->doaa_submitted_at = now();
                 if ($isRecommended) {
                     $extension->approved_extended_until_date = $request->approved_extended_until_date ?? $extension->extended_until_date;
-                    $extension->status = 'accepted';
+                    $extension->status = 'approved';
                 } else {
                     $extension->approved_extended_until_date = null;
                     $extension->status = 'rejected';
@@ -274,9 +264,7 @@ class Pts2ExtensionController extends Controller
         return redirect()->route('dashboard')->with('success', 'PTS-2 Extension Application submitted successfully.');
     }
 
-    /**
-     * Helper to determine logged-in user's role in relation to the extension form.
-     */
+    // Helper to determine logged-in user's role in relation to the extension form.
     private function determineUserRole($user, Pts2Extension $extension): ?string
     {
         $student = $extension->thesis?->student;

@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    // Seed the application's database.
     public function run(): void
     {
         $password = Hash::make('12345678');
@@ -26,6 +24,11 @@ class DatabaseSeeder extends Seeder
         $dept = Department::firstOrCreate(
             ['code' => 'CSE'],
             ['name' => 'Computer Science and Engineering', 'is_active' => true]
+        );
+
+        $dept2 = Department::firstOrCreate(
+            ['code' => 'ME'],
+            ['name' => 'Mechanical Engineering', 'is_active' => true]
         );
 
         // 2. Separate Admin Model Accounts (System Admin & Department Super Admin)
@@ -66,6 +69,11 @@ class DatabaseSeeder extends Seeder
         );
 
         User::firstOrCreate(
+            ['email' => 'academicoffice@iiti.ac.in'],
+            ['name' => 'Academic Office', 'password' => $password, 'role' => 'academic_office', 'is_active' => true]
+        );
+
+        User::firstOrCreate(
             ['email' => 'sectionofficer@iiti.ac.in'],
             ['name' => 'Section Officer', 'password' => $password, 'role' => 'section_officer', 'is_active' => true]
         );
@@ -77,11 +85,23 @@ class DatabaseSeeder extends Seeder
         );
         $hodUser->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
 
+        $hodUserME = User::firstOrCreate(
+            ['email' => 'hod_me@iiti.ac.in'],
+            ['name' => 'Head of Department ME', 'password' => $password, 'role' => 'hod', 'is_active' => true]
+        );
+        $hodUserME->facultyProfile()->firstOrCreate(['department_id' => $dept2->id]);
+
         $dpgcUser = User::firstOrCreate(
             ['email' => 'dpgc@iiti.ac.in'],
             ['name' => 'DPGC Member', 'password' => $password, 'role' => 'dpgc', 'is_active' => true]
         );
         $dpgcUser->facultyProfile()->firstOrCreate(['department_id' => $dept->id]);
+
+        $dpgcUserME = User::firstOrCreate(
+            ['email' => 'dpgc_me@iiti.ac.in'],
+            ['name' => 'DPGC Member ME', 'password' => $password, 'role' => 'dpgc', 'is_active' => true]
+        );
+        $dpgcUserME->facultyProfile()->firstOrCreate(['department_id' => $dept2->id]);
 
         // 5. Faculty Members
         $faculty1 = User::firstOrCreate(
@@ -159,7 +179,7 @@ class DatabaseSeeder extends Seeder
             ['roll_number' => '230001002'],
             [
                 'user_id' => $phdStudentUser1->id,
-                'department_id' => $dept->id,
+                'department_id' => $dept2->id,
                 'program_name'=>'phd',
                 'admission_category' => 'FA (Fellowship Awardee)',
                 'course_credits_earned' => 48.5,
@@ -256,6 +276,9 @@ class DatabaseSeeder extends Seeder
         if (!$msrStudent2->pspcMembers()->where('faculty_user_id', $faculty5->id)->exists()) {
             $msrStudent2->pspcMembers()->attach($faculty5->id);
         }
+
+        // 9. Seed Comment Snippets
+        $this->call(CommentSnippetSeeder::class);
 
         $this->command->info('Successfully seeded database with PTS-1 and PTS-2 Form architectures and Fresh Student!');
     }

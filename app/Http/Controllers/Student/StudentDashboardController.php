@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentDashboardController extends Controller
 {
-    /**
-     * Display the Student Dashboard.
-     */
+    // Display the Student Dashboard.
     public function index()
     {
         $user = Auth::user();
@@ -25,15 +23,15 @@ class StudentDashboardController extends Controller
             'theses.pts2Extension'
         ])->firstOrFail();
 
-        $activeThesis = $student->theses->firstWhere('status', 'in_progress');
+        $activeThesis = $student->theses->firstWhere('status', 'in_progress') ?? $student->theses->last();
         $latestThesis = $activeThesis;
         $draftSynopsis = $activeThesis ? $activeThesis->draftSynopsisCirculation : null;
         $pts1Form = $activeThesis ? $activeThesis->pts1Form : null;
         $pts2Form = $activeThesis ? $activeThesis->pts2Form : null;
         $pts2Extension = $activeThesis ? $activeThesis->pts2Extension : null;
 
-        // PTS-2 is unlocked when PTS-1 is approved (status === 'accepted')
-        $pts1Approved = $pts1Form && $pts1Form->status === 'accepted';
+        // PTS-2 is unlocked when PTS-1 is approved (status === 'approved')
+        $pts1Approved = $pts1Form && $pts1Form->status === 'approved';
 
         // Fetch rejected forms
         $rejectedForms = collect();

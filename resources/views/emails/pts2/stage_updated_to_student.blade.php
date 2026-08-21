@@ -2,16 +2,16 @@
 
 @section('content')
     @php
-        $isAccepted = ($status === 'accepted');
-        $badgeClass = $isAccepted ? 'badge-green' : 'badge-blue';
+        $isapproved = ($status === 'approved');
+        $badgeClass = $isapproved ? 'badge-green' : 'badge-blue';
     @endphp
 
     <span class="badge {{ $badgeClass }}">
-        {{ $isAccepted ? 'Official Approval' : 'Stage Endorsement' }}
+        {{ $isapproved ? 'Official Approval' : 'Stage Endorsement' }}
     </span>
     
     <h2 class="email-title">
-        @if($isAccepted)
+        @if($isapproved)
             PTS-2 Synopsis Form Approved by DOAA
         @else
             PTS-2 Synopsis Form Advanced to {{ strtoupper(str_replace('_', ' ', $currentStage)) }}
@@ -21,7 +21,7 @@
     <p>Dear <strong>{{ $recipientName ?? 'Scholar' }}</strong>,</p>
 
     <p>
-        @if($isAccepted)
+        @if($isapproved)
             Congratulations! Your PTS-2 Synopsis Form has been officially approved by the <strong>Dean of Academic Affairs (DOAA)</strong>. The examiner panel and synopsis evaluation stage is complete.
         @else
             Your PTS-2 Synopsis Form was endorsed and has advanced to stage: <strong>{{ strtoupper(str_replace('_', ' ', $currentStage)) }}</strong>.

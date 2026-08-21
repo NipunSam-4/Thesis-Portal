@@ -10,23 +10,24 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentPts2Controller extends Controller
 {
+    // Display the PTS-2 creation form.
     public function create()
     {
         $user = auth()->user();
         $student = $user->student;
 
         if (!$student) {
-            return redirect()->route('student.dashboard')->with('warning', 'Student profile not found.');
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
         $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->first();
 
         if (!$thesis) {
-            return redirect()->route('student.dashboard')->with('warning', 'No active registered thesis found.');
+            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
-        // Must have an APPROVED PTS-1 Form (status === 'accepted')
-        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+        // Must have an APPROVED PTS-1 Form (status === 'approved')
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('warning', 'PTS-2 Synopsis Form is locked until your PTS-1 Form is fully approved by DOAA.');
         }
 
@@ -36,11 +37,47 @@ class StudentPts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'The PTS-2 submission deadline passed on ' . ($deadline ? $deadline->format('d-M-Y') : 'the deadline') . '. Please apply for a PTS-2 extension if eligible.');
         }
 
-        $pts2 = $thesis->pts2Form;
+        $pts2Form = $thesis->pts2Form;
+        if ($pts2Form) {
+            if ($pts2Form->status === 'in_progress') {
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-2 form is currently under review.');
+            }
+            if ($pts2Form->status === 'approved') {
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-2 form has already been approved.');
+            }
+            if ($pts2Form->status !== 'reverted') {
+                $pts2Form = null;
+            }
+        }
 
-        return view('student.pts2.create', compact('student', 'thesis', 'pts2'));
+        return view('student.pts2.create', compact('user', 'student', 'thesis', 'pts2Form'));
     }
 
+    // Display the PTS-2 edit form for reverted submissions.
+    public function edit()
+    {
+        $user = auth()->user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
+        }
+
+        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->first();
+
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('warning', 'No active registered thesis found.');
+        }
+
+        $pts2Form = $thesis->pts2Form;
+        if (!$pts2Form || $pts2Form->status !== 'reverted') {
+            return redirect()->route('student.dashboard')->with('warning', 'You do not have a reverted PTS-2 form to edit.');
+        }
+
+        return view('student.pts2.create', compact('user', 'student', 'thesis', 'pts2Form'));
+    }
+
+    // Store a newly created / resubmitted PTS-2 submission.
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -52,78 +89,84 @@ class StudentPts2Controller extends Controller
 
         $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form', 'pts2Extension'])->firstOrFail();
 
-        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted') {
+        if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'Unauthorized: PTS-1 is not approved.');
         }
 
-        // Must be within the 15-day Open Seminar deadline (or approved extension deadline)
         if (!$thesis->isPts2SubmissionActive()) {
             $deadline = $thesis->getPts2Deadline();
             return redirect()->route('student.dashboard')->with('error', 'Cannot submit PTS-2: the submission deadline passed on ' . ($deadline ? $deadline->format('d-M-Y') : 'N/A') . '.');
         }
 
-        $pts2 = $thesis->pts2Form;
-        $fileRequired = $pts2 && $pts2->synopsis_report_doc_path ? 'nullable' : 'required';
+        $pts2Form = $thesis->pts2Form;
+        $hasExisting = $pts2Form && $pts2Form->status === 'reverted';
+        $fileRequired = $hasExisting && $pts2Form->synopsis_report_doc_path ? 'nullable' : 'required';
 
         $validated = $request->validate([
             'thesis_title' => 'required|string|max:1000',
-            'remarks' => 'nullable|string',
-            'synopsis_report_doc' => "{$fileRequired}|file|mimes:pdf,doc,docx|max:2048",
+            'current_address' => 'required|string|max:1000',
+            'alternate_email' => 'nullable|email|max:255',
+            'recent_phone_country_code' => 'required|string|max:5',
+            'recent_phone_number' => 'required|digits_between:5,15',
+            'recent_phone_iso2' => 'required|string|max:10',
+            'alternate_phone_country_code' => 'nullable|string|max:5',
+            'alternate_phone_number' => 'nullable|digits_between:5,15',
+            'alternate_phone_iso2' => 'nullable|string|max:10',
+            'course_credits_student' => 'required|numeric|min:0',
+            'cert_prima_facie_case' => 'required|accepted',
+            'cert_no_prior_degree_submission' => 'required|accepted',
+            'collaborative_work_status' => 'required|boolean',
+            'collaborative_work_details' => $request->boolean('collaborative_work_status') ? 'required|string|max:2000' : 'nullable|string',
+            'student_declaration' => 'required|accepted',
+            'synopsis_report_doc' => "{$fileRequired}|file|mimes:pdf,doc,docx|max:10240",
         ]);
 
         // Update active thesis title
         $thesis->update(['title' => $validated['thesis_title']]);
 
-        $filePath = $pts2?->synopsis_report_doc_path;
         if ($request->hasFile('synopsis_report_doc')) {
-            if ($filePath && Storage::disk('local')->exists($filePath)) {
-                Storage::disk('local')->delete($filePath);
-            }
             $filePath = $request->file('synopsis_report_doc')->store('private/pts2_documents', 'local');
+        } else {
+            $filePath = $hasExisting ? $pts2Form->synopsis_report_doc_path : null;
         }
 
         $pts1 = $thesis->pts1Form;
+        $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
 
-        Pts2Form::updateOrCreate(
-            ['thesis_id' => $thesis->id],
-            [
-                'thesis_title' => $validated['thesis_title'],
-                'remarks' => $validated['remarks'] ?? 'N/A',
-                'synopsis_report_doc_path' => $filePath,
-                'current_stage' => 'main_supervisor',
-                'status' => 'in_progress',
-                'reverted_by_role' => null,
-                'co_supervisor_1_id' => $pts1->co_supervisor_1_id,
-                'co_supervisor_2_id' => $pts1->co_supervisor_2_id,
-                'co_supervisor_3_id' => $pts1->co_supervisor_3_id,
-                'pspc_member_1_id' => $pts1->pspc_member_1_id,
-                'pspc_member_2_id' => $pts1->pspc_member_2_id,
-                'pspc_member_3_id' => $pts1->pspc_member_3_id,
-                'main_supervisor_confidential_remark' => null,
-                'co_supervisor_1_confidential_remark' => null,
-                'co_supervisor_2_confidential_remark' => null,
-                'co_supervisor_3_confidential_remark' => null,
-                'pspc_member_1_confidential_remark' => null,
-                'pspc_member_2_confidential_remark' => null,
-                'pspc_member_3_confidential_remark' => null,
-                'dpgc_confidential_remark' => null,
-                'hod_confidential_remark' => null,
-                'section_officer_confidential_remark' => null,
-                'doaa_confidential_remark' => null,
-                'main_supervisor_recommendation' => false,
-                'co_supervisor_1_recommendation' => false,
-                'co_supervisor_2_recommendation' => false,
-                'co_supervisor_3_recommendation' => false,
-                'pspc_member_1_recommendation' => false,
-                'pspc_member_2_recommendation' => false,
-                'pspc_member_3_recommendation' => false,
-                'dpgc_recommendation' => false,
-                'hod_recommendation' => false,
-                'section_officer_recommendation' => false,
-                'doaa_approval' => false,
-            ]
-        );
+        // Initialize co-supervisor slot mapping
+        $coSupData = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            $coSupData[$col] = $pts1 ? $pts1->$col : ($coSupervisors[$i - 1] ?? null);
+        }
 
-        return redirect()->route('student.dashboard')->with('success', 'PTS-2 Synopsis Form submitted successfully and forwarded to your Main Supervisor.');
+        $formData = array_merge([
+            'thesis_id' => $thesis->id,
+            'thesis_title' => $validated['thesis_title'],
+            'synopsis_report_doc_path' => $filePath,
+            'current_stage' => 'main_supervisor',
+            'status' => 'in_progress',
+            'date_of_submission' => now()->toDateString(),
+            'course_credits_student' => (float)$validated['course_credits_student'],
+            'current_address' => $validated['current_address'],
+            'alternate_email' => $validated['alternate_email'] ?? null,
+            'recent_phone_number' => $validated['recent_phone_number'],
+            'recent_phone_country_code' => $validated['recent_phone_country_code'],
+            'recent_phone_iso2' => $validated['recent_phone_iso2'],
+            'alternate_phone_number' => $validated['alternate_phone_number'] ?? null,
+            'alternate_phone_country_code' => $validated['alternate_phone_country_code'] ?? null,
+            'alternate_phone_iso2' => $validated['alternate_phone_iso2'] ?? null,
+            'cert_prima_facie_case' => true,
+            'cert_no_prior_degree_submission' => true,
+            'collaborative_work_status' => $request->boolean('collaborative_work_status'),
+            'collaborative_work_details' => $request->boolean('collaborative_work_status') ? $validated['collaborative_work_details'] : null,
+        ], $coSupData);
+
+        // Always create a new PTS-2 form row, preserving historical reverted/rejected submissions
+        Pts2Form::create($formData);
+
+        $actionVerb = $hasExisting ? 'resubmitted' : 'submitted';
+
+        return redirect()->route('student.dashboard')->with('success', "PTS-2 Synopsis Form {$actionVerb} successfully and forwarded to your Main Supervisor for review.");
     }
 }

@@ -6,15 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the migrations.
     public function up(): void
     {
         Schema::create('pts1_forms', function (Blueprint $table) {
             $table->id();
-            
-            // 1-to-1 Unique Relationship with Thesis
+
             $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
             $table->text('thesis_title')->nullable();
             
@@ -47,12 +44,12 @@ return new class extends Migration
                 'section_officer', 
                 'doaa', 
                 'completed', 
-                'reverted',
-                'rejected'
+                'reverted'
             ])->default('main_supervisor');
 
-            $table->enum('status', ['in_progress', 'accepted', 'rejected', 'reverted'])->default('in_progress');
+            $table->enum('status', ['pending', 'in_progress', 'approved', 'rejected', 'reverted'])->default('pending');
             $table->string('reverted_by_role')->nullable();
+            $table->unsignedBigInteger('reverted_by_id')->nullable();
             $table->text('reversion_comment')->nullable();
 
             // 1. Main Supervisor Endorsement
@@ -185,7 +182,7 @@ return new class extends Migration
 
             // 6. Section Officer
             $table->text('section_officer_student_comment')->nullable();
-            $table->boolean('section_officer_recommendation')->nullable();
+            $table->boolean('section_officer_verified')->nullable();
             $table->text('section_officer_confidential_remark')->nullable();
             $table->timestamp('section_officer_submitted_at')->nullable();
 
@@ -194,15 +191,12 @@ return new class extends Migration
             $table->boolean('doaa_approval')->nullable();
             $table->text('doaa_confidential_remark')->nullable();
             $table->timestamp('doaa_submitted_at')->nullable();
-            $table->timestamp('pts1_submitted_at')->nullable();
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the migrations.
     public function down(): void
     {
         Schema::dropIfExists('pts1_forms');

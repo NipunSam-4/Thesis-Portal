@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PtsDocumentController extends Controller
 {
-    /**
-     * Securely serve a document stored in private local storage.
-     */
+    // Securely serve a document stored in private local storage.
     public function serveDocument(Request $request, string $formType, int $id, string $field): BinaryFileResponse
     {
         $user = auth()->user();

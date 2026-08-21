@@ -33,7 +33,7 @@ class Pts1Form extends Model
         'status',
         'reverted_by_role',
         'reversion_comment',
-        
+
         'main_supervisor_recommendation',
         'main_supervisor_confidential_remark',
         'main_supervisor_submitted_at',
@@ -143,9 +143,7 @@ class Pts1Form extends Model
     public function pspcMember9(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_9_id'); }
     public function pspcMember10(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_10_id'); }
 
-    /**
-     * Get numerical rank for role in workflow hierarchy.
-     */
+    // Get numerical rank for role in workflow hierarchy.
     public static function getRoleRank(?string $role): int
     {
         if (!$role) {
@@ -164,15 +162,12 @@ class Pts1Form extends Model
             'dpgc' => 4,
             'hod' => 5,
             'section_officer' => 6,
-            'doaa', 'adoaa' => 7,
+            'doaa' => 7,
             default => 999,
         };
     }
 
-    /**
-     * Check if a given user is allowed to view the reverted form.
-     * Allowed only for the reverting authority, authorities prior to them in rank, and the student.
-     */
+    // Allowed only for the reverting authority, authorities prior to them in rank, and the student.
     public function canUserViewRevertedForm(?User $user): bool
     {
         if (!$user) {
@@ -214,7 +209,7 @@ class Pts1Form extends Model
         if ($user->isSectionOfficer()) {
             $userRanks[] = self::getRoleRank('section_officer');
         }
-        if ($user->isDoaa() || $user->isAdoaa()) {
+        if ($user->isDoaa()) {
             $userRanks[] = self::getRoleRank('doaa');
         }
 
@@ -226,64 +221,19 @@ class Pts1Form extends Model
         return $minUserRank <= $revertingRank;
     }
 
-    /**
-     * Get human-readable role label for the authority who reverted the form, including user name.
-     */
+    // Get human-readable role label for the authority who reverted the form, including user name.
     public function getRevertedByRoleLabel(): string
     {
-        $role = $this->reverted_by_role ?? '';
-
-        if ($role === 'main_supervisor') {
-            $name = $this->thesis?->student?->mainSupervisors?->first()?->name;
-            return 'Main Supervisor' . ($name ? " ({$name})" : '');
-        }
-
-        if (str_starts_with($role, 'co_supervisor')) {
-            if (preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
-                $idx = (int)$matches[1];
-                $col = "co_supervisor_{$idx}_id";
-                $userId = $this->$col;
-                $user = $userId ? User::find($userId) : null;
-                if (!$user) {
-                    $user = $this->thesis?->student?->coSupervisors?->get($idx - 1);
-                }
-                return 'Co-Supervisor' . ($user ? " ({$user->name})" : '');
-            }
-            $coName = $this->thesis?->student?->coSupervisors?->first()?->name;
-            return 'Co-Supervisor' . ($coName ? " ({$coName})" : '');
-        }
-
-        if (str_starts_with($role, 'pspc_member')) {
-            if (preg_match('/pspc_member_(\d+)/', $role, $matches)) {
-                $idx = (int)$matches[1];
-                $col = "pspc_member_{$idx}_id";
-                $userId = $this->$col;
-                $user = $userId ? User::find($userId) : null;
-                return 'PSPC Member' . ($user ? " ({$user->name})" : '');
-            }
-            return 'PSPC Member';
-        }
-
-        return match ($role) {
-            'dpgc' => 'DPGC Convenor',
-            'hod' => 'Head of Department (HOD)',
-            'section_officer' => 'Academic Section Officer',
-            'doaa' => 'Dean of Academic Affairs (DOAA)',
-            default => $role ?: 'Academic Authority',
-        };
+        return \App\Http\Controllers\ThesisController::getRevertedByRoleLabel($this);
     }
 
-    /**
-     * Get the reversion comment left by the reverting authority.
-     */
+    // Get the reversion comment left by the reverting authority.
     public function getReversionComment(): ?string
     {
         return $this->reversion_comment;
     }
 
-    /**
-     * Main Supervisor document path helpers (returns null if not populated).
-     */
+    // Main Supervisor document path helpers (returns null if not populated).
     public function getEffectiveDraftSynopsisPath(): ?string
     {
         return $this->main_supervisor_draft_synopsis_report_doc_path;
@@ -304,18 +254,13 @@ class Pts1Form extends Model
         return $this->main_supervisor_min_time_approval_doc_path;
     }
 
-    /**
-     * Accessor for human-readable stage label mapped from ThesisController.
-     * Usage in Blade: {{ $pts1Form->stage_label }}
-     */
+    // Accessor for human-readable stage label mapped from ThesisController.
     public function getStageLabelAttribute(): string
     {
         return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
     }
 
-    /**
-     * Get array of completed submission timestamps for all authorities and student.
-     */
+    // Get array of completed submission timestamps for all authorities and student.
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
@@ -333,7 +278,7 @@ class Pts1Form extends Model
             $timeline[] = [
                 'role' => 'Main Supervisor',
                 'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => $this->main_supervisor_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->main_supervisor_submitted_at,
             ];
         }
 
@@ -344,7 +289,7 @@ class Pts1Form extends Model
                 $timeline[] = [
                     'role' => 'Co-Supervisor',
                     'name' => $coSup?->name ?? "Co-Supervisor {$i}",
-                    'submitted_at' => $submittedAt ?? $this->updated_at,
+                    'submitted_at' => $submittedAt,
                 ];
             }
         }
@@ -365,7 +310,7 @@ class Pts1Form extends Model
             $timeline[] = [
                 'role' => 'DPGC Convenor',
                 'name' => 'DPGC Convenor',
-                'submitted_at' => $this->dpgc_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->dpgc_submitted_at,
             ];
         }
 
@@ -373,7 +318,7 @@ class Pts1Form extends Model
             $timeline[] = [
                 'role' => 'Head of Department',
                 'name' => 'HOD',
-                'submitted_at' => $this->hod_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->hod_submitted_at,
             ];
         }
 
@@ -381,7 +326,7 @@ class Pts1Form extends Model
             $timeline[] = [
                 'role' => 'Academic Office (SO)',
                 'name' => 'Section Officer',
-                'submitted_at' => $this->section_officer_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->section_officer_submitted_at,
             ];
         }
 
@@ -389,7 +334,17 @@ class Pts1Form extends Model
             $timeline[] = [
                 'role' => 'Dean of Academic Affairs',
                 'name' => 'DOAA',
-                'submitted_at' => $this->doaa_submitted_at ?? $this->pts1_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->doaa_submitted_at ?? $this->pts1_submitted_at,
+            ];
+        }
+
+        if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
+            $timeline[] = [
+                'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
+                'name' => 'Reverting Authority',
+                'submitted_at' => $this->updated_at,
+                'status_type' => 'reverted',
+                'status_label' => '⚠️ Reverted',
             ];
         }
 

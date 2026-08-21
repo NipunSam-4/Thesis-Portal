@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
+    // @use HasFactory<UserFactory>
     use HasFactory, Notifiable;
 
     protected $fillable = [
@@ -36,11 +36,9 @@ class User extends Authenticatable
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Role Helper Methods
-    |--------------------------------------------------------------------------
-    */
+    // |--------------------------------------------------------------------------
+    // | Role Helper Methods
+    // |--------------------------------------------------------------------------
 
     public function isStudent(): bool
     {
@@ -108,11 +106,19 @@ class User extends Authenticatable
         return $this->role === 'academic_office';
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Profile Relationships
-    |--------------------------------------------------------------------------
-    */
+    public function isExternalExaminer(): bool
+    {
+        return $this->role === 'external_examiner';
+    }
+
+    public function isExternalSupervisor(): bool
+    {
+        return $this->role === 'external_supervisor';
+    }
+
+    // |--------------------------------------------------------------------------
+    // | Profile Relationships
+    // |--------------------------------------------------------------------------
 
     public function student(): HasOne
     {

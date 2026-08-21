@@ -43,7 +43,7 @@ Date  Description  Author  Comments
  
 Document  Approval  
  
-The following  Software  Requirements  Specification  has been  accepted  and approved  by the 
+The following  Software  Requirements  Specification  has been  approved  and approved  by the 
 following:  
 Signature  Printed  Name  Title  Date  
     
@@ -372,10 +372,10 @@ and returns  it to the main  supervisor.
 option  to revert.  
 • The Dean  of Academic  Affairs  reviews  the request  and makes  the final decision  to 
 approve,  reject,  or revert.  
-• On approval,  the system  marks  the PTS-1 status  as Accepted . 
+• On approval,  the system  marks  the PTS-1 status  as approved . 
  
 3.2.1.4  Outputs  
-• Updated  PTS-1 status  (In Progress,  Reverted,  Accepted,  or Rejected)  
+• Updated  PTS-1 status  (In Progress,  Reverted,  approved,  or Rejected)  
 Integrated  Portal  for Academic  Office  
 Software  Requirements  Specification   Page  10 
   • Notifications  sent to all relevant  users  on submission,  reversion,  and approval  
@@ -466,7 +466,7 @@ Committee  and the Head  of Department.
 • Upon  acceptance,  the system  generates  a thesis  submission  certificate.  
  
 3.2.3.4  Outputs  
-• Updated  PTS-2 status  (In Progress,  Reverted,  or Accepted)  
+• Updated  PTS-2 status  (In Progress,  Reverted,  or approved)  
 • Generated  thesis  submission  certificate  in PDF format  
 • Download  access  to the certificate  for the student  
 • Status  visibility  for all involved  users  
@@ -597,10 +597,10 @@ Nominated  individual .
 option  to revert.  
 • The Dean  of Academic  Affairs  reviews  the request  and makes  the final decision  to 
 approve,  reject,  or revert.  
-• On approval,  the system  marks  the MSRTS -1 status  as Accepted . 
+• On approval,  the system  marks  the MSRTS -1 status  as approved . 
  
 3.2.6 .4 Outputs  
-• Updated  MSRTS -1 status  (In Progress,  Reverted,  Accepted,  or Rejected)  
+• Updated  MSRTS -1 status  (In Progress,  Reverted,  approved,  or Rejected)  
 • Notifications  sent to all relevant  users  on submission,  reversion,  and approval  
 • Stored  review  comments  and timestamps  
 • Maintained  record  of all submission  attempts  
@@ -692,7 +692,7 @@ Committee  and the Head  of Department.
 • Upon  acceptance,  the system  generates  a thesis  submission  certificate.  
  
 3.2.8 .4 Outputs  
-• Updated  MSRTS -2 status  (In Progress,  Reverted,  or Accepted)  
+• Updated  MSRTS -2 status  (In Progress,  Reverted,  or approved)  
 • Generated  thesis  submission  certificate  in PDF format  
 • Download  access  to the certificate  for the student  
 • Status  visibility  for all involved  users  

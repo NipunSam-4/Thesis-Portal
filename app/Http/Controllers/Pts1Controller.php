@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class Pts1Controller extends Controller
 {
-    /**
-     * Show the Main Supervisor review & edit form for a PTS-1 submission.
-     */
+    // Show the Main Supervisor review & edit form for a PTS-1 submission.
     public function edit(Pts1Form $pts1)
     {
         $user = auth()->user();
@@ -29,9 +27,7 @@ class Pts1Controller extends Controller
         return view('faculty.pts1.review', compact('pts1', 'thesis', 'student', 'studentUser'));
     }
 
-    /**
-     * Process Main Supervisor review submission (Edits, Evaluation & Endorsement/Reversion).
-     */
+    // Process Main Supervisor review submission (Edits, Evaluation & Endorsement/Reversion).
     public function update(Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();
@@ -140,9 +136,7 @@ class Pts1Controller extends Controller
         return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
     }
 
-    /**
-     * Display view-only submitted PTS-1 form for students and authorities.
-     */
+    // Display view-only submitted PTS-1 form for students and authorities.
     public function show(Pts1Form $pts1)
     {
         $user = auth()->user();
@@ -204,9 +198,7 @@ class Pts1Controller extends Controller
         ));
     }
 
-    /**
-     * Display dedicated full-page review & endorsement view for PTS-1 with complete audit trail.
-     */
+    // Display dedicated full-page review & endorsement view for PTS-1 with complete audit trail.
     public function showReview(Pts1Form $pts1)
     {
         $user = auth()->user();
@@ -245,9 +237,7 @@ class Pts1Controller extends Controller
         ));
     }
 
-    /**
-     * Handle Endorsement of PTS-1 by an authority (Co-Supervisor, PSPC, DPGC, HOD, Section Officer, DOAA).
-     */
+    // Handle Endorsement of PTS-1 by an authority (Co-Supervisor, PSPC, DPGC, HOD, Section Officer, DOAA).
     public function endorse(Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();
@@ -409,8 +399,8 @@ class Pts1Controller extends Controller
                     'doaa_approval' => $isRecommended,
                     'doaa_confidential_remark' => $remark,
                     'doaa_submitted_at' => now(),
-                    'current_stage' => $isRecommended ? 'completed' : 'rejected',
-                    'status' => $isRecommended ? 'accepted' : 'rejected',
+                    'current_stage' => 'completed',
+                    'status' => $isRecommended ? 'approved' : 'rejected',
                     'pts1_submitted_at' => now(),
                 ]);
                 break;
@@ -422,9 +412,7 @@ class Pts1Controller extends Controller
         return redirect()->route('dashboard')->with('success', 'PTS-1 form evaluated and submitted successfully!');
     }
 
-    /**
-     * Handle Reversion of PTS-1 form by an authority back to student.
-     */
+    // Handle Reversion of PTS-1 form by an authority back to student.
     public function revert(Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();

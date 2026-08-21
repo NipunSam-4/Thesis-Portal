@@ -2,17 +2,17 @@
 
 @section('content')
     @php
-        $isAccepted = ($status === 'accepted');
+        $isapproved = ($status === 'approved');
         $isRejected = ($status === 'rejected');
-        $badgeClass = $isAccepted ? 'badge-green' : ($isRejected ? 'badge-rose' : 'badge-blue');
+        $badgeClass = $isapproved ? 'badge-green' : ($isRejected ? 'badge-rose' : 'badge-blue');
     @endphp
 
     <span class="badge {{ $badgeClass }}">
-        {{ $isAccepted ? 'Official Approval' : ($isRejected ? 'Application Rejected' : 'Stage Endorsement') }}
+        {{ $isapproved ? 'Official Approval' : ($isRejected ? 'Application Rejected' : 'Stage Endorsement') }}
     </span>
     
     <h2 class="email-title">
-        @if($isAccepted)
+        @if($isapproved)
             PTS-1 Form Approved by DOAA
         @elseif($isRejected)
             PTS-1 Form Rejected
@@ -24,7 +24,7 @@
     <p>Dear <strong>{{ $recipientName ?? 'Scholar' }}</strong>,</p>
 
     <p>
-        @if($isAccepted)
+        @if($isapproved)
             Congratulations! Your PTS-1 Form has received final approval from the <strong>Dean of Academic Affairs (DOAA)</strong>. Your Ph.D. registration / plan of research is officially confirmed.
         @elseif($isRejected)
             Your PTS-1 Form has been rejected during the academic review workflow.

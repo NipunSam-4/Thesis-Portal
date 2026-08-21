@@ -290,3 +290,102 @@ html.dark .sheet-table-container a,
 body.dark .sheet-table-container a {
     color: #60a5fa !important;
 }
+
+/* ==========================================================================
+   intl-tel-input Global Theme & Dark Mode Styling
+   ========================================================================== */
+.iti { 
+    width: 100%; 
+    display: block; 
+}
+.iti__selected-flag {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: transparent !important;
+}
+.dark .iti__selected-flag:hover,
+html.dark .iti__selected-flag:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+.iti__country-list { 
+    background-color: #ffffff !important; 
+    color: #1e293b !important; 
+    z-index: 9999 !important; 
+    max-height: 240px !important; 
+    border-radius: 0.75rem !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    overflow-x: hidden !important;
+}
+.dark .iti__country-list,
+html.dark .iti__country-list { 
+    background-color: #0f172a !important; 
+    color: #f1f5f9 !important; 
+    border: 1px solid #334155 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+}
+.iti__country {
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    transition: background-color 0.15s ease !important;
+}
+.dark .iti__country,
+html.dark .iti__country {
+    color: #f1f5f9 !important;
+}
+.iti__country .iti__country-name {
+    color: #1e293b !important;
+    font-weight: 500 !important;
+}
+.dark .iti__country .iti__country-name,
+html.dark .iti__country .iti__country-name {
+    color: #f1f5f9 !important;
+}
+.iti__country .iti__dial-code {
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+.dark .iti__country .iti__dial-code,
+html.dark .iti__country .iti__dial-code {
+    color: #94a3b8 !important;
+}
+.iti__country.iti__highlight { 
+    background-color: #eff6ff !important; 
+}
+.dark .iti__country.iti__highlight,
+html.dark .iti__country.iti__highlight { 
+    background-color: #1e293b !important; 
+}
+.dark .iti__country.iti__highlight .iti__country-name,
+html.dark .iti__country.iti__highlight .iti__country-name {
+    color: #60a5fa !important;
+}
+.dark .iti__country.iti__highlight .iti__dial-code,
+html.dark .iti__country.iti__highlight .iti__dial-code {
+    color: #93c5fd !important;
+}
+.iti__divider {
+    border-bottom: 1px solid #e2e8f0 !important;
+    margin-bottom: 4px !important;
+}
+.dark .iti__divider,
+html.dark .iti__divider {
+    border-bottom: 1px solid #334155 !important;
+}
+.dark .iti__flag-container .iti__arrow,
+html.dark .iti__flag-container .iti__arrow {
+    border-top-color: #94a3b8 !important;
+}
+.dark .iti__flag-container .iti__arrow--up,
+html.dark .iti__flag-container .iti__arrow--up {
+    border-bottom-color: #94a3b8 !important;
+}
+.dark .iti__search-input,
+html.dark .iti__search-input {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 0.375rem !important;
+    padding: 6px 10px !important;
+}

@@ -3,21 +3,31 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    @if($pts1->status == 'accepted' && $pts1->current_stage == 'completed')
+                    @if($pts1->status == 'approved' && $pts1->current_stage == 'completed')
                         {{ __('Approved PTS-1 Form Details & Remarks') }}
-                    @elseif($pts1->status == 'rejected' && $pts1->current_stage == 'rejected')
+                    @elseif($pts1->status == 'rejected' && $pts1->current_stage == 'completed')
                         {{ __('Rejected PTS-1 Form Details & Remarks') }}
+                    @elseif($pts1->status == 'reverted' && $pts1->current_stage == 'reverted')
+                        {{ __('Reverted PTS-1 Form Details') }}
                     @else
                         {{ __('PTS-1 Submission View') }}
                     @endif
                 </h2>
-                @if($pts1->status === 'accepted')
+                @if($pts1->status === 'approved')
                     <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
                         ✓ Approved
                     </span>
-                @else
+                @elseif($pts1->status === 'rejected')
                     <span class="px-3 py-1 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
                         ❌ Rejected
+                    </span>
+                @elseif($pts1->status === 'reverted')
+                    <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        ⚠️ Reverted
+                    </span>
+                @else
+                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                        ⏳ In Progress
                     </span>
                 @endif
             </div>
@@ -284,7 +294,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Additional Comment:</strong>
                             @if($pts1->main_supervisor_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_student_comment) }}</p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->main_supervisor_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +316,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->dpgc_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_student_comment) }}</p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->dpgc_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +338,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->hod_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_student_comment) }}</p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->hod_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,7 +360,7 @@
                         <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>
                             @if($pts1->doaa_student_comment)
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_student_comment) }}</p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_student_comment) }}</p>
                             @else
                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 class PtsMailService
 {
-    /**
-     * Send a custom Mailable to a student recipient using student_mailer.
-     */
+    // Send a custom Mailable to a student recipient using student_mailer.
     public function sendToStudent(string|array $recipient, Mailable $mailable): bool
     {
         try {
@@ -25,9 +23,7 @@ class PtsMailService
         }
     }
 
-    /**
-     * Send a custom Mailable to an authority recipient using authority_mailer.
-     */
+    // Send a custom Mailable to an authority recipient using authority_mailer.
     public function sendToAuthority(string|array $recipient, Mailable $mailable): bool
     {
         try {
@@ -41,9 +37,7 @@ class PtsMailService
         }
     }
 
-    /**
-     * Send a generic structured communication/alert to a student using student_mailer.
-     */
+    // Send a generic structured communication/alert to a student using student_mailer.
     public function notifyStudent(
         string $recipientEmail,
         string $recipientName,
@@ -74,9 +68,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Send a generic structured notification/alert to an authority using authority_mailer.
-     */
+    // Send a generic structured notification/alert to an authority using authority_mailer.
     public function notifyAuthority(
         string $recipientEmail,
         string $recipientName,
@@ -107,13 +99,11 @@ class PtsMailService
         return $this->sendToAuthority($recipientEmail, $mailable);
     }
 
-    /* =========================================================================
-     *  PTS-1 WORKFLOW SPECIFIC EMAILS
-     * ========================================================================= */
+    // =========================================================================
+    // PTS-1 WORKFLOW SPECIFIC EMAILS
+    // =========================================================================
 
-    /**
-     * Notify Main Supervisor / Authorities that a student submitted or resubmitted PTS-1.
-     */
+    // Notify Main Supervisor / Authorities that a student submitted or resubmitted PTS-1.
     public function sendPts1SubmittedToAuthority(
         string $recipientEmail,
         string $recipientName,
@@ -146,9 +136,7 @@ class PtsMailService
         return $this->sendToAuthority($recipientEmail, $mailable);
     }
 
-    /**
-     * Send submission receipt to student for PTS-1.
-     */
+    // Send submission receipt to student for PTS-1.
     public function sendPts1SubmittedConfirmationToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -175,9 +163,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student that Main Supervisor reviewed and forwarded PTS-1.
-     */
+    // Notify student that Main Supervisor reviewed and forwarded PTS-1.
     public function sendPts1SupervisorReviewedToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -206,9 +192,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student of PTS-1 stage advancement, acceptance, or rejection.
-     */
+    // Notify student of PTS-1 stage advancement, acceptance, or rejection.
     public function sendPts1StageUpdatedToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -218,7 +202,7 @@ class PtsMailService
         string $endorsedStage,
         ?string $actionUrl = null
     ): bool {
-        $isFinal = in_array($status, ['accepted', 'rejected']);
+        $isFinal = in_array($status, ['approved', 'rejected']);
         $subjectStatus = $isFinal ? ucfirst($status) : 'Endorsed';
         $subject = "PTS-1 Form Status Update: {$subjectStatus}";
         $senderDeskName = config('mail.mailers.student_mailer.from.name') ?: 'PTS Student Desk';
@@ -241,9 +225,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student when PTS-1 is reverted for revisions.
-     */
+    // Notify student when PTS-1 is reverted for revisions.
     public function sendPts1RevertedToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -272,13 +254,11 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /* =========================================================================
-     *  PTS-2 WORKFLOW SPECIFIC EMAILS
-     * ========================================================================= */
+    // =========================================================================
+    // PTS-2 WORKFLOW SPECIFIC EMAILS
+    // =========================================================================
 
-    /**
-     * Notify Main Supervisor that student submitted PTS-2 form.
-     */
+    // Notify Main Supervisor that student submitted PTS-2 form.
     public function sendPts2SubmittedToAuthority(
         string $recipientEmail,
         string $recipientName,
@@ -309,9 +289,7 @@ class PtsMailService
         return $this->sendToAuthority($recipientEmail, $mailable);
     }
 
-    /**
-     * Send submission confirmation to student for PTS-2.
-     */
+    // Send submission confirmation to student for PTS-2.
     public function sendPts2SubmittedConfirmationToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -336,9 +314,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student of PTS-2 stage update or final approval.
-     */
+    // Notify student of PTS-2 stage update or final approval.
     public function sendPts2StageUpdatedToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -347,8 +323,8 @@ class PtsMailService
         string $status,
         ?string $actionUrl = null
     ): bool {
-        $isAccepted = ($status === 'accepted');
-        $subjectStatus = $isAccepted ? 'Accepted & Approved' : 'Endorsed';
+        $isApproved = ($status === 'approved');
+        $subjectStatus = $isApproved ? 'Approved' : 'Endorsed';
         $subject = "PTS-2 Synopsis Form Status Update: {$subjectStatus}";
         $senderDeskName = config('mail.mailers.student_mailer.from.name') ?: 'PTS Student Desk';
 
@@ -369,9 +345,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student when PTS-2 form is reverted.
-     */
+    // Notify student when PTS-2 form is reverted.
     public function sendPts2RevertedToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -400,13 +374,11 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /* =========================================================================
-     *  DRAFT SYNOPSIS WORKFLOW SPECIFIC EMAILS
-     * ========================================================================= */
+    // =========================================================================
+    // DRAFT SYNOPSIS WORKFLOW SPECIFIC EMAILS
+    // =========================================================================
 
-    /**
-     * Notify authorities that a Draft Synopsis was circulated.
-     */
+    // Notify authorities that a Draft Synopsis was circulated.
     public function sendDraftSynopsisCirculatedToAuthority(
         string $recipientEmail,
         string $recipientName,
@@ -439,9 +411,7 @@ class PtsMailService
         return $this->sendToAuthority($recipientEmail, $mailable);
     }
 
-    /**
-     * Send circulation confirmation to student for Draft Synopsis.
-     */
+    // Send circulation confirmation to student for Draft Synopsis.
     public function sendDraftSynopsisConfirmationToStudent(
         string $recipientEmail,
         string $recipientName,
@@ -468,9 +438,7 @@ class PtsMailService
         return $this->sendToStudent($recipientEmail, $mailable);
     }
 
-    /**
-     * Notify student when an authority posts feedback comment on Draft Synopsis.
-     */
+    // Notify student when an authority posts feedback comment on Draft Synopsis.
     public function sendDraftSynopsisFeedbackToStudent(
         string $recipientEmail,
         string $recipientName,

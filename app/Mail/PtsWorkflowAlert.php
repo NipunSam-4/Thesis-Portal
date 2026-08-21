@@ -23,9 +23,7 @@ class PtsWorkflowAlert extends Mailable
     public string $mailView;
     public array $viewData;
 
-    /**
-     * Create a new message instance.
-     */
+    // Create a new message instance.
     public function __construct(
         string $subject,
         string $title = '',
@@ -50,9 +48,7 @@ class PtsWorkflowAlert extends Mailable
         $this->viewData = $viewData;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    // Get the message envelope.
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -60,9 +56,7 @@ class PtsWorkflowAlert extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    // Get the message content definition.
     public function content(): Content
     {
         $defaultWith = [
@@ -82,11 +76,8 @@ class PtsWorkflowAlert extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
+    // Get the attachments for the message.
+    // @return array<int, \Illuminate\Mail\Mailables\Attachment>
     public function attachments(): array
     {
         return [];

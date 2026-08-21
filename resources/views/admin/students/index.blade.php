@@ -155,7 +155,7 @@
                                     <input type="text" name="admission_category" placeholder="e.g. TA, FA, Sponsored" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned</label>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned (Fetched From System)</label>
                                     <input type="number" step="0.5" name="course_credits_earned" placeholder="e.g. 36.5" min="0" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                             </div>

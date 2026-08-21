@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class StudentThesisController extends Controller
 {
-    /**
-     * Store a newly created Thesis title for the authenticated student.
-     */
+    // Store a newly created Thesis title for the authenticated student.
     public function store(Request $request)
     {
         $user = auth()->user();

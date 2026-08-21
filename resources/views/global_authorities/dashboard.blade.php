@@ -285,7 +285,7 @@
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts1Form->status === 'reverted')
                                                                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
-                                                            @elseif($thesis->pts1Form->status === 'accepted')
+                                                            @elseif($thesis->pts1Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts1Form->status === 'rejected')
                                                                 <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
@@ -301,6 +301,17 @@
                                                         <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
                                                         <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
+
+                                                    @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                                ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
+                                                            </div>
+                                                            @if($thesis->pts1Form->getReversionComment())
+                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts1Form->getReversionComment()) }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
 
                                                     <!-- Action Button ONLY for Section Officer when stage is section_officer -->
                                                     @if($user->isSectionOfficer() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'section_officer')
@@ -320,12 +331,12 @@
                                                         </div>
                                                     @endif
                                                     
-                                                    @if(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
+                                                    @if(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
                                                                 <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted PTS-1 Form' : 'View Submitted PTS-1 Form' }} &rarr;
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted PTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected PTS-1 Form' : 'View Submitted PTS-1 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif
@@ -339,15 +350,17 @@
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
                                                     <div class="flex items-center gap-1">
                                                         <x-submission-timeline-modal :form="$thesis->pts2Form" title="PTS-2 Submission Timeline" />
-                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
+                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved')
                                                             <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
                                                         @elseif($thesis->pts2Form)
                                                             @if($thesis->pts2Form->status === 'in_progress')
                                                                 <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts2Form->status === 'reverted')
                                                                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
-                                                            @elseif($thesis->pts2Form->status === 'accepted')
+                                                            @elseif($thesis->pts2Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts2Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
                                                             @endif
                                                         @else
                                                             <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
@@ -360,8 +373,19 @@
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
                                                     </div>
 
-                                                    <!-- Action Button ONLY for Section Officer when stage is section_officer -->
-                                                    @if($user->isSectionOfficer() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'section_officer')
+                                                    @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                                ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
+                                                            </div>
+                                                            @if($thesis->pts2Form->getReversionComment())
+                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts2Form->getReversionComment()) }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+
+                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
+                                                    @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
                                                             <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse PTS-2 Form &rarr;
@@ -376,6 +400,17 @@
                                                                 Review & Endorse PTS-2 Form &rarr;
                                                             </a>
                                                         </div>
+                                                    @endif
+
+                                                    @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                                                        @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
+                                                            <div class="pt-2">
+                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Submitted PTS-2 Form') }} &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
 
@@ -411,7 +446,7 @@
                                                                     Review & Evaluate PTS-2 Extension &rarr;
                                                                 </a>
                                                             </div>
-                                                        @elseif(in_array($thesis->pts2Extension->status, ['accepted', 'rejected', 'reverted']))
+                                                        @elseif(in_array($thesis->pts2Extension->status, ['approved', 'rejected', 'reverted']))
                                                             @if($thesis->pts2Extension->status !== 'reverted' || $thesis->pts2Extension->canUserViewRevertedForm($user))
                                                                 <div class="pt-1">
                                                                     <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
@@ -516,7 +551,7 @@
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts1Form->status === 'reverted')
                                                                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
-                                                            @elseif($thesis->pts1Form->status === 'accepted')
+                                                            @elseif($thesis->pts1Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts1Form->status === 'rejected')
                                                                 <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
@@ -533,10 +568,21 @@
                                                         <div class="text-blue-600 dark:text-blue-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
 
+                                                    @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                                ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
+                                                            </div>
+                                                            @if($thesis->pts1Form->getReversionComment())
+                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts1Form->getReversionComment()) }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+
                                                     <!-- Action Button ONLY for Section Officer when stage is section_officer -->
                                                     @if($user->isSectionOfficer() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'section_officer')
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-1 Form &rarr;
                                                             </a>
                                                         </div>
@@ -551,12 +597,12 @@
                                                         </div>
                                                     @endif
                                                     
-                                                    @if(in_array($thesis->pts1Form->status, ['accepted', 'rejected', 'reverted']))
+                                                    @if(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
                                                                 <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted MSRTS-1 Form' : 'View Submitted MSRTS-1 Form' }} &rarr;
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted MSRTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected MSRTS-1 Form' : 'View Submitted MSRTS-1 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif
@@ -570,15 +616,17 @@
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-2 (Synopsis Report)</span>
                                                     <div class="flex items-center gap-1">
                                                         <x-submission-timeline-modal :form="$thesis->pts2Form" title="MSRTS-2 Submission Timeline" />
-                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'accepted')
+                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved')
                                                             <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
                                                         @elseif($thesis->pts2Form)
                                                             @if($thesis->pts2Form->status === 'in_progress')
                                                                 <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts2Form->status === 'reverted')
                                                                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
-                                                            @elseif($thesis->pts2Form->status === 'accepted')
+                                                            @elseif($thesis->pts2Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
+                                                            @elseif($thesis->pts2Form->status === 'rejected')
+                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
                                                             @endif
                                                         @else
                                                             <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
@@ -591,8 +639,19 @@
                                                         <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
                                                     </div>
 
-                                                    <!-- Action Button ONLY for Section Officer when stage is section_officer -->
-                                                    @if($user->isSectionOfficer() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'section_officer')
+                                                    @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                                ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
+                                                            </div>
+                                                            @if($thesis->pts2Form->getReversionComment())
+                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts2Form->getReversionComment()) }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+
+                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
+                                                    @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
                                                             <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-2 Form &rarr;
@@ -607,6 +666,17 @@
                                                                 Review & Endorse MSRTS-2 Form &rarr;
                                                             </a>
                                                         </div>
+                                                    @endif
+
+                                                    @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                                                        @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
+                                                            <div class="pt-2">
+                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted MSRTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected MSRTS-2 Form' : 'View Submitted MSRTS-2 Form') }} &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </div>

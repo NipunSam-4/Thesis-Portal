@@ -65,8 +65,8 @@
                                         <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 truncate">
                                             {{ $item['role'] }}
                                         </span>
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 shrink-0">
-                                            ✓ Submitted
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {{ ($item['status_type'] ?? '') === 'reverted' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' }} shrink-0">
+                                            {{ $item['status_label'] ?? '✓ Submitted' }}
                                         </span>
                                     </div>
                                     <div class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">

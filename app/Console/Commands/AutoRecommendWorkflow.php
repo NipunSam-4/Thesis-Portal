@@ -8,23 +8,15 @@ use App\Models\Pts2Extension;
 
 class AutoRecommendWorkflow extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+    // The name and signature of the console command.
+    // @var string
     protected $signature = 'workflow:auto-recommend {--minutes= : Override inactivity threshold in minutes for quick testing} {--hours= : Override inactivity threshold in hours}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    // The console command description.
+    // @var string
     protected $description = 'Auto-recommend pending PTS-1 and PTS-2 Extension stages after inactivity from previous authority submission.';
 
-    /**
-     * Execute the console command.
-     */
+    // Execute the console command.
     public function handle()
     {
         $minutesOpt = $this->option('minutes');
@@ -50,9 +42,7 @@ class AutoRecommendWorkflow extends Command
         return Command::SUCCESS;
     }
 
-    /**
-     * Safely set a model attribute only if the physical database column exists.
-     */
+    // Safely set a model attribute only if the physical database column exists.
     protected function setIfColumnExists($model, string $column, $value): void
     {
         if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), $column)) {
@@ -60,9 +50,7 @@ class AutoRecommendWorkflow extends Command
         }
     }
 
-    /**
-     * Process PTS-1 forms.
-     */
+    // Process PTS-1 forms.
     protected function processPts1Forms(int $minutes)
     {
         $forms = Pts1Form::where('status', 'in_progress')->get();
@@ -150,9 +138,7 @@ class AutoRecommendWorkflow extends Command
         }
     }
 
-    /**
-     * Process PTS-2 Extensions.
-     */
+    // Process PTS-2 Extensions.
     protected function processPts2Extensions(int $minutes)
     {
         $extensions = Pts2Extension::where('status', 'in_progress')->get();

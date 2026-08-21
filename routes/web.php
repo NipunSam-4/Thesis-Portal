@@ -46,7 +46,7 @@ Route::get('/dashboard', function () {
     if ($user->isDpgc()) {
         return redirect()->route('dpgc.dashboard');
     }
-    if ($user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
+    if ($user->isGlobalAuthority()) {
         return redirect()->route('global_authorities.dashboard');
     }
     return redirect()->route('student.dashboard');
@@ -63,7 +63,11 @@ Route::middleware('auth')->group(function () {
 
     // Universal Dedicated Review & Endorsement Full-Page Views
     Route::get('/pts1/{pts1}/show', [Pts1Controller::class, 'show'])->name('pts1.show');
+    Route::get('/pts1/{pts1}/reverted', [Pts1Controller::class, 'reverted'])->name('pts1.reverted');
     Route::get('/pts1/{pts1}/review-endorse', [Pts1Controller::class, 'showReview'])->name('pts1.review_endorse');
+    
+    Route::get('/pts2/{pts2}/show', [Pts2Controller::class, 'show'])->name('pts2.show');
+    Route::get('/pts2/{pts2}/reverted', [Pts2Controller::class, 'reverted'])->name('pts2.reverted');
     Route::get('/pts2/{pts2}/review-endorse', [Pts2Controller::class, 'showReview'])->name('pts2.review_endorse');
 
     // Draft Synopsis Circulation Authority Review & Document Streaming
@@ -101,6 +105,7 @@ Route::prefix('student')->middleware(['auth', 'role:student'])->group(function (
     
     // PTS-2 Synopsis Form Routes
     Route::get('/pts2/create', [StudentPts2Controller::class, 'create'])->name('student.pts2.create');
+    Route::get('/pts2/edit', [StudentPts2Controller::class, 'edit'])->name('student.pts2.edit');
     Route::post('/pts2/store', [StudentPts2Controller::class, 'store'])->name('student.pts2.store');
 
     // PTS-2 Extension Form Routes
@@ -114,7 +119,8 @@ Route::prefix('faculty')->middleware(['auth', 'role:faculty'])->group(function (
     Route::get('/pts1/{pts1}/review', [Pts1Controller::class, 'edit'])->name('faculty.pts1.edit');
     Route::match(['post', 'put'], '/pts1/{pts1}/update', [Pts1Controller::class, 'update'])->name('faculty.pts1.update');
     
-    Route::get('/pts2/{pts2}/review', [Pts2Controller::class, 'showReview'])->name('faculty.pts2.edit');
+    Route::get('/pts2/{pts2}/review', [Pts2Controller::class, 'edit'])->name('faculty.pts2.edit');
+    Route::match(['post', 'put'], '/pts2/{pts2}/update', [Pts2Controller::class, 'update'])->name('faculty.pts2.update');
 });
 
 // Departmental Authorities Routes (HOD & DPGC)

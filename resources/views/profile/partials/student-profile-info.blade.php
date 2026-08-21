@@ -69,7 +69,7 @@
 
             <!-- Course Credits Earned -->
             <div>
-                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned</label>
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned (Fetched From System)</label>
                 <div class="text-base font-medium text-gray-900 dark:text-gray-100">
                     {{ is_numeric($student->course_credits_earned) ? ($student->course_credits_earned == (int)$student->course_credits_earned ? (int)$student->course_credits_earned : $student->course_credits_earned) : 0 }} Credits
                 </div>

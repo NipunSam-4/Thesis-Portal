@@ -15,56 +15,154 @@ class Pts2Form extends Model
     protected $fillable = [
         'thesis_id',
         'thesis_title',
-        'remarks',
         'synopsis_report_doc_path',
         'current_stage',
         'status',
         'reverted_by_role',
+        'reverted_by_id',
         'reversion_comment',
+
+        // Student Details
+        'course_credits_student',
+        'date_of_submission',
+        'current_address',
+        'alternate_email',
+        'recent_phone_number',
+        'recent_phone_country_code',
+        'recent_phone_iso2',
+        'alternate_phone_number',
+        'alternate_phone_country_code',
+        'alternate_phone_iso2',
+        'cert_prima_facie_case',
+        'cert_no_prior_degree_submission',
+        'collaborative_work_status',
+        'collaborative_work_details',
+
+        // 1. Main Supervisor
+        'main_supervisor_cert_prima_facie_case',
+        'main_supervisor_cert_no_prior_degree_submission',
+        'main_supervisor_collaborative_work_status',
+        'main_supervisor_collaborative_work_details',
         'main_supervisor_recommendation',
+        'main_supervisor_student_comment',
         'main_supervisor_confidential_remark',
+        'main_supervisor_submitted_at',
+
+        // 2. Co-Supervisors (1 to 10)
         'co_supervisor_1_id',
         'co_supervisor_1_recommendation',
+        'co_supervisor_1_student_comment',
         'co_supervisor_1_confidential_remark',
+        'co_supervisor_1_submitted_at',
+
         'co_supervisor_2_id',
         'co_supervisor_2_recommendation',
+        'co_supervisor_2_student_comment',
         'co_supervisor_2_confidential_remark',
+        'co_supervisor_2_submitted_at',
+
         'co_supervisor_3_id',
         'co_supervisor_3_recommendation',
+        'co_supervisor_3_student_comment',
         'co_supervisor_3_confidential_remark',
-        'pspc_member_1_id',
-        'pspc_member_1_recommendation',
-        'pspc_member_1_confidential_remark',
-        'pspc_member_2_id',
-        'pspc_member_2_recommendation',
-        'pspc_member_2_confidential_remark',
-        'pspc_member_3_id',
-        'pspc_member_3_recommendation',
-        'pspc_member_3_confidential_remark',
-        'dpgc_recommendation',
-        'dpgc_confidential_remark',
-        'hod_recommendation',
-        'hod_confidential_remark',
-        'section_officer_recommendation',
-        'section_officer_confidential_remark',
+        'co_supervisor_3_submitted_at',
+
+        'co_supervisor_4_id',
+        'co_supervisor_4_recommendation',
+        'co_supervisor_4_student_comment',
+        'co_supervisor_4_confidential_remark',
+        'co_supervisor_4_submitted_at',
+
+        'co_supervisor_5_id',
+        'co_supervisor_5_recommendation',
+        'co_supervisor_5_student_comment',
+        'co_supervisor_5_confidential_remark',
+        'co_supervisor_5_submitted_at',
+
+        'co_supervisor_6_id',
+        'co_supervisor_6_recommendation',
+        'co_supervisor_6_student_comment',
+        'co_supervisor_6_confidential_remark',
+        'co_supervisor_6_submitted_at',
+
+        'co_supervisor_7_id',
+        'co_supervisor_7_recommendation',
+        'co_supervisor_7_student_comment',
+        'co_supervisor_7_confidential_remark',
+        'co_supervisor_7_submitted_at',
+
+        'co_supervisor_8_id',
+        'co_supervisor_8_recommendation',
+        'co_supervisor_8_student_comment',
+        'co_supervisor_8_confidential_remark',
+        'co_supervisor_8_submitted_at',
+
+        'co_supervisor_9_id',
+        'co_supervisor_9_recommendation',
+        'co_supervisor_9_student_comment',
+        'co_supervisor_9_confidential_remark',
+        'co_supervisor_9_submitted_at',
+
+        'co_supervisor_10_id',
+        'co_supervisor_10_recommendation',
+        'co_supervisor_10_student_comment',
+        'co_supervisor_10_confidential_remark',
+        'co_supervisor_10_submitted_at',
+
+        'co_supervisors_submitted_at',
+
+        // 3. Academic Office
+        'academic_office_is_verified',
+        'academic_office_verification_remark',
+        'academic_office_course_credits',
+        'academic_office_submitted_at',
+
+        // 4. DOAA
+        'doaa_student_comment',
         'doaa_approval',
         'doaa_confidential_remark',
+        'doaa_submitted_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'date_of_submission' => 'date',
+            'course_credits_student' => 'float',
+            'academic_office_course_credits' => 'float',
+            'cert_prima_facie_case' => 'boolean',
+            'cert_no_prior_degree_submission' => 'boolean',
+            'collaborative_work_status' => 'boolean',
+            'main_supervisor_cert_prima_facie_case' => 'boolean',
+            'main_supervisor_cert_no_prior_degree_submission' => 'boolean',
+            'main_supervisor_collaborative_work_status' => 'boolean',
             'main_supervisor_recommendation' => 'boolean',
             'co_supervisor_1_recommendation' => 'boolean',
             'co_supervisor_2_recommendation' => 'boolean',
             'co_supervisor_3_recommendation' => 'boolean',
-            'pspc_member_1_recommendation' => 'boolean',
-            'pspc_member_2_recommendation' => 'boolean',
-            'pspc_member_3_recommendation' => 'boolean',
-            'dpgc_recommendation' => 'boolean',
-            'hod_recommendation' => 'boolean',
-            'section_officer_recommendation' => 'boolean',
+            'co_supervisor_4_recommendation' => 'boolean',
+            'co_supervisor_5_recommendation' => 'boolean',
+            'co_supervisor_6_recommendation' => 'boolean',
+            'co_supervisor_7_recommendation' => 'boolean',
+            'co_supervisor_8_recommendation' => 'boolean',
+            'co_supervisor_9_recommendation' => 'boolean',
+            'co_supervisor_10_recommendation' => 'boolean',
+            'academic_office_is_verified' => 'boolean',
             'doaa_approval' => 'boolean',
+            'main_supervisor_submitted_at' => 'datetime',
+            'co_supervisor_1_submitted_at' => 'datetime',
+            'co_supervisor_2_submitted_at' => 'datetime',
+            'co_supervisor_3_submitted_at' => 'datetime',
+            'co_supervisor_4_submitted_at' => 'datetime',
+            'co_supervisor_5_submitted_at' => 'datetime',
+            'co_supervisor_6_submitted_at' => 'datetime',
+            'co_supervisor_7_submitted_at' => 'datetime',
+            'co_supervisor_8_submitted_at' => 'datetime',
+            'co_supervisor_9_submitted_at' => 'datetime',
+            'co_supervisor_10_submitted_at' => 'datetime',
+            'co_supervisors_submitted_at' => 'datetime',
+            'academic_office_submitted_at' => 'datetime',
+            'doaa_submitted_at' => 'datetime',
         ];
     }
 
@@ -73,39 +171,23 @@ class Pts2Form extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function coSupervisor1(): BelongsTo
+    public function revertedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'co_supervisor_1_id');
+        return $this->belongsTo(User::class, 'reverted_by_id');
     }
 
-    public function coSupervisor2(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'co_supervisor_2_id');
-    }
+    public function coSupervisor1(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_1_id'); }
+    public function coSupervisor2(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_2_id'); }
+    public function coSupervisor3(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_3_id'); }
+    public function coSupervisor4(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_4_id'); }
+    public function coSupervisor5(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_5_id'); }
+    public function coSupervisor6(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_6_id'); }
+    public function coSupervisor7(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_7_id'); }
+    public function coSupervisor8(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_8_id'); }
+    public function coSupervisor9(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_9_id'); }
+    public function coSupervisor10(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_10_id'); }
 
-    public function coSupervisor3(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'co_supervisor_3_id');
-    }
-
-    public function pspcMember1(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_1_id');
-    }
-
-    public function pspcMember2(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_2_id');
-    }
-
-    public function pspcMember3(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pspc_member_3_id');
-    }
-
-    /**
-     * Get numerical rank for role in workflow hierarchy.
-     */
+    // Get numerical rank for role in workflow hierarchy.
     public static function getRoleRank(?string $role): int
     {
         if (!$role) {
@@ -114,24 +196,18 @@ class Pts2Form extends Model
         if (str_starts_with($role, 'co_supervisor')) {
             return 2;
         }
-        if (str_starts_with($role, 'pspc_member')) {
-            return 3;
-        }
 
         return match ($role) {
             'student' => 0,
             'main_supervisor' => 1,
-            'dpgc' => 4,
-            'hod' => 5,
-            'section_officer' => 6,
-            'doaa', 'adoaa' => 7,
+            'co_supervisors' => 2,
+            'academic_office' => 3,
+            'doaa' => 4,
             default => 999,
         };
     }
 
-    /**
-     * Check if a given user is allowed to view the reverted form.
-     */
+    // Check if a given user is allowed to view the reverted form.
     public function canUserViewRevertedForm(?User $user): bool
     {
         if (!$user) {
@@ -155,23 +231,14 @@ class Pts2Form extends Model
                 $userRanks[] = self::getRoleRank('main_supervisor');
             }
             if ($student->isCoSupervisor($user)) {
-                $userRanks[] = self::getRoleRank('co_supervisor');
-            }
-            if ($student->isPspcMember($user)) {
-                $userRanks[] = self::getRoleRank('pspc_member');
+                $userRanks[] = self::getRoleRank('co_supervisors');
             }
         }
 
-        if ($user->isDpgc()) {
-            $userRanks[] = self::getRoleRank('dpgc');
+        if ($user->isAcademicOffice()) {
+            $userRanks[] = self::getRoleRank('academic_office');
         }
-        if ($user->isHod()) {
-            $userRanks[] = self::getRoleRank('hod');
-        }
-        if ($user->isSectionOfficer()) {
-            $userRanks[] = self::getRoleRank('section_officer');
-        }
-        if ($user->isDoaa() || $user->isAdoaa()) {
+        if ($user->isDoaa()) {
             $userRanks[] = self::getRoleRank('doaa');
         }
 
@@ -185,46 +252,7 @@ class Pts2Form extends Model
 
     public function getRevertedByRoleLabel(): string
     {
-        $role = $this->reverted_by_role ?? '';
-
-        if ($role === 'main_supervisor') {
-            $name = $this->thesis?->student?->mainSupervisors?->first()?->name;
-            return 'Main Supervisor' . ($name ? " ({$name})" : '');
-        }
-
-        if (str_starts_with($role, 'co_supervisor')) {
-            if (preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
-                $idx = (int)$matches[1];
-                $col = "co_supervisor_{$idx}_id";
-                $userId = $this->$col;
-                $user = $userId ? User::find($userId) : null;
-                if (!$user) {
-                    $user = $this->thesis?->student?->coSupervisors?->get($idx - 1);
-                }
-                return 'Co-Supervisor' . ($user ? " ({$user->name})" : '');
-            }
-            $coName = $this->thesis?->student?->coSupervisors?->first()?->name;
-            return 'Co-Supervisor' . ($coName ? " ({$coName})" : '');
-        }
-
-        if (str_starts_with($role, 'pspc_member')) {
-            if (preg_match('/pspc_member_(\d+)/', $role, $matches)) {
-                $idx = (int)$matches[1];
-                $col = "pspc_member_{$idx}_id";
-                $userId = $this->$col;
-                $user = $userId ? User::find($userId) : null;
-                return 'PSPC Member' . ($user ? " ({$user->name})" : '');
-            }
-            return 'PSPC Member';
-        }
-
-        return match ($role) {
-            'dpgc' => 'DPGC Convenor',
-            'hod' => 'Head of Department (HOD)',
-            'section_officer' => 'Section Officer (Academic)',
-            'doaa' => 'Dean of Academic Affairs (DOAA)',
-            default => $role ?: 'Academic Authority',
-        };
+        return \App\Http\Controllers\ThesisController::getRevertedByRoleLabel($this);
     }
 
     public function getReversionComment(): ?string
@@ -232,18 +260,53 @@ class Pts2Form extends Model
         return $this->reversion_comment;
     }
 
-    /**
-     * Accessor for human-readable stage label mapped from ThesisController.
-     * Usage in Blade: {{ $pts2Form->stage_label }}
-     */
+    // Effective Declaration Helpers (Prefers Main Supervisor values if submitted, falls back to student's initial submission)
+    public function getEffectiveCertPrimaFacieCase(): bool
+    {
+        return $this->main_supervisor_cert_prima_facie_case !== null 
+            ? (bool)$this->main_supervisor_cert_prima_facie_case 
+            : (bool)$this->cert_prima_facie_case;
+    }
+
+    public function getEffectiveCertNoPriorDegreeSubmission(): bool
+    {
+        return $this->main_supervisor_cert_no_prior_degree_submission !== null 
+            ? (bool)$this->main_supervisor_cert_no_prior_degree_submission 
+            : (bool)$this->cert_no_prior_degree_submission;
+    }
+
+    public function getEffectiveCollaborativeWorkStatus(): bool
+    {
+        return $this->main_supervisor_collaborative_work_status !== null 
+            ? (bool)$this->main_supervisor_collaborative_work_status 
+            : (bool)$this->collaborative_work_status;
+    }
+
+    public function getEffectiveCollaborativeWorkDetails(): ?string
+    {
+        if ($this->main_supervisor_collaborative_work_status !== null) {
+            return $this->main_supervisor_collaborative_work_status 
+                ? $this->main_supervisor_collaborative_work_details 
+                : null;
+        }
+
+        return $this->collaborative_work_status 
+            ? $this->collaborative_work_details 
+            : null;
+    }
+
+    // Accessor for human-readable stage label mapped from ThesisController.
+    // Usage in Blade: {{ $pts2Form->stage_label }}
     public function getStageLabelAttribute(): string
     {
+        if ($this->status === 'rejected' || $this->current_stage === 'rejected') {
+            return 'Rejected';
+        }
+
         return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
     }
 
-    /**
-     * Get array of completed submission timestamps for all authorities and student.
-     */
+    // Get array of completed submission timestamps for all authorities and student.
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
@@ -261,7 +324,7 @@ class Pts2Form extends Model
             $timeline[] = [
                 'role' => 'Main Supervisor',
                 'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => $this->main_supervisor_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->main_supervisor_submitted_at,
             ];
         }
 
@@ -277,39 +340,11 @@ class Pts2Form extends Model
             }
         }
 
-        for ($i = 1; $i <= 10; $i++) {
-            $submittedAt = $this->{"pspc_member_{$i}_submitted_at"} ?? ($this->pspc_members_submitted_at && $this->{"pspc_member_{$i}_recommendation"} !== null ? $this->pspc_members_submitted_at : null);
-            if ($submittedAt) {
-                $pspc = $this->{"pspcMember{$i}"};
-                $timeline[] = [
-                    'role' => 'PSPC Member',
-                    'name' => $pspc?->name ?? "PSPC Member {$i}",
-                    'submitted_at' => $submittedAt,
-                ];
-            }
-        }
-
-        if ($this->dpgc_submitted_at || $this->dpgc_recommendation !== null) {
+        if ($this->academic_office_submitted_at || $this->academic_office_is_verified !== null) {
             $timeline[] = [
-                'role' => 'DPGC Convenor',
-                'name' => 'DPGC Convenor',
-                'submitted_at' => $this->dpgc_submitted_at ?? $this->updated_at,
-            ];
-        }
-
-        if ($this->hod_submitted_at || $this->hod_recommendation !== null) {
-            $timeline[] = [
-                'role' => 'Head of Department',
-                'name' => 'HOD',
-                'submitted_at' => $this->hod_submitted_at ?? $this->updated_at,
-            ];
-        }
-
-        if ($this->academic_office_submitted_at || $this->academic_office_recommendation !== null) {
-            $timeline[] = [
-                'role' => 'Academic Office (SO)',
-                'name' => 'Section Officer',
-                'submitted_at' => $this->academic_office_submitted_at ?? $this->updated_at,
+                'role' => 'Academic Office',
+                'name' => 'Academic Office',
+                'submitted_at' => $this->academic_office_submitted_at,
             ];
         }
 
@@ -317,10 +352,38 @@ class Pts2Form extends Model
             $timeline[] = [
                 'role' => 'Dean of Academic Affairs',
                 'name' => 'DOAA',
-                'submitted_at' => $this->doaa_submitted_at ?? $this->pts2_submitted_at ?? $this->updated_at,
+                'submitted_at' => $this->doaa_submitted_at,
+            ];
+        }
+
+        if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
+            $timeline[] = [
+                'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
+                'name' => $this->revertedBy?->name ?? 'Reverting Authority',
+                'submitted_at' => $this->updated_at,
+                'status_type' => 'reverted',
+                'status_label' => '⚠️ Reverted',
             ];
         }
 
         return $timeline;
+    }
+
+    public function getFormattedRecentPhoneNumber(): string
+    {
+        if (!$this->recent_phone_number) {
+            return 'N/A';
+        }
+        $code = $this->recent_phone_country_code ?: '+91';
+        return trim("{$code} {$this->recent_phone_number}");
+    }
+
+    public function getFormattedAlternatePhoneNumber(): string
+    {
+        if (!$this->alternate_phone_number) {
+            return 'N/A';
+        }
+        $code = $this->alternate_phone_country_code ?: '+91';
+        return trim("{$code} {$this->alternate_phone_number}");
     }
 }

@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentPts1Controller extends Controller
 {
-    /**
-     * Display the PTS-1 creation form.
-     */
+    // Display the PTS-1 creation form.
     public function create()
     {
         $user = auth()->user();
@@ -35,7 +33,7 @@ class StudentPts1Controller extends Controller
             if ($pts1Form->status === 'in_progress') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form is currently in progress.');
             }
-            if ($pts1Form->status === 'accepted') {
+            if ($pts1Form->status === 'approved') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form has already been approved.');
             }
             if ($pts1Form->status !== 'reverted') {
@@ -46,9 +44,7 @@ class StudentPts1Controller extends Controller
         return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
     }
 
-    /**
-     * Download the sample Excel publication list template.
-     */
+    // Download the sample Excel publication list template.
     public function downloadTemplate()
     {
         $customTemplatePath = public_path('templates/publication_list_template.xlsx');
@@ -65,9 +61,7 @@ class StudentPts1Controller extends Controller
         abort(404, 'Publication list template file not found.');
     }
 
-    /**
-     * Display the PTS-1 edit form for reverted submissions.
-     */
+    // Display the PTS-1 edit form for reverted submissions.
     public function edit()
     {
         $user = auth()->user();
@@ -91,9 +85,7 @@ class StudentPts1Controller extends Controller
         return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
     }
 
-    /**
-     * Store a newly created PTS-1 submission in storage.
-     */
+    // Store a newly created PTS-1 submission in storage.
     public function store(Request $request)
     {
         $user = auth()->user();

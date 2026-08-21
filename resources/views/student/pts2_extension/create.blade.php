@@ -38,7 +38,7 @@
                         @if($pts2Extension->reversion_comment)
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                                 <strong>Reversion Comment:</strong>
-                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts2Extension->reversion_comment) }}</p>
+                                <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2Extension->reversion_comment) }}</p>
                             </div>
                         @endif
                     </div>

@@ -63,19 +63,12 @@ class Pts2Extension extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function student()
-    {
-        return $this->hasOneThrough(Student::class, Thesis::class, 'id', 'id', 'thesis_id', 'student_id');
-    }
-
     public function revertedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reverted_by_id');
     }
 
-    /**
-     * Get numerical rank for role in PTS-2 Extension workflow hierarchy.
-     */
+    // Get numerical rank for role in PTS-2 Extension workflow hierarchy.
     public static function getRoleRank(?string $role): int
     {
         if (!$role) {
@@ -93,9 +86,7 @@ class Pts2Extension extends Model
         };
     }
 
-    /**
-     * Check if viewing role can view a prior role's remark based on workflow rank.
-     */
+    // Check if viewing role can view a prior role's remark based on workflow rank.
     public static function canViewPriorRemark(string $viewerRole, string $targetRole): bool
     {
         $viewerRank = self::getRoleRank($viewerRole);
@@ -104,10 +95,8 @@ class Pts2Extension extends Model
         return $viewerRank >= $targetRank;
     }
 
-    /**
-     * Check if a given user is allowed to view the reverted PTS-2 Extension form.
-     * Allowed only for the reverting authority, authorities prior to them in rank, and the student.
-     */
+    // Check if a given user is allowed to view the reverted PTS-2 Extension form.
+    // Allowed only for the reverting authority, authorities prior to them in rank, and the student.
     public function canUserViewRevertedForm(?User $user): bool
     {
         if (!$user) {
@@ -153,47 +142,26 @@ class Pts2Extension extends Model
         return $minUserRank <= $revertingRank;
     }
 
-    /**
-     * Format reverted by role label.
-     */
+    // Format reverted by role label.
     public function getRevertedByRoleLabel(): string
     {
-        $role = $this->reverted_by_role ?? '';
-
-        if ($role === 'main_supervisor') {
-            $name = $this->thesis?->student?->mainSupervisors?->first()?->name;
-            return 'Main Supervisor' . ($name ? " ({$name})" : '');
-        }
-
-        return match ($role) {
-            'dpgc' => 'DPGC Convenor',
-            'hod' => 'Head of Department (HOD)',
-            'section_officer' => 'Section Officer ',
-            'doaa' => 'Dean of Academic Affairs (DOAA)',
-            default => $role ?: 'Academic Authority',
-        };
+        return \App\Http\Controllers\ThesisController::getRevertedByRoleLabel($this);
     }
     
-    /**
-     * Get the reversion comment left by the reverting authority.
-     */
+    // Get the reversion comment left by the reverting authority.
     public function getReversionComment(): ?string
     {
         return $this->reversion_comment;
     }
 
-    /**
-     * Accessor for human-readable stage label mapped from ThesisController.
-     * Usage in Blade: {{ $pts2Extension->stage_label }}
-     */
+    // Accessor for human-readable stage label mapped from ThesisController.
+    // Usage in Blade: {{ $pts2Extension->stage_label }}
     public function getStageLabelAttribute(): string
     {
         return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
     }
 
-    /**
-     * Get array of completed submission timestamps for all authorities and student.
-     */
+    // Get array of completed submission timestamps for all authorities and student.
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
@@ -241,9 +209,19 @@ class Pts2Extension extends Model
 
         if ($this->doaa_submitted_at || $this->doaa_recommendation !== null) {
             $timeline[] = [
-                'role' => 'Dean of Academic Affairs (DOAA)',
+                'role' => 'Dean of Academic Affairs',
                 'name' => 'DOAA',
                 'submitted_at' => $this->doaa_submitted_at ?? $this->updated_at,
+            ];
+        }
+
+        if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
+            $timeline[] = [
+                'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
+                'name' => $this->revertedBy?->name ?? 'Reverting Authority',
+                'submitted_at' => $this->updated_at,
+                'status_type' => 'reverted',
+                'status_label' => '⚠️ Reverted',
             ];
         }
 

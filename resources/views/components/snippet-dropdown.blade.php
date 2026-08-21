@@ -2,11 +2,12 @@
     'target' => 'confidentialRemark',
     'formType' => 'all',
     'role' => 'all',
+    'commentType' => null,
     'snippets' => null,
 ])
 
 @php
-    $snippetList = $snippets ?? \App\Models\CommentSnippet::forFormAndRole($formType, $role)->get();
+    $snippetList = $snippets ?? \App\Models\CommentSnippet::forSnippet($formType, $role, $commentType)->get();
 @endphp
 
 @if($snippetList->isNotEmpty())

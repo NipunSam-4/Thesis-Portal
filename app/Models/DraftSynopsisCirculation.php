@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class DraftSynopsisCirculation extends Model
 {
@@ -13,7 +14,6 @@ class DraftSynopsisCirculation extends Model
 
     protected $fillable = [
         'thesis_id',
-        'student_id',
         'thesis_title',
         'draft_synopsis_doc_path',
         'status',
@@ -24,19 +24,12 @@ class DraftSynopsisCirculation extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(Student::class);
-    }
-
     public function comments(): HasMany
     {
         return $this->hasMany(DraftSynopsisComment::class);
     }
 
-    /**
-     * Get comments ordered by authority hierarchy.
-     */
+    // Get comments ordered by authority hierarchy.
     public function getOrderedComments()
     {
         $comments = $this->comments()->with('user')->get();
@@ -58,9 +51,7 @@ class DraftSynopsisCirculation extends Model
         })->values();
     }
 
-    /**
-     * Get array of completed submission timestamps for all reviewing authorities and student.
-     */
+    // Get array of completed submission timestamps for all reviewing authorities and student.
     public function getSubmittedTimeline(): array
     {
         $timeline = [];

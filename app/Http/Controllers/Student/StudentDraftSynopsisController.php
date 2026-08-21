@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentDraftSynopsisController extends Controller
 {
-    /**
-     * Display the student draft synopsis circulation form and comments trail.
-     */
+    // Display the student draft synopsis circulation form and comments trail.
     public function show()
     {
         $user = auth()->user();
@@ -26,7 +24,7 @@ class StudentDraftSynopsisController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
-        $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'accepted';
+        $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'approved';
         $circulation = $thesis->draftSynopsisCirculation;
 
         // If PTS-1 is approved and student never submitted draft synopsis, disallow access
@@ -39,9 +37,7 @@ class StudentDraftSynopsisController extends Controller
         return view('student.draft_synopsis.index', compact('user', 'student', 'thesis', 'circulation', 'pts1Approved', 'comments'));
     }
 
-    /**
-     * Store or update draft synopsis circulation.
-     */
+    // Store or update draft synopsis circulation.
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -56,7 +52,7 @@ class StudentDraftSynopsisController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Active thesis registration not found.');
         }
 
-        $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'accepted';
+        $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'approved';
         $circulation = $thesis->draftSynopsisCirculation;
 
         if ($pts1Approved && !$circulation) {

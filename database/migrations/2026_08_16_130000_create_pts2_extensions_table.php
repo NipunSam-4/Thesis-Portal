@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the migrations.
     public function up(): void
     {
         Schema::create('pts2_extensions', function (Blueprint $table) {
@@ -17,7 +15,7 @@ return new class extends Migration
             $table->text('reason_for_extension');
             $table->date('extended_until_date');
 
-            $table->enum('status', ['pending','in_progress', 'accepted', 'reverted', 'rejected'])->default('pending');
+            $table->enum('status', ['pending','in_progress', 'approved', 'reverted', 'rejected'])->default('pending');
             $table->enum('current_stage', ['main_supervisor', 'dpgc', 'hod', 'section_officer', 'doaa', 'reverted', 'completed'])->default('main_supervisor');
 
             $table->string('reverted_by_role')->nullable();
@@ -55,9 +53,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the migrations.
     public function down(): void
     {
         Schema::dropIfExists('pts2_extensions');

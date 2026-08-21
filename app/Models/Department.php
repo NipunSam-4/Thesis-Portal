@@ -10,22 +10,16 @@ class Department extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    // The attributes that are mass assignable.
+    // @var array<int, string>
     protected $fillable = [
         'name',
         'code',
         'is_active',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // Get the attributes that should be cast.
+    // @return array<string, string>
     protected function casts(): array
     {
         return [
@@ -33,9 +27,7 @@ class Department extends Model
         ];
     }
 
-    /**
-     * Get the Department Super Admins assigned to this department.
-     */
+    // Get the Department Super Admins assigned to this department.
     public function superAdmins(): HasMany
     {
         return $this->hasMany(SuperAdmin::class);

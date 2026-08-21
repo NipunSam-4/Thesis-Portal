@@ -127,10 +127,8 @@ class Student extends Model
         return $this->pspcMembers()->where('users.id', $user->id)->exists();
     }
 
-    /**
-     * Determine the current thesis stage for the student.
-     * Possible stages: Unregistered, PTS-1, PTS-2/PTS-3, PTS-4, PTS-5, PTS-6, Rejected
-     */
+    // Determine the current thesis stage for the student.
+    // Possible stages: Unregistered, PTS-1, PTS-2/PTS-3, PTS-4, PTS-5, PTS-6, Rejected
     public function getThesisStageLabel(): string
     {
         $thesis = $this->theses->last();
@@ -141,29 +139,44 @@ class Student extends Model
 
         $pts1 = $thesis->pts1Form;
         $pts2 = $thesis->pts2Form;
+        $pts3 = $thesis->pts3Form;
+        $pts4 = $thesis->pts4Form;
+        $pts5 = $thesis->pts5Form;
+        $pts6 = $thesis->pts6Form;
 
-        // If any active form is rejected
-        // if (($pts1 && $pts1->status === 'rejected') || ($pts2 && $pts2->status === 'rejected')) {
-        //     return 'Rejected';
-        // }
 
-        // If PTS-1 is not yet approved
-        if (!$pts1 || $pts1->status !== 'accepted') {
-            return 'PTS-1';
+        $prefix = $this->isPhd() ? 'PTS' : 'MSRTS';
+
+        // Check sequentially from Form 1 through Form 6
+        if (!$pts1 || $pts1->status !== 'approved') {
+            return $prefix . '-1';
         }
 
-        // If PTS-1 is approved, student moves to PTS-2 / PTS-3
-        if (!$pts2 || $pts2->status !== 'accepted') {
-            return 'PTS-2/PTS-3';
+        if (!$pts2 || $pts2->status !== 'approved') {
+            return $prefix . '-2';
         }
 
-        return 'PTS-4';
+        if (!$pts3 || $pts3->status !== 'approved') {
+            return $prefix . '-3';
+        }
+
+        if (!$pts4 || $pts4->status !== 'approved') {
+            return $prefix . '-4';
+        }
+
+        if (!$pts5 || $pts5->status !== 'approved') {
+            return $prefix . '-5';
+        }
+
+        if (!$pts6 || $pts6->status !== 'approved') {
+            return $prefix . '-6';
+        }
+
+        return 'Thesis Workflow Completed';
     }
 
-    /**
-     * Check whether an active form for this student requires endorsement/evaluation by the given faculty user.
-     * Optionally filtered by role: 'main', 'co', 'pspc', 'dpgc', 'hod', 'section_officer', 'doaa'.
-     */
+    // Check whether an active form for this student requires endorsement/evaluation by the given faculty user.
+    // Optionally filtered by role: 'main', 'co', 'pspc', 'dpgc', 'hod', 'section_officer', 'doaa'.
     public function requiresActionFromUser(User $user, ?string $roleFilter = null): bool
     {
         $thesis = $this->theses->last();
@@ -233,7 +246,7 @@ class Student extends Model
                 return true;
             }
             if ((!$roleFilter || $roleFilter === 'co') && $pts2->current_stage === 'co_supervisors') {
-                for ($i = 1; $i <= 3; $i++) {
+                for ($i = 1; $i <= 10; $i++) {
                     $idCol = "co_supervisor_{$i}_id";
                     $recCol = "co_supervisor_{$i}_recommendation";
                     if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
@@ -241,22 +254,7 @@ class Student extends Model
                     }
                 }
             }
-            if ((!$roleFilter || $roleFilter === 'pspc') && $pts2->current_stage === 'pspc_members') {
-                for ($i = 1; $i <= 3; $i++) {
-                    $idCol = "pspc_member_{$i}_id";
-                    $recCol = "pspc_member_{$i}_recommendation";
-                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
-                        return true;
-                    }
-                }
-            }
-            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts2->current_stage === 'dpgc' && $user->isDpgc()) {
-                return true;
-            }
-            if ((!$roleFilter || $roleFilter === 'hod') && $pts2->current_stage === 'hod' && $user->isHod()) {
-                return true;
-            }
-            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || $user->isGlobalAuthority())) {
                 return true;
             }
             if ((!$roleFilter || $roleFilter === 'doaa') && $pts2->current_stage === 'doaa' && $user->isDoaa()) {
@@ -287,15 +285,12 @@ class Student extends Model
         return false;
     }
 
-    /**
-     * Get sorting priority score for a given viewing authority user.
-     * Lower numeric score = higher priority in the list.
-     *
-     * Tier 1 (10-40): Forms requiring THIS user's action (PTS-1 > PTS-2 Ext > PTS-2 > Draft)
-     * Tier 2 (100-130): Forms in progress anywhere in pipeline (lowest PTS form first)
-     * Tier 3 (200-400): Completed/Terminated forms (Reverted > Rejected > Approved)
-     * Tier 4 (500): Pending / Not started forms
-     */
+    // Get sorting priority score for a given viewing authority user.
+    // Lower numeric score = higher priority in the list.
+    // Tier 1 (10-40): Forms requiring THIS user's action (PTS-1 > PTS-2 Ext > PTS-2 > Draft)
+    // Tier 2 (100-130): Forms in progress anywhere in pipeline (lowest PTS form first)
+    // Tier 3 (200-400): Completed/Terminated forms (Reverted > Rejected > Approved)
+    // Tier 4 (500): Pending / Not started forms
     public function getAuthoritySortScore($user): int
     {
         $thesis = $this->theses->first();
@@ -307,6 +302,10 @@ class Student extends Model
         $pts2Ext = $thesis->pts2Extension;
         $pts2 = $thesis->pts2Form;
         $draft = $thesis->draftSynopsisCirculation;
+        $pts3 = $thesis->pts3Form;
+        $pts4 = $thesis->pts4Form;
+        $pts5 = $thesis->pts5Form;
+        $pts6 = $thesis->pts6Form;
 
         // --- TIER 1: Requires THIS user's action / endorsement ---
         // 1.1 PTS-1 action required
@@ -345,23 +344,14 @@ class Student extends Model
         if ($pts2 && $pts2->status === 'in_progress') {
             if ($pts2->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) return 30;
             if ($pts2->current_stage === 'co_supervisors') {
-                for ($i = 1; $i <= 3; $i++) {
+                for ($i = 1; $i <= 10; $i++) {
                     $idCol = "co_supervisor_{$i}_id";
                     $recCol = "co_supervisor_{$i}_recommendation";
                     if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) return 30;
                 }
             }
-            if ($pts2->current_stage === 'pspc_members') {
-                for ($i = 1; $i <= 3; $i++) {
-                    $idCol = "pspc_member_{$i}_id";
-                    $recCol = "pspc_member_{$i}_recommendation";
-                    if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) return 30;
-                }
-            }
-            if ($pts2->current_stage === 'dpgc' && $user->isDpgc()) return 30;
-            if ($pts2->current_stage === 'hod' && $user->isHod()) return 30;
-            if ($pts2->current_stage === 'section_officer' && $user->isSectionOfficer()) return 30;
-            if ($pts2->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic())) return 30;
+            if ($pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || $user->isGlobalAuthority())) return 30;
+            if ($pts2->current_stage === 'doaa' && $user->isDoaa()) return 30;
         }
 
         // 1.4 Draft Synopsis action required
@@ -395,9 +385,9 @@ class Student extends Model
                     return 300;
                 }
             }
-            // Check for accepted / approved / completed
+            // Check for approved / completed
             foreach ($allForms as $f) {
-                if (isset($f->status) && in_array($f->status, ['accepted', 'approved', 'completed'])) {
+                if (isset($f->status) && in_array($f->status, ['approved', 'completed'])) {
                     return 400;
                 }
             }

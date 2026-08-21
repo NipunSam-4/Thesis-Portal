@@ -16,19 +16,14 @@ use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
-    /**
-     * Display the password reset view.
-     */
+    // Display the password reset view.
     public function create(Request $request): View
     {
         return view('auth.reset-password', ['request' => $request]);
     }
 
-    /**
-     * Handle an incoming new password request.
-     *
-     * @throws ValidationException
-     */
+    // Handle an incoming new password request.
+    // @throws ValidationException
     public function store(Request $request): RedirectResponse
     {
         $request->validate([

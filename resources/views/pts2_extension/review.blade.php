@@ -57,27 +57,27 @@
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                        <input type="text" value="{{ $extension->student->roll_number ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $extension->thesis->student->roll_number ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                        <input type="text" value="{{ $extension->student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $extension->thesis->student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                        <input type="text" value="{{ $extension->student->date_registration ? \Carbon\Carbon::parse($extension->student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $extension->thesis->student->date_registration ? \Carbon\Carbon::parse($extension->thesis->student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                        <input type="text" value="{{ $extension->student->date_joining ? \Carbon\Carbon::parse($extension->student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $extension->thesis->student->date_joining ? \Carbon\Carbon::parse($extension->thesis->student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation</label>
-                        <input type="text" value="{{ $extension->student->date_confirmation ? \Carbon\Carbon::parse($extension->student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <input type="text" value="{{ $extension->thesis->student->date_confirmation ? \Carbon\Carbon::parse($extension->thesis->student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
                 </div>
             </div>
@@ -107,7 +107,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Reason for Extension</label>
-                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] cursor-not-allowed">{{ trim($extension->reason_for_extension) }}</div>
                 </div>
             </div>
 
@@ -133,7 +133,7 @@
                                     </span>
                                 </div>
                                 @if($extension->main_supervisor_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->main_supervisor_confidential_remark) }}"</p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->main_supervisor_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -153,7 +153,7 @@
                                     </span>
                                 </div>
                                 @if($extension->dpgc_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->dpgc_confidential_remark) }}"</p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->dpgc_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -173,7 +173,7 @@
                                     </span>
                                 </div>
                                 @if($extension->hod_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->hod_confidential_remark) }}"</p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->hod_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -193,7 +193,7 @@
                                     </span>
                                 </div>
                                 @if($extension->section_officer_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">"{{ trim($extension->section_officer_confidential_remark) }}"</p>
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->section_officer_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -245,7 +245,7 @@
                                     Verification Remark <span class="text-red-500">*</span>
                                 </label>
                                 <div class="pt-0.5">
-                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="section_officer" />
+                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="section_officer" comment-type="verification_remark" />
                                 </div>
                                 <textarea name="confidential_remark" 
                                           rows="3" 

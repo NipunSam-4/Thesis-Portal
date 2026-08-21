@@ -310,7 +310,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Additional Comment:</strong>
                                     @if($pts1->main_supervisor_student_comment)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_student_comment) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->main_supervisor_student_comment) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +325,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
                                     <strong>Main Supervisor Remark:</strong>
                                     @if($pts1->main_supervisor_confidential_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->main_supervisor_confidential_remark) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->main_supervisor_confidential_remark) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,7 +353,7 @@
                                     @if($coUser && !is_null($pts1->$recCol))
                                         <div class="text-xs space-y-1 pt-1 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
                                             <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
-                                                <span>{{ $coUser->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(Co-Supervisor {{ $i }})</span> Remark:</span>
+                                                <span>Co-Supervisor {{ $i }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }})</span> Remark:</span>
                                                 @if(!is_null($pts1->$recCol))
                                                     <span class="font-bold whitespace-nowrap shrink-0 {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
                                                         {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
@@ -361,7 +361,7 @@
                                                 @endif
                                             </div>
                                             @if($pts1->$remCol)
-                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->$remCol) }}</p>
+                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->$remCol) }}</p>
                                             @else
                                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +391,7 @@
                                     @if($pspcUser && (!is_null($pts1->$recCol)))
                                         <div class="text-xs space-y-1 pt-1 {{ $i > 1 ? 'border-t border-purple-100 dark:border-purple-900' : '' }}">
                                             <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
-                                                <span>{{ $pspcUser->name }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">(PSPC Member {{ $i }})</span> Remark:</span>
+                                                <span>PSPC Member {{ $i }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspcUser->name }})</span> Remark:</span>
                                                 @if(!is_null($pts1->$recCol))
                                                     <span class="font-bold whitespace-nowrap shrink-0 {{ $pts1->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
                                                         {{ $pts1->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
@@ -399,7 +399,7 @@
                                                 @endif
                                             </div>
                                             @if($pts1->$remCol)
-                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->$remCol) }}</p>
+                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->$remCol) }}</p>
                                             @else
                                                 <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -429,7 +429,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Student Comment:</strong>
                                     @if($pts1->dpgc_student_comment)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_student_comment) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->dpgc_student_comment) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,7 +443,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>DPGC Remark:</strong>
                                     @if($pts1->dpgc_remarks || $pts1->dpgc_confidential_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->dpgc_remarks ?? $pts1->dpgc_confidential_remark) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->dpgc_remarks ?? $pts1->dpgc_confidential_remark) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,7 +471,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Student Comment:</strong>
                                     @if($pts1->hod_student_comment)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_student_comment) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->hod_student_comment) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,7 +484,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>HOD Remark:</strong>
                                     @if($pts1->hod_remarks || $pts1->hod_confidential_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->hod_remarks ?? $pts1->hod_confidential_remark) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->hod_remarks ?? $pts1->hod_confidential_remark) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,7 +509,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Verification Remark:</strong>
                                     @if($pts1->section_officer_remarks)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->section_officer_remarks) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->section_officer_remarks) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -536,7 +536,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Student Comment:</strong>
                                     @if($pts1->doaa_student_comment)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_student_comment) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_student_comment) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -549,7 +549,7 @@
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>DOAA Remark:</strong>
                                     @if($pts1->doaa_remarks)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap">{{ trim($pts1->doaa_remarks) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_remarks) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,7 +585,7 @@
                     @if($pts1->getReversionComment())
                         <div class="mt-2 text-xs text-gray-700 dark:text-gray-300">
                             <strong>Reversion Comment:</strong>
-                            <p class="italic bg-white dark:bg-gray-800 p-3 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts1->getReversionComment()) }}</p>
+                            <p class="italic bg-white dark:bg-gray-800 p-3 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->getReversionComment()) }}</p>
                         </div>
                     @else
                         <p class="text-xs italic text-gray-500 mt-1">No written reversion comment provided.</p>

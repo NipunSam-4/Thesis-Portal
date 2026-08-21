@@ -6,16 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the migrations.
     public function up(): void
     {
         Schema::create('pts2_forms', function (Blueprint $table) {
             $table->id();
             
-            // 1-to-1 Unique Relationship with Thesis
-            $table->foreignId('thesis_id')->unique()->constrained('theses')->cascadeOnDelete();
+            // Relationship with Thesis
+            $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
             $table->text('thesis_title')->nullable();
             
             // Student Synopsis Upload
@@ -25,14 +23,13 @@ return new class extends Migration
             $table->enum('current_stage', [
                 'main_supervisor', 
                 'co_supervisors',
-                'section_officer', 
+                'academic_office', 
                 'doaa', 
                 'completed', 
-                'reverted',
-                'rejected'
+                'reverted'
             ])->default('main_supervisor');
 
-            $table->enum('status', ['pending','in_progress', 'accepted', 'rejected', 'reverted'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'approved', 'rejected', 'reverted'])->default('pending');
             $table->string('reverted_by_role')->nullable();
             $table->unsignedBigInteger('reverted_by_id')->nullable();
             $table->text('reversion_comment')->nullable();
@@ -43,7 +40,11 @@ return new class extends Migration
             $table->text('current_address');
             $table->string('alternate_email')->nullable();
             $table->string('recent_phone_number');
+            $table->string('recent_phone_country_code')->default('+91');
+            $table->string('recent_phone_iso2')->default('in');
             $table->string('alternate_phone_number')->nullable();
+            $table->string('alternate_phone_country_code')->nullable()->default('+91');
+            $table->string('alternate_phone_iso2')->nullable()->default('in');
 
             // Further Certified That (Student Declarations)
             $table->boolean('cert_prima_facie_case')->default(false);
@@ -124,11 +125,11 @@ return new class extends Migration
 
             $table->timestamp('co_supervisors_submitted_at')->nullable();
 
-            // 3. Section Officer (Academic Office) Verification
-            $table->boolean('section_officer_is_verified')->nullable();
-            $table->text('section_officer_verification_remark')->nullable();
-            $table->float('section_officer_course_credits')->nullable();
-            $table->timestamp('section_officer_submitted_at')->nullable();
+            // 3. Academic Office Verification
+            $table->boolean('academic_office_is_verified')->nullable();
+            $table->text('academic_office_verification_remark')->nullable();
+            $table->float('academic_office_course_credits')->nullable();
+            $table->timestamp('academic_office_submitted_at')->nullable();
 
             // 4. Dean of Academic Affairs (DOAA)
             $table->text('doaa_student_comment')->nullable();
@@ -140,9 +141,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the migrations.
     public function down(): void
     {
         Schema::dropIfExists('pts2_forms');

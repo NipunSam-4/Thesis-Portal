@@ -6,15 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the migrations.
     public function up(): void
     {
         Schema::create('draft_synopsis_circulations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
             $table->text('thesis_title')->nullable();
             $table->string('draft_synopsis_doc_path');
             $table->string('status')->default('circulated');
@@ -22,9 +19,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the migrations.
     public function down(): void
     {
         Schema::dropIfExists('draft_synopsis_circulations');
