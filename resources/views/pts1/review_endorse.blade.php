@@ -308,8 +308,8 @@
                 $passedPspcMembers    = ($currentWeight > 3) || !is_null($pts1->pspc_members_submitted_at);
                 $passedDpgc           = ($currentWeight > 4) || !is_null($pts1->dpgc_recommendation);
                 $passedHod            = ($currentWeight > 5) || !is_null($pts1->hod_recommendation);
-                $passedSectionOfficer = ($currentWeight > 6) || !is_null($pts1->section_officer_recommendation);
-                $passedDoaa           = ($currentWeight > 7) || !is_null($pts1->doaa_approval) || !is_null($pts1->pts1_submitted_at);
+                $passedSectionOfficer = ($currentWeight > 6) || !is_null($pts1->section_officer_verified);
+                $passedDoaa           = ($currentWeight > 7) || !is_null($pts1->doaa_approval) || !is_null($pts1->doaa_submitted_at);
             @endphp
 
             <!-- Section 6: Authority Recommendations & Remarks -->
@@ -626,7 +626,7 @@
                 } elseif ($pts1->current_stage === 'hod') {
                     if ($user->isHod() && is_null($pts1->hod_recommendation)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'section_officer') {
-                    if ($user->isSectionOfficer() && is_null($pts1->section_officer_recommendation)) $showActionForm = true;
+                    if ($user->isSectionOfficer() && is_null($pts1->section_officer_verified)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'doaa') {
                     if (($user->isDoaa()) && is_null($pts1->doaa_approval)) $showActionForm = true;
                 }

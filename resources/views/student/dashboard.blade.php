@@ -258,7 +258,7 @@
                                             </a>
                                         @elseif($pts1Approved)
                                             <button type="button" disabled class="block w-full text-center px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                Circulation Closed
+                                                No Draft Synopsis Circulated
                                             </button>
                                         @else
                                             <a href="{{ route('student.draft_synopsis.show') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
@@ -293,13 +293,10 @@
                                         </p>
 
                                         @if($pts1Form && $pts1Form->status === 'reverted')
-                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                 <div class="font-bold text-amber-900 dark:text-amber-200">
                                                     ⚠️ Reverted by {{ $pts1Form->getRevertedByRoleLabel() }}
                                                 </div>
-                                                @if($pts1Form->getReversionComment())
-                                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts1Form->getReversionComment()) }}</p>
-                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -316,23 +313,26 @@
                                                 </a>
                                             </div>
                                         @elseif($pts1Form->status === 'in_progress')
-                                            <div class="flex items-center justify-between pt-1">
-                                                <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1">
+                                            <div class="flex items-center justify-between gap-2 pt-1">
+                                                <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts1Form->stage_label }}
                                                 </div>
+                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    View Submission &rarr;
+                                                </a>
                                             </div>
                                         @elseif($pts1Form->status === 'approved')
-                                            <div class="flex items-center justify-between pt-1">
+                                            <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form Fully Approved</span>
-                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submission &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts1Form->status === 'rejected')
                                             <div class="space-y-2">
-                                                <div class="flex items-center justify-between pt-1">
+                                                <div class="flex items-center justify-between gap-2 pt-1">
                                                     <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Form Rejected</span>
-                                                    <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Submission &rarr;
                                                     </a>
                                                 </div>
@@ -391,33 +391,30 @@
                                                 </div>
 
                                                 @if($pts2Extension->status === 'in_progress')
-                                                    <div class="text-[11px] flex justify-between items-center pt-0.5">
-                                                        <span class="font-semibold text-purple-800 dark:text-purple-300">⏳ Stage: {{ $pts2Extension->stage_label }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-purple-600">View Submitted Form &rarr;</a>
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-0.5">
+                                                        <span class="font-semibold text-purple-800 dark:text-purple-300 leading-tight break-words">⏳ Stage: {{ $pts2Extension->stage_label }}</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-purple-600 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'approved')
-                                                    <div class="text-[11px] flex justify-between items-center pt-1">
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Extended Until: {{ ($pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700">View Approved Form &rarr;</a>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'reverted')
-                                                    <div class="p-3 pt-2 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
+                                                    <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
                                                         <div class="font-bold text-amber-900 dark:text-amber-200">
                                                             ⚠️ Reverted by {{ $pts2Extension->getRevertedByRoleLabel() }}
                                                         </div>
-                                                        @if($pts2Extension->getReversionComment())
-                                                            <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts2Extension->getReversionComment()) }}</p>
-                                                        @endif
                                                     </div>
                                                     <div class="pt-1">
-                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition whitespace-nowrap">
                                                             ⚠️ Resubmit PTS-2 Extension &rarr;
                                                         </a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'rejected')
-                                                    <div class="text-[11px] flex justify-between items-center pt-1">
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Application Rejected</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700">View Rejected Form &rarr;</a>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -444,13 +441,10 @@
                                         @endif
 
                                         @if($pts2Form && $pts2Form->status === 'reverted')
-                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                 <div class="font-bold text-amber-900 dark:text-amber-200">
                                                     ⚠️ Reverted by {{ $pts2Form->getRevertedByRoleLabel() }}
                                                 </div>
-                                                @if($pts2Form->getReversionComment())
-                                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($pts2Form->getReversionComment()) }}</p>
-                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -461,31 +455,31 @@
                                                 Requires {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 Approval
                                             </button>
                                         @elseif($pts2Form && $pts2Form->status === 'approved')
-                                            <div class="flex items-center justify-between pt-1">
+                                            <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form Approved</span>
-                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submission &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts2Form && $pts2Form->status === 'in_progress')
-                                            <div class="flex items-center justify-between pt-1">
-                                                <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold py-1">
+                                            <div class="flex items-center justify-between gap-2 pt-1">
+                                                <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts2Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submission &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts2Form && $pts2Form->status === 'rejected')
                                             <div class="space-y-2">
-                                                <div class="flex items-center justify-between pt-1">
+                                                <div class="flex items-center justify-between gap-2 pt-1">
                                                     <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form Rejected</span>
-                                                    <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Submission &rarr;
                                                     </a>
                                                 </div>
                                                 <div class="pt-2">
-                                                    <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    <a href="{{ route('student.pts2.create') }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition whitespace-nowrap">
                                                         Create New {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Form &rarr;
                                                     </a>
                                                 </div>
@@ -583,8 +577,8 @@
                                             <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700/80 dark:text-gray-300 border-b border-gray-200 dark:border-gray-600">
                                                 <tr>
                                                     <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[160px]">Form Type</th>
-                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[160px]">Submitted At</th>
-                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[100px] text-center">Actions</th>
+                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[160px]">Timestamps</th>
+                                                    <th scope="col" class="px-4 py-4 font-extrabold whitespace-nowrap min-w-[120px] text-center">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -593,20 +587,47 @@
                                                         <td class="px-4 py-4 font-bold text-gray-900 dark:text-white whitespace-nowrap">
                                                             @if($form instanceof \App\Models\Pts1Form)
                                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-1 (Open Seminar)
-                                                            @else
+                                                            @elseif($form instanceof \App\Models\Pts2Form)
                                                                 {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 (Synopsis)
+                                                            @else
+                                                                {{ $student->isPhd() ? 'PTS' : 'MSRTS' }}-2 Extension
                                                             @endif
                                                         </td>
                                                         <td class="px-4 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300 font-medium">
-                                                            {{ $form->created_at ? $form->created_at->format('d-M-Y H:i') : 'N/A' }}
+                                                            @php
+                                                                $modalTitle = match(true) {
+                                                                    $form instanceof \App\Models\Pts1Form => ($student->isPhd() ? 'PTS' : 'MSRTS') . '-1 Submission Timeline',
+                                                                    $form instanceof \App\Models\Pts2Form => ($student->isPhd() ? 'PTS' : 'MSRTS') . '-2 Submission Timeline',
+                                                                    $form instanceof \App\Models\Pts2Extension => ($student->isPhd() ? 'PTS' : 'MSRTS') . '-2 Extension Submission Timeline',
+                                                                    default => ($student->isPhd() ? 'PTS' : 'MSRTS') . ' Submission Timeline',
+                                                                };
+                                                            @endphp
+                                                            <x-submission-timeline-modal :form="$form" :title="$modalTitle">
+                                                                <x-slot name="trigger">
+                                                                    <button type="button" class="inline-flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-lg shadow-sm transition border border-slate-200 dark:border-slate-600">
+                                                                        <svg class="w-3.5 h-3.5 mr-1.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                                        </svg>
+                                                                        View Timestamps
+                                                                    </button>
+                                                                </x-slot>
+                                                            </x-submission-timeline-modal>
                                                         </td>
                                                         <td class="px-4 py-4 whitespace-nowrap text-center">
                                                             @if($form instanceof \App\Models\Pts1Form)
                                                                 <a href="{{ route('pts1.show', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     View Form &rarr;
                                                                 </a>
-                                                            @else
+                                                            @elseif($form instanceof \App\Models\Pts2Form)
                                                                 <a href="{{ route('pts2.show', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Form &rarr;
+                                                                </a>
+                                                            @elseif($form instanceof \App\Models\Pts2Extension)
+                                                                <a href="{{ route('pts2_extension.show', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Form &rarr;
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ route('pts2_extension.show', $form->id) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     View Form &rarr;
                                                                 </a>
                                                             @endif

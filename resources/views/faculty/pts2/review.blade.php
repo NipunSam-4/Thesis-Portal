@@ -100,8 +100,19 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Earned (Fetched from System)</label>
-                            <input type="text" value="{{ $student->course_credits_earned ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed ">
+                            <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                                <span>Course Credits Required</span>
+                                <x-info-button text="Minimum course credits required for the degree program." />
+                            </label>
+                            <input type="text" value="{{ $student->course_credits_required ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
+
+                        <div>
+                            <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                                <span>Course Credits Earned (From System)</span>
+                                <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                            </label>
+                            <input type="text" value="{{ $student->course_credits_earned ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
@@ -136,12 +147,12 @@
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Recent Phone Number</label>
-                            <input type="text" value="{{ $pts2->getFormattedRecentPhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-medium">
+                            <input type="text" value="{{ $pts2->getFormattedRecentPhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Alternate Phone Number</label>
-                            <input type="text" value="{{ $pts2->getFormattedAlternatePhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-medium">
+                            <input type="text" value="{{ $pts2->getFormattedAlternatePhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
 
                         <div>
@@ -150,8 +161,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Submitted by Student</label>
-                            <input type="text" value="{{ $pts2->course_credits_student }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-bold">
+                            <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                                <span>Course Credits Submitted by Student</span>
+                                <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                            </label>
+                            <input type="text" value="{{ $pts2->course_credits_student }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
                     </div>
                 </div>
@@ -331,15 +345,32 @@
                         <textarea name="main_supervisor_student_comment" rows="3" x-model="studentComment" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('main_supervisor_student_comment', $pts2->main_supervisor_student_comment)) }}</textarea>
                     </div>
 
-                    <!-- Declaration -->
-                    <div class="pt-2">
-                        <label class="p-4 rounded-xl border-2 transition-all flex items-start space-x-3 cursor-pointer"
-                               :class="undertaking ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30' : 'border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/20 hover:border-blue-400'">
-                            <input type="checkbox" name="undertaking" value="1" x-model="undertaking" required class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-5 h-5 cursor-pointer">
+                </div>
+
+                <!-- Section 7: Declaration -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-indigo-900 dark:text-indigo-300 border-b border-indigo-100 dark:border-indigo-900/50 pb-2 flex items-center">
+                        7. Declaration
+                    </h3>
+
+                    <label class="p-4 rounded-xl border-2 transition-all flex items-start space-x-3 cursor-pointer"
+                           :class="undertaking ? 'border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/30' : 'border-indigo-200 dark:border-indigo-800 bg-indigo-50/30 dark:bg-indigo-950/20 hover:border-indigo-400'">
+                        <input type="checkbox" 
+                               name="undertaking" 
+                               value="1" 
+                               x-model="undertaking" 
+                               required
+                               class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-5 h-5 cursor-pointer">
+                        <div class="space-y-1">
                             <p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
                                 I hereby confirm that I have reviewed the submitted synopsis report, verified the certifications, and provided my evaluation.
                             </p>
-                        </label>
+                        </div>
+                    </label>
+
+                    <div x-show="!undertaking" class="text-xs text-amber-600 dark:text-amber-400 flex items-center font-medium pl-1">
+                        <svg class="w-4 h-4 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Please confirm the declaration checkbox above to enable submission.</span>
                     </div>
                 </div>
 
@@ -444,13 +475,35 @@
             return {
                 showRevertModal: false,
                 undertaking: savedDraft.undertaking !== undefined ? savedDraft.undertaking : false,
-                certPrimaFacie: {{ old('cert_prima_facie_case', $pts2->getEffectiveCertPrimaFacieCase()) ? 'true' : 'false' }},
-                certNoPriorDegree: {{ old('cert_no_prior_degree_submission', $pts2->getEffectiveCertNoPriorDegreeSubmission()) ? 'true' : 'false' }},
-                collaborativeWorkStatus: '{{ old('collaborative_work_status', $pts2->getEffectiveCollaborativeWorkStatus() ? '1' : '0') }}',
-                collaborativeWorkDetails: @js(old('collaborative_work_details', $pts2->getEffectiveCollaborativeWorkDetails() ?? '')),
-                recommendation: '{{ old('recommendation', $pts2->main_supervisor_recommendation !== null ? ($pts2->main_supervisor_recommendation ? '1' : '0') : '1') }}',
-                confidentialRemark: @js(old('main_supervisor_confidential_remark', $pts2->main_supervisor_confidential_remark ?? '')),
-                studentComment: @js(old('main_supervisor_student_comment', $pts2->main_supervisor_student_comment ?? '')),
+                certPrimaFacie: savedDraft.certPrimaFacie !== undefined ? savedDraft.certPrimaFacie : {{ old('cert_prima_facie_case', $pts2->getEffectiveCertPrimaFacieCase()) ? 'true' : 'false' }},
+                certNoPriorDegree: savedDraft.certNoPriorDegree !== undefined ? savedDraft.certNoPriorDegree : {{ old('cert_no_prior_degree_submission', $pts2->getEffectiveCertNoPriorDegreeSubmission()) ? 'true' : 'false' }},
+                collaborativeWorkStatus: savedDraft.collaborativeWorkStatus !== undefined ? String(savedDraft.collaborativeWorkStatus) : '{{ old('collaborative_work_status', $pts2->getEffectiveCollaborativeWorkStatus() ? '1' : '0') }}',
+                collaborativeWorkDetails: @js(old('collaborative_work_details')) || savedDraft.collaborativeWorkDetails || @js($pts2->getEffectiveCollaborativeWorkDetails() ?? ''),
+                recommendation: @js(old('recommendation')) || savedDraft.recommendation || '{{ $pts2->main_supervisor_recommendation !== null ? ($pts2->main_supervisor_recommendation ? '1' : '0') : '1' }}',
+                confidentialRemark: @js(old('main_supervisor_confidential_remark')) || savedDraft.confidentialRemark || @js($pts2->main_supervisor_confidential_remark ?? ''),
+                studentComment: @js(old('main_supervisor_student_comment')) || savedDraft.studentComment || @js($pts2->main_supervisor_student_comment ?? ''),
+
+                init() {
+                    const watchFields = ['undertaking', 'certPrimaFacie', 'certNoPriorDegree', 'collaborativeWorkStatus', 'collaborativeWorkDetails', 'recommendation', 'confidentialRemark', 'studentComment'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            undertaking: this.undertaking,
+                            certPrimaFacie: this.certPrimaFacie,
+                            certNoPriorDegree: this.certNoPriorDegree,
+                            collaborativeWorkStatus: this.collaborativeWorkStatus,
+                            collaborativeWorkDetails: this.collaborativeWorkDetails,
+                            recommendation: this.recommendation,
+                            confidentialRemark: this.confidentialRemark,
+                            studentComment: this.studentComment,
+                        }));
+                    } catch (e) {}
+                },
 
                 maxSizes: {
                     synopsis: 10
@@ -504,7 +557,9 @@
                 },
 
                 clearDraft() {
-                    sessionStorage.removeItem(draftKey);
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
                 }
             };
         }

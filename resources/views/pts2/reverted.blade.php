@@ -114,8 +114,19 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Earned (Fetched From System)</label>
-                        <input type="text" value="{{ $student->course_credits_earned ?? 0 }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-bold">
+                        <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                            <span>Course Credits Required</span>
+                            <x-info-button text="Minimum course credits required for the degree program." />
+                        </label>
+                        <input type="text" value="{{ $student->course_credits_required ?? 0 }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                            <span>Course Credits Earned (From System)</span>
+                            <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                        </label>
+                        <input type="text" value="{{ $student->course_credits_earned ?? 0 }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
@@ -145,17 +156,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2">
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Current Residential / Correspondence Address</label>
-                        <p class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{{ $pts2->current_address }}</p>
+                        <p class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ $pts2->current_address }}</p>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Recent Phone Number</label>
-                        <input type="text" value="{{ $pts2->getFormattedRecentPhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-medium">
+                        <input type="text" value="{{ $pts2->getFormattedRecentPhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Alternate Phone Number</label>
-                        <input type="text" value="{{ $pts2->getFormattedAlternatePhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-medium">
+                        <input type="text" value="{{ $pts2->getFormattedAlternatePhoneNumber() }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
 
                     <div>
@@ -164,8 +175,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Submitted by Student</label>
-                        <input type="text" value="{{ $pts2->course_credits_student }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed font-bold">
+                        <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                            <span>Course Credits Submitted by Student</span>
+                            <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                        </label>
+                        <input type="text" value="{{ $pts2->course_credits_student }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                     </div>
                 </div>
             </div>
@@ -221,9 +235,7 @@
                                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">
                                     Collaborative Sections &amp; Details:
                                 </label>
-                                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed shadow-sm">
-                                    {{ trim($collabDetails) }}
-                                </div>
+                                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-relaxed shadow-sm">{{ trim($collabDetails) }}</div>
                             </div>
                         @endif
                     </div>

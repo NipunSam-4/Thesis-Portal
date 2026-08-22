@@ -12,6 +12,7 @@
                     @if($user->isArAcademic()) Assistant Registrar (Academic) @endif
                     @if($user->isDrAcademic()) Deputy Registrar (Academic) @endif
                     @if($user->isSectionOfficer()) Section Officer @endif
+                    @if($user->isAcademicOffice()) Academic Office @endif
                 </span>
                 <x-profile_dropdown/>
             </div>
@@ -284,7 +285,7 @@
                                                             @if($thesis->pts1Form->status === 'in_progress')
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts1Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
                                                             @elseif($thesis->pts1Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts1Form->status === 'rejected')
@@ -303,13 +304,10 @@
                                                     </div>
 
                                                     @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                             <div class="font-bold text-amber-900 dark:text-amber-200">
                                                                 ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
                                                             </div>
-                                                            @if($thesis->pts1Form->getReversionComment())
-                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts1Form->getReversionComment()) }}</p>
-                                                            @endif
                                                         </div>
                                                     @endif
 
@@ -356,7 +354,7 @@
                                                             @if($thesis->pts2Form->status === 'in_progress')
                                                                 <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts2Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
                                                             @elseif($thesis->pts2Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts2Form->status === 'rejected')
@@ -374,13 +372,10 @@
                                                     </div>
 
                                                     @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                             <div class="font-bold text-amber-900 dark:text-amber-200">
                                                                 ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
                                                             </div>
-                                                            @if($thesis->pts2Form->getReversionComment())
-                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts2Form->getReversionComment()) }}</p>
-                                                            @endif
                                                         </div>
                                                     @endif
 
@@ -550,7 +545,7 @@
                                                             @if($thesis->pts1Form->status === 'in_progress')
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts1Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}</span>
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
                                                             @elseif($thesis->pts1Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts1Form->status === 'rejected')
@@ -569,13 +564,10 @@
                                                     </div>
 
                                                     @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                             <div class="font-bold text-amber-900 dark:text-amber-200">
                                                                 ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
                                                             </div>
-                                                            @if($thesis->pts1Form->getReversionComment())
-                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts1Form->getReversionComment()) }}</p>
-                                                            @endif
                                                         </div>
                                                     @endif
 
@@ -622,7 +614,7 @@
                                                             @if($thesis->pts2Form->status === 'in_progress')
                                                                 <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts2Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}</span>
+                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
                                                             @elseif($thesis->pts2Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
                                                             @elseif($thesis->pts2Form->status === 'rejected')
@@ -640,13 +632,10 @@
                                                     </div>
 
                                                     @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs space-y-1 my-2">
+                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                             <div class="font-bold text-amber-900 dark:text-amber-200">
                                                                 ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
                                                             </div>
-                                                            @if($thesis->pts2Form->getReversionComment())
-                                                                <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap">{{ trim($thesis->pts2Form->getReversionComment()) }}</p>
-                                                            @endif
                                                         </div>
                                                     @endif
 

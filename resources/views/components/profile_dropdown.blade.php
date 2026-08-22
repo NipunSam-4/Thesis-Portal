@@ -1,7 +1,7 @@
 <x-dropdown align="right" width="48" content-classes="py-1 bg-white dark:bg-gray-800 dark:border dark:border-gray-700">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:text-gray-900 dark:hover:text-white focus:outline-none transition ease-in-out duration-150">
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-transparent hover:text-gray-900 dark:hover:text-white focus:outline-none transition ease-in-out duration-150">
                             <div>{{ (Auth::user() ?? Auth::guard('admin')->user())->name ?? 'User' }}</div>
 
                             <div class="ms-1">

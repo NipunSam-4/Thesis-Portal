@@ -38,7 +38,8 @@ class StudentDashboardController extends Controller
         if ($activeThesis) {
             $rejectedPts1 = $activeThesis->pts1Forms()->where('status', 'rejected')->get();
             $rejectedPts2 = $activeThesis->pts2Forms()->where('status', 'rejected')->get();
-            $rejectedForms = $rejectedPts1->concat($rejectedPts2)->sortByDesc('created_at');
+            $rejectedPts2Ext = $activeThesis->pts2Extensions()->where('status', 'rejected')->get();
+            $rejectedForms = $rejectedPts1->concat($rejectedPts2)->concat($rejectedPts2Ext)->sortByDesc('created_at');
         }
 
         return view('student.dashboard', compact('student', 'activeThesis', 'latestThesis', 'draftSynopsis', 'pts1Form', 'pts2Form', 'pts2Extension', 'pts1Approved', 'rejectedForms'));

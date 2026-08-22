@@ -83,6 +83,11 @@
                             <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
                             <input type="text" value="{{ $thesis->getOpenSeminarDate()?->format('d-m-Y') ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Required</label>
+                            <input type="text" value="{{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 0 }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        </div>
                     </div>
                 </div>
 
@@ -124,7 +129,7 @@
                                           x-model="recentPhone" 
                                           required 
                                           class="mt-1 w-full dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700" 
-                                          placeholder="9876543210" />
+                                          placeholder="Enter your current phone no" />
                             <input type="hidden" id="recent_phone_country_code" name="recent_phone_country_code"
                                 :value="recentPhoneCountryCode">
                             <input type="hidden" id="recent_phone_iso2" name="recent_phone_iso2"
@@ -159,10 +164,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Total Course Credits Earned <span class="text-red-500">*</span>
+                            <label class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                <span>Total Course Credits Earned <span class="text-red-500">*</span></span>
+                                <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
                             </label>
-                            <input type="number" step="0.5" min="0" name="course_credits_student" required x-model="courseCredits" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 font-bold" placeholder="e.g. 16.0">
+                            <input type="number" step="0.5" min="0" name="course_credits_student" required x-model="courseCredits" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 16.0">
                         </div>
                     </div>
                 </div>

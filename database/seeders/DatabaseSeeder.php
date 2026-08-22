@@ -239,6 +239,7 @@ class DatabaseSeeder extends Seeder
                         'program_name' => $stData['prog'],
                         'admission_category' => $stData['cat'],
                         'course_credits_earned' => $stData['credits'],
+                        'course_credits_required' => 36.0,
                         'date_joining' => '2023-08-01',
                         'date_registration' => '2023-08-15',
                     ]

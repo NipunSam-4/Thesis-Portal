@@ -7,15 +7,21 @@
 
     @if(count($timeline) > 0)
         <div x-data="{ openModal: false }" class="inline-flex items-center">
-            <!-- Clock Trigger Button -->
-            <button type="button" 
-                    @click="openModal = true" 
-                    title="View Submission Timeline" 
-                    class="mr-1.5 p-1 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/60 transition inline-flex items-center shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </button>
+            @if(isset($trigger))
+                <div @click="openModal = true" class="inline-flex items-center cursor-pointer">
+                    {{ $trigger }}
+                </div>
+            @else
+                <!-- Clock Trigger Button -->
+                <button type="button" 
+                        @click="openModal = true" 
+                        title="View Submission Timeline" 
+                        class="mr-1.5 p-1 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700/60 transition inline-flex items-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </button>
+            @endif
 
             <!-- Popup Modal (Styled similar to student info modal) -->
             <div x-show="openModal" 
@@ -48,7 +54,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold text-white leading-snug">{{ $title }}</h3>
-                                <p class="text-xs text-indigo-200">Submission timestamps for all completed authority endorsements</p>
+                                <p class="text-xs text-indigo-200">Submission timeline and current evaluation progress</p>
                             </div>
                         </div>
                         <button @click="openModal = false" class="text-indigo-200 hover:text-white p-1 rounded-lg hover:bg-indigo-800/60 transition">
@@ -60,22 +66,48 @@
                     <div class="p-4 sm:p-5 space-y-4 overflow-y-auto overscroll-contain flex-1">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                             @foreach($timeline as $item)
-                                <div class="bg-gray-50 dark:bg-gray-700/40 p-3 sm:p-3.5 rounded-xl border border-gray-200 dark:border-gray-600 space-y-1 shadow-sm">
+                                @php
+                                    $statusType = $item['status_type'] ?? 'submitted';
+                                    $statusLabel = $item['status_label'] ?? '✓ Submitted';
+                                    
+                                    $badgeClass = match($statusType) {
+                                        'pending' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-200 dark:border-amber-700',
+                                        'approved' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300',
+                                        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300',
+                                        'reverted' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300',
+                                        default => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300',
+                                    };
+                                    
+                                    $cardBg = match($statusType) {
+                                        'pending' => 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/60',
+                                        'rejected' => 'bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50',
+                                        'reverted' => 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/50',
+                                        default => 'bg-gray-50 dark:bg-gray-700/40 border-gray-200 dark:border-gray-600',
+                                    };
+                                @endphp
+                                <div class="{{ $cardBg }} p-3 sm:p-3.5 rounded-xl border space-y-1 shadow-sm">
                                     <div class="flex items-center justify-between gap-2">
                                         <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 truncate">
                                             {{ $item['role'] }}
                                         </span>
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {{ ($item['status_type'] ?? '') === 'reverted' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' }} shrink-0">
-                                            {{ $item['status_label'] ?? '✓ Submitted' }}
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {{ $badgeClass }} shrink-0">
+                                            {{ $statusLabel }}
                                         </span>
                                     </div>
                                     <div class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
                                         {{ $item['name'] }}
                                     </div>
-                                    <div class="text-[11px] font-medium text-gray-500 dark:text-gray-400 flex items-center space-x-1 pt-0.5">
-                                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>{{ \Carbon\Carbon::parse($item['submitted_at'])->format('d-M-Y H:i') }}</span>
-                                    </div>
+                                    @if(!empty($item['submitted_at']))
+                                        <div class="text-[11px] font-medium text-gray-500 dark:text-gray-400 flex items-center space-x-1 pt-0.5">
+                                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span>{{ \Carbon\Carbon::parse($item['submitted_at'])->format('d-M-Y H:i') }}</span>
+                                        </div>
+                                    @else
+                                        <div class="text-[11px] font-medium text-amber-700 dark:text-amber-400 flex items-center space-x-1 pt-0.5">
+                                            <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>Evaluation Pending</span>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>

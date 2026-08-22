@@ -284,15 +284,18 @@ class Pts2Form extends Model
 
     public function getEffectiveCollaborativeWorkDetails(): ?string
     {
+        $details = null;
         if ($this->main_supervisor_collaborative_work_status !== null) {
-            return $this->main_supervisor_collaborative_work_status 
+            $details = $this->main_supervisor_collaborative_work_status 
                 ? $this->main_supervisor_collaborative_work_details 
+                : null;
+        } else {
+            $details = $this->collaborative_work_status 
+                ? $this->collaborative_work_details 
                 : null;
         }
 
-        return $this->collaborative_work_status 
-            ? $this->collaborative_work_details 
-            : null;
+        return $details !== null ? trim($details) : null;
     }
 
     // Accessor for human-readable stage label mapped from ThesisController.
@@ -310,52 +313,119 @@ class Pts2Form extends Model
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
+        $student = $this->thesis?->student;
+        $deptId = $student?->department_id;
 
+        $soUser = User::whereIn('role', ['section_officer', 'academic_office'])->first();
+        $doaaUser = User::whereIn('role', ['doaa', 'adoaa'])->first();
+
+        // 1. Student Submission
         if ($this->created_at) {
             $timeline[] = [
                 'role' => 'Student Submission',
-                'name' => $this->thesis?->student?->user?->name ?? 'Student',
+                'name' => $student?->user?->name ?? 'Student',
                 'submitted_at' => $this->created_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
             ];
         }
 
-        if ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) {
-            $mainSup = $this->thesis?->student?->mainSupervisors?->first();
+        // 2. Main Supervisor
+        $mainSup = $student?->mainSupervisors?->first() ?? $student?->mainSupervisor;
+        $mainSupSubmitted = $this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null;
+        if ($mainSupSubmitted) {
             $timeline[] = [
                 'role' => 'Main Supervisor',
                 'name' => $mainSup?->name ?? 'Main Supervisor',
                 'submitted_at' => $this->main_supervisor_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'main_supervisor') {
+            $timeline[] = [
+                'role' => 'Main Supervisor',
+                'name' => $mainSup?->name ?? 'Main Supervisor',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        for ($i = 1; $i <= 10; $i++) {
-            $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
-            if ($submittedAt) {
-                $coSup = $this->{"coSupervisor{$i}"};
-                $timeline[] = [
-                    'role' => 'Co-Supervisor',
-                    'name' => $coSup?->name ?? "Co-Supervisor {$i}",
-                    'submitted_at' => $submittedAt,
-                ];
+        // 3. Co-Supervisors
+        $coSupervisors = $student?->coSupervisors ?? collect();
+        $hasCoSupervisors = $coSupervisors->count() > 0 || $this->co_supervisor_1_id;
+        if ($hasCoSupervisors) {
+            $maxCo = max(1, $coSupervisors->count());
+            for ($i = 1; $i <= 10; $i++) {
+                $coSup = $this->{"coSupervisor{$i}"} ?? $coSupervisors->get($i - 1);
+                if (!$coSup && $i > $maxCo) break;
+
+                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
+                $isSubmitted = $submittedAt || $this->{"co_supervisor_{$i}_recommendation"} !== null;
+
+                if ($isSubmitted) {
+                    $timeline[] = [
+                        'role' => 'Co-Supervisor',
+                        'name' => $coSup?->name ?? "Co-Supervisor {$i}",
+                        'submitted_at' => $submittedAt,
+                        'status_type' => 'submitted',
+                        'status_label' => '✓ Submitted',
+                    ];
+                } elseif ($this->status === 'in_progress' && $this->current_stage === 'co_supervisors' && $coSup) {
+                    $timeline[] = [
+                        'role' => 'Co-Supervisor',
+                        'name' => $coSup->name ?? "Co-Supervisor {$i}",
+                        'submitted_at' => null,
+                        'status_type' => 'pending',
+                        'status_label' => '⏳ Pending',
+                    ];
+                }
             }
         }
 
-        if ($this->academic_office_submitted_at || $this->academic_office_is_verified !== null) {
+        // 4. Academic Office
+        $aoSubmitted = $this->academic_office_submitted_at || $this->academic_office_is_verified !== null;
+        if ($aoSubmitted) {
             $timeline[] = [
                 'role' => 'Academic Office',
                 'name' => 'Academic Office',
                 'submitted_at' => $this->academic_office_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'academic_office') {
+            $timeline[] = [
+                'role' => 'Academic Office',
+                'name' => 'Academic Office',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        if ($this->doaa_submitted_at || $this->doaa_approval !== null) {
+        // 5. DOAA
+        $doaaSubmitted = $this->doaa_submitted_at || $this->doaa_approval !== null;
+        if ($doaaSubmitted) {
+            $isApproved = $this->status === 'approved' || $this->doaa_approval == true;
+            $isRejected = $this->status === 'rejected' || $this->doaa_approval === false;
             $timeline[] = [
                 'role' => 'Dean of Academic Affairs',
                 'name' => 'DOAA',
                 'submitted_at' => $this->doaa_submitted_at,
+                'status_type' => $isRejected ? 'rejected' : ($isApproved ? 'approved' : 'submitted'),
+                'status_label' => $isRejected ? '❌ Rejected' : ($isApproved ? '✓ Approved' : '✓ Submitted'),
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'doaa') {
+            $timeline[] = [
+                'role' => 'Dean of Academic Affairs',
+                'name' => 'DOAA',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
+        // 6. Reverted Event (if reverted)
         if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
             $timeline[] = [
                 'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),

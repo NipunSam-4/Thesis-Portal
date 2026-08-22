@@ -20,6 +20,7 @@ class Student extends Model
         'program_name',
         'admission_category',
         'course_credits_earned',
+        'course_credits_required',
         'roll_number',
         'name',
         'date_confirmation',
@@ -29,6 +30,7 @@ class Student extends Model
     {
         return [
             'course_credits_earned' => 'float',
+            'course_credits_required' => 'float',
             'date_registration' => 'date:d-m-Y',
             'date_joining' => 'date:d-m-Y',
             'date_confirmation' => 'date:d-m-Y',
@@ -186,7 +188,8 @@ class Student extends Model
 
         // Check Draft Synopsis Action
         $draftSynopsis = $thesis->draftSynopsisCirculation;
-        if ($draftSynopsis && $draftSynopsis->status === 'circulated') {
+        $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'approved';
+        if ($draftSynopsis && $draftSynopsis->status === 'circulated' && !$pts1Approved) {
             $hasCommented = $draftSynopsis->comments->where('user_id', $user->id)->isNotEmpty();
             if (!$hasCommented) {
                 if ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user)) {
@@ -264,7 +267,8 @@ class Student extends Model
 
         // Check PTS-2 Extension Action
         $pts2Ext = $thesis->pts2Extension;
-        if ($pts2Ext && $pts2Ext->status === 'in_progress') {
+        $pts2Approved = $thesis->pts2Form && $thesis->pts2Form->status === 'approved';
+        if ($pts2Ext && $pts2Ext->status === 'in_progress' && !$pts2Approved) {
             if ((!$roleFilter || $roleFilter === 'main') && $pts2Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
                 return true;
             }

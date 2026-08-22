@@ -284,8 +284,8 @@
                         || $hasPspcSigs 
                         || !is_null($pts1->dpgc_recommendation) 
                         || !is_null($pts1->hod_recommendation) 
-                        || !is_null($pts1->section_officer_recommendation) 
-                        || !is_null($pts1->doaa_recommendation);
+                        || !is_null($pts1->section_officer_verified) 
+                        || !is_null($pts1->doaa_approval);
                 @endphp
 
                 @if($hasAnyComment)
@@ -498,7 +498,7 @@
                         @endif
 
                         <!-- Section Officer Remarks -->
-                        @if(!is_null($pts1->section_officer_recommendation))
+                        @if(!is_null($pts1->section_officer_verified))
                             <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-2">
                                 <div class="flex justify-between text-s font-bold text-blue-900 dark:text-blue-200">
                                     <h5 class="text-s">Section Officer</h5>

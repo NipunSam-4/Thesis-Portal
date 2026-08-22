@@ -166,11 +166,28 @@ class Thesis extends Model
         return $this->pts1Form?->seminar_date ? \Carbon\Carbon::parse($this->pts1Form->seminar_date)->startOfDay() : null;
     }
 
-    // Min extension date: 16 days from open seminar date.
+    // Min extension date: max(last approved extension date, 16 days from open seminar date).
     public function getMinExtensionDate(): ?\Carbon\Carbon
     {
         $seminarDate = $this->getOpenSeminarDate();
-        return $seminarDate ? $seminarDate->copy()->addDays(16)->startOfDay() : null;
+        $minDate = $seminarDate ? $seminarDate->copy()->addDays(16)->startOfDay() : null;
+
+        $lastApprovedExtension = $this->pts2Extensions()
+            ->where('status', 'approved')
+            ->latest()
+            ->first();
+
+        if ($lastApprovedExtension) {
+            $approvedDate = $lastApprovedExtension->approved_extended_until_date 
+                ? \Carbon\Carbon::parse($lastApprovedExtension->approved_extended_until_date)->startOfDay()
+                : ($lastApprovedExtension->extended_until_date ? \Carbon\Carbon::parse($lastApprovedExtension->extended_until_date)->startOfDay() : null);
+
+            if ($approvedDate && (!$minDate || $approvedDate->gt($minDate))) {
+                $minDate = $approvedDate;
+            }
+        }
+
+        return $minDate;
     }
 
     // Max extension date: 30 days from open seminar date.

@@ -232,6 +232,15 @@
         </main>
         
     </div>
+
+    <!-- Prevent mouse wheel scroll from accidentally changing type="number" input values -->
+    <script>
+        document.addEventListener('wheel', function(e) {
+            if (document.activeElement && document.activeElement.type === 'number') {
+                document.activeElement.blur();
+            }
+        }, { passive: true });
+    </script>
 </body>
 
 </html>

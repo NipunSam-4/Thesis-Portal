@@ -90,7 +90,7 @@ class Pts2ExtensionController extends Controller
                 'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+30 days'),
             ],
         ], [
-            'extended_until_date.after_or_equal' => 'Extension date must be at least 16 days from Open Seminar (' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . ').',
+            'extended_until_date.after_or_equal' => 'Extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
             'extended_until_date.before_or_equal' => 'Extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
         ]);
 
@@ -208,7 +208,7 @@ class Pts2ExtensionController extends Controller
                 'doaa_student_comment' => $userRole === 'doaa' ? 'required|string|max:3000' : 'nullable|string|max:3000',
                 'approved_extended_until_date' => $approvedDateRules,
             ], [
-                'approved_extended_until_date.after_or_equal' => 'Approved extension date must be at least 16 days from Open Seminar (' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . ').',
+                'approved_extended_until_date.after_or_equal' => 'Approved extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
                 'approved_extended_until_date.before_or_equal' => 'Approved extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
             ]);
             $isRecommended = $request->recommendation == '1';

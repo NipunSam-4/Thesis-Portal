@@ -208,12 +208,18 @@
                         $user->isDpgc() ? 'dpgc' : (
                             $user->isHod() ? 'hod' : (
                                 $user->isSectionOfficer() ? 'section_officer' : (
-                                    ($user->isDoaa()) ? 'doaa' : 'student'
+                                    $user->isDoaa() ? 'doaa' : 'student'
                                 )
                             )
                         )
                     );
                     $viewerRank = \App\Models\Pts2Extension::getRoleRank($viewerRole);
+                    $hasAnyAuthorityRecommendation = 
+                        ($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null) ||
+                        ($viewerRank >= 2 && $extension->dpgc_recommendation !== null) ||
+                        ($viewerRank >= 3 && $extension->hod_recommendation !== null) ||
+                        ($viewerRank >= 4 && $extension->section_officer_recommendation !== null) ||
+                        ($viewerRank >= 5 && $extension->doaa_recommendation !== null);
                 @endphp
 
                 @if($viewerRank>1 || $extension->reverted_by_role !== 'main_supervisor')
@@ -222,6 +228,7 @@
                         4. Authority Recommendations & Confidential Remarks
                     </h3>
 
+                    @if($hasAnyAuthorityRecommendation)
                     <div class="space-y-4">
                         <!-- Main Supervisor Evaluation (Rank 1) -->
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
@@ -323,6 +330,12 @@
                             </div>
                         @endif
                     </div>
+                    @else
+                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-3 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60">
+                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                            <span class="italic font-normal">No authority recommendations or comments to display yet.</span>
+                        </div>
+                    @endif
                 </div>
                 @endif
             @endif

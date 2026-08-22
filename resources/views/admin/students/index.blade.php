@@ -149,14 +149,18 @@
                                 </select>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-3 gap-4 mb-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Admission Category</label>
                                     <input type="text" name="admission_category" placeholder="e.g. TA, FA, Sponsored" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned (Fetched From System)</label>
-                                    <input type="number" step="0.5" name="course_credits_earned" placeholder="e.g. 36.5" min="0" class="w-full border-gray-300 rounded-lg shadow-sm">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Required</label>
+                                    <input type="number" step="0.5" name="course_credits_required" placeholder="e.g. 36" min="0" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full border-gray-300 rounded-lg shadow-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned</label>
+                                    <input type="number" step="0.5" name="course_credits_earned" placeholder="e.g. 36.5" min="0" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                             </div>
 

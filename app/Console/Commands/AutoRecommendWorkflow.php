@@ -69,7 +69,7 @@ class AutoRecommendWorkflow extends Command
             }
             // 1. Co-Supervisors Stage (Parallel Auto-Recommendation)
             elseif ($pts1->current_stage === 'co_supervisors') {
-                $mainSubAt = $pts1->main_supervisor_submitted_at ?? $pts1->pts1_submitted_at ?? $pts1->updated_at ?? $pts1->created_at;
+                $mainSubAt = $pts1->main_supervisor_submitted_at ?? $pts1->updated_at ?? $pts1->created_at;
                 $elapsed = $mainSubAt ? (int) abs(now()->diffInMinutes($mainSubAt)) : $minutes + 1;
                 if ($elapsed >= $minutes) {
                     for ($i = 1; $i <= 10; $i++) {

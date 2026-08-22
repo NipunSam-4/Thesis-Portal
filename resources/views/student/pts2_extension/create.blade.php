@@ -115,7 +115,7 @@
                             </p>
                             @if(isset($minExtensionDate) && isset($maxExtensionDate))
                                 <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 font-medium">
-                                    Permitted Range: {{ $minExtensionDate->format('d-M-Y') }} &mdash; {{ $maxExtensionDate->format('d-M-Y') }} (16 to 30 days)
+                                    Permitted Range: {{ $minExtensionDate->format('d-M-Y') }} &mdash; {{ $maxExtensionDate->format('d-M-Y') }}
                                 </p>
                             @endif
                         </div>

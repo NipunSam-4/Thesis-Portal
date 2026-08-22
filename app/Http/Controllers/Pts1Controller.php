@@ -383,7 +383,7 @@ class Pts1Controller extends Controller
                 }
                 $pts1->update([
                     'section_officer_student_comment' => $comment,
-                    'section_officer_recommendation' => $isRecommended,
+                    'section_officer_verified' => $isRecommended,
                     'section_officer_confidential_remark' => $remark,
                     'section_officer_submitted_at' => now(),
                     'current_stage' => 'doaa',

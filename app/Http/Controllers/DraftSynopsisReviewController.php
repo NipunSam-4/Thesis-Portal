@@ -38,6 +38,11 @@ class DraftSynopsisReviewController extends Controller
         $user = auth()->user();
         $student = $circulation->thesis->student;
 
+        $pts1Form = $circulation->thesis?->pts1Form;
+        if ($pts1Form && $pts1Form->status === 'approved') {
+            return back()->with('error', 'Draft synopsis circulation is closed because PTS-1 form has already been approved.');
+        }
+
         $validated = $request->validate([
             'comment' => 'required|string|max:15000',
         ]);

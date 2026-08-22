@@ -50,13 +50,18 @@ class ThesisController extends Controller
             return 'Academic Authority';
         }
 
+        $user = null;
+        if (!empty($form->reverted_by_id)) {
+            $user = User::find($form->reverted_by_id);
+        }
+
         if ($role === 'main_supervisor') {
-            $name = $form->thesis?->student?->mainSupervisors?->first()?->name;
+            $name = $user?->name ?? $form->thesis?->student?->mainSupervisors?->first()?->name;
             return 'Main Supervisor' . ($name ? " ({$name})" : '');
         }
 
         if (str_starts_with($role, 'co_supervisor')) {
-            if (preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
+            if (!$user && preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
                 $idx = (int)$matches[1];
                 $col = "co_supervisor_{$idx}_id";
                 $userId = $form->$col ?? null;
@@ -64,23 +69,22 @@ class ThesisController extends Controller
                 if (!$user) {
                     $user = $form->thesis?->student?->coSupervisors?->get($idx - 1);
                 }
-                return 'Co-Supervisor' . ($user ? " ({$user->name})" : '');
             }
-            $coName = $form->thesis?->student?->coSupervisors?->first()?->name;
+            $coName = $user?->name ?? $form->thesis?->student?->coSupervisors?->first()?->name;
             return 'Co-Supervisor' . ($coName ? " ({$coName})" : '');
         }
 
         if (str_starts_with($role, 'pspc_member')) {
-            if (preg_match('/pspc_member_(\d+)/', $role, $matches)) {
+            if (!$user && preg_match('/pspc_member_(\d+)/', $role, $matches)) {
                 $idx = (int)$matches[1];
                 $col = "pspc_member_{$idx}_id";
                 $userId = $form->$col ?? null;
                 $user = $userId ? User::find($userId) : null;
-                return 'PSPC Member' . ($user ? " ({$user->name})" : '');
             }
-            return 'PSPC Member';
+            return 'PSPC Member' . ($user ? " ({$user->name})" : '');
         }
 
-        return self::getStageLabel($role);
+        $roleLabel = self::getStageLabel($role);
+        return $roleLabel . ($user ? " ({$user->name})" : '');
     }
 }

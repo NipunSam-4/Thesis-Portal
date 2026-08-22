@@ -66,10 +66,10 @@ class Pts1Form extends Model
         'pspc_member_10_id', 'pspc_member_10_recommendation', 'pspc_member_10_confidential_remark',
         'pspc_members_submitted_at',
 
-        'dpgc_student_comment', 'dpgc_recommendation', 'dpgc_confidential_remark',
-        'hod_student_comment', 'hod_recommendation', 'hod_confidential_remark',
-        'section_officer_student_comment', 'section_officer_recommendation', 'section_officer_confidential_remark',
-        'doaa_student_comment', 'doaa_approval', 'doaa_confidential_remark', 'pts1_submitted_at',
+        'dpgc_student_comment', 'dpgc_recommendation', 'dpgc_confidential_remark', 'dpgc_submitted_at',
+        'hod_student_comment', 'hod_recommendation', 'hod_confidential_remark', 'hod_submitted_at',
+        'section_officer_student_comment', 'section_officer_verified', 'section_officer_confidential_remark', 'section_officer_submitted_at',
+        'doaa_student_comment', 'doaa_approval', 'doaa_confidential_remark', 'doaa_submitted_at',
     ];
 
     protected function casts(): array
@@ -106,12 +106,16 @@ class Pts1Form extends Model
 
             'dpgc_recommendation' => 'boolean',
             'hod_recommendation' => 'boolean',
-            'section_officer_recommendation' => 'boolean',
+            'section_officer_verified' => 'boolean',
             'doaa_approval' => 'boolean',
 
             'main_supervisor_submitted_at' => 'datetime',
             'co_supervisors_submitted_at' => 'datetime',
             'pspc_members_submitted_at' => 'datetime',
+            'dpgc_submitted_at' => 'datetime',
+            'hod_submitted_at' => 'datetime',
+            'section_officer_submitted_at' => 'datetime',
+            'doaa_submitted_at' => 'datetime',
             'pts1_submitted_at' => 'datetime',
         ];
     }
@@ -264,84 +268,197 @@ class Pts1Form extends Model
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
+        $student = $this->thesis?->student;
+        $deptId = $student?->department_id;
 
+        $dpgcUser = $deptId ? User::where('role', 'dpgc')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
+        $hodUser = $deptId ? User::where('role', 'hod')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
+        $soUser = User::whereIn('role', ['section_officer', 'academic_office'])->first();
+        $doaaUser = User::whereIn('role', ['doaa', 'adoaa'])->first();
+
+        // 1. Student Submission
         if ($this->created_at) {
             $timeline[] = [
                 'role' => 'Student Submission',
-                'name' => $this->thesis?->student?->user?->name ?? 'Student',
+                'name' => $student?->user?->name ?? 'Student',
                 'submitted_at' => $this->created_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
             ];
         }
 
-        if ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) {
-            $mainSup = $this->thesis?->student?->mainSupervisors?->first();
+        // 2. Main Supervisor
+        $mainSup = $student?->mainSupervisors?->first() ?? $student?->mainSupervisor;
+        $mainSupSubmitted = $this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null;
+        if ($mainSupSubmitted) {
             $timeline[] = [
                 'role' => 'Main Supervisor',
                 'name' => $mainSup?->name ?? 'Main Supervisor',
                 'submitted_at' => $this->main_supervisor_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'main_supervisor') {
+            $timeline[] = [
+                'role' => 'Main Supervisor',
+                'name' => $mainSup?->name ?? 'Main Supervisor',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        for ($i = 1; $i <= 10; $i++) {
-            $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
-            if ($submittedAt || $this->{"co_supervisor_{$i}_recommendation"} !== null) {
-                $coSup = $this->{"coSupervisor{$i}"};
-                $timeline[] = [
-                    'role' => 'Co-Supervisor',
-                    'name' => $coSup?->name ?? "Co-Supervisor {$i}",
-                    'submitted_at' => $submittedAt,
-                ];
+        // 3. Co-Supervisors
+        $coSupervisors = $student?->coSupervisors ?? collect();
+        $hasCoSupervisors = $coSupervisors->count() > 0 || $this->co_supervisor_1_id;
+        if ($hasCoSupervisors) {
+            $maxCo = max(1, $coSupervisors->count());
+            for ($i = 1; $i <= 10; $i++) {
+                $coSup = $this->{"coSupervisor{$i}"} ?? $coSupervisors->get($i - 1);
+                if (!$coSup && $i > $maxCo) break;
+
+                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
+                $isSubmitted = $submittedAt || $this->{"co_supervisor_{$i}_recommendation"} !== null;
+
+                if ($isSubmitted) {
+                    $timeline[] = [
+                        'role' => 'Co-Supervisor',
+                        'name' => $coSup?->name ?? "Co-Supervisor {$i}",
+                        'submitted_at' => $submittedAt,
+                        'status_type' => 'submitted',
+                        'status_label' => '✓ Submitted',
+                    ];
+                } elseif ($this->status === 'in_progress' && $this->current_stage === 'co_supervisors' && $coSup) {
+                    $timeline[] = [
+                        'role' => 'Co-Supervisor',
+                        'name' => $coSup->name ?? "Co-Supervisor {$i}",
+                        'submitted_at' => null,
+                        'status_type' => 'pending',
+                        'status_label' => '⏳ Pending',
+                    ];
+                }
             }
         }
 
-        for ($i = 1; $i <= 10; $i++) {
-            $submittedAt = $this->{"pspc_member_{$i}_submitted_at"} ?? ($this->pspc_members_submitted_at && $this->{"pspc_member_{$i}_recommendation"} !== null ? $this->pspc_members_submitted_at : null);
-            if ($submittedAt || $this->{"pspc_member_{$i}_recommendation"} !== null) {
-                $pspc = $this->{"pspcMember{$i}"};
-                $timeline[] = [
-                    'role' => 'PSPC Member',
-                    'name' => $pspc?->name ?? "PSPC Member {$i}",
-                    'submitted_at' => $submittedAt ?? $this->updated_at,
-                ];
+        // 4. PSPC Members
+        $pspcMembers = $student?->pspcMembers ?? collect();
+        $hasPspc = $pspcMembers->count() > 0 || $this->pspc_member_1_id;
+        if ($hasPspc) {
+            $maxPspc = max(1, $pspcMembers->count());
+            for ($i = 1; $i <= 10; $i++) {
+                $pspc = $this->{"pspcMember{$i}"} ?? $pspcMembers->get($i - 1);
+                if (!$pspc && $i > $maxPspc) break;
+
+                $submittedAt = $this->{"pspc_member_{$i}_submitted_at"} ?? ($this->pspc_members_submitted_at && $this->{"pspc_member_{$i}_recommendation"} !== null ? $this->pspc_members_submitted_at : null);
+                $isSubmitted = $submittedAt || $this->{"pspc_member_{$i}_recommendation"} !== null;
+
+                if ($isSubmitted) {
+                    $timeline[] = [
+                        'role' => 'PSPC Member',
+                        'name' => $pspc?->name ?? "PSPC Member {$i}",
+                        'submitted_at' => $submittedAt ?? $this->updated_at,
+                        'status_type' => 'submitted',
+                        'status_label' => '✓ Submitted',
+                    ];
+                } elseif ($this->status === 'in_progress' && $this->current_stage === 'pspc_members' && $pspc) {
+                    $timeline[] = [
+                        'role' => 'PSPC Member',
+                        'name' => $pspc->name ?? "PSPC Member {$i}",
+                        'submitted_at' => null,
+                        'status_type' => 'pending',
+                        'status_label' => '⏳ Pending',
+                    ];
+                }
             }
         }
 
-        if ($this->dpgc_submitted_at || $this->dpgc_recommendation !== null) {
+        // 5. DPGC
+        $dpgcSubmitted = $this->dpgc_submitted_at || $this->dpgc_recommendation !== null;
+        if ($dpgcSubmitted) {
             $timeline[] = [
                 'role' => 'DPGC Convenor',
                 'name' => 'DPGC Convenor',
                 'submitted_at' => $this->dpgc_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'dpgc') {
+            $timeline[] = [
+                'role' => 'DPGC Convenor',
+                'name' => 'DPGC Convenor',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        if ($this->hod_submitted_at || $this->hod_recommendation !== null) {
+        // 6. HOD
+        $hodSubmitted = $this->hod_submitted_at || $this->hod_recommendation !== null;
+        if ($hodSubmitted) {
             $timeline[] = [
                 'role' => 'Head of Department',
                 'name' => 'HOD',
                 'submitted_at' => $this->hod_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'hod') {
+            $timeline[] = [
+                'role' => 'Head of Department',
+                'name' => 'HOD',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        if ($this->section_officer_submitted_at || $this->section_officer_recommendation !== null) {
+        // 7. Section Officer
+        $soSubmitted = $this->section_officer_submitted_at || $this->section_officer_verified !== null;
+        if ($soSubmitted) {
             $timeline[] = [
                 'role' => 'Academic Office (SO)',
                 'name' => 'Section Officer',
                 'submitted_at' => $this->section_officer_submitted_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Submitted',
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'section_officer') {
+            $timeline[] = [
+                'role' => 'Academic Office (SO)',
+                'name' => 'Section Officer',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
-        if ($this->doaa_submitted_at || $this->doaa_approval !== null) {
+        // 8. DOAA
+        $doaaSubmitted = $this->doaa_submitted_at || $this->doaa_approval !== null;
+        if ($doaaSubmitted) {
+            $isApproved = $this->status === 'approved' || $this->doaa_approval == true;
+            $isRejected = $this->status === 'rejected' || $this->doaa_approval === false;
             $timeline[] = [
                 'role' => 'Dean of Academic Affairs',
                 'name' => 'DOAA',
                 'submitted_at' => $this->doaa_submitted_at ?? $this->pts1_submitted_at,
+                'status_type' => $isRejected ? 'rejected' : ($isApproved ? 'approved' : 'submitted'),
+                'status_label' => $isRejected ? '❌ Rejected' : ($isApproved ? '✓ Approved' : '✓ Submitted'),
+            ];
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'doaa') {
+            $timeline[] = [
+                'role' => 'Dean of Academic Affairs',
+                'name' => $doaaUser?->name ?? 'DOAA',
+                'submitted_at' => null,
+                'status_type' => 'pending',
+                'status_label' => '⏳ Pending',
             ];
         }
 
+        // 9. Reverted Event (if reverted)
         if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
             $timeline[] = [
                 'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
-                'name' => 'Reverting Authority',
+                'name' => $this->revertedBy?->name ?? 'Reverting Authority',
                 'submitted_at' => $this->updated_at,
                 'status_type' => 'reverted',
                 'status_label' => '⚠️ Reverted',
@@ -349,5 +466,10 @@ class Pts1Form extends Model
         }
 
         return $timeline;
+    }
+
+    public function revertedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reverted_by_id');
     }
 }

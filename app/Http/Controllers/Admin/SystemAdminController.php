@@ -247,6 +247,7 @@ class SystemAdminController extends Controller
             'department_id' => 'required|exists:departments,id',
             'admission_category' => 'nullable|string|max:100',
             'course_credits_earned' => 'nullable|numeric|min:0',
+            'course_credits_required' => 'nullable|numeric|min:0',
             'thesis_title' => 'nullable|string|max:255',
             'main_supervisor_id' => 'required|exists:users,id',
             'co_supervisor_ids' => 'nullable|array',
@@ -268,6 +269,7 @@ class SystemAdminController extends Controller
             'department_id' => $request->department_id,
             'admission_category' => $request->admission_category ?? 'TA',
             'course_credits_earned' => $request->course_credits_earned ?? 0,
+            'course_credits_required' => $request->course_credits_required ?? 0,
         ]);
 
         $thesis = $student->theses()->create([

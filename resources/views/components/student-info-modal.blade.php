@@ -87,9 +87,17 @@
                     </div>
                 </div>
 
+                <!-- Course Credits Required -->
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Required</label>
+                    <div class="text-base font-medium text-gray-900 dark:text-gray-100">
+                        {{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 0 }} Credits
+                    </div>
+                </div>
+
                 <!-- Course Credits Earned -->
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned (Fetched From System)</label>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned (From System)</label>
                     <div class="text-base font-medium text-gray-900 dark:text-gray-100">
                         {{ is_numeric($student->course_credits_earned) ? ($student->course_credits_earned == (int)$student->course_credits_earned ? (int)$student->course_credits_earned : $student->course_credits_earned) : 0 }} Credits
                     </div>
