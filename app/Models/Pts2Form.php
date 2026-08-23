@@ -122,6 +122,11 @@ class Pts2Form extends Model
         'doaa_approval',
         'doaa_confidential_remark',
         'doaa_submitted_at',
+
+        // Acting & Vested DOAA
+        'acting_doaa_email',
+        'vested_doaa_email',
+        'approved_by_authority',
     ];
 
     protected function casts(): array
@@ -238,7 +243,7 @@ class Pts2Form extends Model
         if ($user->isAcademicOffice()) {
             $userRanks[] = self::getRoleRank('academic_office');
         }
-        if ($user->isDoaa()) {
+        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
             $userRanks[] = self::getRoleRank('doaa');
         }
 

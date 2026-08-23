@@ -314,7 +314,14 @@
                         @if($viewerRank >= 5 && $extension->doaa_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-bold text-sm text-gray-900 dark:text-white">DOAA Remark</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-sm text-gray-900 dark:text-white">DOAA Remark</span>
+                                        @if($extension->approved_by_authority)
+                                            <span class="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
+                                                Approved by: {{ $extension->approved_by_authority }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->doaa_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->doaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
                                     </span>

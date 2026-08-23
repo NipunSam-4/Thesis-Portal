@@ -14,6 +14,9 @@ return new class extends Migration
             $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
             $table->string('current_stage')->default('main_supervisor');
             $table->enum('status', ['pending', 'in_progress', 'approved', 'rejected', 'reverted'])->default('pending');
+            $table->string('acting_doaa_email')->nullable();
+            $table->string('vested_doaa_email')->nullable();
+            $table->string('approved_by_authority')->nullable();
             $table->timestamps();
         });
     }

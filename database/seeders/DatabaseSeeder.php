@@ -2,15 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Models\ActingDoaa;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\DeptAuthorityProfile;
 use App\Models\FacultyProfile;
 use App\Models\Pts1Form;
+use App\Models\Pts2Extension;
 use App\Models\Pts2Form;
 use App\Models\Student;
 use App\Models\Thesis;
 use App\Models\User;
+use App\Models\VestedDoaa;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -35,8 +38,8 @@ class DatabaseSeeder extends Seeder
                     ['email' => 'pspcmember2@iiti.ac.in', 'name' => 'Dr. Ankit'],
                 ],
                 'students' => [
-                    ['email' => 'csestudent1@iiti.ac.in', 'name' => 'Aarav Agarwal', 'roll' => '230001001', 'prog' => 'phd', 'cat' => 'TA (Teaching Assistantship)', 'credits' => 36.0],
-                    ['email' => 'csestudent2@iiti.ac.in', 'name' => 'Vikram Seth', 'roll' => '230001002', 'prog' => 'phd', 'cat' => 'FA (Fellowship Awardee)', 'credits' => 42.0],
+                    ['email' => 'csestudent1@iiti.ac.in', 'name' => 'Aarav Agarwal', 'roll' => '230001001', 'prog' => 'phd', 'cat' => 'TA (Teaching Assistantship)', 'credits' =>null ],
+                    ['email' => 'csestudent2@iiti.ac.in', 'name' => 'Vikram Seth', 'roll' => '230001002', 'prog' => 'phd', 'cat' => 'FA (Fellowship Awardee)', 'credits' => null],
                     ['email' => 'csestudent3@iiti.ac.in', 'name' => 'Rohan Mehta', 'roll' => '230002001', 'prog' => 'msr', 'cat' => 'TA (Teaching Assistantship)', 'credits' => 32.0],
                     ['email' => 'csestudent4@iiti.ac.in', 'name' => 'Priya Sharma', 'roll' => '230002002', 'prog' => 'msr', 'cat' => 'Self-Financed', 'credits' => 30.5],
                 ],
@@ -164,6 +167,9 @@ class DatabaseSeeder extends Seeder
         // 3. Global Authorities (Portal Users)
         $globalAuthorities = [
             ['email' => 'doaa@iiti.ac.in', 'name' => 'Dean of Academic Affairs', 'role' => 'doaa'],
+            ['email' => 'actingdoaa@iiti.ac.in', 'name' => 'Acting DOAA', 'role' => 'acting_approval_authority'],
+            ['email' => 'vesteddoaa@iiti.ac.in', 'name' => 'Vested DOAA', 'role' => 'acting_approval_authority'],
+            ['email' => 'actingvesteddoaa@iiti.ac.in', 'name' => 'Acting Vested DOAA', 'role' => 'acting_approval_authority'],
             ['email' => 'adoaa@iiti.ac.in', 'name' => 'Associate Dean of Academic Affairs', 'role' => 'adoaa'],
             ['email' => 'senatechairperson@iiti.ac.in', 'name' => 'Senate Chairperson', 'role' => 'senate_chairperson'],
             ['email' => 'aracademic@iiti.ac.in', 'name' => 'Assistant Registrar (Academic)', 'role' => 'ar'],
@@ -173,10 +179,19 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($globalAuthorities as $ga) {
-            User::firstOrCreate(
+            $u = User::firstOrCreate(
                 ['email' => $ga['email']],
                 ['name' => $ga['name'], 'password' => $password, 'role' => $ga['role'], 'is_active' => true]
             );
+
+            if ($ga['email'] === 'actingdoaa@iiti.ac.in') {
+                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+            } elseif ($ga['email'] === 'vesteddoaa@iiti.ac.in') {
+                VestedDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+            } elseif ($ga['email'] === 'actingvesteddoaa@iiti.ac.in') {
+                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+                VestedDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+            }
         }
 
         // 4. Seed Departments, Authorities, Faculty, and Students

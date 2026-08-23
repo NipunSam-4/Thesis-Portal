@@ -13,6 +13,7 @@ use App\Http\Controllers\Pts1Controller;
 use App\Http\Controllers\Pts2Controller;
 use App\Http\Controllers\Dept_Authority\DeptAuthorityDashboardController;
 use App\Http\Controllers\GlobalAuthority\GlobalAuthorityDashboardController;
+use App\Http\Controllers\ActingApprovalAuthority\ActingApprovalAuthorityDashboardController;
 use App\Http\Controllers\Student\StudentDraftSynopsisController;
 use App\Http\Controllers\DraftSynopsisReviewController;
 use App\Http\Controllers\Pts2ExtensionController;
@@ -48,6 +49,9 @@ Route::get('/dashboard', function () {
     }
     if ($user->isGlobalAuthority()) {
         return redirect()->route('global_authorities.dashboard');
+    }
+    if ($user->isActingApprovalAuthority()) {
+        return redirect()->route('acting_approval_authority.dashboard');
     }
     return redirect()->route('student.dashboard');
 })->middleware(['auth:web,admin'])->name('dashboard');
@@ -135,6 +139,11 @@ Route::prefix('dpgc')->middleware(['auth', 'role:dpgc'])->group(function () {
 // Institute Global Authorities Routes (DOAA, ADoAA, Senate Chair, Section Officer)
 Route::prefix('global-authorities')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [GlobalAuthorityDashboardController::class, 'index'])->name('global_authorities.dashboard');
+});
+
+// Acting Approval Authority Routes
+Route::prefix('acting-approval-authority')->middleware(['auth', 'role:acting_approval_authority'])->group(function () {
+    Route::get('/dashboard', [ActingApprovalAuthorityDashboardController::class, 'index'])->name('acting_approval_authority.dashboard');
 });
 
 // System Admin Routes (System Admin Model Guard)

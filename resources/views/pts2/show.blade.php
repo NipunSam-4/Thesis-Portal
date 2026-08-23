@@ -439,7 +439,14 @@
                         @if($pts2->doaa_submitted_at || $pts2->doaa_approval !== null || !is_null($pts2->doaa_student_comment))
                             <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
                                 <div class="flex items-center justify-between font-bold text-emerald-900 dark:text-emerald-200 gap-2 sm:gap-4">
-                                    <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
+                                    <div class="flex items-center gap-2">
+                                        <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
+                                        @if($pts2->approved_by_authority)
+                                            <span class="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
+                                                Approved by: {{ $pts2->approved_by_authority }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if(!$isStudent && $pts2->doaa_approval !== null)
                                         <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600' : 'text-red-600' }}">
                                             {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}

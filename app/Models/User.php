@@ -76,6 +76,11 @@ class User extends Authenticatable
         return $this->role === 'doaa';
     }
 
+    public function isActingApprovalAuthority(): bool
+    {
+        return $this->role === 'acting_approval_authority';
+    }
+
     public function isDeptAuthority(): bool
     {
         return in_array($this->role, ['dpgc', 'hod']);
@@ -133,5 +138,15 @@ class User extends Authenticatable
     public function deptAuthorityProfile(): HasOne
     {
         return $this->hasOne(DeptAuthorityProfile::class);
+    }
+
+    public function actingDoaa(): HasOne
+    {
+        return $this->hasOne(ActingDoaa::class);
+    }
+
+    public function vestedDoaa(): HasOne
+    {
+        return $this->hasOne(VestedDoaa::class);
     }
 }

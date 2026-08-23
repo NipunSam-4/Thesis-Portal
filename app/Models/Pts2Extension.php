@@ -38,6 +38,9 @@ class Pts2Extension extends Model
         'doaa_student_comment',
         'doaa_submitted_at',
         'approved_extended_until_date',
+        'acting_doaa_email',
+        'vested_doaa_email',
+        'approved_by_authority',
     ];
 
     protected function casts(): array
@@ -130,7 +133,7 @@ class Pts2Extension extends Model
         if ($user->isSectionOfficer()) {
             $userRanks[] = self::getRoleRank('section_officer');
         }
-        if ($user->isDoaa()) {
+        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
             $userRanks[] = self::getRoleRank('doaa');
         }
 

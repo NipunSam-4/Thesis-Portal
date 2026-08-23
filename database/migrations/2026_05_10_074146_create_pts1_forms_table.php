@@ -192,6 +192,11 @@ return new class extends Migration
             $table->text('doaa_confidential_remark')->nullable();
             $table->timestamp('doaa_submitted_at')->nullable();
 
+            // Acting & Vested DOAA Assignment
+            $table->string('acting_doaa_email')->nullable();
+            $table->string('vested_doaa_email')->nullable();
+            $table->string('approved_by_authority')->nullable();
+
             $table->timestamps();
         });
     }

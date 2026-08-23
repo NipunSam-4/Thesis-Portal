@@ -25,7 +25,11 @@ class GlobalAuthorityDashboardController extends Controller
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
             'theses.pts2Form',
-            'theses.pts2Extension'
+            'theses.pts2Extension',
+            'theses.pts3Form',
+            'theses.pts4Form',
+            'theses.pts5Form',
+            'theses.pts6Form'
         ])->get();
 
         // Sort hierarchy: Tier 1 (Action Required) -> Tier 2 (In-Progress) -> Tier 3 (Reverted/Rejected/Approved) -> Tier 4 (Pending), tie-break by roll_number

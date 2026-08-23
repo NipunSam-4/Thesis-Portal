@@ -355,8 +355,13 @@
 
                         <!-- DOAA Approval -->
                         <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
-                            <div class="flex justify-between text-s font-bold text-emerald-900 dark:text-emerald-200">
+                            <div class="flex justify-between items-center text-s font-bold text-emerald-900 dark:text-emerald-200">
                                 <span>Dean of Academic Affairs (DOAA)</span>
+                                @if($pts1->approved_by_authority)
+                                    <span class="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
+                                        Approved by: {{ $pts1->approved_by_authority }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300">
                             <strong>Student Comment:</strong>

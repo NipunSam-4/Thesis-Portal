@@ -74,9 +74,11 @@ class PtsDocumentController extends Controller
             }
         }
 
-        // 3. Check if user is HOD/DPGC (same department) or Global Authority
+        // 3. Check if user is HOD/DPGC (same department), Global Authority, or Acting/Vested DOAA
         if (!$isAuthorized) {
             if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar', 'section_officer'], true)) {
+                $isAuthorized = true;
+            } elseif ($user->isActingApprovalAuthority() && ($form->acting_doaa_email === $user->email || $form->vested_doaa_email === $user->email)) {
                 $isAuthorized = true;
             } elseif (in_array($user->role, ['hod', 'dpgc'], true)) {
                 $userDeptId = $user->deptAuthorityProfile?->department_id ?? $user->facultyProfile?->department_id;

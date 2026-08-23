@@ -744,32 +744,33 @@
                                     <span x-show="recommendation === '0'">Non-Recommendation Remark <span class="text-red-500">*</span></span>
                                 @endif
                             </label>
+
                             @if($pts1->current_stage === 'section_officer')
                                 <div class="pt-0.5">
                                     <x-snippet-dropdown target="confidentialRemark" form-type="pts1" role="section_officer" comment-type="verification_remark" />
                                 </div>
-                            @endif
-                            @if($pts1->current_stage === 'section_officer')
-                            <textarea name="confidential_remark" 
-                            rows="3" 
-                            required 
-                            x-model="confidentialRemark" 
-                            placeholder="Provide mandatory verification remarks" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
+
+                                <textarea name="confidential_remark" 
+                                rows="3" 
+                                required 
+                                x-model="confidentialRemark" 
+                                placeholder="Provide mandatory verification remarks" 
+                                class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
+
                             @elseif($pts1->current_stage === 'doaa')
-                            <textarea name="confidential_remark" 
-                            rows="3" 
-                            :required="recommendation === '0'" 
-                            x-model="confidentialRemark" 
-                            :placeholder="recommendation === '1' ? 'Optional approval remarks' : 'Provide mandatory non-approval remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
-                            @else
-                            <textarea name="confidential_remark" 
-                            rows="3" 
-                            :required="recommendation === '0'" 
-                            x-model="confidentialRemark" 
-                            :placeholder="recommendation === '1' ? 'Optional recommendation remarks' : 'Provide mandatory non-recommendation remarks'" 
-                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
+                                <textarea name="confidential_remark" 
+                                rows="3" 
+                                :required="recommendation === '0'" 
+                                x-model="confidentialRemark" 
+                                :placeholder="recommendation === '1' ? 'Optional approval remarks' : 'Provide mandatory non-approval remarks'" 
+                                class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
+                                @else
+                                <textarea name="confidential_remark" 
+                                rows="3" 
+                                :required="recommendation === '0'" 
+                                x-model="confidentialRemark" 
+                                :placeholder="recommendation === '1' ? 'Optional recommendation remarks' : 'Provide mandatory non-recommendation remarks'" 
+                                class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             @endif
                         </div>
 
@@ -780,6 +781,26 @@
                                     Student Comment (Optional)
                                 </label>
                                 <textarea name="student_comment" rows="3" x-model="studentComment" placeholder="Provide optional comments or observations for the student" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('student_comment')) }}</textarea>
+                            </div>
+                        @endif
+
+                        <!-- Section Officer: Optional Acting DOAA Dropdown -->
+                        @if($pts1->current_stage === 'section_officer')
+                            <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                    Assign Acting DOAA (Optional)
+                                </label>
+                                <select name="acting_doaa_email" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">None (Forward to Default DOAA only)</option>
+                                    @foreach($actingDoaaUsers as $actingUser)
+                                        <option value="{{ $actingUser->email }}" {{ (old('acting_doaa_email', $pts1?->acting_doaa_email) === $actingUser->email) ? 'selected' : '' }}>
+                                            {{ $actingUser->name }} ({{ $actingUser->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    If selected, this form will be visible and actionable for the chosen Acting DOAA alongside the DOAA.
+                                </p>
                             </div>
                         @endif 
                     </div>

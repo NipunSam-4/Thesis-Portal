@@ -118,12 +118,15 @@ class Pts2ExtensionController extends Controller
         $user = Auth::user();
 
         if (!$user->isStudent()) {
-            $userRole = $this->determineUserRole($user, $extension);
-            if ($userRole && $extension->status === 'in_progress') {
-                $viewerRank = Pts2Extension::getRoleRank($userRole);
-                $currentStageRank = Pts2Extension::getRoleRank($extension->current_stage);
-                if ($viewerRank > $currentStageRank) {
-                    return redirect()->back()->with('warning', 'This PTS-2 extension application has not reached your evaluation stage yet.');
+            $isVested = ($user->isActingApprovalAuthority() && $extension->vested_doaa_email === $user->email);
+            if (!$isVested) {
+                $userRole = $this->determineUserRole($user, $extension);
+                if ($userRole && $extension->status === 'in_progress') {
+                    $viewerRank = Pts2Extension::getRoleRank($userRole);
+                    $currentStageRank = Pts2Extension::getRoleRank($extension->current_stage);
+                    if ($viewerRank > $currentStageRank) {
+                        return redirect()->back()->with('warning', 'This PTS-2 extension application has not reached your evaluation stage yet.');
+                    }
                 }
             }
         }
@@ -147,7 +150,9 @@ class Pts2ExtensionController extends Controller
         $minExtensionDate = $extension->thesis?->getMinExtensionDate();
         $maxExtensionDate = $extension->thesis?->getMaxExtensionDate();
 
-        return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
+
+        return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate', 'actingDoaaUsers'));
     }
 
     // Handle evaluation submission by an authority.
@@ -189,6 +194,7 @@ class Pts2ExtensionController extends Controller
         if ($userRole === 'section_officer') {
             $request->validate([
                 'confidential_remark' => 'required|string|max:3000',
+                'acting_doaa_email' => 'nullable|email',
             ]);
             $isRecommended = true;
         } else {
@@ -240,6 +246,7 @@ class Pts2ExtensionController extends Controller
                 $extension->section_officer_recommendation = $isRecommended;
                 $extension->section_officer_confidential_remark = $request->confidential_remark;
                 $extension->section_officer_submitted_at = now();
+                $extension->acting_doaa_email = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
                 $extension->current_stage = 'doaa';
                 break;
 
@@ -248,6 +255,7 @@ class Pts2ExtensionController extends Controller
                 $extension->doaa_confidential_remark = $request->confidential_remark;
                 $extension->doaa_student_comment = $request->doaa_student_comment;
                 $extension->doaa_submitted_at = now();
+                $extension->approved_by_authority = $user->email;
                 if ($isRecommended) {
                     $extension->approved_extended_until_date = $request->approved_extended_until_date ?? $extension->extended_until_date;
                     $extension->status = 'approved';
@@ -285,7 +293,7 @@ class Pts2ExtensionController extends Controller
             return 'section_officer';
         }
 
-        if ($user->isDoaa()) {
+        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) {
             return 'doaa';
         }
 

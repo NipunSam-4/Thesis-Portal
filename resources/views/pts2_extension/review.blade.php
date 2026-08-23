@@ -266,6 +266,24 @@
                                           placeholder="Provide mandatory verification remarks" 
                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             </div>
+
+                            <!-- Section Officer: Optional Acting DOAA Dropdown -->
+                            <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                    Assign Acting DOAA (Optional)
+                                </label>
+                                <select name="acting_doaa_email" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">None (Forward to Default DOAA only)</option>
+                                    @foreach($actingDoaaUsers as $actingUser)
+                                        <option value="{{ $actingUser->email }}" {{ (old('acting_doaa_email', $extension?->acting_doaa_email) === $actingUser->email) ? 'selected' : '' }}">
+                                            {{ $actingUser->name }} ({{ $actingUser->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    If selected, this form will be visible and actionable for the chosen Acting DOAA alongside the DOAA.
+                                </p>
+                            </div>
                         @else
                             <!-- Item 1: Recommendation Status Radio Cards (Exact PTS-1 Layout) -->
                             <div class="space-y-4">

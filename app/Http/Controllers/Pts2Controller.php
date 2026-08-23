@@ -90,6 +90,13 @@ class Pts2Controller extends Controller
         $student = $thesis->student;
         $studentUser = $student->user;
 
+        $isSupervisorOrFaculty = $user->isFaculty();
+        $isAuthority = ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
+
+        if (!$isSupervisorOrFaculty && !$isAuthority) {
+            abort(403, 'Unauthorized access to review this submission.');
+        }
+
         $mainSupervisor = $student->mainSupervisors->first();
 
         $coSupervisors = [];
@@ -101,6 +108,7 @@ class Pts2Controller extends Controller
         }
 
         $academicOffice = $user->isAcademicOffice();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
 
         return view('pts2.review_endorse', compact(
             'pts2',
@@ -109,7 +117,8 @@ class Pts2Controller extends Controller
             'studentUser',
             'mainSupervisor',
             'coSupervisors',
-            'academicOffice'
+            'academicOffice',
+            'actingDoaaUsers'
         ));
     }
 
@@ -129,15 +138,18 @@ class Pts2Controller extends Controller
                 'verified_details' => 'required|accepted',
                 'verification_remark' => 'required|string',
                 'academic_office_course_credits' => 'required|numeric|min:0',
+                'acting_doaa_email' => 'nullable|email',
             ]);
 
             $academicOfficeCourseCredits = (float)$validated['academic_office_course_credits'];
+            $actingDoaaEmail = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
 
             $pts2->update([
                 'academic_office_is_verified' => true,
                 'academic_office_verification_remark' => $validated['verification_remark'],
                 'academic_office_course_credits' => $academicOfficeCourseCredits,
                 'academic_office_submitted_at' => now(),
+                'acting_doaa_email' => $actingDoaaEmail,
                 'current_stage' => 'doaa',
             ]);
 
@@ -240,7 +252,7 @@ class Pts2Controller extends Controller
                     break;
 
                 case 'doaa':
-                    if (!($user->isDoaa())) {
+                    if (!($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)))) {
                         return back()->with('error', 'Unauthorized access.');
                     }
                     $pts2->update([
@@ -248,6 +260,7 @@ class Pts2Controller extends Controller
                         'doaa_approval' => $isRecommended,
                         'doaa_confidential_remark' => $remark,
                         'doaa_submitted_at' => now(),
+                        'approved_by_authority' => $user->email,
                         'current_stage' => 'completed',
                         'status' => $isRecommended ? 'approved' : 'rejected',
                     ]);
@@ -304,6 +317,14 @@ class Pts2Controller extends Controller
         $thesis = $pts2->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
+
+        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
+        $isSupervisorOrFaculty = $user->isFaculty();
+        $isAuthority = ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
+
+        if (!$isOwnerStudent && !$isSupervisorOrFaculty && !$isAuthority) {
+            abort(403, 'Unauthorized access to view this submission.');
+        }
 
         $mainSupervisor = $student->mainSupervisors->first();
 

@@ -237,7 +237,7 @@ class Student extends Model
             if ((!$roleFilter || $roleFilter === 'section_officer') && $pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'doaa') && $pts1->current_stage === 'doaa' && $user->isDoaa()) {
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts1->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) {
                 return true;
             }
         }
@@ -257,10 +257,10 @@ class Student extends Model
                     }
                 }
             }
-            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || $user->isGlobalAuthority())) {
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || ($user->isGlobalAuthority() && !$user->isActingApprovalAuthority()))) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2->current_stage === 'doaa' && $user->isDoaa()) {
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)))) {
                 return true;
             }
         }
@@ -281,7 +281,7 @@ class Student extends Model
             if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'doaa' && $user->isDoaa()) {
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2Ext->acting_doaa_email === $user->email || $pts2Ext->vested_doaa_email === $user->email)))) {
                 return true;
             }
         }
@@ -332,7 +332,7 @@ class Student extends Model
             if ($pts1->current_stage === 'dpgc' && $user->isDpgc()) return 10;
             if ($pts1->current_stage === 'hod' && $user->isHod()) return 10;
             if ($pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) return 10;
-            if ($pts1->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic())) return 10;
+            if ($pts1->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) return 10;
         }
 
         // 1.2 PTS-2 Extension action required
@@ -341,7 +341,7 @@ class Student extends Model
             if ($pts2Ext->current_stage === 'dpgc' && $user->isDpgc()) return 20;
             if ($pts2Ext->current_stage === 'hod' && $user->isHod()) return 20;
             if ($pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) return 20;
-            if ($pts2Ext->current_stage === 'doaa' && $user->isDoaa()) return 20;
+            if ($pts2Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2Ext->acting_doaa_email === $user->email || $pts2Ext->vested_doaa_email === $user->email)))) return 20;
         }
 
         // 1.3 PTS-2 action required
@@ -354,8 +354,8 @@ class Student extends Model
                     if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) return 30;
                 }
             }
-            if ($pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || $user->isGlobalAuthority())) return 30;
-            if ($pts2->current_stage === 'doaa' && $user->isDoaa()) return 30;
+            if ($pts2->current_stage === 'academic_office' && ($user->isAcademicOffice() || ($user->isGlobalAuthority() && !$user->isActingApprovalAuthority()))) return 30;
+            if ($pts2->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)))) return 30;
         }
 
         // 1.4 Draft Synopsis action required

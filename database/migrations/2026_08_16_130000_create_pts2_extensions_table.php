@@ -49,6 +49,11 @@ return new class extends Migration
             $table->timestamp('doaa_submitted_at')->nullable();
             $table->date('approved_extended_until_date')->nullable();
 
+            // Acting & Vested DOAA Assignment
+            $table->string('acting_doaa_email')->nullable();
+            $table->string('vested_doaa_email')->nullable();
+            $table->string('approved_by_authority')->nullable();
+
             $table->timestamps();
         });
     }

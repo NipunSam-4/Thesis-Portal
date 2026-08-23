@@ -70,6 +70,7 @@ class Pts1Form extends Model
         'hod_student_comment', 'hod_recommendation', 'hod_confidential_remark', 'hod_submitted_at',
         'section_officer_student_comment', 'section_officer_verified', 'section_officer_confidential_remark', 'section_officer_submitted_at',
         'doaa_student_comment', 'doaa_approval', 'doaa_confidential_remark', 'doaa_submitted_at',
+        'acting_doaa_email', 'vested_doaa_email', 'approved_by_authority',
     ];
 
     protected function casts(): array
@@ -213,7 +214,7 @@ class Pts1Form extends Model
         if ($user->isSectionOfficer()) {
             $userRanks[] = self::getRoleRank('section_officer');
         }
-        if ($user->isDoaa()) {
+        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
             $userRanks[] = self::getRoleRank('doaa');
         }
 

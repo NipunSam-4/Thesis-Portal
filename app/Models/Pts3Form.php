@@ -16,6 +16,9 @@ class Pts3Form extends Model
         'thesis_id',
         'current_stage',
         'status',
+        'acting_doaa_email',
+        'vested_doaa_email',
+        'approved_by_authority',
     ];
 
     public function thesis(): BelongsTo

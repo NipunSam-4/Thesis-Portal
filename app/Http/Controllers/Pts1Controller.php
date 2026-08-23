@@ -146,7 +146,7 @@ class Pts1Controller extends Controller
         // Authorization check: User must be the student, or an assigned faculty/supervisor, or an authority.
         $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
         $isSupervisorOrFaculty = $user->isFaculty();
-        $isAuthority = ($user->isHod() || $user->isDpgc() || $user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic());
+        $isAuthority = ($user->isHod() || $user->isDpgc() || $user->isSectionOfficer() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)));
 
         if (!$isOwnerStudent && !$isSupervisorOrFaculty && !$isAuthority) {
             abort(403, 'Unauthorized access to view this submission.');
@@ -224,6 +224,7 @@ class Pts1Controller extends Controller
         }
 
         $sectionofficer = $user->isSectionOfficer();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
 
         return view('pts1.review_endorse', compact(
             'pts1',
@@ -233,7 +234,8 @@ class Pts1Controller extends Controller
             'mainSupervisor',
             'coSupervisors',
             'pspcMembers',
-            'sectionofficer'
+            'sectionofficer',
+            'actingDoaaUsers'
         ));
     }
 
@@ -248,6 +250,7 @@ class Pts1Controller extends Controller
             $validated = $request->validate([
                 'verified_details' => 'required|accepted',
                 'confidential_remark' => 'required|string',
+                'acting_doaa_email' => 'nullable|email',
             ]);
             $isRecommended = true;
             $comment = null;
@@ -352,7 +355,8 @@ class Pts1Controller extends Controller
                 break;
 
             case 'dpgc':
-                if (!$user->isDpgc()) {
+                $isDpgc = $thesis->student->department->isDpgcConvener($user);
+                if (!$isDpgc) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -365,7 +369,8 @@ class Pts1Controller extends Controller
                 break;
 
             case 'hod':
-                if (!$user->isHod()) {
+                $isHod = $thesis->student->department->isHod($user);
+                if (!$isHod) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -381,17 +386,19 @@ class Pts1Controller extends Controller
                 if (!$user->isSectionOfficer()) {
                     return back()->with('error', 'Unauthorized access.');
                 }
+                $actingDoaaEmail = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
                 $pts1->update([
                     'section_officer_student_comment' => $comment,
                     'section_officer_verified' => $isRecommended,
                     'section_officer_confidential_remark' => $remark,
                     'section_officer_submitted_at' => now(),
+                    'acting_doaa_email' => $actingDoaaEmail,
                     'current_stage' => 'doaa',
                 ]);
                 break;
 
             case 'doaa':
-                if (!($user->isDoaa())) {
+                if (!($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) {
                     return back()->with('error', 'Unauthorized access.');
                 }
                 $pts1->update([
@@ -399,6 +406,7 @@ class Pts1Controller extends Controller
                     'doaa_approval' => $isRecommended,
                     'doaa_confidential_remark' => $remark,
                     'doaa_submitted_at' => now(),
+                    'approved_by_authority' => $user->email,
                     'current_stage' => 'completed',
                     'status' => $isRecommended ? 'approved' : 'rejected',
                     'pts1_submitted_at' => now(),
@@ -474,7 +482,7 @@ class Pts1Controller extends Controller
             }
             $revertedRole = $user->isSectionOfficer() ? 'section_officer' : 'main_supervisor';
         } elseif ($stage === 'doaa') {
-            if (!($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) && !$isMainSup) {
+            if (!($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email))) && !$isMainSup) {
                 return back()->with('error', 'Unauthorized access.');
             }
             $revertedRole = $isMainSup ? 'main_supervisor' : 'doaa';

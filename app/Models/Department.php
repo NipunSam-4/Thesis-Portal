@@ -42,4 +42,14 @@ class Department extends Model
     {
         return $this->hasMany(DeptAuthorityProfile::class);
     }
+
+    public function isHod(User $user): bool
+    {
+        return $user->isHod() && $this->deptAuthorityProfiles()->where('user_id', $user->id)->exists();
+    }
+
+    public function isDpgcConvener(User $user): bool
+    {
+        return $user->isDpgc() && $this->deptAuthorityProfiles()->where('user_id', $user->id)->exists();
+    }
 }
