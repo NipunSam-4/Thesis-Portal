@@ -242,7 +242,7 @@
                     <!-- PhD: Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingPhdStudents as $student)
-                            @include('global_authorities.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => false])
+                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => false])
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are appointed as Acting DOAA.
@@ -253,7 +253,7 @@
                     <!-- PhD: Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedPhdStudents as $student)
-                            @include('global_authorities.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => false])
+                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => false])
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are designated as Vested DOAA.
@@ -267,7 +267,7 @@
                     <!-- MS(R): Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingMsrStudents as $student)
-                            @include('global_authorities.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => true])
+                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => true])
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are appointed as Acting DOAA.
@@ -278,7 +278,7 @@
                     <!-- MS(R): Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedMsrStudents as $student)
-                            @include('global_authorities.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => true])
+                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => true])
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are designated as Vested DOAA.

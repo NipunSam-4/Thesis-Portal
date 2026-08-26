@@ -280,7 +280,7 @@
                                                     @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                <a href="{{ route('pts2.show', $thesis->pts2Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
                                                                     {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Submitted PTS-2 Form') }} &rarr;
                                                                 </a>
@@ -510,7 +510,7 @@
                                                     @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                <a href="{{ route('pts2.show', $thesis->pts2Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
                                                                     {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted MSRTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected MSRTS-2 Form' : 'View Submitted MSRTS-2 Form') }} &rarr;
                                                                 </a>

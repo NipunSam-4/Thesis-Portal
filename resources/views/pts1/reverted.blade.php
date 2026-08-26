@@ -523,13 +523,16 @@
                         @endif
 
                         <!-- DOAA Approval -->
-                        @if(!is_null($pts1->doaa_recommendation))
+                        @if(!is_null($pts1->doaa_approval))
                             <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
                                 <div class="flex justify-between text-s font-bold text-emerald-900 dark:text-emerald-200">
                                     <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
-                                    @if(!is_null($pts1->doaa_recommendation))
-                                        <span class="font-bold text-xs {{ $pts1->doaa_recommendation ? 'text-emerald-600' : 'text-red-600' }}">
-                                            {{ $pts1->doaa_recommendation ? '✓ Approved' : '❌ Not Approved' }}
+                                    @if(!is_null($pts1->doaa_approval))
+                                        <span class="font-bold text-xs {{ $pts1->doaa_approval ? 'text-emerald-600' : 'text-red-600' }}">
+                                            {{ $pts1->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
+                                            @if($pts1->approved_by_authority)
+                                                by: {{ $pts1->approved_by_authority }}
+                                            @endif
                                         </span>
                                     @endif
                                 </div>
@@ -548,8 +551,8 @@
                                 </div>
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>DOAA Remark:</strong>
-                                    @if($pts1->doaa_remarks)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_remarks) }}</p>
+                                    @if($pts1->doaa_confidential_remark)
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_confidential_remark) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                             <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -560,7 +563,7 @@
                                     @endif
                                 </div>
                             </div>
-                            @endif
+                        @endif
                     </div>
                 @else
                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/60">

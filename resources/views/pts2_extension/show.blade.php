@@ -202,13 +202,13 @@
             </div>
 
             <!-- Section 4: Authority Recommendations & Remarks Trail (For Authorities) -->
-            @if($user->isFaculty() || $user->isDeptAuthority() || $user->isGlobalAuthority())
+            @if($user->isFaculty() || $user->isDeptAuthority() || $user->isGlobalAuthority() || $user->isActingApprovalAuthority())
                 @php
                     $viewerRole = $user->isFaculty() ? 'main_supervisor' : (
                         $user->isDpgc() ? 'dpgc' : (
                             $user->isHod() ? 'hod' : (
                                 $user->isSectionOfficer() ? 'section_officer' : (
-                                    $user->isDoaa() ? 'doaa' : 'student'
+                                    ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) ? 'doaa' : 'student'
                                 )
                             )
                         )
@@ -316,14 +316,12 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <span class="font-bold text-sm text-gray-900 dark:text-white">DOAA Remark</span>
-                                        @if($extension->approved_by_authority)
-                                            <span class="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
-                                                Approved by: {{ $extension->approved_by_authority }}
-                                            </span>
-                                        @endif
                                     </div>
                                     <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->doaa_recommendation ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $extension->doaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
+                                        @if($extension->approved_by_authority)
+                                        by: {{ $extension->approved_by_authority }}
+                                    @endif
                                     </span>
                                 </div>
                                 @if($extension->doaa_confidential_remark)

@@ -567,6 +567,9 @@
                                 <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
                                 <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->doaa_approval ? 'text-emerald-600' : 'text-red-600' }}">
                                     {{ $pts1->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
+                                    @if($pts1->approved_by_authority)
+                                        by: {{ $pts1->approved_by_authority }}
+                                    @endif
                                 </span>
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300">
@@ -628,7 +631,7 @@
                 } elseif ($pts1->current_stage === 'section_officer') {
                     if ($user->isSectionOfficer() && is_null($pts1->section_officer_verified)) $showActionForm = true;
                 } elseif ($pts1->current_stage === 'doaa') {
-                    if (($user->isDoaa()) && is_null($pts1->doaa_approval)) $showActionForm = true;
+                    if (($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email))) && is_null($pts1->doaa_approval)) $showActionForm = true;
                 }
             @endphp
 
@@ -751,7 +754,7 @@
                                 </div>
 
                                 <textarea name="confidential_remark" 
-                                rows="3" 
+                                rows="5" 
                                 required 
                                 x-model="confidentialRemark" 
                                 placeholder="Provide mandatory verification remarks" 
@@ -766,7 +769,7 @@
                                 class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                                 @else
                                 <textarea name="confidential_remark" 
-                                rows="3" 
+                                rows="5" 
                                 :required="recommendation === '0'" 
                                 x-model="confidentialRemark" 
                                 :placeholder="recommendation === '1' ? 'Optional recommendation remarks' : 'Provide mandatory non-recommendation remarks'" 

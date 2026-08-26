@@ -496,7 +496,7 @@
                 } elseif ($pts2->current_stage === 'academic_office') {
                     if (($user->isAcademicOffice() || $user->isGlobalAuthority()) && is_null($pts2->academic_office_submitted_at)) $showActionForm = true;
                 } elseif ($pts2->current_stage === 'doaa') {
-                    if ($user->isDoaa() && is_null($pts2->doaa_approval)) $showActionForm = true;
+                    if (($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email))) && is_null($pts2->doaa_approval)) $showActionForm = true;
                 }
             @endphp
 
@@ -842,7 +842,7 @@
                                     <x-snippet-dropdown target="confidentialRemark" form-type="pts2" role="doaa" />
                                 </div>
                                 <textarea name="confidential_remark" 
-                                           rows="3" 
+                                           rows="5" 
                                            :required="recommendation === '0'" 
                                            x-model="confidentialRemark" 
                                            :placeholder="recommendation === '1' ? 'Optional approval remarks' : 'Provide mandatory non-approval remarks'" 

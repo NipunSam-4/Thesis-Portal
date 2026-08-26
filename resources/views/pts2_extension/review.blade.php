@@ -260,7 +260,7 @@
                                     <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="section_officer" comment-type="verification_remark" />
                                 </div>
                                 <textarea name="confidential_remark" 
-                                          rows="3" 
+                                          rows="5" 
                                           required 
                                           x-model="confidentialRemark" 
                                           placeholder="Provide mandatory verification remarks" 
@@ -331,7 +331,7 @@
                                     <span x-show="recommendation === '0'">Non-Recommendation Remark <span class="text-red-500">*</span></span>
                                 </label>
                                 <textarea name="confidential_remark" 
-                                          rows="3" 
+                                          rows="5" 
                                           :required="recommendation === '0'" 
                                           x-model="confidentialRemark" 
                                           :placeholder="recommendation === '1' ? 'Optional evaluation remarks for higher academic authorities' : 'Provide mandatory non-recommendation remarks'" 

@@ -320,10 +320,14 @@ class Pts2Controller extends Controller
 
         $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
         $isSupervisorOrFaculty = $user->isFaculty();
-        $isAuthority = ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
+        $isAuthority = ($user->isHod() || $user->isDpgc() || $user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
 
         if (!$isOwnerStudent && !$isSupervisorOrFaculty && !$isAuthority) {
             abort(403, 'Unauthorized access to view this submission.');
+        }
+
+        if ($pts2->status === 'reverted') {
+            return redirect()->route('pts2.reverted', $pts2->id);
         }
 
         $mainSupervisor = $student->mainSupervisors->first();
@@ -352,13 +356,12 @@ class Pts2Controller extends Controller
         $user = auth()->user();
 
         if (!$pts2->canUserViewRevertedForm($user)) {
-            abort(403, 'Unauthorized access to view this reverted PTS-2 form.');
+            return redirect()->back()->with('warning', 'This PTS-2 form was reverted by ' . $pts2->getRevertedByRoleLabel() . ' and is not accessible at your review stage until resubmitted.');
         }
 
         $thesis = $pts2->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-
         $mainSupervisor = $student->mainSupervisors->first();
 
         $coSupervisors = [];

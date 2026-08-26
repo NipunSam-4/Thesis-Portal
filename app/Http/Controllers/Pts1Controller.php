@@ -172,22 +172,51 @@ class Pts1Controller extends Controller
         }
 
         if ($pts1->status === 'reverted') {
-            if (!$pts1->canUserViewRevertedForm(auth()->user())) {
-                return redirect()->back()->with('warning', 'This PTS-1 form was reverted by ' . $pts1->getRevertedByRoleLabel() . ' and is not accessible at your review stage until resubmitted.');
-            }
-
-            return view('pts1.reverted', compact(
-                'pts1',
-                'thesis',
-                'student',
-                'studentUser',
-                'mainSupervisor',
-                'coSupervisors',
-                'pspcMembers'
-            ));
+            return redirect()->route('pts1.reverted', $pts1->id);
         }
 
         return view('pts1.show', compact(
+            'pts1',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'pspcMembers'
+        ));
+    }
+
+    // Show dedicated view for reverted PTS-1 form.
+    public function reverted(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+
+        if (!$pts1->canUserViewRevertedForm($user)) {
+            return redirect()->back()->with('warning', 'This PTS-1 form was reverted by ' . $pts1->getRevertedByRoleLabel() . ' and is not accessible at your review stage until resubmitted.');
+        }
+
+        $thesis = $pts1->thesis;
+        $student = $thesis->student;
+        $studentUser = $student->user;
+        $mainSupervisor = $student->mainSupervisors->first();
+
+        $coSupervisors = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts1->$col) {
+                $coSupervisors[$i] = User::find($pts1->$col);
+            }
+        }
+
+        $pspcMembers = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "pspc_member_{$i}_id";
+            if ($pts1->$col) {
+                $pspcMembers[$i] = User::find($pts1->$col);
+            }
+        }
+
+        return view('pts1.reverted', compact(
             'pts1',
             'thesis',
             'student',

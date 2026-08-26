@@ -7,8 +7,6 @@
                         {{ __('Approved PTS-1 Form Details & Remarks') }}
                     @elseif($pts1->status == 'rejected' && $pts1->current_stage == 'completed')
                         {{ __('Rejected PTS-1 Form Details & Remarks') }}
-                    @elseif($pts1->status == 'reverted' && $pts1->current_stage == 'reverted')
-                        {{ __('Reverted PTS-1 Form Details') }}
                     @else
                         {{ __('PTS-1 Submission View') }}
                     @endif
@@ -20,10 +18,6 @@
                 @elseif($pts1->status === 'rejected')
                     <span class="px-3 py-1 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
                         ❌ Rejected
-                    </span>
-                @elseif($pts1->status === 'reverted')
-                    <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                        ⚠️ Reverted
                     </span>
                 @else
                     <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
@@ -315,7 +309,7 @@
                                 <span>Department Postgraduate Committee (DPGC)</span>
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300">
-                            <strong>Student Comment:</strong>
+                                <strong>Student Comment:</strong>
                                 @if($pts1->dpgc_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-teal-100 dark:border-teal-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->dpgc_student_comment) }}</p>
                                 @else
@@ -337,7 +331,7 @@
                                 <span>Head of Department (HOD)</span>
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300">
-                            <strong>Student Comment:</strong>
+                                <strong>Student Comment:</strong>
                                 @if($pts1->hod_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-amber-100 dark:border-amber-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->hod_student_comment) }}</p>
                                 @else
@@ -351,20 +345,15 @@
                                 @endif
                             </div>
                         </div>
-                        
+
 
                         <!-- DOAA Approval -->
                         <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
                             <div class="flex justify-between items-center text-s font-bold text-emerald-900 dark:text-emerald-200">
                                 <span>Dean of Academic Affairs (DOAA)</span>
-                                @if($pts1->approved_by_authority)
-                                    <span class="text-xs font-normal text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded">
-                                        Approved by: {{ $pts1->approved_by_authority }}
-                                    </span>
-                                @endif
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300">
-                            <strong>Student Comment:</strong>
+                                <strong>Student Comment:</strong>
                                 @if($pts1->doaa_student_comment)
                                     <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts1->doaa_student_comment) }}</p>
                                 @else
