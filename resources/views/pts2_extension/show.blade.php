@@ -207,9 +207,9 @@
                     $viewerRole = $user->isFaculty() ? 'main_supervisor' : (
                         $user->isDpgc() ? 'dpgc' : (
                             $user->isHod() ? 'hod' : (
-                                $user->isSectionOfficer() ? 'section_officer' : (
-                                    ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) ? 'doaa' : 'student'
-                                )
+                            $user->isAcademicOffice() ? 'academic_office' : (
+                                ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) ? 'doaa' : 'student'
+                            )
                             )
                         )
                     );
@@ -218,7 +218,7 @@
                         ($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null) ||
                         ($viewerRank >= 2 && $extension->dpgc_recommendation !== null) ||
                         ($viewerRank >= 3 && $extension->hod_recommendation !== null) ||
-                        ($viewerRank >= 4 && $extension->section_officer_recommendation !== null) ||
+                        ($viewerRank >= 4 && $extension->academic_office_recommendation !== null) ||
                         ($viewerRank >= 5 && $extension->doaa_recommendation !== null);
                 @endphp
 
@@ -290,17 +290,17 @@
                             </div>
                         @endif
 
-                        <!-- Section Officer Evaluation (Rank 4) -->
-                        @if($viewerRank >= 4 && $extension->section_officer_recommendation !== null)
+                        <!-- Academic Office Evaluation (Rank 4) -->
+                        @if($viewerRank >= 4 && $extension->academic_office_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
                                 <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Section Officer Verification</span>
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Academic Office Verification</span>
                                     <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
                                 </div>
-                                @if($extension->section_officer_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->section_officer_confidential_remark) }}</p>
+                                @if($extension->academic_office_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->academic_office_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>

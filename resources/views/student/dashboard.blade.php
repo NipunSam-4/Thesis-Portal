@@ -74,8 +74,22 @@
                                 <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->department->name ?? 'Not Assigned' }}</div>
                             </div>
                             <div>
-                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Supervisor(s)</label>
-                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}</div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Main Supervisor</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->mainSupervisors->pluck('name')->join(', ') ?: ($student->supervisors->first()?->name ?? 'Not Assigned') }}</div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Co-Supervisor(s)</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">{{ $student->coSupervisors->pluck('name')->join(', ') ?: 'None' }}</div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">External Supervisor(s)</label>
+                                <div class="mt-0.5 text-gray-900 dark:text-gray-100 font-medium text-sm">
+                                    @if($student->externalSupervisors->isNotEmpty())
+                                        {{ $student->externalSupervisors->map(fn($s) => $s->name . ($s->externalSupervisorProfile?->affiliated_institute ? ' (' . $s->externalSupervisorProfile->affiliated_institute . ')' : ''))->join(', ') }}
+                                    @else
+                                        None
+                                    @endif
+                                </div>
                             </div>
                             <div>
                                 <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">PSPC Member(s)</label>
@@ -317,8 +331,8 @@
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts1Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Submission &rarr;
+                                                <a href="{{ route('pts1.submitted', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    View Submitted &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts1Form->status === 'approved')
@@ -466,8 +480,8 @@
                                                 <div class="text-[11px] text-purple-700 dark:text-purple-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts2Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Submission &rarr;
+                                                <a href="{{ route('pts2.submitted', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    View Submitted &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts2Form && $pts2Form->status === 'rejected')

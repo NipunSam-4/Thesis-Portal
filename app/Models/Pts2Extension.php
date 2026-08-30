@@ -30,9 +30,9 @@ class Pts2Extension extends Model
         'hod_recommendation',
         'hod_confidential_remark',
         'hod_submitted_at',
-        'section_officer_recommendation',
-        'section_officer_confidential_remark',
-        'section_officer_submitted_at',
+        'academic_office_recommendation',
+        'academic_office_confidential_remark',
+        'academic_office_submitted_at',
         'doaa_recommendation',
         'doaa_confidential_remark',
         'doaa_student_comment',
@@ -54,8 +54,8 @@ class Pts2Extension extends Model
             'dpgc_submitted_at' => 'datetime',
             'hod_recommendation' => 'boolean',
             'hod_submitted_at' => 'datetime',
-            'section_officer_recommendation' => 'boolean',
-            'section_officer_submitted_at' => 'datetime',
+            'academic_office_recommendation' => 'boolean',
+            'academic_office_submitted_at' => 'datetime',
             'doaa_recommendation' => 'boolean',
             'doaa_submitted_at' => 'datetime',
         ];
@@ -83,7 +83,7 @@ class Pts2Extension extends Model
             'main_supervisor' => 1,
             'dpgc' => 2,
             'hod' => 3,
-            'section_officer' => 4,
+            'academic_office' => 4,
             'doaa' => 5,
             default => 999,
         };
@@ -130,8 +130,8 @@ class Pts2Extension extends Model
         if ($user->isHod()) {
             $userRanks[] = self::getRoleRank('hod');
         }
-        if ($user->isSectionOfficer()) {
-            $userRanks[] = self::getRoleRank('section_officer');
+        if ($user->isAcademicOffice()) {
+            $userRanks[] = self::getRoleRank('academic_office');
         }
         if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
             $userRanks[] = self::getRoleRank('doaa');
@@ -143,6 +143,149 @@ class Pts2Extension extends Model
 
         $minUserRank = min($userRanks);
         return $minUserRank <= $revertingRank;
+    }
+
+    // Determine access status for in-progress submitted extension: 'allowed', 'pending_endorsement', 'not_reached', or 'unauthorized'
+    public function getUserSubmissionAccessStatus(?User $user): string
+    {
+        if (!$user) {
+            return 'unauthorized';
+        }
+
+        $thesis = $this->thesis;
+        $student = $thesis?->student;
+
+        // Student owner can always view their in-progress submission
+        if ($student && (int)$user->id === (int)$student->user_id) {
+            return 'allowed';
+        }
+
+        $stage = $this->current_stage;
+        $stageRank = self::getRoleRank($stage);
+        $statuses = [];
+
+        // 1. Main Supervisor (Rank 1)
+        if ($student?->isMainSupervisor($user)) {
+            if ($stageRank < 1) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 1) {
+                $statuses[] = ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 2. DPGC (Rank 2)
+        if ($user->isDpgc() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
+            if ($stageRank < 2) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 2) {
+                $statuses[] = ($this->dpgc_submitted_at || !is_null($this->dpgc_recommendation)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 3. HOD (Rank 3)
+        if ($user->isHod() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
+            if ($stageRank < 3) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 3) {
+                $statuses[] = ($this->hod_submitted_at || !is_null($this->hod_recommendation)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 4. Academic Office (Rank 4)
+        if ($user->isAcademicOffice()) {
+            if ($stageRank < 4) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 4) {
+                $statuses[] = ($this->academic_office_submitted_at || !is_null($this->academic_office_recommendation)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 5. DOAA / Global Authorities (Rank 5)
+        if ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
+            if ($stageRank < 5) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 5) {
+                $statuses[] = ($this->doaa_submitted_at || !is_null($this->doaa_approval)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        if (empty($statuses)) {
+            return 'unauthorized';
+        }
+
+        if (in_array('pending_endorsement', $statuses)) {
+            return 'pending_endorsement';
+        }
+        if (in_array('allowed', $statuses)) {
+            return 'allowed';
+        }
+        return 'not_reached';
+    }
+
+    // Check if user is authorized to view this PTS-2 extension form in its current state
+    public function canUserView(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->status === 'reverted') {
+            return $this->canUserViewRevertedForm($user);
+        }
+
+        if ($this->status === 'in_progress') {
+            $access = $this->getUserSubmissionAccessStatus($user);
+            return $access === 'allowed' || $access === 'pending_endorsement';
+        }
+
+        // For completed forms (approved / rejected)
+        $thesis = $this->thesis;
+        $student = $thesis?->student;
+
+        if ($student && (int)$user->id === (int)$student->user_id) {
+            return true;
+        }
+
+        if ($student && ($student->isSupervisor($user) || $student->isPspcMember($user))) {
+            return true;
+        }
+
+        if ($user->isDpgc() || $user->isHod()) {
+            $userDeptId = $user->deptAuthorityProfile?->department_id ?? $user->facultyProfile?->department_id;
+            if ($userDeptId && $student && $student->department_id === $userDeptId) {
+                return true;
+            }
+        }
+
+        if ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa()) {
+            return true;
+        }
+
+        if ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Check if user is currently authorized to evaluate/endorse this PTS-2 extension form
+    public function canUserEvaluate(?User $user): bool
+    {
+        if (!$user || $this->status !== 'in_progress') {
+            return false;
+        }
+
+        return $this->getUserSubmissionAccessStatus($user) === 'pending_endorsement';
     }
 
     // Format reverted by role label.
@@ -173,7 +316,7 @@ class Pts2Extension extends Model
 
         $dpgcUser = $deptId ? User::where('role', 'dpgc')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
         $hodUser = $deptId ? User::where('role', 'hod')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
-        $soUser = User::whereIn('role', ['section_officer', 'academic_office'])->first();
+        $soUser = User::where('role', 'academic_office')->first();
         $doaaUser = User::whereIn('role', ['doaa', 'adoaa'])->first();
 
         // 1. Student Application
@@ -247,20 +390,20 @@ class Pts2Extension extends Model
             ];
         }
 
-        // 5. Section Officer
-        $soSubmitted = $this->section_officer_submitted_at || $this->section_officer_recommendation !== null;
+        // 5. Academic Office
+        $soSubmitted = $this->academic_office_submitted_at || $this->academic_office_recommendation !== null;
         if ($soSubmitted) {
             $timeline[] = [
-                'role' => 'Academic Office (SO)',
-                'name' => 'Section Officer',
-                'submitted_at' => $this->section_officer_submitted_at ?? $this->updated_at,
+                'role' => 'Academic Office',
+                'name' => 'Academic Office',
+                'submitted_at' => $this->academic_office_submitted_at ?? $this->updated_at,
                 'status_type' => 'submitted',
                 'status_label' => '✓ Submitted',
             ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'section_officer') {
+        } elseif ($this->status === 'in_progress' && $this->current_stage === 'academic_office') {
             $timeline[] = [
-                'role' => 'Academic Office (SO)',
-                'name' => 'Section Officer',
+                'role' => 'Academic Office',
+                'name' => 'Academic Office',
                 'submitted_at' => null,
                 'status_type' => 'pending',
                 'status_label' => '⏳ Pending',
@@ -290,14 +433,8 @@ class Pts2Extension extends Model
         }
 
         // 7. Reverted Event (if reverted)
-        if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
-            $timeline[] = [
-                'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
-                'name' => $this->revertedBy?->name ?? 'Reverting Authority',
-                'submitted_at' => $this->updated_at,
-                'status_type' => 'reverted',
-                'status_label' => '⚠️ Reverted',
-            ];
+        if ($revertedItem = \App\Http\Controllers\ThesisController::getRevertedTimelineItem($this)) {
+            $timeline[] = $revertedItem;
         }
 
         return $timeline;

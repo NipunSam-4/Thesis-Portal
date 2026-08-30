@@ -22,11 +22,11 @@ return new class extends Migration
             $table->string('meeting_link')->nullable();
 
             $table->boolean('publication_norm_fulfillment')->default(false);
-            $table->boolean('special_approval_publication')->default(false);
+            $table->boolean('special_approval_publication')->nullable();
             $table->string('publication_approval_doc_path')->nullable();
 
             $table->boolean('min_time_req_fulfilled')->default(false);
-            $table->boolean('special_approval_min_time')->default(false);
+            $table->boolean('special_approval_min_time')->nullable();
             $table->string('min_time_approval_doc_path')->nullable();
 
             $table->string('draft_synopsis_report_doc_path');
@@ -41,7 +41,7 @@ return new class extends Migration
                 'pspc_members', 
                 'dpgc', 
                 'hod', 
-                'section_officer', 
+                'academic_office', 
                 'doaa', 
                 'completed', 
                 'reverted'
@@ -52,7 +52,18 @@ return new class extends Migration
             $table->unsignedBigInteger('reverted_by_id')->nullable();
             $table->text('reversion_comment')->nullable();
 
-            // 1. Main Supervisor Endorsement
+            // 1. Main Supervisor Endorsement & Edited Fields
+            $table->text('main_supervisor_thesis_title')->nullable();
+            $table->date('main_supervisor_seminar_date')->nullable();
+            $table->string('main_supervisor_seminar_time')->nullable();
+            $table->string('main_supervisor_seminar_venue')->nullable();
+            $table->string('main_supervisor_meeting_link')->nullable();
+            $table->boolean('main_supervisor_publication_norm_fulfillment')->nullable();
+            $table->boolean('main_supervisor_special_approval_publication')->nullable();
+            $table->boolean('main_supervisor_min_time_req_fulfilled')->nullable();
+            $table->boolean('main_supervisor_special_approval_min_time')->nullable();
+            $table->date('main_supervisor_date_confirmation')->nullable();
+
             $table->boolean('main_supervisor_recommendation')->nullable();
             $table->text('main_supervisor_confidential_remark')->nullable();
             $table->timestamp('main_supervisor_submitted_at')->nullable();
@@ -180,11 +191,11 @@ return new class extends Migration
             $table->text('hod_confidential_remark')->nullable();
             $table->timestamp('hod_submitted_at')->nullable();
 
-            // 6. Section Officer
-            $table->text('section_officer_student_comment')->nullable();
-            $table->boolean('section_officer_verified')->nullable();
-            $table->text('section_officer_confidential_remark')->nullable();
-            $table->timestamp('section_officer_submitted_at')->nullable();
+            // 6. Academic Office
+            $table->text('academic_office_student_comment')->nullable();
+            $table->boolean('academic_office_verified')->nullable();
+            $table->text('academic_office_confidential_remark')->nullable();
+            $table->timestamp('academic_office_submitted_at')->nullable();
 
             // 7. Dean of Academic Affairs (DOAA)
             $table->text('doaa_student_comment')->nullable();

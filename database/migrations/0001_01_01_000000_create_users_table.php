@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['guest', 'student', 'faculty', 'dpgc', 'hod', 'section_officer', 'ar', 'dr', 'academic_office', 'adoaa', 'doaa', 'acting_approval_authority', 'senate_chairperson','external_examiner','external_supervisor'])
+            $table->enum('role', ['guest', 'student', 'faculty', 'dpgc', 'hod', 'academic_office', 'ar', 'dr', 'adoaa', 'doaa', 'acting_approval_authority', 'senate_chairperson','external_examiner','external_supervisor'])
                   ->default('guest');
             $table->boolean('is_active')->default(true);
             $table->rememberToken();

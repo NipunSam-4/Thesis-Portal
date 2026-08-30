@@ -94,13 +94,25 @@
                                             {{ $statusLabel }}
                                         </span>
                                     </div>
-                                    <div class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                        {{ $item['name'] }}
+                                    <div class="min-w-0">
+                                        <div class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white break-words">
+                                            {{ $item['name'] }}
+                                        </div>
+                                        @if(!empty($item['institute']))
+                                            <div class="text-[11px] font-medium text-gray-500 dark:text-gray-400 break-words leading-snug mt-0.5">
+                                                {{ $item['institute'] }}
+                                            </div>
+                                        @endif
                                     </div>
                                     @if(!empty($item['submitted_at']))
                                         <div class="text-[11px] font-medium text-gray-500 dark:text-gray-400 flex items-center space-x-1 pt-0.5">
                                             <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             <span>{{ \Carbon\Carbon::parse($item['submitted_at'])->format('d-M-Y H:i') }}</span>
+                                        </div>
+                                    @elseif(in_array($statusType, ['submitted', 'approved']))
+                                        <div class="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center space-x-1 pt-0.5">
+                                            <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            <span>Submitted</span>
                                         </div>
                                     @else
                                         <div class="text-[11px] font-medium text-amber-700 dark:text-amber-400 flex items-center space-x-1 pt-0.5">

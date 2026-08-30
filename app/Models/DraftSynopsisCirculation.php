@@ -41,7 +41,7 @@ class DraftSynopsisCirculation extends Model
             'pspc_member' => 3,
             'dpgc' => 4,
             'hod' => 5,
-            'section_officer' => 6,
+            'academic_office' => 6,
             'doaa' => 7,
         ];
 
@@ -71,14 +71,20 @@ class DraftSynopsisCirculation extends Model
                 'pspc_member' => 'PSPC Member',
                 'dpgc' => 'DPGC Convenor',
                 'hod' => 'Head of Department',
-                'section_officer' => 'Section Officer',
+                'academic_office' => 'Academic Office',
                 'doaa' => 'DOAA',
                 default => str_replace('_', ' ', ucfirst($comment->authority_role ?? '')),
             };
 
+            $user = $comment->user;
+            $institute = ($user?->isExternalSupervisor() && $user->externalSupervisorProfile?->affiliated_institute)
+                ? $user->externalSupervisorProfile->affiliated_institute
+                : null;
+
             $timeline[] = [
                 'role' => $roleLabel . ' Review',
-                'name' => $comment->user?->name ?? $roleLabel,
+                'name' => $user?->name ?? $roleLabel,
+                'institute' => $institute,
                 'submitted_at' => $comment->created_at,
             ];
         }

@@ -36,7 +36,6 @@ return new class extends Migration
                 'hod', 
                 'all_dept',
                 'academic_office',
-                'section_officer', 
                 'ar',
                 'dr',
                 'doaa', 

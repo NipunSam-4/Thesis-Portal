@@ -110,25 +110,26 @@
                                     ($subTab === 'acting' && $thesis->pts1Form->acting_doaa_email === $user->email) ||
                                     ($subTab === 'vested' && $thesis->pts1Form->vested_doaa_email === $user->email)
                                 );
+                                $canViewPts1 = ($subTab === 'vested') || ($subTab === 'acting' && $thesis->pts1Form->acting_doaa_email === $user->email);
                             @endphp
                             @if($canEndorsePts1)
                                 <div class="pt-2">
-                                    <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                         Review & Endorse {{ $pts1Prefix }} Form &rarr;
                                     </a>
                                 </div>
-                            @endif
-
-                            {{-- View Button: Vested can always view; Acting can only view if appointed --}}
-                            @php
-                                $canViewPts1 = ($subTab === 'vested') || ($subTab === 'acting' && $thesis->pts1Form->acting_doaa_email === $user->email);
-                            @endphp
-                            @if($canViewPts1 && in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif($canViewPts1 && $thesis->pts1Form->status === 'in_progress')
+                                <div class="pt-2">
+                                    <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                        View Submitted {{ $pts1Prefix }} Form &rarr;
+                                    </a>
+                                </div>
+                            @elseif($canViewPts1 && in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                 @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                     <div class="pt-2">
-                                        <a href="{{ route('pts1.show', $thesis->pts1Form->id) }}" 
+                                        <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.reverted' : 'pts1.show', $thesis->pts1Form->id) }}" 
                                            class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : ($thesis->pts1Form->status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700')) }} text-white font-bold text-xs rounded-lg shadow transition">
-                                            {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted ' . $pts1Prefix . ' Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected ' . $pts1Prefix . ' Form' : ($thesis->pts1Form->status === 'approved' ? 'View Submitted ' . $pts1Prefix . ' Form' : 'View ' . $pts1Prefix . ' Form Details')) }} &rarr;
+                                            {{ $thesis->pts1Form->status === 'reverted' ? ('View Reverted ' . $pts1Prefix . ' Form') : ($thesis->pts1Form->status === 'rejected' ? ('View Rejected ' . $pts1Prefix . ' Form') : ('View Approved ' . $pts1Prefix . ' Form')) }} &rarr;
                                         </a>
                                     </div>
                                 @endif
@@ -179,25 +180,26 @@
                                     ($subTab === 'acting' && $thesis->pts2Form->acting_doaa_email === $user->email) ||
                                     ($subTab === 'vested' && $thesis->pts2Form->vested_doaa_email === $user->email)
                                 );
+                                $canViewPts2 = ($subTab === 'vested') || ($subTab === 'acting' && $thesis->pts2Form->acting_doaa_email === $user->email);
                             @endphp
                             @if($canEndorsePts2)
                                 <div class="pt-2">
-                                    <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                         Review & Endorse {{ $pts2Prefix }} Form &rarr;
                                     </a>
                                 </div>
-                            @endif
-
-                            {{-- View Button: Vested can always view; Acting can only view if appointed --}}
-                            @php
-                                $canViewPts2 = ($subTab === 'vested') || ($subTab === 'acting' && $thesis->pts2Form->acting_doaa_email === $user->email);
-                            @endphp
-                            @if($canViewPts2 && in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif($canViewPts2 && $thesis->pts2Form->status === 'in_progress')
+                                <div class="pt-2">
+                                    <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                        View Submitted {{ $pts2Prefix }} Form &rarr;
+                                    </a>
+                                </div>
+                            @elseif($canViewPts2 && in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                 @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                     <div class="pt-2">
-                                        <a href="{{ route('pts2.show', $thesis->pts2Form->id) }}" 
+                                        <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.reverted' : 'pts2.show', $thesis->pts2Form->id) }}" 
                                            class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : ($thesis->pts2Form->status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-purple-600 hover:bg-purple-700')) }} text-white font-bold text-xs rounded-lg shadow transition">
-                                            {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted ' . $pts2Prefix . ' Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected ' . $pts2Prefix . ' Form' : ($thesis->pts2Form->status === 'approved' ? 'View Submitted ' . $pts2Prefix . ' Form' : 'View ' . $pts2Prefix . ' Form Details')) }} &rarr;
+                                            {{ $thesis->pts2Form->status === 'reverted' ? ('View Reverted ' . $pts2Prefix . ' Form') : ($thesis->pts2Form->status === 'rejected' ? ('View Rejected ' . $pts2Prefix . ' Form') : ('View Approved ' . $pts2Prefix . ' Form')) }} &rarr;
                                         </a>
                                     </div>
                                 @endif
@@ -256,7 +258,7 @@
                                         <div class="pt-1">
                                             <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
                                                class="block w-full text-center px-3 py-1.5 {{ $thesis->pts2Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
-                                                {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : 'View Extension Details' }} &rarr;
+                                                {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : ($thesis->pts2Extension->status === 'rejected' ? 'View Rejected Extension' : 'View Approved Extension') }} &rarr;
                                             </a>
                                         </div>
                                     @endif

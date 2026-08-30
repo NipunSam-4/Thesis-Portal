@@ -52,7 +52,9 @@ return new class extends Migration
             $table->boolean('collaborative_work_status')->default(false);
             $table->text('collaborative_work_details')->nullable();
 
-            // 1. Main Supervisor Endorsement
+            // 1. Main Supervisor Endorsement & Edited Fields
+            $table->text('main_supervisor_thesis_title')->nullable();
+            $table->string('main_supervisor_synopsis_report_doc_path')->nullable();
             $table->boolean('main_supervisor_cert_prima_facie_case')->nullable();
             $table->boolean('main_supervisor_cert_no_prior_degree_submission')->nullable();
             $table->boolean('main_supervisor_collaborative_work_status')->nullable();

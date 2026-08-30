@@ -4,19 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Pts2Form;
 use App\Models\User;
+use App\Services\PtsDocumentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class Pts2Controller extends Controller
 {
+    protected PtsDocumentService $ptsDocService;
+
+    public function __construct(PtsDocumentService $ptsDocService)
+    {
+        $this->ptsDocService = $ptsDocService;
+    }
     // Show the Main Supervisor review & edit form for a PTS-2 submission.
-    public function edit(Pts2Form $pts2)
+    public function review(Pts2Form $pts2)
     {
         $user = auth()->user();
         $thesis = $pts2->thesis;
 
         $isMainSupervisor = $thesis->student->isMainSupervisor($user);
-        if (!$isMainSupervisor) {
+        if (!$isMainSupervisor || $pts2->status !== 'in_progress' || $pts2->current_stage !== 'main_supervisor') {
             return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-2 review.');
         }
 
@@ -38,20 +45,24 @@ class Pts2Controller extends Controller
         }
 
         $validated = $request->validate([
+            'thesis_title' => 'required|string|max:1000',
             'cert_prima_facie_case' => 'required|boolean',
             'cert_no_prior_degree_submission' => 'required|boolean',
             'collaborative_work_status' => 'required|boolean',
             'collaborative_work_details' => $request->boolean('collaborative_work_status') ? 'required|string|max:2000' : 'nullable|string',
             'synopsis_report_doc' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             'recommendation' => 'required|boolean',
-            'main_supervisor_student_comment' => 'nullable|string',
-            'main_supervisor_confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
+            'main_supervisor_student_comment' => 'nullable|string|max:2000',
+            'main_supervisor_confidential_remark' => $request->boolean('recommendation') ? 'nullable|string|max:2000' : 'required|string|max:2000',
         ]);
 
+        // Update active thesis title in database
+        $thesis->update(['title' => $validated['thesis_title']]);
+
         // Optional Synopsis Replacement by Main Supervisor
-        $filePath = $pts2->synopsis_report_doc_path;
+        $msSynopsisPath = $pts2->main_supervisor_synopsis_report_doc_path;
         if ($request->hasFile('synopsis_report_doc')) {
-            $filePath = $request->file('synopsis_report_doc')->store('private/pts2_documents', 'local');
+            $msSynopsisPath = $this->ptsDocService->storeInProgressDocument($request->file('synopsis_report_doc'), $thesis->student->roll_number, $thesis->id, 'pts2', 'Synopsis_Report', 'Supervisor_Modified');
         }
 
         // Check if any co-supervisors exist
@@ -66,7 +77,8 @@ class Pts2Controller extends Controller
         $nextStage = $hasCoSup ? 'co_supervisors' : 'academic_office';
 
         $pts2->update([
-            'synopsis_report_doc_path' => $filePath,
+            'main_supervisor_thesis_title' => $validated['thesis_title'],
+            'main_supervisor_synopsis_report_doc_path' => $msSynopsisPath,
             'main_supervisor_cert_prima_facie_case' => $request->boolean('cert_prima_facie_case'),
             'main_supervisor_cert_no_prior_degree_submission' => $request->boolean('cert_no_prior_degree_submission'),
             'main_supervisor_collaborative_work_status' => $request->boolean('collaborative_work_status'),
@@ -83,19 +95,21 @@ class Pts2Controller extends Controller
     }
 
     // Display dedicated full-page review & endorsement view for PTS-2 with complete audit trail.
-    public function showReview(Pts2Form $pts2)
+    public function reviewEndorse(Pts2Form $pts2)
     {
         $user = auth()->user();
+
+        // Must be currently authorized to evaluate at this stage
+        if (!$pts2->canUserEvaluate($user)) {
+            if ($pts2->canUserView($user)) {
+                return redirect()->route('pts2.submitted', $pts2->id);
+            }
+            abort(403, 'Unauthorized access to review this submission.');
+        }
+
         $thesis = $pts2->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-
-        $isSupervisorOrFaculty = $user->isFaculty();
-        $isAuthority = ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
-
-        if (!$isSupervisorOrFaculty && !$isAuthority) {
-            abort(403, 'Unauthorized access to review this submission.');
-        }
 
         $mainSupervisor = $student->mainSupervisors->first();
 
@@ -126,6 +140,11 @@ class Pts2Controller extends Controller
     public function endorse(Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
+
+        if (!$pts2->canUserEvaluate($user)) {
+            abort(403, 'Unauthorized action on this submission.');
+        }
+
         $thesis = $pts2->thesis;
         $stage = $pts2->current_stage;
 
@@ -136,7 +155,7 @@ class Pts2Controller extends Controller
 
             $validated = $request->validate([
                 'verified_details' => 'required|accepted',
-                'verification_remark' => 'required|string',
+                'verification_remark' => 'required|string|max:2000',
                 'academic_office_course_credits' => 'required|numeric|min:0',
                 'acting_doaa_email' => 'nullable|email',
             ]);
@@ -171,8 +190,8 @@ class Pts2Controller extends Controller
                 'collaborative_work_status' => 'required|boolean',
                 'collaborative_work_details' => $request->boolean('collaborative_work_status') ? 'required|string|max:2000' : 'nullable|string',
                 'recommendation' => 'required|boolean',
-                'student_comment' => 'nullable|string',
-                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
+                'student_comment' => 'nullable|string|max:2000',
+                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string|max:2000' : 'required|string|max:2000',
             ]);
 
             $isRecommended = $request->boolean('recommendation');
@@ -203,8 +222,8 @@ class Pts2Controller extends Controller
         } else {
             $validated = $request->validate([
                 'recommendation' => 'required|boolean',
-                'student_comment' => 'nullable|string',
-                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string' : 'required|string',
+                'student_comment' => 'nullable|string|max:2000',
+                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string|max:2000' : 'required|string|max:2000',
             ]);
             $isRecommended = $request->boolean('recommendation');
             $comment = $validated['student_comment'] ?? null;
@@ -264,6 +283,12 @@ class Pts2Controller extends Controller
                         'current_stage' => 'completed',
                         'status' => $isRecommended ? 'approved' : 'rejected',
                     ]);
+
+                    if ($isRecommended) {
+                        $this->ptsDocService->moveToApproved($pts2, 'pts2');
+                    } else {
+                        $this->ptsDocService->moveToRejected($pts2, 'pts2');
+                    }
                     break;
 
                 default:
@@ -279,6 +304,10 @@ class Pts2Controller extends Controller
     {
         $user = auth()->user();
         $thesis = $pts2->thesis;
+
+        if (!$pts2->canUserEvaluate($user)) {
+            abort(403, 'Unauthorized action on this submission.');
+        }
 
         if ($user->isAcademicOffice() || $pts2->current_stage === 'academic_office') {
             return back()->with('error', 'Academic Office cannot revert forms; verification and forwarding only.');
@@ -307,10 +336,13 @@ class Pts2Controller extends Controller
             'reversion_comment' => $validated['reversion_comment'],
         ]);
 
-        return redirect()->route('dashboard')->with('warning', 'PTS-2 Synopsis Form has been reverted back to the student.');
+        $this->ptsDocService->moveToReverted($pts2, 'pts2');
+
+        $redirectRoute = $user->isExternalSupervisor() ? 'external_supervisor.dashboard' : ($user->isFaculty() ? 'faculty.dashboard' : 'dashboard');
+        return redirect()->route($redirectRoute)->with('warning', 'PTS-2 Synopsis Form has been reverted back to the student.');
     }
 
-    // Show read-only details of an approved/rejected/in-progress PTS-2 form.
+    // Show read-only details of an approved/rejected PTS-2 form.
     public function show(Pts2Form $pts2)
     {
         $user = auth()->user();
@@ -318,12 +350,13 @@ class Pts2Controller extends Controller
         $student = $thesis->student;
         $studentUser = $student->user;
 
-        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
-        $isSupervisorOrFaculty = $user->isFaculty();
-        $isAuthority = ($user->isHod() || $user->isDpgc() || $user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
-
-        if (!$isOwnerStudent && !$isSupervisorOrFaculty && !$isAuthority) {
+        // Authorization check: User must be authorized to view this submission
+        if (!$pts2->canUserView($user)) {
             abort(403, 'Unauthorized access to view this submission.');
+        }
+
+        if ($pts2->status === 'in_progress') {
+            return redirect()->route('pts2.submitted', $pts2->id);
         }
 
         if ($pts2->status === 'reverted') {
@@ -355,6 +388,23 @@ class Pts2Controller extends Controller
     {
         $user = auth()->user();
 
+        // Status Guardrails
+        if ($pts2->status === 'in_progress') {
+            return redirect()->route('pts2.submitted', $pts2->id);
+        }
+
+        if (in_array($pts2->status, ['approved', 'rejected'])) {
+            return redirect()->route('pts2.show', $pts2->id);
+        }
+
+        // Student owner redirects to student form creation/edit; other students blocked
+        if ($user->isStudent()) {
+            if ($pts2->thesis?->student?->user_id === $user->id) {
+                return redirect()->route('student.pts2.create');
+            }
+            abort(403, 'Unauthorized access to reverted PTS-2 view.');
+        }
+
         if (!$pts2->canUserViewRevertedForm($user)) {
             return redirect()->back()->with('warning', 'This PTS-2 form was reverted by ' . $pts2->getRevertedByRoleLabel() . ' and is not accessible at your review stage until resubmitted.');
         }
@@ -379,6 +429,94 @@ class Pts2Controller extends Controller
             'studentUser',
             'mainSupervisor',
             'coSupervisors'
+        ));
+    }
+
+    // Display view of submitted PTS-2 form strictly scoped to viewing user's submission state.
+    public function submitted(Pts2Form $pts2)
+    {
+        $user = auth()->user();
+        $thesis = $pts2->thesis;
+        $student = $thesis->student;
+
+        // Status Guardrails
+        if (in_array($pts2->status, ['approved', 'rejected'])) {
+            return redirect()->route('pts2.show', $pts2->id);
+        }
+
+        if ($pts2->status === 'reverted') {
+            return redirect()->route('pts2.reverted', $pts2->id);
+        }
+
+        // Check workflow stage progression & access
+        $accessStatus = $pts2->getUserSubmissionAccessStatus($user);
+        if ($accessStatus === 'pending_endorsement') {
+            if ($student->isMainSupervisor($user) && $pts2->current_stage === 'main_supervisor') {
+                return redirect()->route('faculty.pts2.review', $pts2->id);
+            }
+            return redirect()->route('pts2.review', $pts2->id);
+        }
+        if ($accessStatus === 'not_reached' || $accessStatus === 'unauthorized') {
+            abort(403, 'This submission has not reached your review stage yet.');
+        }
+
+        // Role checks
+        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
+        $isMainSupervisor = $student->isMainSupervisor($user);
+        
+        // Find if user is a specific co-supervisor
+        $myCoSupSlot = null;
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts2->$col == $user->id) {
+                $myCoSupSlot = $i;
+                break;
+            }
+        }
+
+        $isAcademicOffice = $user->isAcademicOffice();
+        $isDpgc = $user->isDpgc();
+        $isHod = $user->isHod();
+        $isDoaa = ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
+
+        $studentUser = $student->user;
+        $mainSupervisor = $student->mainSupervisors->first();
+
+        $coSupervisors = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts2->$col) {
+                $coSupervisors[$i] = User::find($pts2->$col);
+            }
+        }
+
+        // Determine viewPerspective: 'student', 'main_supervisor', 'co_supervisor', 'dpgc', 'hod', 'academic_office', 'doaa'
+        $viewPerspective = 'student';
+        if ($isOwnerStudent) {
+            $viewPerspective = 'student';
+        } elseif ($isMainSupervisor) {
+            $viewPerspective = 'main_supervisor';
+        } elseif ($myCoSupSlot !== null) {
+            $viewPerspective = 'co_supervisor';
+        } elseif ($isDpgc) {
+            $viewPerspective = 'dpgc';
+        } elseif ($isHod) {
+            $viewPerspective = 'hod';
+        } elseif ($isAcademicOffice) {
+            $viewPerspective = 'academic_office';
+        } elseif ($isDoaa) {
+            $viewPerspective = 'doaa';
+        }
+
+        return view('pts2.submitted', compact(
+            'pts2',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'viewPerspective',
+            'myCoSupSlot'
         ));
     }
 }

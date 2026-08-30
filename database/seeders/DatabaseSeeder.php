@@ -6,6 +6,7 @@ use App\Models\ActingDoaa;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\DeptAuthorityProfile;
+use App\Models\ExternalSupervisorProfile;
 use App\Models\FacultyProfile;
 use App\Models\Pts1Form;
 use App\Models\Pts2Extension;
@@ -175,7 +176,6 @@ class DatabaseSeeder extends Seeder
             ['email' => 'aracademic@iiti.ac.in', 'name' => 'Assistant Registrar (Academic)', 'role' => 'ar'],
             ['email' => 'dracademic@iiti.ac.in', 'name' => 'Deputy Registrar (Academic)', 'role' => 'dr'],
             ['email' => 'academicoffice@iiti.ac.in', 'name' => 'Academic Office', 'role' => 'academic_office'],
-            ['email' => 'sectionofficer@iiti.ac.in', 'name' => 'Section Officer', 'role' => 'section_officer'],
         ];
 
         foreach ($globalAuthorities as $ga) {
@@ -194,7 +194,41 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 4. Seed Departments, Authorities, Faculty, and Students
+        // 4. Seed External Supervisors
+        $externalSupervisorsData = [
+            [
+                'email' => 'externalsupervisor1@iiti.ac.in',
+                'name' => 'Prof. Robert Langlands',
+                'institute' => 'Institute for Advanced Study, Princeton',
+            ],
+            [
+                'email' => 'externalsupervisor2@iiti.ac.in',
+                'name' => 'Dr. Arun Kumar',
+                'institute' => 'IIT Bombay',
+            ],
+            [
+                'email' => 'externalsupervisor3@iiti.ac.in',
+                'name' => 'Dr. Rajesh Sharma',
+                'institute' => 'IISc Bangalore',
+            ],
+        ];
+
+        $extSupUsers = [];
+        foreach ($externalSupervisorsData as $extData) {
+            $extUser = User::firstOrCreate(
+                ['email' => $extData['email']],
+                ['name' => $extData['name'], 'password' => $password, 'role' => 'external_supervisor', 'is_active' => true]
+            );
+
+            ExternalSupervisorProfile::firstOrCreate(
+                ['user_id' => $extUser->id],
+                ['name' => $extData['name'], 'affiliated_institute' => $extData['institute']]
+            );
+
+            $extSupUsers[] = $extUser;
+        }
+
+        // 5. Seed Departments, Authorities, Faculty, and Students
         foreach ($departmentsData as $code => $data) {
             $department = Department::firstOrCreate(
                 ['code' => $code],
@@ -228,16 +262,16 @@ class DatabaseSeeder extends Seeder
                     ['email' => $fac['email']],
                     ['name' => $fac['name'], 'password' => $password, 'role' => 'faculty', 'is_active' => true]
                 );
-                $faculty->facultyProfile()->firstOrCreate(['department_id' => $department->id]);
+                $faculty->facultyProfile()->firstOrCreate(['department_id' => $department->id], ['name' => $fac['name']]);
                 $facultyUsers[] = $faculty;
             }
 
             // Students and Committee Assignments
             // Committee configuration per student index:
-            // Student 0: Main = Fac 0, Co = Fac 1, PSPC = [Fac 2, Fac 0/HOD]
-            // Student 1: Main = Fac 0, Co = None,  PSPC = [Fac 1, Fac 2]
-            // Student 2: Main = Fac 1, Co = Fac 0, PSPC = [Fac 2, Fac 0]
-            // Student 3: Main = Fac 2, Co = Fac 1, PSPC = [Fac 0, Fac 1]
+            // Student 0: Main = Fac 0, Co = Fac 1, PSPC = [Fac 2, Fac 0/HOD], External = ExtSup 0
+            // Student 1: Main = Fac 0, Co = None,  PSPC = [Fac 1, Fac 2], External = None
+            // Student 2: Main = Fac 1, Co = Fac 0, PSPC = [Fac 2, Fac 0], External = ExtSup 1
+            // Student 3: Main = Fac 2, Co = Fac 1, PSPC = [Fac 0, Fac 1], External = None
             $facCount = count($facultyUsers);
 
             foreach ($data['students'] as $idx => $stData) {
@@ -280,6 +314,21 @@ class DatabaseSeeder extends Seeder
                     $student->supervisors()->attach($coSup->id, ['supervisor_type' => 'co']);
                 }
 
+                // Attach External Supervisor (realistic sample assignments)
+                if ($code === 'CSE' && $idx === 0 && isset($extSupUsers[0])) {
+                    // CSE Student 1 (PhD) -> Prof. Robert Langlands
+                    $student->externalSupervisors()->syncWithoutDetaching([$extSupUsers[0]->id]);
+                } elseif ($code === 'CSE' && $idx === 2 && isset($extSupUsers[1])) {
+                    // CSE Student 3 (MS-R) -> Dr. Arun Kumar
+                    $student->externalSupervisors()->syncWithoutDetaching([$extSupUsers[1]->id]);
+                } elseif ($code === 'ME' && $idx === 0 && isset($extSupUsers[2])) {
+                    // ME Student 1 (PhD) -> Dr. Rajesh Sharma
+                    $student->externalSupervisors()->syncWithoutDetaching([$extSupUsers[2]->id]);
+                } elseif ($code === 'ME' && $idx === 2 && isset($extSupUsers[0])) {
+                    // ME Student 3 (MS-R) -> Prof. Robert Langlands
+                    $student->externalSupervisors()->syncWithoutDetaching([$extSupUsers[0]->id]);
+                }
+
                 // Attach PSPC Members
                 if (!$student->pspcMembers()->where('faculty_user_id', $pspc1->id)->exists()) {
                     $student->pspcMembers()->attach($pspc1->id);
@@ -291,7 +340,7 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 5. Seed Comment Snippets
+        // 6. Seed Comment Snippets
         $this->call(CommentSnippetSeeder::class);
 
         $this->command->info('Successfully seeded all 8 departments, HODs, DPGCs, Faculty, and Students (PhD & MS(R))!');

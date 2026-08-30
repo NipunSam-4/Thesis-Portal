@@ -11,9 +11,8 @@ return [
         'default' => [
             'Core.Encoding' => 'utf-8',
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            'HTML.Allowed' => 'h1,h2,h3,h4,h5,h6,b,u,strong,i,em,s,del,a[href|title|target],ul,ol,li,p[style],br,span[style],img[width|height|alt|src],blockquote,pre,code,table,thead,tbody,tr,th,td[colspan|rowspan],hr,sub,sup',
+            'HTML.Allowed' => 'h1,h2,h3,h4,h5,h6,b,u,strong,i,em,s,del,a[href|title|target],ul,ol,li,p[style|class|align],div[style|class|align],br,span[style|class],img[width|height|alt|src|class|style|align],blockquote,pre,code,table,thead,tbody,tr,th,td[colspan|rowspan|style],hr,sub,sup,figure[class|style],figcaption[class|style]',
             'HTML.ForbiddenElements' => '',
-            'CSS.AllowedProperties' => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align',
             'AutoFormat.AutoParagraph' => false,
             'AutoFormat.RemoveEmpty' => false,
         ],

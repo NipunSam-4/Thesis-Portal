@@ -11,7 +11,7 @@ class CommentSnippet extends Model
     use HasFactory;
 
     public const ROLES_DEPT = ['dpgc', 'hod'];
-    public const ROLES_GLOBAL = ['academic_office', 'section_officer', 'ar', 'dr', 'doaa', 'senate_chairperson'];
+    public const ROLES_GLOBAL = ['academic_office', 'ar', 'dr', 'doaa', 'senate_chairperson'];
 
     public const FORM_TYPES = [
         'pts1',

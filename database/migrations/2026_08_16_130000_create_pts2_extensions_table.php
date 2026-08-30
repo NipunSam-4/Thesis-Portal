@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('extended_until_date');
 
             $table->enum('status', ['pending','in_progress', 'approved', 'reverted', 'rejected'])->default('pending');
-            $table->enum('current_stage', ['main_supervisor', 'dpgc', 'hod', 'section_officer', 'doaa', 'reverted', 'completed'])->default('main_supervisor');
+            $table->enum('current_stage', ['main_supervisor', 'dpgc', 'hod', 'academic_office', 'doaa', 'reverted', 'completed'])->default('main_supervisor');
 
             $table->string('reverted_by_role')->nullable();
             $table->unsignedBigInteger('reverted_by_id')->nullable();
@@ -37,10 +37,10 @@ return new class extends Migration
             $table->text('hod_confidential_remark')->nullable();
             $table->timestamp('hod_submitted_at')->nullable();
 
-            // Section Officer Evaluation
-            $table->boolean('section_officer_recommendation')->nullable();
-            $table->text('section_officer_confidential_remark')->nullable();
-            $table->timestamp('section_officer_submitted_at')->nullable();
+            // Academic Office Evaluation
+            $table->boolean('academic_office_recommendation')->nullable();
+            $table->text('academic_office_confidential_remark')->nullable();
+            $table->timestamp('academic_office_submitted_at')->nullable();
 
             // DOAA Evaluation (Final Decision)
             $table->boolean('doaa_recommendation')->nullable();

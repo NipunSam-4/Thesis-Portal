@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\DraftSynopsisCirculation;
+use App\Services\PtsDocumentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class StudentDraftSynopsisController extends Controller
 {
+    protected PtsDocumentService $ptsDocService;
+
+    public function __construct(PtsDocumentService $ptsDocService)
+    {
+        $this->ptsDocService = $ptsDocService;
+    }
     // Display the student draft synopsis circulation form and comments trail.
     public function show()
     {
@@ -76,7 +82,7 @@ class StudentDraftSynopsisController extends Controller
 
         // Handle private local file upload
         if ($request->hasFile('draft_synopsis_report')) {
-            $docPath = $request->file('draft_synopsis_report')->store('private/draft_synopsis_documents', 'local');
+            $docPath = $this->ptsDocService->storeDraftSynopsis($request->file('draft_synopsis_report'), $student->roll_number, $thesis->id);
         } else {
             $docPath = $circulation->draft_synopsis_doc_path;
         }

@@ -60,6 +60,7 @@
                                         @if($user->role === 'doaa') <div class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded w-max">Dean of Academic Affairs (DoAA)</div> @endif
                                         @if($user->role === 'adoaa') <div class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded w-max">Assoc. Dean of Academic Affairs</div> @endif
                                         @if($user->role === 'senate_chairperson') <div class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded w-max">Senate Chairperson</div> @endif
+                                        @if($user->role === 'academic_office') <div class="bg-teal-100 text-teal-800 text-xs font-bold px-2 py-0.5 rounded w-max">Academic Office</div> @endif
                                         @if($user->role === 'ar') <div class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded w-max">Assistant Registrar (Academic)</div> @endif
                                     </td>
                                     
@@ -131,6 +132,7 @@
                                     <option value="" disabled selected>Select an institute-level role...</option>
                                     <option value="doaa">Dean of Academic Affairs (DoAA)</option>
                                     <option value="adoaa">Assoc. Dean of Academic Affairs</option>
+                                    <option value="academic_office">Academic Office</option>
                                     <option value="senate_chairperson">Senate Chairperson</option>
                                     <option value="ar">Assistant Registrar (Academic)</option>
                                 </select>

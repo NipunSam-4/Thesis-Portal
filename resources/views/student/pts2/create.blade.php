@@ -1,8 +1,12 @@
 <x-app-layout>
+    @php
+        $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+        $isReverted = isset($pts2Form) && $pts2Form->status === 'reverted';
+    @endphp
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Submit PTS-2 Form') }}
+                {{ $isReverted ? __("Edit & Resubmit {$formPrefix}-2 Synopsis Form") : __("Submit {$formPrefix}-2 Synopsis Form") }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -24,6 +28,10 @@
 
             <form action="{{ route('student.pts2.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="clearDraft()">
                 @csrf
+
+                @php
+                    $showModified = isset($pts2Form) && $pts2Form->status === 'reverted' && $pts2Form->reverted_by_role !== 'main_supervisor';
+                @endphp
 
                 @if(isset($pts2Form) && $pts2Form->status === 'reverted')
                     <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
@@ -85,8 +93,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Course Credits Required</label>
-                            <input type="text" value="{{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 0 }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                                <span>Course Credits Required</span>
+                                <x-info-button text="Minimum course credits required for the degree program." />
+                            </label>
+                            <input type="text" value="{{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                         </div>
                     </div>
                 </div>
@@ -97,7 +108,14 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <span>Thesis Title <span class="text-red-500">*</span></span>
+                            @if($showModified && $pts2Form->main_supervisor_thesis_title && $pts2Form->main_supervisor_thesis_title !== $pts2Form->thesis_title)
+                                <x-modified-badge 
+                                    :old-value="$pts2Form->thesis_title ?: ($thesis->title ?? 'N/A')" 
+                                    :new-value="$pts2Form->main_supervisor_thesis_title" />
+                            @endif
+                        </label>
                         <input type="text" name="thesis_title" required x-model="thesisTitle" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
                     </div>
                 </div>
@@ -183,29 +201,44 @@
                         <!-- Declaration 1 -->
                         <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <input type="checkbox" id="cert_prima_facie_case" name="cert_prima_facie_case" value="1" required x-model="certPrimaFacie" class="mt-1 rounded text-blue-600 focus:ring-blue-500">
-                            <label for="cert_prima_facie_case" class="text-sm font-medium text-gray-800 dark:text-gray-200">
-                                <strong>1.</strong> There is a prima facie case for consideration of the thesis. <span class="text-red-500">*</span>
+                            <label for="cert_prima_facie_case" class="text-sm font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                <span><strong>1.</strong> There is a prima facie case for consideration of the thesis. <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts2Form->main_supervisor_cert_prima_facie_case !== null && (bool)$pts2Form->main_supervisor_cert_prima_facie_case !== (bool)$pts2Form->cert_prima_facie_case)
+                                    <x-modified-badge 
+                                        :old-value="$pts2Form->cert_prima_facie_case ? 'Certified' : 'Not Certified'" 
+                                        :new-value="$pts2Form->main_supervisor_cert_prima_facie_case ? 'Certified' : 'Not Certified'" />
+                                @endif
                             </label>
                         </div>
 
                         <!-- Declaration 2 -->
                         <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                             <input type="checkbox" id="cert_no_prior_degree_submission" name="cert_no_prior_degree_submission" value="1" required x-model="certNoPriorDegree" class="mt-1 rounded text-blue-600 focus:ring-blue-500">
-                            <label for="cert_no_prior_degree_submission" class="text-sm font-medium text-gray-800 dark:text-gray-200">
-                                <strong>2.</strong> To the best of our knowledge the thesis does not include any work which has, at any time, previously, been submitted for the award of a degree except to the extent of point 3 below. <span class="text-red-500">*</span>
+                            <label for="cert_no_prior_degree_submission" class="text-sm font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                <span><strong>2.</strong> To the best of our knowledge the thesis does not include any work which has, at any time, previously, been submitted for the award of a degree except to the extent of point 3 below. <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts2Form->main_supervisor_cert_no_prior_degree_submission !== null && (bool)$pts2Form->main_supervisor_cert_no_prior_degree_submission !== (bool)$pts2Form->cert_no_prior_degree_submission)
+                                    <x-modified-badge 
+                                        :old-value="$pts2Form->cert_no_prior_degree_submission ? 'Certified' : 'Not Certified'" 
+                                        :new-value="$pts2Form->main_supervisor_cert_no_prior_degree_submission ? 'Certified' : 'Not Certified'" />
+                                @endif
                             </label>
                         </div>
 
                         <!-- Declaration 3: Collaborative Work -->
                         <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
-                            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                                <strong>3.</strong> Does any section of the Thesis relate to collaborative work? <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                <span><strong>3.</strong> Does any section of the Thesis relate to collaborative work? <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts2Form->main_supervisor_collaborative_work_status !== null && (bool)$pts2Form->main_supervisor_collaborative_work_status !== (bool)$pts2Form->collaborative_work_status)
+                                    <x-modified-badge 
+                                        :old-value="$pts2Form->collaborative_work_status ? 'Yes' : 'No'" 
+                                        :new-value="$pts2Form->main_supervisor_collaborative_work_status ? 'Yes' : 'No'" />
+                                @endif
                             </label>
                             
                             <div class="flex items-center gap-6">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="collaborative_work_status" value="0" x-model="collaborativeWorkStatus" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No (None)</span>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="collaborative_work_status" value="1" x-model="collaborativeWorkStatus" class="text-blue-600 focus:ring-blue-500">
@@ -214,8 +247,13 @@
                             </div>
 
                             <div x-show="collaborativeWorkStatus === '1'" x-transition class="pt-2">
-                                <label class="block text-xs font-semibold uppercase text-gray-600 dark:text-gray-400 mb-1">
-                                    Collaborative Work Sections &amp; Details <span class="text-red-500">*</span>
+                                <label class="block text-xs font-semibold uppercase text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-2">
+                                    <span>Collaborative Work Sections &amp; Details <span class="text-red-500">*</span></span>
+                                    @if($showModified && $pts2Form->main_supervisor_collaborative_work_details !== null && $pts2Form->main_supervisor_collaborative_work_details !== $pts2Form->collaborative_work_details)
+                                        <x-modified-badge 
+                                            :old-value="$pts2Form->collaborative_work_details" 
+                                            :new-value="$pts2Form->main_supervisor_collaborative_work_details" />
+                                    @endif
                                 </label>
                                 <textarea name="collaborative_work_details" rows="3" x-model="collaborativeWorkDetails" :required="collaborativeWorkStatus === '1'" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Mention briefly the section(s) and details relating to collaborative work..."></textarea>
                             </div>
@@ -236,8 +274,11 @@
 
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                Upload Final PhD Synopsis Report (.pdf, .doc, .docx) <span class="text-red-500">*</span>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                <span>Upload Final PhD Synopsis Report (.pdf, .doc, .docx) <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts2Form->main_supervisor_synopsis_report_doc_path && $pts2Form->main_supervisor_synopsis_report_doc_path !== $pts2Form->synopsis_report_doc_path)
+                                    <x-modified-badge />
+                                @endif
                             </label>
                             <span class="text-[11px] text-gray-400">Max 10 MB</span>
                         </div>
@@ -309,7 +350,7 @@
                 <!-- Submit Action -->
                 <div class="flex justify-center sm:justify-end pt-4">
                     <button type="submit" :disabled="isBlocked" :class="isBlocked ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'" class="w-full sm:w-auto text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition">
-                        Submit PTS-2 Form
+                        {{ $isReverted ? "Resubmit {$formPrefix}-2 Synopsis Form" : "Submit {$formPrefix}-2 Synopsis Form" }}
                     </button>
                 </div>
             </form>
@@ -323,8 +364,11 @@
 
     <script>
         function pts2Form() {
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js(isset($pts2Form) && $pts2Form ? $pts2Form->id : null);
             const existingPts2 = @js(isset($pts2Form) ? $pts2Form : null);
-            const draftKey = 'pts2_student_draft_thesis_' + @js($thesis->id);
+            const draftKey = 'pts2_student_draft_user_' + userId + '_thesis_' + thesisId + (formId ? '_form_' + formId : '');
 
             let savedDraft = {};
             try {

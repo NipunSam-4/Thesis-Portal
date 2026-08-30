@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Pts2Form;
 use App\Models\Thesis;
+use App\Services\PtsDocumentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class StudentPts2Controller extends Controller
 {
+    protected PtsDocumentService $ptsDocService;
+
+    public function __construct(PtsDocumentService $ptsDocService)
+    {
+        $this->ptsDocService = $ptsDocService;
+    }
     // Display the PTS-2 creation form.
     public function create()
     {
@@ -45,7 +52,10 @@ class StudentPts2Controller extends Controller
             if ($pts2Form->status === 'approved') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-2 form has already been approved.');
             }
-            if ($pts2Form->status !== 'reverted') {
+            if ($pts2Form->status === 'reverted') {
+                return redirect()->route('student.pts2.edit')->with('warning', 'You have a reverted PTS-2 form. Please edit and resubmit your reverted form.');
+            }
+            if ($pts2Form->status === 'rejected') {
                 $pts2Form = null;
             }
         }
@@ -125,13 +135,13 @@ class StudentPts2Controller extends Controller
         $thesis->update(['title' => $validated['thesis_title']]);
 
         if ($request->hasFile('synopsis_report_doc')) {
-            $filePath = $request->file('synopsis_report_doc')->store('private/pts2_documents', 'local');
+            $filePath = $this->ptsDocService->storeInProgressDocument($request->file('synopsis_report_doc'), $student->roll_number, $thesis->id, 'pts2', 'Synopsis_Report', 'Student');
         } else {
             $filePath = $hasExisting ? $pts2Form->synopsis_report_doc_path : null;
         }
 
         $pts1 = $thesis->pts1Form;
-        $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
+        $coSupervisors = $student->allCoSupervisors()->pluck('id')->all();
 
         // Initialize co-supervisor slot mapping
         $coSupData = [];

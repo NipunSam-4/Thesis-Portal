@@ -1,8 +1,12 @@
 <x-app-layout>
+    @php
+        $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+        $isReverted = isset($pts1Form) && $pts1Form->status === 'reverted';
+    @endphp
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Submit PTS-1 Form') }}
+                {{ $isReverted ? __("Edit & Resubmit {$formPrefix}-1 Form") : __("Submit {$formPrefix}-1 Form") }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -24,6 +28,10 @@
 
             <form action="{{ route('student.pts1.store') }}" method="POST" enctype="multipart/form-data" class="space-y-2" @submit="clearDraft()">
                 @csrf
+
+                @php
+                    $showModified = isset($pts1Form) && $pts1Form->status === 'reverted' && $pts1Form->reverted_by_role !== 'main_supervisor';
+                @endphp
 
                 @if(isset($pts1Form) && $pts1Form->status === 'reverted')
                     <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
@@ -75,7 +83,14 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1 flex items-center gap-2">
+                                <span>Date of Confirmation <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_date_confirmation && ($student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') !== $pts1Form->main_supervisor_date_confirmation->format('Y-m-d') : true))
+                                    <x-modified-badge 
+                                        :old-value="$student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : null" 
+                                        :new-value="$pts1Form->main_supervisor_date_confirmation->format('d-m-Y')" />
+                                @endif
+                            </label>
                             <input type="date" name="date_confirmation" required x-model="dateConfirmation" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
                         </div>
                     </div>
@@ -87,7 +102,14 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <span>Thesis Title <span class="text-red-500">*</span></span>
+                            @if($showModified && $pts1Form->main_supervisor_thesis_title && $pts1Form->main_supervisor_thesis_title !== $pts1Form->thesis_title)
+                                <x-modified-badge 
+                                    :old-value="$pts1Form->thesis_title ?: ($thesis->title ?? 'N/A')" 
+                                    :new-value="$pts1Form->main_supervisor_thesis_title" />
+                            @endif
+                        </label>
                         <input type="text" name="thesis_title" required x-model="thesisTitle" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
                     </div>
                 </div>
@@ -101,22 +123,50 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                                <span>Date of Open Seminar <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_seminar_date && ($pts1Form->seminar_date ? $pts1Form->main_supervisor_seminar_date->format('Y-m-d') !== $pts1Form->seminar_date->format('Y-m-d') : true))
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->seminar_date ? $pts1Form->seminar_date->format('d-m-Y') : 'N/A'" 
+                                        :new-value="$pts1Form->main_supervisor_seminar_date->format('d-m-Y')" />
+                                @endif
+                            </label>
                             <input type="date" name="seminar_date" required x-model="seminarDate" min="{{ isset($pts1Form) && $pts1Form->seminar_date ? (\Carbon\Carbon::parse($pts1Form->seminar_date)->lt(\Carbon\Carbon::today()) ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : \Carbon\Carbon::today()->format('Y-m-d')) : \Carbon\Carbon::today()->format('Y-m-d') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Time of Open Seminar <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                                <span>Time of Open Seminar <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_seminar_time && $pts1Form->main_supervisor_seminar_time !== $pts1Form->seminar_time)
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->seminar_time ?? 'N/A'" 
+                                        :new-value="$pts1Form->main_supervisor_seminar_time" />
+                                @endif
+                            </label>
                             <input type="time" name="seminar_time" required x-model="seminarTime" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Venue of Open Seminar <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                                <span>Venue of Open Seminar <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_seminar_venue && $pts1Form->main_supervisor_seminar_venue !== $pts1Form->seminar_venue)
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->seminar_venue ?? 'N/A'" 
+                                        :new-value="$pts1Form->main_supervisor_seminar_venue" />
+                                @endif
+                            </label>
                             <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required x-model="seminarVenue" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                                <span>Online Meeting Link (Optional)</span>
+                                @if($showModified && $pts1Form->main_supervisor_meeting_link !== null && $pts1Form->main_supervisor_meeting_link !== $pts1Form->meeting_link)
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->meeting_link ?: null" 
+                                        :new-value="$pts1Form->main_supervisor_meeting_link ?: 'None'" />
+                                @endif
+                            </label>
                             <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         </div>
                     </div>
@@ -130,8 +180,13 @@
 
                     <!-- Minimum Time Requirement -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-4">
-                        <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                            Are you fulfilling the minimum time requirement criteria for thesis submission? <span class="text-red-500">*</span>
+                        <label class="block font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                            <span>Are you fulfilling the minimum time requirement criteria for thesis submission? <span class="text-red-500">*</span></span>
+                            @if($showModified && $pts1Form->main_supervisor_min_time_req_fulfilled !== null && (bool)$pts1Form->main_supervisor_min_time_req_fulfilled !== (bool)$pts1Form->min_time_req_fulfilled)
+                                <x-modified-badge 
+                                    :old-value="$pts1Form->min_time_req_fulfilled ? 'Yes' : 'No'" 
+                                    :new-value="$pts1Form->main_supervisor_min_time_req_fulfilled ? 'Yes' : 'No'" />
+                            @endif
                         </label>
                         <div class="flex items-center space-x-6">
                             <label class="inline-flex items-center">
@@ -146,8 +201,13 @@
                         
                         <!-- If No: Special Approval Question -->
                         <div x-show="timeNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
-                            <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                                Have you taken special approval for the same? <span class="text-red-500">*</span>
+                            <label class="block font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                                <span>Have you taken special approval for the same? <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_special_approval_min_time !== null && (bool)$pts1Form->main_supervisor_special_approval_min_time !== (bool)$pts1Form->special_approval_min_time)
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->special_approval_min_time !== null ? ($pts1Form->special_approval_min_time ? 'Yes' : 'No') : null" 
+                                        :new-value="$pts1Form->main_supervisor_special_approval_min_time ? 'Yes' : 'No'" />
+                                @endif
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
@@ -162,8 +222,11 @@
                             
                             <div x-show="timeApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1 gap-4">
-                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span>
+                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                        <span>Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span></span>
+                                        @if($showModified && $pts1Form->main_supervisor_min_time_approval_doc_path && $pts1Form->main_supervisor_min_time_approval_doc_path !== $pts1Form->min_time_approval_doc_path)
+                                            <x-modified-badge />
+                                        @endif
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
@@ -211,8 +274,13 @@
 
                     <!-- Publication Norm -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-4">
-                        <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                            Are you fulfilling the Institute publication norm for open seminar? <span class="text-red-500">*</span>
+                        <label class="block font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                            <span>Are you fulfilling the Institute publication norm for open seminar? <span class="text-red-500">*</span></span>
+                            @if($showModified && $pts1Form->main_supervisor_publication_norm_fulfillment !== null && (bool)$pts1Form->main_supervisor_publication_norm_fulfillment !== (bool)$pts1Form->publication_norm_fulfillment)
+                                <x-modified-badge 
+                                    :old-value="$pts1Form->publication_norm_fulfillment ? 'Yes' : 'No'" 
+                                    :new-value="$pts1Form->main_supervisor_publication_norm_fulfillment ? 'Yes' : 'No'" />
+                            @endif
                         </label>
                         <div class="flex items-center space-x-6">
                             <label class="inline-flex items-center">
@@ -227,8 +295,13 @@
 
                         <!-- If No: Special Approval Question -->
                         <div x-show="pubNorm === '0'" x-cloak class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-3">
-                            <label class="block font-medium text-gray-900 dark:text-white text-sm">
-                                Have you taken special approval for the same? <span class="text-red-500">*</span>
+                            <label class="block font-medium text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                                <span>Have you taken special approval for the same? <span class="text-red-500">*</span></span>
+                                @if($showModified && $pts1Form->main_supervisor_special_approval_publication !== null && (bool)$pts1Form->main_supervisor_special_approval_publication !== (bool)$pts1Form->special_approval_publication)
+                                    <x-modified-badge 
+                                        :old-value="$pts1Form->special_approval_publication !== null ? ($pts1Form->special_approval_publication ? 'Yes' : 'No') : null" 
+                                        :new-value="$pts1Form->main_supervisor_special_approval_publication ? 'Yes' : 'No'" />
+                                @endif
                             </label>
                             <div class="flex items-center space-x-6">
                                 <label class="inline-flex items-center">
@@ -243,8 +316,11 @@
 
                             <div x-show="pubApproval === '1'" class="pt-2">
                                 <div class="flex justify-between items-center mb-1 gap-4">
-                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                        Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span>
+                                    <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                        <span>Upload the corresponding approval copy (Max 2 MB) <span class="text-red-500">*</span></span>
+                                        @if($showModified && $pts1Form->main_supervisor_publication_approval_doc_path && $pts1Form->main_supervisor_publication_approval_doc_path !== $pts1Form->publication_approval_doc_path)
+                                            <x-modified-badge />
+                                        @endif
                                     </label>
                                     <span class="text-[11px] text-gray-400">PDF, PNG, JPG</span>
                                 </div>
@@ -301,8 +377,11 @@
                         <!-- Draft Synopsis Upload -->
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Draft Synopsis Report (.pdf, .docx) <span class="text-red-500">*</span>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <span>Upload Draft Synopsis Report (.pdf, .docx) <span class="text-red-500">*</span></span>
+                                    @if($showModified && $pts1Form->main_supervisor_draft_synopsis_report_doc_path && $pts1Form->main_supervisor_draft_synopsis_report_doc_path !== $pts1Form->draft_synopsis_report_doc_path)
+                                        <x-modified-badge />
+                                    @endif
                                 </label>
                                 <span class="text-[11px] text-gray-400">Max 10 MB</span>
                             </div>
@@ -346,8 +425,11 @@
                         <!-- Publication List Upload -->
                         <div>
                             <div class="flex justify-between items-center">
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                    Upload Publication and Other Recognition List (.xlsx, .xls) <span class="text-red-500">*</span>
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <span>Upload Publication and Other Recognition List (.xlsx, .xls) <span class="text-red-500">*</span></span>
+                                    @if($showModified && $pts1Form->main_supervisor_publication_list_doc_path && $pts1Form->main_supervisor_publication_list_doc_path !== $pts1Form->publication_list_doc_path)
+                                        <x-modified-badge />
+                                    @endif
                                 </label>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-[11px] text-gray-400">Max 2 MB</span>
@@ -416,7 +498,7 @@
                 <!-- Submit Action -->
                 <div class="flex justify-center sm:justify-end pt-4">
                     <button type="submit" :disabled="isBlocked" :class="isBlocked ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'" class="w-full sm:w-auto text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition">
-                        Submit PTS-1 Form
+                        {{ $isReverted ? "Resubmit {$formPrefix}-1 Form" : "Submit {$formPrefix}-1 Form" }}
                     </button>
                 </div>
             </form>
@@ -426,8 +508,11 @@
 
     <script>
         function pts1Form() {
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js(isset($pts1Form) && $pts1Form ? $pts1Form->id : null);
             const existingPts1 = @js(isset($pts1Form) ? $pts1Form : null);
-            const draftKey = 'pts1_student_draft_thesis_' + @js($thesis->id);
+            const draftKey = 'pts1_student_draft_user_' + userId + '_thesis_' + thesisId + (formId ? '_form_' + formId : '');
 
             let savedDraft = {};
             try {

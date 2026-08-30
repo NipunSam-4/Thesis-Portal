@@ -1,15 +1,22 @@
 <x-app-layout>
+    @php
+        $pts2 = $pts2 ?? $form ?? null;
+        $form = $form ?? $pts2 ?? null;
+        $thesis = $thesis ?? $form?->thesis;
+        $student = $student ?? $thesis?->student;
+        $studentUser = $studentUser ?? $student?->user;
+        $currentUser = $user ?? auth()->user();
+        $viewPerspective = $viewPerspective ?? ($currentUser?->isStudent() ? 'student' : ($currentUser?->isAcademicOffice() ? 'academic_office' : ($currentUser?->isDoaa() ? 'doaa' : 'authority')));
+        $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+    @endphp
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                @php
-                    $formPrefix = $student->isPhd() ? 'PTS' : 'MSRTS';
-                @endphp
                 <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __("Reverted {$formPrefix}-2 Form Details & Remarks") }}
+                    {{ __("Submitted {$formPrefix}-2 Form") }}
                 </h2>
-                <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                    ⚠️ Reverted
+                <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
+                    ⏳ In Progress
                 </span>
             </div>
             <x-back-to-dashboard-button />
@@ -43,15 +50,6 @@
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span class="font-bold text-sm">{{ session('error') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('info'))
-                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('info') }}</span>
                     </div>
                 </div>
             @endif
@@ -131,13 +129,18 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
                         <span>Thesis Title</span>
-                        @if($pts2->main_supervisor_thesis_title && $pts2->main_supervisor_thesis_title !== $pts2->thesis_title)
+                        @if($viewPerspective !== 'student' && $pts2->main_supervisor_thesis_title && $pts2->main_supervisor_thesis_title !== $pts2->thesis_title)
                             <x-modified-badge 
                                 :old-value="$pts2->thesis_title ?: ($thesis->title ?? 'N/A')" 
                                 :new-value="$pts2->main_supervisor_thesis_title" />
                         @endif
                     </label>
-                    <input type="text" value="{{ $pts2->effective_thesis_title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                    @php
+                        $dispThesisTitle = ($viewPerspective === 'student')
+                            ? ($pts2->thesis_title ?: ($thesis->title ?? 'N/A'))
+                            : $pts2->effective_thesis_title;
+                    @endphp
+                    <input type="text" value="{{ $dispThesisTitle }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
                 </div>
             </div>
 
@@ -186,49 +189,64 @@
 
                 <div class="space-y-4">
                     <!-- Item 1: Prima Facie Case -->
+                    @php
+                        $isCertPrimaFacie = ($viewPerspective === 'student')
+                            ? (bool)$pts2->cert_prima_facie_case
+                            : (bool)$pts2->getEffectiveCertPrimaFacieCase();
+                    @endphp
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-2">
                         <div class="flex items-center justify-between gap-2 sm:gap-4">
                             <span class="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
                                 <span>1. There is a prima facie case for consideration of the thesis.</span>
-                                @if($pts2->main_supervisor_cert_prima_facie_case !== null && (bool)$pts2->main_supervisor_cert_prima_facie_case !== (bool)$pts2->cert_prima_facie_case)
+                                @if($viewPerspective !== 'student' && $pts2->main_supervisor_cert_prima_facie_case !== null && (bool)$pts2->main_supervisor_cert_prima_facie_case !== (bool)$pts2->cert_prima_facie_case)
                                     <x-modified-badge 
                                         :old-value="$pts2->cert_prima_facie_case ? 'Certified' : 'Not Certified'" 
                                         :new-value="$pts2->main_supervisor_cert_prima_facie_case ? 'Certified' : 'Not Certified'" />
                                 @endif
                             </span>
-                            <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts2->getEffectiveCertPrimaFacieCase() ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                {{ $pts2->getEffectiveCertPrimaFacieCase() ? '✓ Certified' : 'Not Certified' }}
+                            <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $isCertPrimaFacie ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                                {{ $isCertPrimaFacie ? '✓ Certified' : 'Not Certified' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Item 2: No Prior Degree Submission -->
+                    @php
+                        $isCertNoPriorDegree = ($viewPerspective === 'student')
+                            ? (bool)$pts2->cert_no_prior_degree_submission
+                            : (bool)$pts2->getEffectiveCertNoPriorDegreeSubmission();
+                    @endphp
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-2">
                         <div class="flex items-center justify-between gap-2 sm:gap-4">
                             <span class="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
                                 <span>2. To the best of our knowledge the thesis does not include any work which has, at any time, previously, been submitted for the award of a degree except to the extent of point 3 below.</span>
-                                @if($pts2->main_supervisor_cert_no_prior_degree_submission !== null && (bool)$pts2->main_supervisor_cert_no_prior_degree_submission !== (bool)$pts2->cert_no_prior_degree_submission)
+                                @if($viewPerspective !== 'student' && $pts2->main_supervisor_cert_no_prior_degree_submission !== null && (bool)$pts2->main_supervisor_cert_no_prior_degree_submission !== (bool)$pts2->cert_no_prior_degree_submission)
                                     <x-modified-badge 
                                         :old-value="$pts2->cert_no_prior_degree_submission ? 'Certified' : 'Not Certified'" 
                                         :new-value="$pts2->main_supervisor_cert_no_prior_degree_submission ? 'Certified' : 'Not Certified'" />
                                 @endif
                             </span>
-                            <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $pts2->getEffectiveCertNoPriorDegreeSubmission() ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                {{ $pts2->getEffectiveCertNoPriorDegreeSubmission() ? '✓ Certified' : 'Not Certified' }}
+                            <span class="px-3 py-1 text-xs font-bold rounded-full whitespace-nowrap shrink-0 {{ $isCertNoPriorDegree ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                                {{ $isCertNoPriorDegree ? '✓ Certified' : 'Not Certified' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Item 3: Collaborative Work -->
                     @php
-                        $hasCollab = $pts2->getEffectiveCollaborativeWorkStatus();
-                        $collabDetails = $pts2->getEffectiveCollaborativeWorkDetails();
+                        $hasCollab = ($viewPerspective === 'student')
+                            ? (bool)$pts2->collaborative_work_status
+                            : (bool)$pts2->getEffectiveCollaborativeWorkStatus();
+                        
+                        $collabDetails = ($viewPerspective === 'student')
+                            ? $pts2->collaborative_work_details
+                            : $pts2->getEffectiveCollaborativeWorkDetails();
                     @endphp
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3">
                         <div class="flex items-center justify-between gap-2 sm:gap-4">
                             <span class="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
                                 <span>3. Does any section of the Thesis relate to collaborative work?</span>
-                                @if($pts2->main_supervisor_collaborative_work_status !== null && (bool)$pts2->main_supervisor_collaborative_work_status !== (bool)$pts2->collaborative_work_status)
+                                @if($viewPerspective !== 'student' && $pts2->main_supervisor_collaborative_work_status !== null && (bool)$pts2->main_supervisor_collaborative_work_status !== (bool)$pts2->collaborative_work_status)
                                     <x-modified-badge 
                                         :old-value="$pts2->collaborative_work_status ? 'Yes' : 'No'" 
                                         :new-value="$pts2->main_supervisor_collaborative_work_status ? 'Yes' : 'No'" />
@@ -243,7 +261,7 @@
                             <div class="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-1">
                                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase flex items-center gap-2">
                                     <span>Collaborative Sections &amp; Details:</span>
-                                    @if($pts2->main_supervisor_collaborative_work_details !== null && $pts2->main_supervisor_collaborative_work_details !== $pts2->collaborative_work_details)
+                                    @if($viewPerspective !== 'student' && $pts2->main_supervisor_collaborative_work_details !== null && $pts2->main_supervisor_collaborative_work_details !== $pts2->collaborative_work_details)
                                         <x-modified-badge 
                                             :old-value="$pts2->collaborative_work_details" 
                                             :new-value="$pts2->main_supervisor_collaborative_work_details" />
@@ -265,12 +283,17 @@
                 <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 space-y-2">
                     <div class="text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
                         <span>PhD Synopsis Report Document</span>
-                        @if($pts2->main_supervisor_synopsis_report_doc_path && $pts2->main_supervisor_synopsis_report_doc_path !== $pts2->synopsis_report_doc_path)
+                        @if($viewPerspective !== 'student' && $pts2->main_supervisor_synopsis_report_doc_path && $pts2->main_supervisor_synopsis_report_doc_path !== $pts2->synopsis_report_doc_path)
                             <x-modified-badge />
                         @endif
                     </div>
-                    @if($pts2->getEffectiveSynopsisPath())
-                        <a href="{{ route('pts.document.serve', ['pts2', $pts2->id, $pts2->getEffectiveSynopsisField()]) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
+                    @php
+                        $synopsisDocField = ($viewPerspective === 'student')
+                            ? ($pts2->synopsis_report_doc_path ? 'synopsis_report_doc_path' : null)
+                            : $pts2->getEffectiveSynopsisField();
+                    @endphp
+                    @if($synopsisDocField)
+                        <a href="{{ route('pts.document.serve', ['pts2', $pts2->id, $synopsisDocField]) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow transition inline-flex items-center">
                             📄 View Synopsis Report Document
                         </a>
                     @else
@@ -279,31 +302,16 @@
                 </div>
             </div>
 
-            <!-- Section 6: Authority Recommendations & Remarks -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                    6. Authority Recommendations & Remarks
-                </h3>
+            <!-- Section 6: Role-Scoped Review & Comments -->
+            @if($viewPerspective !== 'student')
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                        6. Evaluation &amp; Comments
+                    </h3>
 
-                @php
-                    $hasCoSigs = false;
-                    for ($i = 1; $i <= 10; $i++) {
-                        $recCol = "co_supervisor_{$i}_recommendation";
-                        if (!is_null($pts2->$recCol)) {
-                            $hasCoSigs = true;
-                            break;
-                        }
-                    }
-                    $hasAnyComment = !is_null($pts2->main_supervisor_recommendation)
-                        || $hasCoSigs
-                        || !is_null($pts2->academic_office_is_verified)
-                        || !is_null($pts2->doaa_approval);
-                @endphp
-
-                @if($hasAnyComment)
                     <div class="space-y-4">
-                        <!-- Main Supervisor Evaluation -->
-                        @if(!is_null($pts2->main_supervisor_recommendation))
+                        <!-- 1. Main Supervisor Evaluation -->
+                        @if($pts2->main_supervisor_submitted_at || !is_null($pts2->main_supervisor_recommendation))
                             <div class="p-4 bg-indigo-50/70 dark:bg-indigo-950/40 border-l-4 border-indigo-500 rounded-xl space-y-2">
                                 <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
                                     <span class="font-bold text-indigo-900 dark:text-indigo-200">
@@ -321,117 +329,148 @@
                                         <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->main_supervisor_student_comment) }}</p>
                                     @else
                                         <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            </svg>
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
                                             <span class="italic font-normal">Comment not provided</span>
                                         </div>
                                     @endif
                                 </div>
 
-                                <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
-                                    <strong>Main Supervisor Remark:</strong>
-                                    @if($pts2->main_supervisor_confidential_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->main_supervisor_confidential_remark) }}</p>
-                                    @else
-                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            </svg>
-                                            <span class="italic font-normal">Remark not provided</span>
-                                        </div>
-                                    @endif
-                                </div>
+                                @if($viewPerspective === 'main_supervisor' || in_array($viewPerspective, ['dpgc', 'hod', 'academic_office', 'doaa']))
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
+                                        <strong>Main Supervisor Remark:</strong>
+                                        @if($pts2->main_supervisor_confidential_remark)
+                                            <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->main_supervisor_confidential_remark) }}</p>
+                                        @else
+                                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
+                                                <span class="italic font-normal">Remark not provided</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         @endif
 
-                        <!-- Co-Supervisors Endorsements -->
-                        @if($hasCoSigs)
-                            <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-3">
-                                <h5 class="text-s font-bold text-blue-900 dark:text-blue-200">Co-Supervisor</h5>
-                                @for($i = 1; $i <= 10; $i++)
-                                    @php
-                                        $idCol = "co_supervisor_{$i}_id";
-                                        $recCol = "co_supervisor_{$i}_recommendation";
-                                        $studComCol = "co_supervisor_{$i}_student_comment";
-                                        $remCol = "co_supervisor_{$i}_confidential_remark";
-                                        $coUser = $coSupervisors[$i] ?? ($pts2->$idCol ? \App\Models\User::find($pts2->$idCol) : null);
-                                    @endphp
-                                    @if($coUser && !is_null($pts2->$recCol))
+                        <!-- 2. Co-Supervisors Endorsements -->
+                        <!-- If viewPerspective == 'co_supervisor', show ONLY $myCoSupSlot -->
+                        <!-- If viewPerspective in ['dpgc', 'hod', 'academic_office', 'doaa'], show ALL submitted co-supervisors -->
+                        @if($viewPerspective === 'co_supervisor' && $myCoSupSlot)
+                            @php
+                                $recCol = "co_supervisor_{$myCoSupSlot}_recommendation";
+                                $commCol = "co_supervisor_{$myCoSupSlot}_student_comment";
+                                $remCol = "co_supervisor_{$myCoSupSlot}_confidential_remark";
+                                $coUser = auth()->user();
+                                $isExt = $coUser ? $coUser->isExternalSupervisor() : false;
+                                $roleTitle = ($student && $coUser) ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$myCoSupSlot}");
+                                $inst = ($isExt && $coUser?->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                            @endphp
+                            @if(!is_null($pts2->$recCol))
+                                <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-3">
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <h5 class="text-s font-bold text-blue-900 dark:text-blue-200">
+                                            {{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser?->name }}{{ $inst }})</span>
+                                        </h5>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
+                                            {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300">
+                                        <strong>Student Comment:</strong>
+                                        @if($pts2->$commCol)
+                                            <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->$commCol) }}</p>
+                                        @else
+                                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
+                                                <span class="italic font-normal">Comment not provided</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300">
+                                        <strong>Co-Supervisor Remark:</strong>
+                                        @if($pts2->$remCol)
+                                            <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->$remCol) }}</p>
+                                        @else
+                                            <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
+                                                <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
+                                                <span class="italic font-normal">Remark not provided</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                        @elseif(in_array($viewPerspective, ['dpgc', 'hod', 'academic_office', 'doaa']))
+                            @php
+                                $hasAnyCoSubmitted = false;
+                                for ($i = 1; $i <= 10; $i++) {
+                                    $recCol = "co_supervisor_{$i}_recommendation";
+                                    if (!is_null($pts2->$recCol)) { $hasAnyCoSubmitted = true; break; }
+                                }
+                            @endphp
+                            @if($hasAnyCoSubmitted)
+                                <div class="p-4 bg-blue-50/70 dark:bg-blue-950/40 border-l-4 border-blue-500 rounded-xl space-y-3">
+                                    <h5 class="text-s font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                    @for($i = 1; $i <= 10; $i++)
                                         @php
-                                            $isExt = $coUser->isExternalSupervisor();
-                                            $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
-                                            $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                            $idCol = "co_supervisor_{$i}_id";
+                                            $recCol = "co_supervisor_{$i}_recommendation";
+                                            $commCol = "co_supervisor_{$i}_student_comment";
+                                            $remCol = "co_supervisor_{$i}_confidential_remark";
+                                            $coUser = $pts2->$idCol ? \App\Models\User::find($pts2->$idCol) : null;
                                         @endphp
-                                        <div class="text-xs space-y-2 pt-2 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                            <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
-                                                <span class="font-semibold text-gray-800 dark:text-gray-200">
-                                                    {{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:
-                                                </span>
-                                                <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts2->$recCol ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                                    {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                                </span>
-                                            </div>
-
-                                            <div class="text-xs text-gray-700 dark:text-gray-300">
-                                                <strong>Student Comment:</strong>
-                                                @if($pts2->$studComCol)
-                                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->$studComCol) }}</p>
-                                                @else
-                                                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                                        </svg>
-                                                        <span class="italic font-normal">Comment not provided</span>
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                            <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
-                                                <strong>Co-Supervisor Remark:</strong>
+                                        @if($coUser && !is_null($pts2->$recCol))
+                                            @php
+                                                $isExt = $coUser->isExternalSupervisor();
+                                                $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                                $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                            @endphp
+                                            <div class="text-xs space-y-1 pt-1 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                                <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                                    <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                                    <span class="font-bold whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600' : 'text-red-600' }}">
+                                                        {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                    </span>
+                                                </div>
                                                 @if($pts2->$remCol)
-                                                    <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->$remCol) }}</p>
+                                                    <p class="italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->$remCol) }}</p>
                                                 @else
                                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                                        </svg>
+                                                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
                                                         <span class="italic font-normal">Remark not provided</span>
                                                     </div>
                                                 @endif
                                             </div>
-                                        </div>
-                                    @endif
-                                @endfor
-                            </div>
+                                        @endif
+                                    @endfor
+                                </div>
+                            @endif
                         @endif
 
-                        <!-- Academic Office Endorsement -->
-                        @if(!is_null($pts2->academic_office_is_verified))
-                            <div class="p-4 bg-purple-50/70 dark:bg-purple-950/40 border-l-4 border-purple-500 rounded-xl space-y-2">
-                                <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200 gap-2 sm:gap-4">
+                        <!-- 3. Academic Office Endorsement -->
+                        @if(in_array($viewPerspective, ['academic_office', 'doaa']) && ($pts2->academic_office_submitted_at || $pts2->academic_office_is_verified !== null))
+                            @php
+                                $academicOfficeCredits = $pts2->academic_office_course_credits;
+                                $academicOfficeRemark = $pts2->academic_office_verification_remark;
+                            @endphp
+                            <div class="p-4 bg-rose-50/70 dark:bg-rose-950/40 border-l-4 border-rose-500 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between font-bold text-rose-900 dark:text-rose-200 gap-2 sm:gap-4">
                                     <h5 class="text-s">Academic Office</h5>
-                                    <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts2->academic_office_is_verified ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                        {{ $pts2->academic_office_is_verified ? '✓ Verified & Forwarded' : '❌ Verification Failed' }}
+                                    <span class="font-bold text-xs text-emerald-600 whitespace-nowrap shrink-0">
+                                        ✓ Verified &amp; Forwarded
                                     </span>
                                 </div>
-                                
-                                @if($pts2->academic_office_course_credits)
+                                @if($academicOfficeCredits !== null)
                                     <div class="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
-                                        <strong>Verified Course Credits:</strong> <span class="font-bold">{{ $pts2->academic_office_course_credits }}</span>
+                                        <strong>Verified Course Credits:</strong> <span class="font-bold text-rose-700 dark:text-rose-300">{{ $academicOfficeCredits }}</span>
                                         <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
                                     </div>
                                 @endif
-
                                 <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>Verification Remark:</strong>
-                                    @if($pts2->academic_office_verification_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-purple-100 dark:border-purple-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->academic_office_verification_remark) }}</p>
+                                    @if($academicOfficeRemark)
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($academicOfficeRemark) }}</p>
                                     @else
-                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            </svg>
+                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
                                             <span class="italic font-normal">Remark not provided</span>
                                         </div>
                                     @endif
@@ -439,77 +478,48 @@
                             </div>
                         @endif
 
-                        <!-- DOAA Approval -->
-                        @if(!is_null($pts2->doaa_approval))
+                        <!-- 4. DOAA Approval -->
+                        @if($viewPerspective === 'doaa' && ($pts2->doaa_submitted_at || !is_null($pts2->doaa_approval)))
                             <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-xl space-y-2">
-                                <div class="flex items-center justify-between text-s font-bold text-emerald-900 dark:text-emerald-200 gap-2 sm:gap-4">
-                                    <span>Dean of Academic Affairs (DOAA)</span>
-                                    <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts2->doaa_approval ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                        {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
-                                        @if($pts2->approved_by_authority)
-                                            by: {{ $pts2->approved_by_authority }}
-                                        @endif
-                                    </span>
+                                <div class="flex items-center justify-between font-bold text-emerald-900 dark:text-emerald-200 gap-2 sm:gap-4">
+                                    <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
+                                    @if(!is_null($pts2->doaa_approval))
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600' : 'text-red-600' }}">
+                                            {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
+                                            @if($pts2->approved_by_authority)
+                                                by: {{ $pts2->approved_by_authority }}
+                                            @endif
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Student Comment:</strong>
                                     @if($pts2->doaa_student_comment)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->doaa_student_comment) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->doaa_student_comment) }}</p>
                                     @else
-                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            </svg>
+                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
                                             <span class="italic font-normal">Comment not provided</span>
                                         </div>
                                     @endif
                                 </div>
-                                <div class="text-xs text-gray-700 dark:text-gray-300 pt-1">
+                                <div class="text-xs text-gray-700 dark:text-gray-300 pt-0.5">
                                     <strong>DOAA Remark:</strong>
                                     @if($pts2->doaa_confidential_remark)
-                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->doaa_confidential_remark) }}</p>
+                                        <p class="italic bg-white dark:bg-gray-800 p-2.5 rounded-lg border border-emerald-100 dark:border-emerald-900 mt-0.5 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->doaa_confidential_remark) }}</p>
                                     @else
-                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-1">
-                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                            </svg>
+                                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
+                                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
                                             <span class="italic font-normal">Remark not provided</span>
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         @endif
-                    </div>
-                @else
-                    <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/60">
-                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                        </svg>
-                        <span class="italic font-normal">No comments</span>
-                    </div>
-                @endif
-            </div>
 
-            <!-- Section 7: Reversion Log -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                    7. Reversion
-                </h3>
-                <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl">
-                    <div class="font-bold text-amber-900 dark:text-amber-200 text-sm">
-                        ⚠️ Reverted by {{ $pts2->getRevertedByRoleLabel() }}
                     </div>
-                    @if($pts2->reversion_comment)
-                        <div class="mt-2 text-xs text-gray-700 dark:text-gray-300">
-                            <strong>Reversion Comment:</strong>
-                            <p class="italic bg-white dark:bg-gray-800 p-3 rounded border border-amber-200 dark:border-amber-900 mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($pts2->reversion_comment) }}</p>
-                        </div>
-                    @else
-                        <p class="text-xs italic text-gray-500 mt-1">No written reversion comment provided.</p>
-                    @endif
                 </div>
-            </div>
+            @endif
 
         </div>
     </div>

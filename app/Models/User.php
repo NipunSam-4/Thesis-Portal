@@ -61,11 +61,6 @@ class User extends Authenticatable
         return $this->role === 'dpgc';
     }
 
-    public function isSectionOfficer(): bool
-    {
-        return $this->role === 'section_officer';
-    }
-
     public function isAdoaa(): bool
     {
         return $this->role === 'adoaa';
@@ -88,7 +83,7 @@ class User extends Authenticatable
 
     public function isGlobalAuthority(): bool
     {
-        return in_array($this->role, ['section_officer', 'adoaa', 'doaa', 'senate_chairperson', 'ar', 'dr', 'academic_office']);
+        return in_array($this->role, ['academic_office', 'adoaa', 'doaa', 'senate_chairperson', 'ar', 'dr']);
     }
 
     public function isSenateChairperson(): bool
@@ -148,5 +143,16 @@ class User extends Authenticatable
     public function vestedDoaa(): HasOne
     {
         return $this->hasOne(VestedDoaa::class);
+    }
+
+    public function externalSupervisorProfile(): HasOne
+    {
+        return $this->hasOne(ExternalSupervisorProfile::class);
+    }
+
+    public function externalSupervisedStudents(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'student_external_supervisors', 'faculty_user_id', 'student_id')
+                    ->withTimestamps();
     }
 }

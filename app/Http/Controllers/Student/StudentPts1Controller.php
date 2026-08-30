@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Pts1Form;
 use App\Models\Thesis;
+use App\Services\PtsDocumentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -12,6 +13,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentPts1Controller extends Controller
 {
+    protected PtsDocumentService $ptsDocService;
+
+    public function __construct(PtsDocumentService $ptsDocService)
+    {
+        $this->ptsDocService = $ptsDocService;
+    }
     // Display the PTS-1 creation form.
     public function create()
     {
@@ -31,12 +38,15 @@ class StudentPts1Controller extends Controller
         $pts1Form = $thesis->pts1Form;
         if ($pts1Form) {
             if ($pts1Form->status === 'in_progress') {
-                return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form is currently in progress.');
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form is currently under review.');
             }
             if ($pts1Form->status === 'approved') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form has already been approved.');
             }
-            if ($pts1Form->status !== 'reverted') {
+            if ($pts1Form->status === 'reverted') {
+                return redirect()->route('student.pts1.edit')->with('warning', 'You have a reverted PTS-1 form. Please edit and resubmit your reverted form.');
+            }
+            if ($pts1Form->status === 'rejected') {
                 $pts1Form = null;
             }
         }
@@ -148,12 +158,12 @@ class StudentPts1Controller extends Controller
         ]);
 
         $pubNormFulfilled = $request->boolean('publication_norm_fulfillment');
-        $pubSpecialApproval = $pubNormFulfilled ? false : $request->boolean('special_approval_publication');
+        $pubSpecialApproval = $pubNormFulfilled ? null : ($request->has('special_approval_publication') ? $request->boolean('special_approval_publication') : null);
 
         $minTimeFulfilled = $request->boolean('min_time_req_fulfilled');
-        $minTimeSpecialApproval = $minTimeFulfilled ? false : $request->boolean('special_approval_min_time');
+        $minTimeSpecialApproval = $minTimeFulfilled ? null : ($request->has('special_approval_min_time') ? $request->boolean('special_approval_min_time') : null);
 
-        // Guard validation: If norm/min-time is false and special approval is false, reject
+        // Guard validation: If norm/min-time is false and special approval is not true, reject
         if (!$pubNormFulfilled && !$pubSpecialApproval) {
             return back()->withInput()->withErrors(['special_approval_publication' => 'Special approval is required when publication norm criteria is not fulfilled.']);
         }
@@ -168,11 +178,11 @@ class StudentPts1Controller extends Controller
         // Update thesis title in database
         $thesis->update(['title' => $validated['thesis_title']]);
 
-        // Handle private local file uploads (storage/app/private/pts1_documents/)
+        // Handle private local file uploads
         $pubAppDocPath = null;
         if (!$pubNormFulfilled && $pubSpecialApproval) {
             if ($request->hasFile('publication_approval_doc')) {
-                $pubAppDocPath = $request->file('publication_approval_doc')->store('private/pts1_documents', 'local');
+                $pubAppDocPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_approval_doc'), $student->roll_number, $thesis->id, 'pts1', 'Publication_Approval', 'Student');
             } elseif ($hasExisting) {
                 $pubAppDocPath = $pts1Form->publication_approval_doc_path;
             }
@@ -181,26 +191,26 @@ class StudentPts1Controller extends Controller
         $minTimeAppDocPath = null;
         if (!$minTimeFulfilled && $minTimeSpecialApproval) {
             if ($request->hasFile('min_time_approval_doc')) {
-                $minTimeAppDocPath = $request->file('min_time_approval_doc')->store('private/pts1_documents', 'local');
+                $minTimeAppDocPath = $this->ptsDocService->storeInProgressDocument($request->file('min_time_approval_doc'), $student->roll_number, $thesis->id, 'pts1', 'Min_Time_Approval', 'Student');
             } elseif ($hasExisting) {
                 $minTimeAppDocPath = $pts1Form->min_time_approval_doc_path;
             }
         }
 
         if ($request->hasFile('draft_synopsis_report')) {
-            $synopsisPath = $request->file('draft_synopsis_report')->store('private/pts1_documents', 'local');
+            $synopsisPath = $this->ptsDocService->storeInProgressDocument($request->file('draft_synopsis_report'), $student->roll_number, $thesis->id, 'pts1', 'Draft_Synopsis', 'Student');
         } else {
             $synopsisPath = $hasExisting ? $pts1Form->draft_synopsis_report_doc_path : null;
         }
 
         if ($request->hasFile('publication_list')) {
-            $pubListPath = $request->file('publication_list')->store('private/pts1_documents', 'local');
+            $pubListPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_list'), $student->roll_number, $thesis->id, 'pts1', 'Publication_List', 'Student');
         } else {
             $pubListPath = $hasExisting ? $pts1Form->publication_list_doc_path : null;
         }
 
-        // Committee Co-Supervisors & PSPC IDs
-        $coSupervisors = $student->coSupervisors()->pluck('users.id')->all();
+        // Committee Co-Supervisors & PSPC IDs (Includes External Supervisors)
+        $coSupervisors = $student->allCoSupervisors()->pluck('id')->all();
         $pspcMembers = $student->pspcMembers()->pluck('users.id')->all();
 
         $formData = [

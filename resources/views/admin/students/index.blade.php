@@ -155,11 +155,17 @@
                                     <input type="text" name="admission_category" placeholder="e.g. TA, FA, Sponsored" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Required</label>
+                                    <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <span>Course Credits Required</span>
+                                        <x-info-button text="Minimum course credits required for the degree program." />
+                                    </label>
                                     <input type="number" step="0.5" name="course_credits_required" placeholder="e.g. 36" min="0" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course Credits Earned</label>
+                                    <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <span>Course Credits Earned</span>
+                                        <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                    </label>
                                     <input type="number" step="0.5" name="course_credits_earned" placeholder="e.g. 36.5" min="0" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full border-gray-300 rounded-lg shadow-sm">
                                 </div>
                             </div>

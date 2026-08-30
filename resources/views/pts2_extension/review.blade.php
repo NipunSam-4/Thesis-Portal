@@ -118,7 +118,7 @@
                     ($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null) ||
                     ($viewerRank > 2 && $extension->dpgc_recommendation !== null) ||
                     ($viewerRank > 3 && $extension->hod_recommendation !== null) ||
-                    ($viewerRank > 4 && $extension->section_officer_recommendation !== null);
+                    ($viewerRank > 4 && $extension->academic_office_recommendation !== null);
             @endphp
 
             @if($viewerRank >= 2)
@@ -189,17 +189,17 @@
                             </div>
                         @endif
 
-                        <!-- Section Officer Evaluation (Rank 4) -->
-                        @if($viewerRank > 4 && $extension->section_officer_recommendation !== null)
+                        <!-- Academic Office Evaluation (Rank 4) -->
+                        @if($viewerRank > 4 && $extension->academic_office_recommendation !== null)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-2">
                                 <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Section Officer Verification</span>
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white">Academic Office Verification</span>
                                     <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
                                 </div>
-                                @if($extension->section_officer_confidential_remark)
-                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->section_officer_confidential_remark) }}</p>
+                                @if($extension->academic_office_confidential_remark)
+                                    <p class="text-xs italic text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{{ trim($extension->academic_office_confidential_remark) }}</p>
                                 @else
                                     <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-900/40 p-2.5 rounded-lg border border-dashed border-gray-200 dark:border-gray-700/60 mt-0.5">
                                         <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path></svg>
@@ -220,7 +220,7 @@
 
             <!-- Section 4: Action Required (Evaluation & Decision - Exact PTS-1 Format) -->
             @if($extension->current_stage === $userRole)
-                <form action="{{ route('pts2_extension.submit_review', $extension->id) }}" method="POST" class="space-y-8" @submit="clearDraft()">
+                <form action="{{ route('pts2_extension.endorse', $extension->id) }}" method="POST" class="space-y-8" @submit="clearDraft()">
                     @csrf
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
@@ -229,13 +229,11 @@
                             @else 3.                            
                             @endif 
                             Endorsement Evaluation & Recommendation 
-                        </h3>
-
-                        @if($userRole === 'section_officer')
-                            <!-- Section Officer Verification Checkbox & Declaration (Exact PTS-1 Layout) -->
+                                      @if($userRole === 'academic_office')
+                            <!-- Academic Office Verification Checkbox & Declaration (Exact PTS-1 Layout) -->
                             <div class="space-y-4">
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
-                                    Section Officer Verification: <span class="text-red-500">*</span>
+                                    Academic Office Verification: <span class="text-red-500">*</span>
                                 </label>
 
                                 <label class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-start space-x-3 cursor-pointer">
@@ -251,13 +249,13 @@
                                 </label>
                             </div>
 
-                            <!-- Section Officer Verification Remark -->
+                            <!-- Academic Office Verification Remark -->
                             <div class="space-y-2 pt-2">
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Verification Remark <span class="text-red-500">*</span>
                                 </label>
                                 <div class="pt-0.5">
-                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="section_officer" comment-type="verification_remark" />
+                                    <x-snippet-dropdown target="confidentialRemark" form-type="pts2_extension" role="academic_office" comment-type="verification_remark" />
                                 </div>
                                 <textarea name="confidential_remark" 
                                           rows="5" 
@@ -267,7 +265,7 @@
                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 whitespace-pre-wrap">{{ trim(old('confidential_remark')) }}</textarea>
                             </div>
 
-                            <!-- Section Officer: Optional Acting DOAA Dropdown -->
+                            <!-- Academic Office: Optional Acting DOAA Dropdown -->
                             <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                                 <label class="block font-bold text-gray-900 dark:text-white text-sm">
                                     Assign Acting DOAA (Optional)
@@ -275,7 +273,7 @@
                                 <select name="acting_doaa_email" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
                                     <option value="">None (Forward to Default DOAA only)</option>
                                     @foreach($actingDoaaUsers as $actingUser)
-                                        <option value="{{ $actingUser->email }}" {{ (old('acting_doaa_email', $extension?->acting_doaa_email) === $actingUser->email) ? 'selected' : '' }}">
+                                        <option value="{{ $actingUser->email }}" {{ (old('acting_doaa_email', $extension?->acting_doaa_email) === $actingUser->email) ? 'selected' : '' }}>
                                             {{ $actingUser->name }} ({{ $actingUser->email }})
                                         </option>
                                     @endforeach
@@ -375,7 +373,7 @@
 
                     <!-- Submit & Revert Action Buttons Bar (Exact PTS-1 Layout) -->
                     <div class="flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-3 pt-4">
-                        @if($userRole !== 'section_officer')
+                        @if($userRole !== 'academic_office')
                             <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
                             <button type="button" 
                                     @click="showRevertModal = true" 
@@ -388,7 +386,7 @@
                         @endif
 
                         <!-- Main Submit Button (Forwards or Approves depending on stage) -->
-                        @if($userRole === 'section_officer')
+                        @if($userRole === 'academic_office')
                             <button type="submit" 
                                     :disabled="!isVerified" 
                                     :class="!isVerified ? 'bg-gray-400 opacity-50 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg'"
@@ -407,7 +405,7 @@
                                 Submit @if($userRole !== 'doaa') &amp; Forward @endif
                             </button>
                         @endif
-                    </div>
+                    </div>             </div>
                 </form>
 
                 <!-- Revert Confirmation Pop-Up Modal (Exact PTS-1 Pop-Up Design) -->
@@ -440,7 +438,7 @@
                         </div>
 
                         <!-- Independent Revert Form -->
-                        <form action="{{ route('pts2_extension.submit_review', $extension->id) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('pts2_extension.endorse', $extension->id) }}" method="POST" class="space-y-4" @submit="clearDraft()">
                             @csrf
                             <input type="hidden" name="action" value="revert">
 
@@ -479,7 +477,11 @@
 
     <script>
         function pts2ExtensionReviewForm() {
-            const draftKey = 'pts2_extension_review_draft_thesis_' + @js($extension->thesis_id);
+            const userId = @js(auth()->id());
+            const thesisId = @js($extension->thesis_id);
+            const formId = @js($extension->id);
+            const draftKey = 'pts2_extension_review_draft_user_' + userId + '_thesis_' + thesisId + '_form_' + formId;
+
             let savedDraft = {};
             try {
                 savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');

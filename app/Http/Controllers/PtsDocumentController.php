@@ -43,7 +43,7 @@ class PtsDocumentController extends Controller
         } elseif ($formType === 'pts2') {
             $form = Pts2Form::with('thesis.student')->findOrFail($id);
             $thesis = $form->thesis;
-            $allowedFields = ['synopsis_report_doc_path'];
+            $allowedFields = ['synopsis_report_doc_path', 'main_supervisor_synopsis_report_doc_path'];
 
             if (!in_array($field, $allowedFields, true)) {
                 abort(400, 'Invalid document type');
@@ -68,15 +68,15 @@ class PtsDocumentController extends Controller
 
         // 2. Check if user is an assigned supervisor or PSPC member
         if (!$isAuthorized && $thesis && $thesis->student) {
-            if ($thesis->student->supervisors()->where('faculty_user_id', $user->id)->exists() || 
-                $thesis->student->pspcMembers()->where('faculty_user_id', $user->id)->exists()) {
+            if ($thesis->student->isSupervisor($user) || 
+                $thesis->student->isPspcMember($user)) {
                 $isAuthorized = true;
             }
         }
 
         // 3. Check if user is HOD/DPGC (same department), Global Authority, or Acting/Vested DOAA
         if (!$isAuthorized) {
-            if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar', 'section_officer'], true)) {
+            if (in_array($user->role, ['doaa', 'adoaa', 'senate_chairperson', 'ar', 'academic_office'], true)) {
                 $isAuthorized = true;
             } elseif ($user->isActingApprovalAuthority() && ($form->acting_doaa_email === $user->email || $form->vested_doaa_email === $user->email)) {
                 $isAuthorized = true;

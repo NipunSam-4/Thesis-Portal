@@ -5,9 +5,8 @@
                 {{ __('Thesis Management Portal') }}
             </h2>
             <div class="flex justify-between items-center">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                    @if($user->isDpgc()) DPGC Member @endif
-                    @if($user->isHod()) HOD @endif
+                <span class="bg-purple-100 text-purple-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                    External Supervisor
                 </span>
                 <x-profile_dropdown/>
             </div>
@@ -18,10 +17,20 @@
         programTab: 'phd',
         expandedStudent: null,
         searchQuery: '',
+        selectedDept: 'all',
+        selectedDeptName: 'All Departments ({{ $departments->count() }})',
+        deptDropdownOpen: false,
+        selectDepartment(id, name) {
+            this.selectedDept = id;
+            this.selectedDeptName = name;
+            this.deptDropdownOpen = false;
+        },
         toggleStudent(id) {
             this.expandedStudent = (this.expandedStudent === id) ? null : id;
         },
-        matchesSearch(targetText) {
+        matchesFilter(targetText, deptId) {
+            const matchesDept = (this.selectedDept === 'all') || (String(this.selectedDept) === String(deptId));
+            if (!matchesDept) return false;
             if (!this.searchQuery || !this.searchQuery.trim()) return true;
             if (!targetText) return false;
             return targetText.toLowerCase().includes(this.searchQuery.toLowerCase().trim());
@@ -42,23 +51,15 @@
                 </div>
             @endif
 
-            <!-- Banner Header -->
-            <div class="{{ $user->isDpgc() ? 'bg-purple-600 dark:bg-purple-900' : 'bg-indigo-700 dark:bg-indigo-900' }} rounded-xl shadow-sm p-6 text-white flex justify-between items-center">
+            <!-- Dynamic Header Card -->
+            <div class="bg-gradient-to-r from-purple-700 via-indigo-700 to-indigo-900 rounded-xl shadow-sm p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold mb-1">Welcome, {{ $user->name }}</h2>
-                    <p class="{{ $user->isDpgc() ? 'text-purple-100' : 'text-indigo-100' }} text-sm">
-                        @if($user->isDpgc())
-                            Department Postgraduate Committee (DPGC)- <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
-                        @elseif($user->isHod())
-                            Head of Department (HOD) - <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
-                        @else
-                            Departmental Authority - <strong>{{ $user->deptAuthorityProfile->department->name ?? $user->facultyProfile->department->name ?? 'N/A' }}</strong>
+                    <p class="text-indigo-100 text-sm">
+                        @if($user->externalSupervisorProfile?->affiliated_institute)
+                            <span class="font-semibold">{{ $user->externalSupervisorProfile->affiliated_institute }}</span>
                         @endif
                     </p>
-                </div>
-                <div class="text-right text-xs bg-white/10 px-4 py-2 rounded-lg hidden sm:block">
-                    <div class="font-bold text-base">{{ $phdStudents->count() + $msrStudents->count() }}</div>
-                    <div>Department Students</div>
                 </div>
             </div>
 
@@ -68,17 +69,17 @@
                 <button type="button" 
                         @click="programTab = 'phd'; searchQuery = ''" 
                         :class="programTab === 'phd' 
-                            ? '{{ $user->isDpgc() ? 'bg-purple-600' : 'bg-indigo-600' }} text-white shadow-md rounded-xl font-bold' 
+                            ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
-                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
-                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
+                    <div class="flex items-center space-x-2.5">
+                        <svg class="w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
                         </svg>
-                        <span class="text-xs sm:text-sm tracking-wide">PhD Students</span>
+                        <span class="text-sm tracking-wide">PhD Students</span>
                     </div>
-                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                         {{ $phdStudents->count() }}
                     </span>
                 </button>
@@ -87,53 +88,132 @@
                 <button type="button" 
                         @click="programTab = 'msr'; searchQuery = ''" 
                         :class="programTab === 'msr' 
-                            ? '{{ $user->isDpgc() ? 'bg-purple-600' : 'bg-indigo-600' }} text-white shadow-md rounded-xl font-bold' 
+                            ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
-                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
-                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
+                    <div class="flex items-center space-x-2.5">
+                        <svg class="w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.6 15.12a2 2 0 00-1.183.184l-1.02.51a2 2 0 00-1.107 1.789v.894a2 2 0 002 2h15.428a2 2 0 002-2v-.894a2 2 0 00-1.107-1.789l-1.02-.51z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12a4 4 0 108 0 4 4 0 00-8 0z"></path>
                         </svg>
-                        <span class="text-xs sm:text-sm tracking-wide">MS(R) Students</span>
+                        <span class="text-sm tracking-wide">MS(R) Students</span>
                     </div>
-                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
                         {{ $msrStudents->count() }}
                     </span>
                 </button>
             </div>
 
-            <!-- Department Students List Card -->
+            <!-- Supervised Students List Card -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                        <span class="w-2.5 h-2.5 rounded-full {{ $user->isDpgc() ? 'bg-purple-500' : 'bg-indigo-600' }} mr-2"></span>
-                        <span x-show="programTab === 'phd'">Department PhD Students ({{ $phdStudents->count() }})</span>
-                        <span x-show="programTab === 'msr'">Department MS(R) Students ({{ $msrStudents->count() }})</span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 mr-2"></span>
+                        <span x-show="programTab === 'phd'">Assigned PhD Students ({{ $phdStudents->count() }})</span>
+                        <span x-show="programTab === 'msr'">Assigned MS(R) Students ({{ $msrStudents->count() }})</span>
                     </h3>
                     
-                    <!-- Search Input Bar -->
-                    <div class="w-full md:w-80 lg:w-96 relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <!-- Custom Department Filter Dropdown -->
+                        <div class="relative min-w-[220px] sm:min-w-[260px]" @click.outside="deptDropdownOpen = false" @keydown.escape.window="deptDropdownOpen = false">
+                            <button type="button" 
+                                    @click="deptDropdownOpen = !deptDropdownOpen" 
+                                    class="w-full flex items-center justify-between gap-2 px-3.5 py-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold shadow-sm transition-all duration-150"
+                                    :class="{ 'ring-2 ring-indigo-500 border-transparent': deptDropdownOpen, 'bg-indigo-50/50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300': selectedDept !== 'all' }">
+                                <div class="flex items-center gap-2 truncate">
+                                    <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span class="truncate" x-text="selectedDeptName"></span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180 text-indigo-500': deptDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Floating Dropdown Menu -->
+                            <div x-show="deptDropdownOpen" 
+                                 x-transition:enter="transition ease-out duration-100" 
+                                 x-transition:enter-start="transform opacity-0 scale-95 -translate-y-1" 
+                                 x-transition:enter-end="transform opacity-100 scale-100 translate-y-0" 
+                                 x-transition:leave="transition ease-in duration-75" 
+                                 x-transition:leave-start="transform opacity-100 scale-100 translate-y-0" 
+                                 x-transition:leave-end="transform opacity-0 scale-95 -translate-y-1" 
+                                 class="absolute left-0 right-0 mt-1.5 max-h-64 overflow-y-auto z-50 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 py-1 divide-y divide-gray-100 dark:divide-gray-700/60"
+                                 style="display: none;">
+                                
+                                <!-- All Departments Option -->
+                                <button type="button" 
+                                        @click="selectDepartment('all', 'All Departments ({{ $departments->count() }})')" 
+                                        class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 text-xs font-semibold text-gray-700 dark:text-gray-300 transition-colors flex items-center justify-between group"
+                                        :class="{ 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300': selectedDept === 'all' }">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full" :class="selectedDept === 'all' ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'"></span>
+                                        <span>All Departments</span>
+                                    </div>
+                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-indigo-200/60 dark:group-hover:bg-indigo-900/60">
+                                        {{ $departments->count() }}
+                                    </span>
+                                </button>
+
+                                <!-- Department Options -->
+                                <div class="py-1">
+                                    @foreach($departments as $dept)
+                                        <button type="button" 
+                                                @click="selectDepartment('{{ $dept->id }}', @js(($dept->code ? $dept->code . ' - ' : '') . $dept->name))" 
+                                                class="w-full text-left px-3.5 py-2 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 text-xs text-gray-700 dark:text-gray-300 transition-colors flex items-center justify-between group"
+                                                :class="{ 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-bold': selectedDept === '{{ $dept->id }}' }">
+                                            <div class="flex items-center gap-2 truncate pr-2">
+                                                @if($dept->code)
+                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 group-hover:border-indigo-300 shrink-0">
+                                                        {{ $dept->code }}
+                                                    </span>
+                                                @endif
+                                                <span class="truncate">{{ $dept->name }}</span>
+                                            </div>
+                                            <svg x-show="selectedDept === '{{ $dept->id }}'" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                        <input type="text" x-model="searchQuery" placeholder=" Search student by Name, Roll Number, or Email" class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 {{ $user->isDpgc() ? 'focus:ring-purple-500' : 'focus:ring-indigo-500' }} text-sm font-medium transition shadow-sm">
-                        <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
+
+                        <!-- Search Input Bar -->
+                        <div class="w-full sm:w-72 lg:w-80 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                            <input type="text" x-model="searchQuery" placeholder="Search by Name, Roll No..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition shadow-sm">
+                            <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Active Filter Pill (if a specific department is selected) -->
+                <div x-show="selectedDept !== 'all'" x-cloak class="flex items-center gap-2 pt-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Filtered by Department:</span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 text-xs font-bold rounded-full border border-indigo-200 dark:border-indigo-800 shadow-sm">
+                        <span x-text="selectedDeptName"></span>
+                        <button type="button" @click="selectDepartment('all', 'All Departments ({{ $departments->count() }})')" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-100 font-bold focus:outline-none ml-1 text-sm">
+                            &times;
+                        </button>
+                    </span>
                 </div>
 
                 <!-- SECTION 1: PhD Students List -->
                 <div x-show="programTab === 'phd'">
                     @forelse($phdStudents as $student)
-                        <div x-show="matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="matchesFilter(@js($student->searchable_text), {{ $student->department_id ?? 'null' }})" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full {{ $user->isDpgc() ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800' }} flex items-center justify-center font-bold text-base border">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-base border border-indigo-200 dark:border-indigo-800">
                                         {{ substr($student->user->name ?? 'S', 0, 1) }}
                                     </div>
                                     <div>
@@ -142,6 +222,9 @@
                                             <x-student-info-modal :student="$student" />
                                             <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                                                 {{ $student->roll_number }}
+                                            </span>
+                                            <span class="ml-2 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-2 py-0.5 rounded">
+                                                Dept: {{ $student->department->code ?? 'N/A' }}
                                             </span>
                                         </h4>
                                     </div>
@@ -178,12 +261,51 @@
                                 @forelse($student->theses as $thesis)
                                     <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
                                         <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
-                                            <div class="text-[10px] uppercase font-bold {{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }}">Thesis Title</div>
+                                            <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
                                             <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
                                         </div>
 
                                         <!-- PTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Draft Synopsis Circulation Card -->
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
+                                                        <div class="flex items-center gap-1">
+                                                            <x-submission-timeline-modal :form="$thesis->draftSynopsisCirculation" title="Draft Synopsis Timeline" />
+                                                            @if($thesis->draftSynopsisCirculation)
+                                                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                            @else
+                                                                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    @if($thesis->draftSynopsisCirculation)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                            <div>Circulated: <strong>{{ $thesis->draftSynopsisCirculation->created_at->format('d-m-Y') }}</strong></div>
+                                                            <div class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                                {{ $thesis->draftSynopsisCirculation->comments->count() }} {{ Str::plural('Comment', $thesis->draftSynopsisCirculation->comments->count()) }}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Student has not circulated a draft synopsis report yet.
+                                                        </p>
+                                                    @endif
+                                                </div>
+
+                                                @if($thesis->draftSynopsisCirculation)
+                                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" 
+                                                           class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            Review & Comment &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- PTS-1 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
@@ -193,7 +315,7 @@
                                                             <x-submission-timeline-modal :form="$thesis->pts1Form" title="PTS-1 Submission Timeline" />
                                                             @if($thesis->pts1Form->status === 'in_progress')
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                            @elseif($thesis->pts1Form->status === 'reverted')
+                                                             @elseif($thesis->pts1Form->status === 'reverted')
                                                                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
                                                             @elseif($thesis->pts1Form->status === 'approved')
                                                                 <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
@@ -209,7 +331,7 @@
                                                 @if($thesis->pts1Form)
                                                     <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
                                                         <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
-                                                        <div class="{{ $user->isDpgc() ? 'text-purple-600 dark:text-purple-400' : 'text-indigo-600 dark:text-indigo-400' }} font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
+                                                        <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
                                                     </div>
 
                                                     @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
@@ -220,19 +342,51 @@
                                                         </div>
                                                     @endif
 
-                                                    <!-- Dedicated DPGC / HOD PTS-1 Review Button -->
-                                                    @if(($user->isDpgc() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'dpgc') || ($user->isHod() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'hod'))
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 {{ $user->isDpgc() ? 'bg-purple-600 hover:bg-purple-700' : 'bg-indigo-600 hover:bg-indigo-700' }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                    <!-- Action Buttons for PTS-1 -->
+                                                    @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'co_supervisors')
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts1Form->$idCol === $user->id && !is_null($thesis->pts1Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted PTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @elseif($thesis->pts1Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts1Form->$idCol === $user->id && !is_null($thesis->pts1Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if($alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted PTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
@@ -283,17 +437,56 @@
                                                         </div>
                                                     @endif
 
-                                                    @if($thesis->pts2Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                    <!-- Action Buttons for PTS-2 -->
+                                                    @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'co_supervisors')
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts2Form->$idCol === $user->id && !is_null($thesis->pts2Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse PTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted PTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    @elseif($thesis->pts2Form->status === 'in_progress')
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts2Form->$idCol === $user->id && !is_null($thesis->pts2Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if($alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted PTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
                                                                 <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.reverted' : 'pts2.show', $thesis->pts2Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
+                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700') }} text-white font-bold text-xs rounded-lg shadow transition">
                                                                     {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Approved PTS-2 Form') }} &rarr;
                                                                 </a>
                                                             </div>
@@ -302,14 +495,9 @@
                                                 @endif
 
                                                 @if($thesis->pts2Extension)
-                                                    @php
-                                                        $extRole = $user->isDpgc() ? 'dpgc' : 'hod';
-                                                        $extViewerRank = \App\Models\Pts2Extension::getRoleRank($extRole);
-                                                        $extStageRank = \App\Models\Pts2Extension::getRoleRank($thesis->pts2Extension->current_stage);
-                                                    @endphp
                                                     <div class="mt-3 p-2.5 rounded-lg border text-xs space-y-2 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800">
                                                         <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200">
-                                                            <span>📅 PTS-2 Extension Requested</span>
+                                                            <span>📅 PTS-2 Extension</span>
                                                             <div class="flex items-center gap-1">
                                                                 <x-submission-timeline-modal :form="$thesis->pts2Extension" title="PTS-2 Extension Timeline" />
                                                                 <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 rounded font-extrabold uppercase">
@@ -318,18 +506,20 @@
                                                             </div>
                                                         </div>
                                                         <div class="text-[11px] text-purple-800 dark:text-purple-300">
-                                                            <p><strong>Extension Period:</strong> {{ $thesis->pts2Extension->extension_period_months }} Months</p>
-                                                            <p><strong>Current Stage:</strong> {{ $thesis->pts2Extension->stage_label }}</p>
+                                                            Requested Until: <strong>{{ $thesis->pts2Extension->extended_until_date?->format('d-M-Y') }}</strong>
                                                         </div>
-                                                        @if($thesis->pts2Extension->status === 'in_progress' && $extViewerRank !== null && $extStageRank !== null && $extViewerRank >= $extStageRank)
-                                                            <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded shadow transition">
-                                                                Review PTS-2 Extension &rarr;
-                                                            </a>
-                                                        @else
-                                                            <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs rounded shadow transition">
-                                                                View Extension Form &rarr;
-                                                            </a>
+
+                                                        @if($thesis->pts2Extension->status === 'in_progress')
+                                                            <div class="text-[11px] font-semibold text-purple-800 dark:text-purple-300">
+                                                                ⏳ Current Stage: {{ $thesis->pts2Extension->stage_label }}
+                                                            </div>
                                                         @endif
+
+                                                        <div class="pt-1">
+                                                            <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold text-xs rounded-lg transition">
+                                                                View Extension Details &rarr;
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             </div>
@@ -342,7 +532,7 @@
                         </div>
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                            No PhD students registered in your department.
+                            No PhD students assigned to your supervision.
                         </div>
                     @endforelse
                 </div>
@@ -350,7 +540,7 @@
                 <!-- SECTION 2: MS(R) Students List -->
                 <div x-show="programTab === 'msr'">
                     @forelse($msrStudents as $student)
-                        <div x-show="matchesSearch(@js($student->searchable_text))" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
+                        <div x-show="matchesFilter(@js($student->searchable_text), {{ $student->department_id ?? 'null' }})" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
                             <!-- Student Header Card -->
                             <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
                                 <div class="flex items-center space-x-3">
@@ -363,6 +553,9 @@
                                             <x-student-info-modal :student="$student" />
                                             <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                                                 {{ $student->roll_number }}
+                                            </span>
+                                            <span class="ml-2 text-xs font-semibold bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded">
+                                                Dept: {{ $student->department->code ?? 'N/A' }}
                                             </span>
                                         </h4>
                                     </div>
@@ -405,13 +598,52 @@
 
                                         <!-- MSRTS Milestone Forms Breakdown -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <!-- Draft Synopsis Circulation Card -->
+                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="font-bold text-sm text-gray-900 dark:text-white">Draft Synopsis Circulation</span>
+                                                        <div class="flex items-center gap-1">
+                                                            <x-submission-timeline-modal :form="$thesis->draftSynopsisCirculation" title="Draft Synopsis Timeline" />
+                                                            @if($thesis->draftSynopsisCirculation)
+                                                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-0.5 rounded">Circulated</span>
+                                                            @else
+                                                                <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">Not Circulated</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    @if($thesis->draftSynopsisCirculation)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                                                            <div>Circulated: <strong>{{ $thesis->draftSynopsisCirculation->created_at->format('d-m-Y') }}</strong></div>
+                                                            <div class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                                {{ $thesis->draftSynopsisCirculation->comments->count() }} {{ Str::plural('Comment', $thesis->draftSynopsisCirculation->comments->count()) }}
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            Student has not circulated a draft synopsis report yet.
+                                                        </p>
+                                                    @endif
+                                                </div>
+
+                                                @if($thesis->draftSynopsisCirculation)
+                                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                                        <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" 
+                                                           class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            Review & Comment &rarr;
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- MSRTS-1 Card -->
                                             <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-1 (Open Seminar)</span>
                                                     <div class="flex items-center gap-1">
+                                                        <x-submission-timeline-modal :form="$thesis->pts1Form" title="MSRTS-1 Submission Timeline" />
                                                         @if($thesis->pts1Form)
-                                                            <x-submission-timeline-modal :form="$thesis->pts1Form" title="MSRTS-1 Submission Timeline" />
                                                             @if($thesis->pts1Form->status === 'in_progress')
                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
                                                             @elseif($thesis->pts1Form->status === 'reverted')
@@ -441,13 +673,32 @@
                                                         </div>
                                                     @endif
 
-                                                    <!-- Dedicated DPGC / HOD MSRTS-1 Review Button -->
-                                                    @if(($user->isDpgc() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'dpgc') || ($user->isHod() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'hod'))
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse MSRTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
+                                                    <!-- Action Buttons for MSRTS-1 -->
+                                                    @if($thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'co_supervisors')
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts1Form->$idCol === $user->id && !is_null($thesis->pts1Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse MSRTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted MSRTS-1 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
                                                     @elseif($thesis->pts1Form->status === 'in_progress')
                                                         <div class="pt-2">
                                                             <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
@@ -472,9 +723,7 @@
                                                 <div class="flex justify-between items-center">
                                                     <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-2 (Synopsis Report)</span>
                                                     <div class="flex items-center gap-1">
-                                                        @if($thesis->pts2Form)
-                                                            <x-submission-timeline-modal :form="$thesis->pts2Form" title="MSRTS-2 Submission Timeline" />
-                                                        @endif
+                                                        <x-submission-timeline-modal :form="$thesis->pts2Form" title="MSRTS-2 Submission Timeline" />
                                                         @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved')
                                                             <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
                                                         @elseif($thesis->pts2Form)
@@ -506,7 +755,33 @@
                                                         </div>
                                                     @endif
 
-                                                    @if($thesis->pts2Form->status === 'in_progress')
+                                                    <!-- Action Buttons for MSRTS-2 -->
+                                                    @if($thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'co_supervisors')
+                                                        @php
+                                                            $alreadyEndorsed = false;
+                                                            for ($i = 1; $i <= 10; $i++) {
+                                                                $idCol = "co_supervisor_{$i}_id";
+                                                                $recCol = "co_supervisor_{$i}_recommendation";
+                                                                if ($thesis->pts2Form->$idCol === $user->id && !is_null($thesis->pts2Form->$recCol)) {
+                                                                    $alreadyEndorsed = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        @if(!$alreadyEndorsed)
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    Review & Endorse MSRTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <div class="pt-2">
+                                                                <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                    View Submitted MSRTS-2 Form &rarr;
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    @elseif($thesis->pts2Form->status === 'in_progress')
                                                         <div class="pt-2">
                                                             <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 View Submitted MSRTS-2 Form &rarr;
@@ -533,7 +808,7 @@
                         </div>
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                            No MS(R) students registered in your department.
+                            No MS(R) students assigned to your supervision.
                         </div>
                     @endforelse
                 </div>

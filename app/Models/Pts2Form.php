@@ -39,6 +39,8 @@ class Pts2Form extends Model
         'collaborative_work_details',
 
         // 1. Main Supervisor
+        'main_supervisor_thesis_title',
+        'main_supervisor_synopsis_report_doc_path',
         'main_supervisor_cert_prima_facie_case',
         'main_supervisor_cert_no_prior_degree_submission',
         'main_supervisor_collaborative_work_status',
@@ -171,6 +173,83 @@ class Pts2Form extends Model
         ];
     }
 
+    // Effective Accessors & Helpers for Main Supervisor Updates
+    public function getEffectiveThesisTitleAttribute(): ?string
+    {
+        return $this->main_supervisor_thesis_title ?: ($this->thesis_title ?: $this->thesis?->title);
+    }
+
+    public function getEffectiveSynopsisDocPathAttribute(): ?string
+    {
+        return $this->main_supervisor_synopsis_report_doc_path ?? $this->synopsis_report_doc_path;
+    }
+
+    public function getEffectiveSynopsisPath(): ?string
+    {
+        return $this->effective_synopsis_doc_path;
+    }
+
+    public function getEffectiveSynopsisField(): string
+    {
+        return $this->main_supervisor_synopsis_report_doc_path ? 'main_supervisor_synopsis_report_doc_path' : 'synopsis_report_doc_path';
+    }
+
+    public function getEffectiveCertPrimaFacieCaseAttribute(): bool
+    {
+        return $this->main_supervisor_cert_prima_facie_case !== null 
+            ? (bool)$this->main_supervisor_cert_prima_facie_case 
+            : (bool)$this->cert_prima_facie_case;
+    }
+
+    public function getEffectiveCertPrimaFacieCase(): bool
+    {
+        return $this->effective_cert_prima_facie_case;
+    }
+
+    public function getEffectiveCertNoPriorDegreeSubmissionAttribute(): bool
+    {
+        return $this->main_supervisor_cert_no_prior_degree_submission !== null 
+            ? (bool)$this->main_supervisor_cert_no_prior_degree_submission 
+            : (bool)$this->cert_no_prior_degree_submission;
+    }
+
+    public function getEffectiveCertNoPriorDegreeSubmission(): bool
+    {
+        return $this->effective_cert_no_prior_degree_submission;
+    }
+
+    public function getEffectiveCollaborativeWorkStatusAttribute(): bool
+    {
+        return $this->main_supervisor_collaborative_work_status !== null 
+            ? (bool)$this->main_supervisor_collaborative_work_status 
+            : (bool)$this->collaborative_work_status;
+    }
+
+    public function getEffectiveCollaborativeWorkStatus(): bool
+    {
+        return $this->effective_collaborative_work_status;
+    }
+
+    public function getEffectiveCollaborativeWorkDetailsAttribute(): ?string
+    {
+        if ($this->main_supervisor_collaborative_work_status !== null) {
+            $details = $this->main_supervisor_collaborative_work_status 
+                ? $this->main_supervisor_collaborative_work_details 
+                : null;
+        } else {
+            $details = $this->collaborative_work_status 
+                ? $this->collaborative_work_details 
+                : null;
+        }
+
+        return $details !== null ? trim($details) : null;
+    }
+
+    public function getEffectiveCollaborativeWorkDetails(): ?string
+    {
+        return $this->effective_collaborative_work_details;
+    }
+
     public function thesis(): BelongsTo
     {
         return $this->belongsTo(Thesis::class);
@@ -225,9 +304,9 @@ class Pts2Form extends Model
 
         $revertingRank = self::getRoleRank($this->reverted_by_role);
 
-        $student = $this->thesis?->student;
-        if ($student && (int)$user->id === (int)$student->user_id) {
-            return true;
+        // Students are not allowed to access authority reverted view
+        if ($user->isStudent()) {
+            return false;
         }
 
         $userRanks = [];
@@ -255,6 +334,148 @@ class Pts2Form extends Model
         return $minUserRank <= $revertingRank;
     }
 
+    // Determine access status for in-progress submitted form: 'allowed', 'pending_endorsement', 'not_reached', or 'unauthorized'
+    public function getUserSubmissionAccessStatus(?User $user): string
+    {
+        if (!$user) {
+            return 'unauthorized';
+        }
+
+        $thesis = $this->thesis;
+        $student = $thesis?->student;
+
+        // Student owner can always view their in-progress submission
+        if ($student && (int)$user->id === (int)$student->user_id) {
+            return 'allowed';
+        }
+
+        $stage = $this->current_stage;
+        $stageRank = self::getRoleRank($stage);
+        $statuses = [];
+
+        // 1. Main Supervisor (Rank 1)
+        if ($student?->isMainSupervisor($user)) {
+            if ($stageRank < 1) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 1) {
+                $statuses[] = ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 2. Co-Supervisor (Rank 2)
+        $coSupSlot = null;
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($this->$col == $user->id) {
+                $coSupSlot = $i;
+                break;
+            }
+        }
+        if ($coSupSlot !== null) {
+            if ($stageRank < 2) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 2) {
+                $subCol = "co_supervisor_{$coSupSlot}_submitted_at";
+                $recCol = "co_supervisor_{$coSupSlot}_recommendation";
+                $statuses[] = ($this->$subCol || !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 3. Academic Office / Section Officer (Rank 3)
+        if ($user->isAcademicOffice()) {
+            if ($stageRank < 3) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 3) {
+                $statuses[] = ($this->academic_office_is_verified) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        // 4. DOAA / Global Authorities (Rank 4)
+        if ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
+            if ($stageRank < 4) {
+                $statuses[] = 'not_reached';
+            } elseif ($stageRank === 4) {
+                $statuses[] = ($this->doaa_submitted_at || !is_null($this->doaa_approval)) ? 'allowed' : 'pending_endorsement';
+            } else {
+                $statuses[] = 'allowed';
+            }
+        }
+
+        if (empty($statuses)) {
+            return 'unauthorized';
+        }
+
+        if (in_array('pending_endorsement', $statuses)) {
+            return 'pending_endorsement';
+        }
+        if (in_array('allowed', $statuses)) {
+            return 'allowed';
+        }
+        return 'not_reached';
+    }
+
+    // Check if user is authorized to view this form in its current state
+    public function canUserView(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($this->status === 'reverted') {
+            return $this->canUserViewRevertedForm($user);
+        }
+
+        if ($this->status === 'in_progress') {
+            $access = $this->getUserSubmissionAccessStatus($user);
+            return $access === 'allowed' || $access === 'pending_endorsement';
+        }
+
+        // For completed forms (approved / rejected)
+        $thesis = $this->thesis;
+        $student = $thesis?->student;
+
+        if ($student && (int)$user->id === (int)$student->user_id) {
+            return true;
+        }
+
+        if ($student && ($student->isSupervisor($user) || $student->isPspcMember($user))) {
+            return true;
+        }
+
+        if ($user->isDpgc() || $user->isHod()) {
+            $userDeptId = $user->deptAuthorityProfile?->department_id ?? $user->facultyProfile?->department_id;
+            if ($userDeptId && $student && $student->department_id === $userDeptId) {
+                return true;
+            }
+        }
+
+        if ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
+            return true;
+        }
+
+        if ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Check if user is currently authorized to evaluate/endorse this form
+    public function canUserEvaluate(?User $user): bool
+    {
+        if (!$user || $this->status !== 'in_progress') {
+            return false;
+        }
+
+        return $this->getUserSubmissionAccessStatus($user) === 'pending_endorsement';
+    }
+
     public function getRevertedByRoleLabel(): string
     {
         return \App\Http\Controllers\ThesisController::getRevertedByRoleLabel($this);
@@ -263,44 +484,6 @@ class Pts2Form extends Model
     public function getReversionComment(): ?string
     {
         return $this->reversion_comment;
-    }
-
-    // Effective Declaration Helpers (Prefers Main Supervisor values if submitted, falls back to student's initial submission)
-    public function getEffectiveCertPrimaFacieCase(): bool
-    {
-        return $this->main_supervisor_cert_prima_facie_case !== null 
-            ? (bool)$this->main_supervisor_cert_prima_facie_case 
-            : (bool)$this->cert_prima_facie_case;
-    }
-
-    public function getEffectiveCertNoPriorDegreeSubmission(): bool
-    {
-        return $this->main_supervisor_cert_no_prior_degree_submission !== null 
-            ? (bool)$this->main_supervisor_cert_no_prior_degree_submission 
-            : (bool)$this->cert_no_prior_degree_submission;
-    }
-
-    public function getEffectiveCollaborativeWorkStatus(): bool
-    {
-        return $this->main_supervisor_collaborative_work_status !== null 
-            ? (bool)$this->main_supervisor_collaborative_work_status 
-            : (bool)$this->collaborative_work_status;
-    }
-
-    public function getEffectiveCollaborativeWorkDetails(): ?string
-    {
-        $details = null;
-        if ($this->main_supervisor_collaborative_work_status !== null) {
-            $details = $this->main_supervisor_collaborative_work_status 
-                ? $this->main_supervisor_collaborative_work_details 
-                : null;
-        } else {
-            $details = $this->collaborative_work_status 
-                ? $this->collaborative_work_details 
-                : null;
-        }
-
-        return $details !== null ? trim($details) : null;
     }
 
     // Accessor for human-readable stage label mapped from ThesisController.
@@ -321,7 +504,7 @@ class Pts2Form extends Model
         $student = $this->thesis?->student;
         $deptId = $student?->department_id;
 
-        $soUser = User::whereIn('role', ['section_officer', 'academic_office'])->first();
+        $soUser = User::where('role', 'academic_office')->first();
         $doaaUser = User::whereIn('role', ['doaa', 'adoaa'])->first();
 
         // 1. Student Submission
@@ -356,8 +539,8 @@ class Pts2Form extends Model
             ];
         }
 
-        // 3. Co-Supervisors
-        $coSupervisors = $student?->coSupervisors ?? collect();
+        // 3. Co-Supervisors & External Supervisors
+        $coSupervisors = $student?->allCoSupervisors() ?? collect();
         $hasCoSupervisors = $coSupervisors->count() > 0 || $this->co_supervisor_1_id;
         if ($hasCoSupervisors) {
             $maxCo = max(1, $coSupervisors->count());
@@ -365,21 +548,31 @@ class Pts2Form extends Model
                 $coSup = $this->{"coSupervisor{$i}"} ?? $coSupervisors->get($i - 1);
                 if (!$coSup && $i > $maxCo) break;
 
-                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
-                $isSubmitted = $submittedAt || $this->{"co_supervisor_{$i}_recommendation"} !== null;
+                $roleLabel = ($student && $coSup) ? $student->getSupervisorRoleTitle($coSup) : "Co-Supervisor {$i}";
+                $nameLabel = $coSup?->name ?? "Co-Supervisor {$i}";
+                $institute = ($coSup?->isExternalSupervisor() && $coSup->externalSupervisorProfile?->affiliated_institute)
+                    ? $coSup->externalSupervisorProfile->affiliated_institute
+                    : null;
+
+                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} 
+                    ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null)
+                    ?? ($this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->updated_at : null);
+                $isSubmitted = $this->{"co_supervisor_{$i}_recommendation"} !== null || $submittedAt;
 
                 if ($isSubmitted) {
                     $timeline[] = [
-                        'role' => 'Co-Supervisor',
-                        'name' => $coSup?->name ?? "Co-Supervisor {$i}",
+                        'role' => $roleLabel,
+                        'name' => $nameLabel,
+                        'institute' => $institute,
                         'submitted_at' => $submittedAt,
                         'status_type' => 'submitted',
                         'status_label' => '✓ Submitted',
                     ];
                 } elseif ($this->status === 'in_progress' && $this->current_stage === 'co_supervisors' && $coSup) {
                     $timeline[] = [
-                        'role' => 'Co-Supervisor',
-                        'name' => $coSup->name ?? "Co-Supervisor {$i}",
+                        'role' => $roleLabel,
+                        'name' => $nameLabel,
+                        'institute' => $institute,
                         'submitted_at' => null,
                         'status_type' => 'pending',
                         'status_label' => '⏳ Pending',
@@ -431,14 +624,8 @@ class Pts2Form extends Model
         }
 
         // 6. Reverted Event (if reverted)
-        if ($this->status === 'reverted' && ($this->reverted_by_role || $this->reversion_comment)) {
-            $timeline[] = [
-                'role' => \App\Http\Controllers\ThesisController::getStageLabel($this->reverted_by_role),
-                'name' => $this->revertedBy?->name ?? 'Reverting Authority',
-                'submitted_at' => $this->updated_at,
-                'status_type' => 'reverted',
-                'status_label' => '⚠️ Reverted',
-            ];
+        if ($revertedItem = \App\Http\Controllers\ThesisController::getRevertedTimelineItem($this)) {
+            $timeline[] = $revertedItem;
         }
 
         return $timeline;

@@ -11,7 +11,7 @@
                     @if($user->isSenateChairperson()) Senate Chairperson @endif
                     @if($user->isArAcademic()) Assistant Registrar (Academic) @endif
                     @if($user->isDrAcademic()) Deputy Registrar (Academic) @endif
-                    @if($user->isSectionOfficer()) Section Officer @endif
+                    @if($user->isAcademicOffice()) Academic Office @endif
                     @if($user->isAcademicOffice()) Academic Office @endif
                 </span>
                 <x-profile_dropdown/>
@@ -66,7 +66,7 @@
                         @if($user->isAdoaa()) Associate Dean of Academic Affairs (ADoAA) Dashboard @endif
                         @if($user->isSenateChairperson()) Senate Chairperson Executive Dashboard @endif
                         @if($user->isArAcademic()) Assistant Registrar (Academic) Dashboard @endif
-                        @if($user->isSectionOfficer()) Academic Section Officer Dashboard @endif
+                        @if($user->isAcademicOffice()) Academic Office Dashboard @endif
                     </p>
                 </div>
             </div>
@@ -311,30 +311,32 @@
                                                         </div>
                                                     @endif
 
-                                                    <!-- Action Button ONLY for Section Officer when stage is section_officer -->
-                                                    @if($user->isSectionOfficer() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'section_officer')
+                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
+                                                    @if($user->isAcademicOffice() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse PTS-1 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                    @if($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
+                                                    @elseif($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
+                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse PTS-1 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-                                                    
-                                                    @if(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
+                                                    @elseif($thesis->pts1Form->status === 'in_progress')
+                                                        <div class="pt-2">
+                                                            <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                View Submitted PTS-1 Form &rarr;
+                                                            </a>
+                                                        </div>
+                                                    @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.submitted', $thesis->pts1Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted PTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected PTS-1 Form' : 'View Submitted PTS-1 Form') }} &rarr;
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted PTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected PTS-1 Form' : 'View Approved PTS-1 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif
@@ -382,27 +384,29 @@
                                                     <!-- Action Button ONLY for Academic Office when stage is academic_office -->
                                                     @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse PTS-2 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                    @if($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
+                                                    @elseif($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
+                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse PTS-2 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                                                    @elseif($thesis->pts2Form->status === 'in_progress')
+                                                        <div class="pt-2">
+                                                            <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                View Submitted PTS-2 Form &rarr;
+                                                            </a>
+                                                        </div>
+                                                    @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.submitted', $thesis->pts2Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Submitted PTS-2 Form') }} &rarr;
+                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Approved PTS-2 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif
@@ -411,7 +415,7 @@
 
                                                 @if($thesis->pts2Extension)
                                                     @php
-                                                        $extRole = $user->isSectionOfficer() ? 'section_officer' : 'doaa';
+                                                        $extRole = $user->isAcademicOffice() ? 'academic_office' : 'doaa';
                                                         $extViewerRank = \App\Models\Pts2Extension::getRoleRank($extRole);
                                                         $extStageRank = \App\Models\Pts2Extension::getRoleRank($thesis->pts2Extension->current_stage);
                                                     @endphp
@@ -435,7 +439,7 @@
                                                             </div>
                                                         @endif
 
-                                                        @if(($user->isSectionOfficer() && $thesis->pts2Extension->current_stage === 'section_officer' && $thesis->pts2Extension->status === 'in_progress') || ($user->isDoaa() && $thesis->pts2Extension->current_stage === 'doaa' && $thesis->pts2Extension->status === 'in_progress'))
+                                                        @if(($user->isAcademicOffice() && $thesis->pts2Extension->current_stage === 'academic_office' && $thesis->pts2Extension->status === 'in_progress') || ($user->isDoaa() && $thesis->pts2Extension->current_stage === 'doaa' && $thesis->pts2Extension->status === 'in_progress'))
                                                             <div class="pt-1">
                                                                 <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                     Review & Evaluate PTS-2 Extension &rarr;
@@ -446,7 +450,7 @@
                                                                 <div class="pt-1">
                                                                     <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
                                                                        class="block w-full text-center px-3 py-1.5 {{ $thesis->pts2Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
-                                                                        {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : 'View Extension Details' }} &rarr;
+                                                                        {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : ($thesis->pts2Extension->status === 'rejected' ? 'View Rejected Extension' : 'View Approved Extension') }} &rarr;
                                                                     </a>
                                                                 </div>
                                                             @endif
@@ -571,30 +575,32 @@
                                                         </div>
                                                     @endif
 
-                                                    <!-- Action Button ONLY for Section Officer when stage is section_officer -->
-                                                    @if($user->isSectionOfficer() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'section_officer')
+                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
+                                                    @if($user->isAcademicOffice() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-1 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                    @if($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
+                                                    @elseif($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
+                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts1.review_endorse', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-1 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-                                                    
-                                                    @if(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
+                                                    @elseif($thesis->pts1Form->status === 'in_progress')
+                                                        <div class="pt-2">
+                                                            <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                View Submitted MSRTS-1 Form &rarr;
+                                                            </a>
+                                                        </div>
+                                                    @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.review_endorse', $thesis->pts1Form->id) }}" 
+                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.reverted' : 'pts1.show', $thesis->pts1Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted MSRTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected MSRTS-1 Form' : 'View Submitted MSRTS-1 Form') }} &rarr;
+                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted MSRTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected MSRTS-1 Form' : 'View Approved MSRTS-1 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif
@@ -642,27 +648,29 @@
                                                     <!-- Action Button ONLY for Academic Office when stage is academic_office -->
                                                     @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-2 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                    @if($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
+                                                    @elseif($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
+                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
                                                         <div class="pt-2">
-                                                            <a href="{{ route('pts2.review_endorse', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 Review & Endorse MSRTS-2 Form &rarr;
                                                             </a>
                                                         </div>
-                                                    @endif
-
-                                                    @if(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                                                    @elseif($thesis->pts2Form->status === 'in_progress')
+                                                        <div class="pt-2">
+                                                            <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                                View Submitted MSRTS-2 Form &rarr;
+                                                            </a>
+                                                        </div>
+                                                    @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
                                                         @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
                                                             <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.review_endorse', $thesis->pts2Form->id) }}" 
+                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.reverted' : 'pts2.show', $thesis->pts2Form->id) }}" 
                                                                    class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted MSRTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected MSRTS-2 Form' : 'View Submitted MSRTS-2 Form') }} &rarr;
+                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted MSRTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected MSRTS-2 Form' : 'View Approved MSRTS-2 Form') }} &rarr;
                                                                 </a>
                                                             </div>
                                                         @endif

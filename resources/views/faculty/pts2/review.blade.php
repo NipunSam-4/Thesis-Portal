@@ -128,8 +128,8 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title</label>
-                        <input type="text" value="{{ $pts2->thesis_title ?? $thesis->title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $pts2->effective_thesis_title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
                     </div>
                 </div>
 
@@ -202,7 +202,7 @@
                             <div class="flex items-center gap-6">
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="collaborative_work_status" value="0" x-model="collaborativeWorkStatus" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No (None)</span>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">No</span>
                                 </label>
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="radio" name="collaborative_work_status" value="1" x-model="collaborativeWorkStatus" class="text-blue-600 focus:ring-blue-500">
@@ -429,7 +429,7 @@
                     </div>
 
                     <!-- Independent Revert Form -->
-                    <form action="{{ route('pts2.revert', $pts2->id) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('pts2.revert', $pts2->id) }}" method="POST" class="space-y-4" @submit="clearDraft()">
                         @csrf
 
                         <div>
@@ -466,7 +466,11 @@
 
     <script>
         function pts2ReviewForm() {
-            const draftKey = 'pts2_supervisor_draft_thesis_' + @js($pts2->thesis_id);
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js($pts2->id);
+            const draftKey = 'pts2_supervisor_draft_user_' + userId + '_thesis_' + thesisId + '_form_' + formId;
+
             let savedDraft = {};
             try {
                 savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');

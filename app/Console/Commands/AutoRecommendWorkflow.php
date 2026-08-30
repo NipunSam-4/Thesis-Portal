@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Pts1Form;
+use App\Models\Pts2Form;
 use App\Models\Pts2Extension;
 
 class AutoRecommendWorkflow extends Command
@@ -14,7 +15,7 @@ class AutoRecommendWorkflow extends Command
 
     // The console command description.
     // @var string
-    protected $description = 'Auto-recommend pending PTS-1 and PTS-2 Extension stages after inactivity from previous authority submission.';
+    protected $description = 'Auto-recommend pending PTS-1, PTS-2, and PTS-2 Extension stages after inactivity from previous authority submission.';
 
     // Execute the console command.
     public function handle()
@@ -25,18 +26,22 @@ class AutoRecommendWorkflow extends Command
         if ($minutesOpt !== null) {
             $pts1Minutes = (int) $minutesOpt;
             $pts2Minutes = (int) $minutesOpt;
+            $pts2ExtMinutes = (int) $minutesOpt;
         } elseif ($hoursOpt !== null) {
             $pts1Minutes = (int) $hoursOpt * 60;
             $pts2Minutes = (int) $hoursOpt * 60;
+            $pts2ExtMinutes = (int) $hoursOpt * 60;
         } else {
             $pts1Minutes = (int) config('workflow.pts1_minutes');
-            $pts2Minutes = (int) config('workflow.pts2_extension_minutes');
+            $pts2Minutes = (int) config('workflow.pts2_minutes');
+            $pts2ExtMinutes = (int) config('workflow.pts2_extension_minutes');
         }
 
-        $this->info("Starting Auto-Recommendation workflow check (PTS-1: {$pts1Minutes} min, PTS-2 Extension: {$pts2Minutes} min)...");
+        $this->info("Starting Auto-Recommendation workflow check (PTS-1: {$pts1Minutes} min, PTS-2: {$pts2Minutes} min, PTS-2 Extension: {$pts2ExtMinutes} min)...");
 
         $this->processPts1Forms($pts1Minutes);
-        $this->processPts2Extensions($pts2Minutes);
+        $this->processPts2Forms($pts2Minutes);
+        $this->processPts2Extensions($pts2ExtMinutes);
 
         $this->info('Auto-Recommendation workflow check completed successfully.');
         return Command::SUCCESS;
@@ -134,6 +139,56 @@ class AutoRecommendWorkflow extends Command
 
             if ($updated) {
                 $pts1->save();
+            }
+        }
+    }
+
+    // Process PTS-2 forms.
+    protected function processPts2Forms(int $minutes)
+    {
+        $forms = Pts2Form::where('status', 'in_progress')->get();
+
+        if ($forms->isEmpty()) {
+            $this->line(" - No PTS-2 forms currently 'in_progress'.");
+            return;
+        }
+
+        foreach ($forms as $pts2) {
+            $updated = false;
+
+            // 0. Main Supervisor Stage (Manual Evaluation Required - No Auto-Recommendation)
+            if ($pts2->current_stage === 'main_supervisor') {
+                $this->line(" - PTS-2 Form #{$pts2->id} (main_supervisor stage): Requires manual evaluation by Main Supervisor.");
+            }
+            // 1. Co-Supervisors Stage (Parallel Auto-Recommendation)
+            elseif ($pts2->current_stage === 'co_supervisors') {
+                $mainSubAt = $pts2->main_supervisor_submitted_at ?? $pts2->updated_at ?? $pts2->created_at;
+                $elapsed = $mainSubAt ? (int) abs(now()->diffInMinutes($mainSubAt)) : $minutes + 1;
+                if ($elapsed >= $minutes) {
+                    for ($i = 1; $i <= 10; $i++) {
+                        $coSupId = $pts2->{"co_supervisor_{$i}_id"};
+                        if ($coSupId && is_null($pts2->{"co_supervisor_{$i}_recommendation"})) {
+                            $pts2->{"co_supervisor_{$i}_recommendation"} = true;
+                            $pts2->{"co_supervisor_{$i}_confidential_remark"} = 'Auto-recommended';
+                            $updated = true;
+                        }
+                    }
+                    $this->setIfColumnExists($pts2, 'co_supervisors_submitted_at', now());
+
+                    $pts2->current_stage = 'academic_office';
+                    $updated = true;
+                    $this->info("PTS-2 Form #{$pts2->id}: All Co-Supervisors auto-recommended in parallel after {$elapsed}m (threshold {$minutes}m). Stage advanced to academic_office.");
+                } else {
+                    $this->line(" - PTS-2 Form #{$pts2->id} (co_supervisors stage): Elapsed {$elapsed}m / Required {$minutes}m.");
+                }
+            }
+            // 2. Academic Office / DOAA Stages: Manual Evaluation Required (Auto-recommendation stops at co-supervisors/faculty level)
+            elseif (in_array($pts2->current_stage, ['academic_office', 'doaa'])) {
+                $this->line(" - PTS-2 Form #{$pts2->id} ({$pts2->current_stage} stage): Requires manual action by {$pts2->current_stage}.");
+            }
+
+            if ($updated) {
+                $pts2->save();
             }
         }
     }

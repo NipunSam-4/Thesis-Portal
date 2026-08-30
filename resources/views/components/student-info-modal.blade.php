@@ -89,17 +89,23 @@
 
                 <!-- Course Credits Required -->
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Required</label>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center mb-1">
+                        <span>Course Credits Required</span>
+                        <x-info-button text="Minimum course credits required for the degree program." />
+                    </label>
                     <div class="text-base font-medium text-gray-900 dark:text-gray-100">
-                        {{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 0 }} Credits
+                        {{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) . ' Credits' : 'N/A' }}
                     </div>
                 </div>
 
                 <!-- Course Credits Earned -->
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Course Credits Earned (From System)</label>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center mb-1">
+                        <span>Course Credits Earned (From System)</span>
+                        <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                    </label>
                     <div class="text-base font-medium text-gray-900 dark:text-gray-100">
-                        {{ is_numeric($student->course_credits_earned) ? ($student->course_credits_earned == (int)$student->course_credits_earned ? (int)$student->course_credits_earned : $student->course_credits_earned) : 0 }} Credits
+                        {{ is_numeric($student->course_credits_earned) ? ($student->course_credits_earned == (int)$student->course_credits_earned ? (int)$student->course_credits_earned : $student->course_credits_earned) . ' Credits' : 'N/A' }}
                     </div>
                 </div>
 
@@ -127,11 +133,31 @@
                     </div>
                 </div>
 
-                <!-- Supervisor(s) -->
+                <!-- Main Supervisor -->
                 <div>
-                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Supervisor(s)</label>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Main Supervisor</label>
                     <div class="text-base font-medium text-gray-900 dark:text-gray-100">
-                        {{ $student->supervisors->pluck('name')->join(', ') ?: 'Not Assigned' }}
+                        {{ $student->mainSupervisors->pluck('name')->join(', ') ?: ($student->supervisors->first()?->name ?? 'Not Assigned') }}
+                    </div>
+                </div>
+
+                <!-- Co-Supervisor(s) -->
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">Co-Supervisor(s)</label>
+                    <div class="text-base font-medium text-gray-900 dark:text-gray-100">
+                        {{ $student->coSupervisors->pluck('name')->join(', ') ?: 'None' }}
+                    </div>
+                </div>
+
+                <!-- External Supervisor(s) -->
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-1">External Supervisor(s)</label>
+                    <div class="text-base font-medium text-gray-900 dark:text-gray-100">
+                        @if($student->externalSupervisors->isNotEmpty())
+                            {{ $student->externalSupervisors->map(fn($s) => $s->name . ($s->externalSupervisorProfile?->affiliated_institute ? ' (' . $s->externalSupervisorProfile->affiliated_institute . ')' : ''))->join(', ') }}
+                        @else
+                            None
+                        @endif
                     </div>
                 </div>
 

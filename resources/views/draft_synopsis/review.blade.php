@@ -94,7 +94,8 @@
                                    id="draft_synopsis_comment"
                                    :value="$userComment?->comment" 
                                    placeholder="Type your feedback, observations, or suggestions on the draft synopsis report..."
-                                   :height="350" />
+                                   :height="350"
+                                   :upload-url="route('draft_synopsis.upload_comment_image', $circulation->id)" />
                     </div>
 
                     <div class="flex justify-center sm:justify-end">
@@ -106,7 +107,20 @@
             </form>
 
             <!-- Section 3: Ordered Authority Comments Trail -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+            <div x-data="{
+                    previewModalOpen: false,
+                    previewImageUrl: '',
+                    previewImageTitle: '',
+                    openImagePreview(e) {
+                        const img = e.target.closest('img');
+                        if (img && img.src) {
+                            this.previewImageUrl = img.src;
+                            this.previewImageTitle = img.alt || 'Comment Image Attachment';
+                            this.previewModalOpen = true;
+                        }
+                    }
+                 }" 
+                 class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                 <div class="border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center justify-between gap-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                         Authority Feedback & Comments
@@ -135,17 +149,74 @@
                                         @endphp
                                         {!! $formattedLabel !!}
                                     </span>
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold whitespace-nowrap shrink-0">
-                                        {{ $comment->created_at->format('d M Y, h:i A') }}
-                                    </span>
+                                    <div class="text-right text-xs text-gray-500 dark:text-gray-400 shrink-0 space-y-0.5">
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <span class="font-medium text-gray-400 dark:text-gray-500">Created:</span>
+                                            <span class="font-semibold text-gray-600 dark:text-gray-300">{{ $comment->created_at->format('d M Y, h:i A') }}</span>
+                                        </div>
+                                        @if($comment->updated_at && $comment->updated_at->gt($comment->created_at))
+                                            <div class="flex items-center justify-end gap-1.5 text-[11px] text-amber-600 dark:text-amber-400">
+                                                <span class="font-medium">Edited:</span>
+                                                <span class="font-semibold">{{ $comment->updated_at->format('d M Y, h:i A') }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed break-words [overflow-wrap:anywhere] overflow-x-auto">
+                                <div @click="openImagePreview($event)" class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed break-words [overflow-wrap:anywhere] max-h-[480px] overflow-y-auto overflow-x-auto [&_img]:inline-block [&_img]:align-middle [&_img]:my-1 [&_img]:cursor-zoom-in [&_img]:rounded-none [&_img]:max-w-full [&_img]:shadow-sm hover:[&_img]:shadow-md transition">
                                     {!! class_exists(\Stevebauman\Purify\Facades\Purify::class) ? \Stevebauman\Purify\Facades\Purify::clean($comment->comment) : nl2br(e($comment->comment)) !!}
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 @endif
+
+                <!-- Full-Screen Image Preview Modal / Lightbox -->
+                <div x-show="previewModalOpen" 
+                     x-cloak
+                     @keydown.escape.window="previewModalOpen = false"
+                     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+                    
+                    <div class="relative max-w-5xl w-full max-h-[90vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700"
+                         @click.outside="previewModalOpen = false">
+                        
+                        <!-- Header Bar -->
+                        <div class="flex items-center justify-between px-5 py-3.5 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center space-x-2 text-sm font-bold text-gray-800 dark:text-gray-200 truncate">
+                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span x-text="previewImageTitle"></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <a :href="previewImageUrl" 
+                                   target="_blank" 
+                                   class="inline-flex items-center px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-semibold text-xs rounded-lg transition border border-indigo-200 dark:border-indigo-800 shadow-sm">
+                                    <span>Open Full Image &rarr;</span>
+                                </a>
+                                <button @click="previewModalOpen = false" 
+                                        type="button" 
+                                        class="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image Content -->
+                        <div class="p-4 flex items-center justify-center overflow-auto bg-gray-50 dark:bg-gray-950/50 min-h-[300px]">
+                            <img :src="previewImageUrl" 
+                                 :alt="previewImageTitle" 
+                                 class="max-h-[75vh] max-w-full object-contain shadow-lg">
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -153,20 +224,28 @@
 
     <script>
         function draftSynopsisReviewForm() {
-            const draftKey = 'draft_synopsis_review_draft_thesis_' + @js($circulation->thesis_id);
+            const userId = @js(auth()->id());
+            const thesisId = @js($circulation->thesis_id);
+            const circulationId = @js($circulation->id);
+            const draftKey = 'draft_synopsis_review_draft_user_' + userId + '_thesis_' + thesisId + '_circulation_' + circulationId;
+
+            const dbComment = @js($userComment?->comment ?? '');
+            const oldComment = @js(old('comment'));
+            const initialComment = oldComment || dbComment;
+
             let savedDraft = {};
             try {
                 savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
             } catch (e) {}
 
             return {
-                comment: @js(old('comment')) || savedDraft.comment || @js($userComment?->comment ?? ''),
+                comment: initialComment,
 
                 init() {
                     this.$watch('comment', () => this.saveDraft());
 
-                    // Restore draft into TinyMCE editor once initialized
-                    if (savedDraft.comment && savedDraft.comment !== @js($userComment?->comment ?? '')) {
+                    // Only restore from sessionStorage if there is an actual unsaved draft different from DB
+                    if (savedDraft.comment && savedDraft.comment.trim() && savedDraft.comment !== dbComment) {
                         const checkTinyMCE = setInterval(() => {
                             if (typeof tinymce !== 'undefined' && tinymce.get('draft_synopsis_comment')) {
                                 tinymce.get('draft_synopsis_comment').setContent(savedDraft.comment);

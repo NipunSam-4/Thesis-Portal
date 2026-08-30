@@ -151,7 +151,11 @@
 
     <script>
         function pts2ExtensionForm() {
-            const draftKey = 'pts2_extension_student_draft_thesis_' + @js($thesis->id);
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js(isset($pts2Extension) && $pts2Extension ? $pts2Extension->id : null);
+            const draftKey = 'pts2_extension_student_draft_user_' + userId + '_thesis_' + thesisId + (formId ? '_form_' + formId : '');
+
             let savedDraft = {};
             try {
                 savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');

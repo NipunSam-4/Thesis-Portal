@@ -138,7 +138,7 @@ class SystemAdminController extends Controller
     public function manageDeptAuthorities()
     {
         $departments = Department::where('is_active', true)->orderBy('name')->get();
-        $authorities = User::whereIn('role', ['hod', 'dpgc', 'section_officer', 'faculty'])
+        $authorities = User::whereIn('role', ['hod', 'dpgc', 'faculty'])
             ->with(['facultyProfile.department', 'deptAuthorityProfile.department'])
             ->orderBy('name')
             ->get();
@@ -151,7 +151,7 @@ class SystemAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users', 
-            'role' => 'required|string|in:hod,dpgc,section_officer,faculty',
+            'role' => 'required|string|in:hod,dpgc,faculty',
             'department_id' => 'required|exists:departments,id',
         ]);
 
@@ -166,7 +166,7 @@ class SystemAdminController extends Controller
                 })->exists();
 
             if ($existingHod) {
-                return back()->withErrors(['role' => 'This department already has a registered HoD!']);
+                return back()->withErrors(['role' => 'An active Head of Department already exists for this department!']);
             }
         }
 
@@ -191,10 +191,10 @@ class SystemAdminController extends Controller
         return back()->with('success', $user->name . ' registered successfully as ' . strtoupper(str_replace('_', ' ', $request->role)) . '!');
     }
 
-    // 5. Global Authorities Management (including AR Academic)
+    // 5. Global Authorities Management (including AR Academic & Academic Office)
     public function manageGlobalAuthorities()
     {
-        $authorities = User::whereIn('role', ['doaa', 'adoaa', 'senate_chairperson', 'ar'])
+        $authorities = User::whereIn('role', ['doaa', 'adoaa', 'senate_chairperson', 'academic_office', 'ar'])
             ->orderBy('name')
             ->get();
 
@@ -206,7 +206,7 @@ class SystemAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users', 
-            'role' => 'required|string|in:doaa,adoaa,senate_chairperson,ar',
+            'role' => 'required|string|in:doaa,adoaa,senate_chairperson,academic_office,ar',
         ]);
 
         if (User::where('role', $request->role)->exists()) {

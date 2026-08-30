@@ -16,6 +16,8 @@
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <style>[x-cloak] { display: none !important; }</style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -51,8 +53,8 @@
                 $userRoleLabel = 'Assistant Registrar (Academic)';
             } elseif ($authUser->role === 'dr') {
                 $userRoleLabel = 'Deputy Registrar (Academic)';
-            } elseif ($authUser->role === 'section_officer') {
-                $userRoleLabel = 'Section Officer';
+            } elseif ($authUser->role === 'academic_office') {
+                $userRoleLabel = 'Academic Office';
             } elseif (isset($authUser->role)) {
                 $userRoleLabel = ucfirst(str_replace('_', ' ', $authUser->role));
             } else {

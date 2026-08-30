@@ -15,6 +15,10 @@ return [
         ? (int) env('PTS1_AUTO_RECOMMEND_MINUTES') 
         : (int) env('PTS1_AUTO_RECOMMEND_HOURS') * 60,
 
+    'pts2_minutes' => env('PTS2_AUTO_RECOMMEND_MINUTES') !== null 
+        ? (int) env('PTS2_AUTO_RECOMMEND_MINUTES') 
+        : (int) env('PTS2_AUTO_RECOMMEND_HOURS') * 60,
+
     'pts2_extension_minutes' => env('PTS2_EXTENSION_AUTO_RECOMMEND_MINUTES') !== null 
         ? (int) env('PTS2_EXTENSION_AUTO_RECOMMEND_MINUTES') 
         : (int) env('PTS2_EXTENSION_AUTO_RECOMMEND_HOURS') * 60,

@@ -22,7 +22,6 @@ class Student extends Model
         'course_credits_earned',
         'course_credits_required',
         'roll_number',
-        'name',
         'date_confirmation',
     ];
 
@@ -108,10 +107,27 @@ class Student extends Model
                     ->withTimestamps();
     }
 
+    public function externalSupervisors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'student_external_supervisors', 'student_id', 'faculty_user_id')
+                    ->with('externalSupervisorProfile')
+                    ->withTimestamps();
+    }
+
     public function pspcMembers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'student_pspc_members', 'student_id', 'faculty_user_id')
                     ->withTimestamps();
+    }
+
+    public function allCoSupervisors()
+    {
+        return $this->coSupervisors->merge($this->externalSupervisors);
+    }
+
+    public function isSupervisor(User $user): bool
+    {
+        return $this->isMainSupervisor($user) || $this->isCoSupervisor($user);
     }
 
     public function isMainSupervisor(User $user): bool
@@ -121,12 +137,69 @@ class Student extends Model
 
     public function isCoSupervisor(User $user): bool
     {
+        return $this->coSupervisors()->where('users.id', $user->id)->exists()
+            || $this->externalSupervisors()->where('users.id', $user->id)->exists();
+    }
+
+    public function isInternalCoSupervisor(User $user): bool
+    {
         return $this->coSupervisors()->where('users.id', $user->id)->exists();
+    }
+
+    public function isExternalSupervisor(User $user): bool
+    {
+        return $this->externalSupervisors()->where('users.id', $user->id)->exists();
     }
 
     public function isPspcMember(User $user): bool
     {
         return $this->pspcMembers()->where('users.id', $user->id)->exists();
+    }
+
+    public function getExternalSupervisorIndex(User $user): ?int
+    {
+        $index = $this->externalSupervisors->search(fn($sup) => (int)$sup->id === (int)$user->id);
+        return $index !== false ? $index + 1 : null;
+    }
+
+    public function getCoSupervisorIndex(User $user): ?int
+    {
+        $index = $this->coSupervisors->search(fn($sup) => (int)$sup->id === (int)$user->id);
+        return $index !== false ? $index + 1 : null;
+    }
+
+    public function getPspcMemberIndex(User $user): ?int
+    {
+        $index = $this->pspcMembers->search(fn($mem) => (int)$mem->id === (int)$user->id);
+        return $index !== false ? $index + 1 : null;
+    }
+
+    public function getSupervisorRoleTitle(User $user): string
+    {
+        if ($this->isMainSupervisor($user)) {
+            return 'Main Supervisor';
+        }
+
+        if ($this->isExternalSupervisor($user)) {
+            $extIndex = $this->getExternalSupervisorIndex($user);
+            return ($this->externalSupervisors->count() > 1 && $extIndex)
+                ? "External Supervisor {$extIndex}"
+                : 'External Supervisor';
+        }
+
+        if ($this->isInternalCoSupervisor($user)) {
+            $coIndex = $this->getCoSupervisorIndex($user);
+            return ($this->coSupervisors->count() > 1 && $coIndex)
+                ? "Co-Supervisor {$coIndex}"
+                : 'Co-Supervisor';
+        }
+
+        if ($this->isPspcMember($user)) {
+            $pspcIndex = $this->getPspcMemberIndex($user);
+            return $pspcIndex ? "PSPC Member {$pspcIndex}" : 'PSPC Member';
+        }
+
+        return 'Supervisor';
     }
 
     // Determine the current thesis stage for the student.
@@ -178,7 +251,7 @@ class Student extends Model
     }
 
     // Check whether an active form for this student requires endorsement/evaluation by the given faculty user.
-    // Optionally filtered by role: 'main', 'co', 'pspc', 'dpgc', 'hod', 'section_officer', 'doaa'.
+    // Optionally filtered by role: 'main', 'co', 'pspc', 'dpgc', 'hod', 'academic_office', 'doaa'.
     public function requiresActionFromUser(User $user, ?string $roleFilter = null): bool
     {
         $thesis = $this->theses->last();
@@ -234,7 +307,7 @@ class Student extends Model
             if ((!$roleFilter || $roleFilter === 'hod') && $pts1->current_stage === 'hod' && $user->isHod()) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts1->current_stage === 'academic_office' && $user->isAcademicOffice()) {
                 return true;
             }
             if ((!$roleFilter || $roleFilter === 'doaa') && $pts1->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) {
@@ -278,7 +351,7 @@ class Student extends Model
             if ((!$roleFilter || $roleFilter === 'hod') && $pts2Ext->current_stage === 'hod' && $user->isHod()) {
                 return true;
             }
-            if ((!$roleFilter || $roleFilter === 'section_officer') && $pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) {
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts2Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) {
                 return true;
             }
             if ((!$roleFilter || $roleFilter === 'doaa') && $pts2Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2Ext->acting_doaa_email === $user->email || $pts2Ext->vested_doaa_email === $user->email)))) {
@@ -331,7 +404,7 @@ class Student extends Model
             }
             if ($pts1->current_stage === 'dpgc' && $user->isDpgc()) return 10;
             if ($pts1->current_stage === 'hod' && $user->isHod()) return 10;
-            if ($pts1->current_stage === 'section_officer' && $user->isSectionOfficer()) return 10;
+            if ($pts1->current_stage === 'academic_office' && $user->isAcademicOffice()) return 10;
             if ($pts1->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) return 10;
         }
 
@@ -340,7 +413,7 @@ class Student extends Model
             if ($pts2Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) return 20;
             if ($pts2Ext->current_stage === 'dpgc' && $user->isDpgc()) return 20;
             if ($pts2Ext->current_stage === 'hod' && $user->isHod()) return 20;
-            if ($pts2Ext->current_stage === 'section_officer' && $user->isSectionOfficer()) return 20;
+            if ($pts2Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) return 20;
             if ($pts2Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts2Ext->acting_doaa_email === $user->email || $pts2Ext->vested_doaa_email === $user->email)))) return 20;
         }
 

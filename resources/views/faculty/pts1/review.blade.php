@@ -1,8 +1,11 @@
 <x-app-layout>
+    @php
+        $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+    @endphp
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('PTS-1 Review Portal') }}
+                {{ __("Review & Evaluate {$formPrefix}-1 Form") }}
             </h2>
             <x-back-to-dashboard-button />
         </div>
@@ -111,8 +114,8 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title</label>
-                        <input type="text" value="{{ $pts1->thesis_title ?? $thesis->title }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $pts1->effective_thesis_title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
                     </div>
                 </div>
 
@@ -614,7 +617,7 @@
                     </div>
 
                     <!-- Independent Revert Form -->
-                    <form action="{{ route('pts1.revert', $pts1->id) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('pts1.revert', $pts1->id) }}" method="POST" class="space-y-4" @submit="clearDraft()">
                         @csrf
 
                         <div>
@@ -657,7 +660,10 @@
 
     <script>
         function pts1ReviewForm() {
-            const draftKey = 'pts1_supervisor_draft_thesis_' + @js($pts1->thesis_id);
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js($pts1->id);
+            const draftKey = 'pts1_supervisor_draft_user_' + userId + '_thesis_' + thesisId + '_form_' + formId;
 
             let savedDraft = {};
             try {

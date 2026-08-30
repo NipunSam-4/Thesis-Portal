@@ -15,7 +15,6 @@ class ThesisController extends Controller
         'pspc_members'    => 'PSPC Members',
         'dpgc'            => 'DPGC',
         'hod'             => 'HOD',
-        'section_officer'    => 'Section Officer',
         'academic_office'    => 'Academic Office',
         'adoaa'              => 'ADoAA',
         'doaa'            => 'DOAA',
@@ -67,11 +66,16 @@ class ThesisController extends Controller
                 $userId = $form->$col ?? null;
                 $user = $userId ? User::find($userId) : null;
                 if (!$user) {
-                    $user = $form->thesis?->student?->coSupervisors?->get($idx - 1);
+                    $user = $form->thesis?->student?->allCoSupervisors()?->get($idx - 1);
                 }
             }
-            $coName = $user?->name ?? $form->thesis?->student?->coSupervisors?->first()?->name;
-            return 'Co-Supervisor' . ($coName ? " ({$coName})" : '');
+            $student = $form->thesis?->student;
+            $roleTitle = ($student && $user) ? $student->getSupervisorRoleTitle($user) : 'Co-Supervisor';
+            $coName = $user?->name ?? $student?->allCoSupervisors()?->first()?->name;
+            $inst = ($user?->isExternalSupervisor() && $user->externalSupervisorProfile?->affiliated_institute)
+                ? ' - ' . $user->externalSupervisorProfile->affiliated_institute
+                : '';
+            return $roleTitle . ($coName ? " ({$coName}{$inst})" : '');
         }
 
         if (str_starts_with($role, 'pspc_member')) {
@@ -86,5 +90,60 @@ class ThesisController extends Controller
 
         $roleLabel = self::getStageLabel($role);
         return $roleLabel . ($user ? " ({$user->name})" : '');
+    }
+
+    // Get the standardized timeline item for a reverted form.
+    // @param mixed $form Any form model (Pts1Form, Pts2Form, Pts2Extension, etc.)
+    // @return array|null
+    public static function getRevertedTimelineItem($form): ?array
+    {
+        if (!$form || $form->status !== 'reverted' || (!$form->reverted_by_role && !$form->reversion_comment)) {
+            return null;
+        }
+
+        $student = $form->thesis?->student;
+        $role = $form->reverted_by_role ?? '';
+
+        $revertingUser = $form->revertedBy ?? null;
+        if (!$revertingUser && !empty($form->reverted_by_id)) {
+            $revertingUser = User::find($form->reverted_by_id);
+        }
+
+        if (!$revertingUser && str_starts_with($role, 'co_supervisor_')) {
+            if (preg_match('/co_supervisor_(\d+)/', $role, $matches)) {
+                $idx = (int)$matches[1];
+                $col = "co_supervisor_{$idx}_id";
+                $userId = $form->$col ?? null;
+                $revertingUser = $userId ? User::find($userId) : $student?->allCoSupervisors()?->get($idx - 1);
+            }
+        } elseif (!$revertingUser && $role === 'main_supervisor') {
+            $revertingUser = $student?->mainSupervisors?->first();
+        } elseif (!$revertingUser && str_starts_with($role, 'pspc_member_')) {
+            if (preg_match('/pspc_member_(\d+)/', $role, $matches)) {
+                $idx = (int)$matches[1];
+                $col = "pspc_member_{$idx}_id";
+                $userId = $form->$col ?? null;
+                $revertingUser = $userId ? User::find($userId) : $student?->pspcMembers?->get($idx - 1);
+            }
+        }
+
+        $revertRole = self::getStageLabel($role);
+        if ($student && $revertingUser && str_starts_with($role, 'co_supervisor')) {
+            $revertRole = $student->getSupervisorRoleTitle($revertingUser);
+        }
+
+        $revertName = $revertingUser?->name ?? 'Reverting Authority';
+        $revertInstitute = ($revertingUser?->isExternalSupervisor() && $revertingUser->externalSupervisorProfile?->affiliated_institute)
+            ? $revertingUser->externalSupervisorProfile->affiliated_institute
+            : null;
+
+        return [
+            'role' => $revertRole,
+            'name' => $revertName,
+            'institute' => $revertInstitute,
+            'submitted_at' => $form->updated_at,
+            'status_type' => 'reverted',
+            'status_label' => '⚠️ Reverted',
+        ];
     }
 }
