@@ -112,7 +112,7 @@ class StudentPts1Controller extends Controller
         }
 
         $pts1Form = $thesis->pts1Form;
-        $hasExisting = $pts1Form && $pts1Form->status === 'reverted';
+        $hasExisting = $pts1Form && in_array($pts1Form->status, ['reverted', 'rejected']);
 
         // Standard default php.ini file upload limit: 10 MB (10240 KB)
         $validated = $request->validate([
@@ -184,7 +184,7 @@ class StudentPts1Controller extends Controller
             if ($request->hasFile('publication_approval_doc')) {
                 $pubAppDocPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_approval_doc'), $student->roll_number, $thesis->id, 'pts1', 'Publication_Approval', 'Student');
             } elseif ($hasExisting) {
-                $pubAppDocPath = $pts1Form->publication_approval_doc_path;
+                $pubAppDocPath = $this->ptsDocService->copyExistingToInProgress($pts1Form->publication_approval_doc_path, $student->roll_number, $thesis->id, 'pts1', 'Publication_Approval', 'Student');
             }
         }
 
@@ -193,20 +193,20 @@ class StudentPts1Controller extends Controller
             if ($request->hasFile('min_time_approval_doc')) {
                 $minTimeAppDocPath = $this->ptsDocService->storeInProgressDocument($request->file('min_time_approval_doc'), $student->roll_number, $thesis->id, 'pts1', 'Min_Time_Approval', 'Student');
             } elseif ($hasExisting) {
-                $minTimeAppDocPath = $pts1Form->min_time_approval_doc_path;
+                $minTimeAppDocPath = $this->ptsDocService->copyExistingToInProgress($pts1Form->min_time_approval_doc_path, $student->roll_number, $thesis->id, 'pts1', 'Min_Time_Approval', 'Student');
             }
         }
 
         if ($request->hasFile('draft_synopsis_report')) {
             $synopsisPath = $this->ptsDocService->storeInProgressDocument($request->file('draft_synopsis_report'), $student->roll_number, $thesis->id, 'pts1', 'Draft_Synopsis', 'Student');
         } else {
-            $synopsisPath = $hasExisting ? $pts1Form->draft_synopsis_report_doc_path : null;
+            $synopsisPath = $hasExisting ? $this->ptsDocService->copyExistingToInProgress($pts1Form->draft_synopsis_report_doc_path, $student->roll_number, $thesis->id, 'pts1', 'Draft_Synopsis', 'Student') : null;
         }
 
         if ($request->hasFile('publication_list')) {
             $pubListPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_list'), $student->roll_number, $thesis->id, 'pts1', 'Publication_List', 'Student');
         } else {
-            $pubListPath = $hasExisting ? $pts1Form->publication_list_doc_path : null;
+            $pubListPath = $hasExisting ? $this->ptsDocService->copyExistingToInProgress($pts1Form->publication_list_doc_path, $student->roll_number, $thesis->id, 'pts1', 'Publication_List', 'Student') : null;
         }
 
         // Committee Co-Supervisors & PSPC IDs (Includes External Supervisors)

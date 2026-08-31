@@ -109,7 +109,7 @@ class StudentPts2Controller extends Controller
         }
 
         $pts2Form = $thesis->pts2Form;
-        $hasExisting = $pts2Form && $pts2Form->status === 'reverted';
+        $hasExisting = $pts2Form && in_array($pts2Form->status, ['reverted', 'rejected']);
         $fileRequired = $hasExisting && $pts2Form->synopsis_report_doc_path ? 'nullable' : 'required';
 
         $validated = $request->validate([
@@ -137,7 +137,7 @@ class StudentPts2Controller extends Controller
         if ($request->hasFile('synopsis_report_doc')) {
             $filePath = $this->ptsDocService->storeInProgressDocument($request->file('synopsis_report_doc'), $student->roll_number, $thesis->id, 'pts2', 'Synopsis_Report', 'Student');
         } else {
-            $filePath = $hasExisting ? $pts2Form->synopsis_report_doc_path : null;
+            $filePath = $hasExisting ? $this->ptsDocService->copyExistingToInProgress($pts2Form->synopsis_report_doc_path, $student->roll_number, $thesis->id, 'pts2', 'Synopsis_Report', 'Student') : null;
         }
 
         $pts1 = $thesis->pts1Form;

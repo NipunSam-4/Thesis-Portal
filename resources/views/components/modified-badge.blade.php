@@ -10,7 +10,7 @@
           @mouseleave="open = false" 
           @click.prevent="open = !open" 
           class="cursor-pointer select-none inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 dark:bg-amber-950/80 dark:text-yellow-300 dark:border-yellow-600/50 dark:hover:bg-amber-900 transition shadow-xs">
-        Modified
+        M
     </span>
     
     <!-- Hover Popover Tooltip (Light in Light Mode, Dark Gray as in Form in Dark Mode) -->

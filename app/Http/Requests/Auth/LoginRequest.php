@@ -39,12 +39,28 @@ class LoginRequest extends FormRequest
 
         // Attempt web guard (students, faculty, global authorities)
         if (Auth::guard('web')->attempt($credentials, $remember)) {
+            $user = Auth::guard('web')->user();
+            if ($user && !$user->is_active) {
+                Auth::guard('web')->logout();
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated. Please contact the Academic Office.',
+                ]);
+            }
             RateLimiter::clear($this->throttleKey());
             return;
         }
 
         // Attempt admin guard (system_admin, super_admin)
         if (Auth::guard('admin')->attempt($credentials, $remember)) {
+            $admin = Auth::guard('admin')->user();
+            if ($admin && !$admin->is_active) {
+                Auth::guard('admin')->logout();
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'email' => 'Your account has been deactivated. Please contact the Academic Office.',
+                ]);
+            }
             RateLimiter::clear($this->throttleKey());
             return;
         }

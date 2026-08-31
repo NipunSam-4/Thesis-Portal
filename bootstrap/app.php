@@ -12,9 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // Register your custom role middleware alias here
+        // Register custom role & active middleware aliases
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckActiveRole::class,
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+        ]);
+
+        $middleware->web(append: [
+            \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
 
     })

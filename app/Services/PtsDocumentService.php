@@ -77,6 +77,40 @@ class PtsDocumentService
     }
 
     /**
+     * Copy an existing file (e.g. from a reverted folder) into in_progress/ for resubmission.
+     */
+    public function copyExistingToInProgress(
+        ?string $existingPath,
+        string $rollNumber,
+        int $thesisId,
+        string $formType,
+        string $docKey,
+        string $origin = 'Student'
+    ): ?string {
+        if (!$existingPath) {
+            return null;
+        }
+
+        $disk = Storage::disk('local');
+        if (!$disk->exists($existingPath)) {
+            return null;
+        }
+
+        $ext = pathinfo($existingPath, PATHINFO_EXTENSION) ?: 'pdf';
+        $formPrefix = strtoupper($formType);
+        $filename = "{$rollNumber}_{$formPrefix}_{$docKey}_{$origin}.{$ext}";
+        $dir = "students/{$rollNumber}/thesis_{$thesisId}/{$formType}/in_progress";
+        $targetPath = "{$dir}/{$filename}";
+
+        if (!$disk->exists($dir)) {
+            $disk->makeDirectory($dir);
+        }
+
+        $disk->copy($existingPath, $targetPath);
+        return $targetPath;
+    }
+
+    /**
      * Move in_progress files to reverted/{formId}/ when reverted.
      */
     public function moveToReverted(object $form, string $formType): void
@@ -154,24 +188,11 @@ class PtsDocumentService
     }
 
     /**
-     * Move all files in a source directory to target directory and update DB path attributes.
+     * Move all files in a source directory or referenced on form to target directory and update DB path attributes.
      */
     protected function moveDirectoryContents(string $sourceDir, string $targetDir, object $form): void
     {
         $disk = Storage::disk('local');
-        if (!$disk->exists($sourceDir)) {
-            return;
-        }
-
-        $files = $disk->files($sourceDir);
-        if (empty($files)) {
-            return;
-        }
-
-        if (!$disk->exists($targetDir)) {
-            $disk->makeDirectory($targetDir);
-        }
-
         $docPathAttributes = [
             'draft_synopsis_report_doc_path',
             'publication_list_doc_path',
@@ -188,16 +209,57 @@ class PtsDocumentService
 
         $updatedAttributes = [];
 
-        foreach ($files as $oldPath) {
-            $filename = basename($oldPath);
-            $newPath = "{$targetDir}/{$filename}";
+        // 1. Move any files sitting in source directory (e.g. in_progress)
+        if ($disk->exists($sourceDir)) {
+            $files = $disk->files($sourceDir);
+            if (!empty($files)) {
+                if (!$disk->exists($targetDir)) {
+                    $disk->makeDirectory($targetDir);
+                }
 
-            // Move the file on disk
-            $disk->move($oldPath, $newPath);
+                foreach ($files as $oldPath) {
+                    $filename = basename($oldPath);
+                    $newPath = "{$targetDir}/{$filename}";
 
-            // Update any model attributes pointing to the old path
-            foreach ($docPathAttributes as $attr) {
-                if (isset($form->$attr) && $form->$attr === $oldPath) {
+                    // Move the file on disk
+                    $disk->move($oldPath, $newPath);
+
+                    // Update any model attributes pointing to the old path
+                    foreach ($docPathAttributes as $attr) {
+                        if (isset($form->$attr) && $form->$attr === $oldPath) {
+                            $updatedAttributes[$attr] = $newPath;
+                            $form->$attr = $newPath;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Check all document path attributes on the form directly
+        // (In case the form was resubmitted without re-uploading, so file path points to a historical folder)
+        foreach ($docPathAttributes as $attr) {
+            if (isset($form->$attr) && !empty($form->$attr)) {
+                $oldPath = $form->$attr;
+                // If file exists on disk and is NOT already inside $targetDir
+                if ($disk->exists($oldPath) && strpos($oldPath, $targetDir) === false) {
+                    if (!$disk->exists($targetDir)) {
+                        $disk->makeDirectory($targetDir);
+                    }
+
+                    $filename = basename($oldPath);
+                    $newPath = "{$targetDir}/{$filename}";
+
+                    // If file is in a historical folder (reverted/rejected/approved), copy it so past history isn't broken
+                    if (strpos($oldPath, '/reverted/') !== false || strpos($oldPath, '/rejected/') !== false || strpos($oldPath, '/approved/') !== false) {
+                        $disk->copy($oldPath, $newPath);
+                    } else {
+                        try {
+                            $disk->move($oldPath, $newPath);
+                        } catch (\Throwable $e) {
+                            $disk->copy($oldPath, $newPath);
+                        }
+                    }
+
                     $updatedAttributes[$attr] = $newPath;
                     $form->$attr = $newPath;
                 }
