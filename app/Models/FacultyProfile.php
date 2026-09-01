@@ -13,7 +13,6 @@ class FacultyProfile extends Model
     protected $fillable = [
         'user_id',
         'department_id',
-        'name',
     ];
 
     public function user(): BelongsTo

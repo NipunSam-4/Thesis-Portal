@@ -88,7 +88,15 @@ class DraftSynopsisCirculation extends Model
                 'submitted_at' => $comment->created_at,
             ];
         }
-
         return $timeline;
     }
+
+    public function canUserView(?User $user): bool
+    {
+        if (!$user) return false;
+        $student = $this->thesis?->student;
+        if (!$student) return false;
+        return $student->isSupervisor($user) || $student->isPspcMember($user);
+    }
 }
+

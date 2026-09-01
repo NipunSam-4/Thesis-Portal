@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Pts2Form;
 use App\Models\User;
 use App\Services\PtsDocumentService;
+use App\Http\Requests\Pts2\UpdatePts2SupervisorRequest;
+use App\Http\Requests\Pts2\EndorsePts2Request;
+use App\Http\Requests\Pts2\RevertPts2Request;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,14 +22,9 @@ class Pts2Controller extends Controller
     // Show the Main Supervisor review & edit form for a PTS-2 submission.
     public function review(Pts2Form $pts2)
     {
-        $user = auth()->user();
+        $this->authorize('supervisorEdit', $pts2);
+
         $thesis = $pts2->thesis;
-
-        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
-        if (!$isMainSupervisor || $pts2->status !== 'in_progress' || $pts2->current_stage !== 'main_supervisor') {
-            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-2 review.');
-        }
-
         $student = $thesis->student;
         $studentUser = $student->user;
 
@@ -34,27 +32,10 @@ class Pts2Controller extends Controller
     }
 
     // Process Main Supervisor review submission (Edits, Certifications, Evaluation & Endorsement).
-    public function update(Request $request, Pts2Form $pts2)
+    public function update(UpdatePts2SupervisorRequest $request, Pts2Form $pts2)
     {
-        $user = auth()->user();
         $thesis = $pts2->thesis;
-
-        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
-        if (!$isMainSupervisor) {
-            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-2 review.');
-        }
-
-        $validated = $request->validate([
-            'thesis_title' => 'required|string|max:1000',
-            'cert_prima_facie_case' => 'required|boolean',
-            'cert_no_prior_degree_submission' => 'required|boolean',
-            'collaborative_work_status' => 'required|boolean',
-            'collaborative_work_details' => $request->boolean('collaborative_work_status') ? 'required|string|max:2000' : 'nullable|string',
-            'synopsis_report_doc' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'recommendation' => 'required|boolean',
-            'main_supervisor_student_comment' => 'nullable|string|max:2000',
-            'main_supervisor_confidential_remark' => $request->boolean('recommendation') ? 'nullable|string|max:2000' : 'required|string|max:2000',
-        ]);
+        $validated = $request->validated();
 
         // Update active thesis title in database
         $thesis->update(['title' => $validated['thesis_title']]);
@@ -97,21 +78,14 @@ class Pts2Controller extends Controller
     // Display dedicated full-page review & endorsement view for PTS-2 with complete audit trail.
     public function reviewEndorse(Pts2Form $pts2)
     {
+        $this->authorize('evaluate', $pts2);
+
         $user = auth()->user();
-
-        // Must be currently authorized to evaluate at this stage
-        if (!$pts2->canUserEvaluate($user)) {
-            if ($pts2->canUserView($user)) {
-                return redirect()->route('pts2.submitted', $pts2->id);
-            }
-            abort(403, 'Unauthorized access to review this submission.');
-        }
-
         $thesis = $pts2->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
 
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -122,7 +96,7 @@ class Pts2Controller extends Controller
         }
 
         $academicOffice = $user->isAcademicOffice();
-        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_acting_doaa', true)->with('user')->get()->pluck('user')->filter();
 
         return view('pts2.review_endorse', compact(
             'pts2',
@@ -137,16 +111,12 @@ class Pts2Controller extends Controller
     }
 
     // Handle Endorsement of PTS-2 by evaluating authorities.
-    public function endorse(Request $request, Pts2Form $pts2)
+    public function endorse(EndorsePts2Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
-
-        if (!$pts2->canUserEvaluate($user)) {
-            abort(403, 'Unauthorized action on this submission.');
-        }
-
         $thesis = $pts2->thesis;
         $stage = $pts2->current_stage;
+        $validated = $request->validated();
 
         if ($stage === 'academic_office') {
             if (!$user->isAcademicOffice() && !$user->isGlobalAuthority()) {
@@ -168,6 +138,7 @@ class Pts2Controller extends Controller
                 'academic_office_verification_remark' => $validated['verification_remark'],
                 'academic_office_course_credits' => $academicOfficeCourseCredits,
                 'academic_office_submitted_at' => now(),
+                'academic_office_user_id' => $user->id,
                 'acting_doaa_email' => $actingDoaaEmail,
                 'current_stage' => 'doaa',
             ]);
@@ -279,6 +250,7 @@ class Pts2Controller extends Controller
                         'doaa_approval' => $isRecommended,
                         'doaa_confidential_remark' => $remark,
                         'doaa_submitted_at' => now(),
+                        'doaa_user_id' => $user->id,
                         'approved_by_authority' => $user->email,
                         'current_stage' => 'completed',
                         'status' => $isRecommended ? 'approved' : 'rejected',
@@ -300,22 +272,16 @@ class Pts2Controller extends Controller
     }
 
     // Universal Pop-up Reversion action for all evaluating authorities.
-    public function revert(Request $request, Pts2Form $pts2)
+    public function revert(RevertPts2Request $request, Pts2Form $pts2)
     {
         $user = auth()->user();
         $thesis = $pts2->thesis;
-
-        if (!$pts2->canUserEvaluate($user)) {
-            abort(403, 'Unauthorized action on this submission.');
-        }
 
         if ($user->isAcademicOffice() || $pts2->current_stage === 'academic_office') {
             return back()->with('error', 'Academic Office cannot revert forms; verification and forwarding only.');
         }
 
-        $validated = $request->validate([
-            'reversion_comment' => 'required|string|min:5|max:2000',
-        ]);
+        $validated = $request->validated();
 
         $role = $pts2->current_stage;
         if ($role === 'co_supervisors') {
@@ -363,7 +329,7 @@ class Pts2Controller extends Controller
             return redirect()->route('pts2.reverted', $pts2->id);
         }
 
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -412,7 +378,7 @@ class Pts2Controller extends Controller
         $thesis = $pts2->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -480,7 +446,7 @@ class Pts2Controller extends Controller
         $isDoaa = ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts2->acting_doaa_email === $user->email || $pts2->vested_doaa_email === $user->email)));
 
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {

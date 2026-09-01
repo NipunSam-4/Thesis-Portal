@@ -14,13 +14,13 @@ class ActingDoaa extends Model
 
     protected $fillable = [
         'user_id',
-        'is_active',
+        'is_acting_doaa',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'is_acting_doaa' => 'boolean',
         ];
     }
 

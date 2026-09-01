@@ -2,17 +2,22 @@
     @php
         $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
     @endphp
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __("Review & Evaluate {$formPrefix}-1 Form") }}
-            </h2>
-            <x-back-to-dashboard-button />
-        </div>
-    </x-slot>
-
     <div class="py-6" x-data="pts1ReviewForm()">
-        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
+
+            <!-- Top Back to Dashboard Button -->
+            <div>
+                <x-back-to-dashboard-button />
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                        {{ __("Review & Evaluate {$formPrefix}-1 Form") }}
+                    </h2>
+                </div>
+            </div>
 
             <!-- Flash Session Alerts -->
             @if(session('success'))
@@ -654,8 +659,8 @@
 
     @php
         $existingPubListUrl = $pts1->getEffectivePublicationListPath() 
-            ? route('pts.document.serve', ['pts1', $pts1->id, 'main_supervisor_publication_list_doc_path']) 
-            : ($pts1->publication_list_doc_path ? route('pts.document.serve', ['pts1', $pts1->id, 'publication_list_doc_path']) : null);
+            ? route('pts.document.serve', ['pts1', $pts1->id, $pts1->getEffectivePublicationListField()]) 
+            : null;
     @endphp
 
     <script>

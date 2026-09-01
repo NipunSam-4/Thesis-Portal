@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Pts1Form;
 use App\Models\Pts2Form;
 use App\Models\Pts2Extension;
+use App\Models\Pts4Extension;
 
 class AutoRecommendWorkflow extends Command
 {
@@ -15,7 +16,7 @@ class AutoRecommendWorkflow extends Command
 
     // The console command description.
     // @var string
-    protected $description = 'Auto-recommend pending PTS-1, PTS-2, and PTS-2 Extension stages after inactivity from previous authority submission.';
+    protected $description = 'Auto-recommend pending PTS-1, PTS-2, PTS-2 Extension, and PTS-4 Extension stages after inactivity from previous authority submission.';
 
     // Execute the console command.
     public function handle()
@@ -27,21 +28,25 @@ class AutoRecommendWorkflow extends Command
             $pts1Minutes = (int) $minutesOpt;
             $pts2Minutes = (int) $minutesOpt;
             $pts2ExtMinutes = (int) $minutesOpt;
+            $pts4ExtMinutes = (int) $minutesOpt;
         } elseif ($hoursOpt !== null) {
             $pts1Minutes = (int) $hoursOpt * 60;
             $pts2Minutes = (int) $hoursOpt * 60;
             $pts2ExtMinutes = (int) $hoursOpt * 60;
+            $pts4ExtMinutes = (int) $hoursOpt * 60;
         } else {
             $pts1Minutes = (int) config('workflow.pts1_minutes');
             $pts2Minutes = (int) config('workflow.pts2_minutes');
             $pts2ExtMinutes = (int) config('workflow.pts2_extension_minutes');
+            $pts4ExtMinutes = (int) config('workflow.pts4_extension_minutes');
         }
 
-        $this->info("Starting Auto-Recommendation workflow check (PTS-1: {$pts1Minutes} min, PTS-2: {$pts2Minutes} min, PTS-2 Extension: {$pts2ExtMinutes} min)...");
+        $this->info("Starting Auto-Recommendation workflow check (PTS-1: {$pts1Minutes} min, PTS-2: {$pts2Minutes} min, PTS-2 Extension: {$pts2ExtMinutes} min, PTS-4 Extension: {$pts4ExtMinutes} min)...");
 
         $this->processPts1Forms($pts1Minutes);
         $this->processPts2Forms($pts2Minutes);
         $this->processPts2Extensions($pts2ExtMinutes);
+        $this->processPts4Extensions($pts4ExtMinutes);
 
         $this->info('Auto-Recommendation workflow check completed successfully.');
         return Command::SUCCESS;
@@ -224,6 +229,46 @@ class AutoRecommendWorkflow extends Command
                     $this->info("PTS-2 Extension #{$extension->id}: DPGC auto-recommended after {$elapsed}m (threshold {$minutes}m). Stage advanced to hod.");
                 } else {
                     $this->line(" - PTS-2 Extension #{$extension->id} (dpgc stage): Elapsed {$elapsed}m / Required {$minutes}m.");
+                }
+            }
+
+            if ($updated) {
+                $extension->save();
+            }
+        }
+    }
+
+    // Process PTS-4 Extensions.
+    protected function processPts4Extensions(int $minutes)
+    {
+        $extensions = Pts4Extension::where('status', 'in_progress')->get();
+
+        if ($extensions->isEmpty()) {
+            $this->line(" - No PTS-4 Extensions currently 'in_progress'.");
+            return;
+        }
+
+        foreach ($extensions as $extension) {
+            $updated = false;
+
+            // 1. Main Supervisor Stage for PTS-4 Extension (Manual Evaluation Required - No Auto-Recommendation)
+            if ($extension->current_stage === 'main_supervisor') {
+                $this->line(" - PTS-4 Extension #{$extension->id} (main_supervisor stage): Requires manual evaluation by Main Supervisor.");
+            }
+
+            // 2. DPGC Stage for PTS-4 Extension
+            if ($extension->current_stage === 'dpgc' && is_null($extension->dpgc_submitted_at ?? null)) {
+                $refTime = $extension->main_supervisor_submitted_at ?? $extension->created_at;
+                $elapsed = $refTime ? (int) abs(now()->diffInMinutes($refTime)) : $minutes + 1;
+                if ($elapsed >= $minutes) {
+                    $extension->dpgc_recommendation = true;
+                    $extension->dpgc_confidential_remark = 'Auto-recommended';
+                    $this->setIfColumnExists($extension, 'dpgc_submitted_at', now());
+                    $extension->current_stage = 'hod';
+                    $updated = true;
+                    $this->info("PTS-4 Extension #{$extension->id}: DPGC auto-recommended after {$elapsed}m (threshold {$minutes}m). Stage advanced to hod.");
+                } else {
+                    $this->line(" - PTS-4 Extension #{$extension->id} (dpgc stage): Elapsed {$elapsed}m / Required {$minutes}m.");
                 }
             }
 

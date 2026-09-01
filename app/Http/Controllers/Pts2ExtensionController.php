@@ -105,6 +105,8 @@ class Pts2ExtensionController extends Controller
             'reason_for_extension' => $request->reason_for_extension,
             'extended_until_date' => $request->extended_until_date,
             'status' => 'in_progress',
+            'main_supervisor_id' => $student->mainSupervisor?->id,
+            'vested_doaa_email' => \App\Models\VestedDoaa::getActiveVestedEmail(),
             'current_stage' => 'main_supervisor',
         ]);
 
@@ -112,30 +114,23 @@ class Pts2ExtensionController extends Controller
     }
 
     // Show PTS-2 extension view for student or authority.
-    public function show($id)
+    public function show(Pts2Extension $pts2Extension)
     {
-        $extension = Pts2Extension::with(['thesis.student.user', 'thesis.student.department'])->findOrFail($id);
-        $user = Auth::user();
+        $this->authorize('view', $pts2Extension);
 
-        if (!$extension->canUserView($user)) {
-            abort(403, 'Unauthorized access to view this extension application.');
-        }
+        $extension = $pts2Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
+        $user = Auth::user();
 
         return view('pts2_extension.show', compact('extension', 'user'));
     }
 
     // Show evaluation portal for authority.
-    public function review($id)
+    public function review(Pts2Extension $pts2Extension)
     {
-        $extension = Pts2Extension::with(['thesis.student.user', 'thesis.student.department'])->findOrFail($id);
-        $user = Auth::user();
+        $this->authorize('evaluate', $pts2Extension);
 
-        if (!$extension->canUserEvaluate($user)) {
-            if ($extension->canUserView($user)) {
-                return redirect()->route('pts2_extension.show', $extension->id);
-            }
-            abort(403, 'You are not authorized to evaluate this extension request.');
-        }
+        $extension = $pts2Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
+        $user = Auth::user();
 
         // Determine user authority role
         $userRole = $this->determineUserRole($user, $extension);
@@ -144,20 +139,18 @@ class Pts2ExtensionController extends Controller
         $minExtensionDate = $extension->thesis?->getMinExtensionDate();
         $maxExtensionDate = $extension->thesis?->getMaxExtensionDate();
 
-        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_acting_doaa', true)->with('user')->get()->pluck('user')->filter();
 
         return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate', 'actingDoaaUsers'));
     }
 
     // Handle evaluation submission by an authority.
-    public function submitReview(Request $request, $id)
+    public function submitReview(Request $request, Pts2Extension $pts2Extension)
     {
-        $extension = Pts2Extension::findOrFail($id);
-        $user = Auth::user();
+        $this->authorize('evaluate', $pts2Extension);
 
-        if (!$extension->canUserEvaluate($user)) {
-            abort(403, 'Unauthorized action on this extension.');
-        }
+        $extension = $pts2Extension;
+        $user = Auth::user();
 
         $userRole = $this->determineUserRole($user, $extension);
         if (!$userRole) {
@@ -226,6 +219,7 @@ class Pts2ExtensionController extends Controller
                 $extension->dpgc_recommendation = $isRecommended;
                 $extension->dpgc_confidential_remark = $request->confidential_remark;
                 $extension->dpgc_submitted_at = now();
+                $extension->dpgc_user_id = $user->id;
                 $extension->current_stage = 'hod';
                 break;
 
@@ -233,6 +227,7 @@ class Pts2ExtensionController extends Controller
                 $extension->hod_recommendation = $isRecommended;
                 $extension->hod_confidential_remark = $request->confidential_remark;
                 $extension->hod_submitted_at = now();
+                $extension->hod_user_id = $user->id;
                 $extension->current_stage = 'academic_office';
                 break;
 
@@ -240,6 +235,7 @@ class Pts2ExtensionController extends Controller
                 $extension->academic_office_recommendation = $isRecommended;
                 $extension->academic_office_confidential_remark = $request->confidential_remark;
                 $extension->academic_office_submitted_at = now();
+                $extension->academic_office_user_id = $user->id;
                 $extension->acting_doaa_email = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
                 $extension->current_stage = 'doaa';
                 break;
@@ -249,6 +245,7 @@ class Pts2ExtensionController extends Controller
                 $extension->doaa_confidential_remark = $request->confidential_remark;
                 $extension->doaa_student_comment = $request->doaa_student_comment;
                 $extension->doaa_submitted_at = now();
+                $extension->doaa_user_id = $user->id;
                 $extension->approved_by_authority = $user->email;
                 if ($isRecommended) {
                     $extension->approved_extended_until_date = $request->approved_extended_until_date ?? $extension->extended_until_date;

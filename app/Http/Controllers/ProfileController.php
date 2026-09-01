@@ -48,26 +48,4 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    // Delete the user's account.
-    public function destroy(Request $request): RedirectResponse
-    {
-        $user = $request->user();
-
-        if ($user->isStudent()) {
-            return Redirect::route('profile.edit')->with('warning', 'Student accounts are managed by Academic Administration and cannot be deleted.');
-        }
-
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
-    }
 }

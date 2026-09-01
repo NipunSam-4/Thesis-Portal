@@ -1,15 +1,18 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Profile Settings') }}
-            </h2>
-            <x-back-to-dashboard-button />
-        </div>
-    </x-slot>
-
     <div class="py-6">
-        <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
+
+            <!-- Top Back to Dashboard Button -->
+            <div>
+                <x-back-to-dashboard-button />
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                    {{ __('Profile Settings') }}
+                </h2>
+            </div>
 
             @if(session('warning'))
                 <div class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold text-sm">

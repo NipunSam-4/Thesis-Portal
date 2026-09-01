@@ -20,16 +20,14 @@ class DraftSynopsisReviewController extends Controller
     }
 
     // Display the review page for academic authorities to inspect draft synopsis & submit feedback.
-    public function show($id)
+    public function show(DraftSynopsisCirculation $draftSynopsisCirculation)
     {
-        $circulation = DraftSynopsisCirculation::with(['thesis.student.user'])->findOrFail($id);
+        $this->authorize('view', $draftSynopsisCirculation);
+
+        $circulation = $draftSynopsisCirculation->loadMissing(['thesis.student.user']);
         $user = auth()->user();
         $thesis = $circulation->thesis;
         $student = $thesis->student;
-
-        if (!$student->isSupervisor($user) && !$student->isPspcMember($user)) {
-            abort(403, 'Unauthorized to access this draft synopsis review page.');
-        }
 
         $authorityInfo = $this->resolveAuthorityInfo($user, $student);
 
@@ -44,9 +42,11 @@ class DraftSynopsisReviewController extends Controller
     }
 
     // Submit or update an authority's feedback comment.
-    public function comment(Request $request, $id)
+    public function comment(Request $request, DraftSynopsisCirculation $draftSynopsisCirculation)
     {
-        $circulation = DraftSynopsisCirculation::with('thesis.student')->findOrFail($id);
+        $this->authorize('comment', $draftSynopsisCirculation);
+
+        $circulation = $draftSynopsisCirculation->loadMissing(['thesis.student']);
         $user = auth()->user();
         $student = $circulation->thesis->student;
 
@@ -125,10 +125,12 @@ class DraftSynopsisReviewController extends Controller
         return back()->with('success', 'Your feedback comment on the Draft Synopsis has been submitted successfully!');
     }
 
-    // Handle AJAX TinyMCE image upload in draft synopsis comments.
-    public function uploadCommentImage(Request $request, $id)
+    // Upload an image embedded in TinyMCE editor.
+    public function uploadCommentImage(Request $request, DraftSynopsisCirculation $draftSynopsisCirculation)
     {
-        $circulation = DraftSynopsisCirculation::with('thesis.student')->findOrFail($id);
+        $this->authorize('comment', $draftSynopsisCirculation);
+
+        $circulation = $draftSynopsisCirculation->loadMissing(['thesis.student']);
         $student = $circulation->thesis?->student;
         $user = auth()->user();
 
@@ -156,74 +158,33 @@ class DraftSynopsisReviewController extends Controller
         ]);
     }
 
-    // Serve comment image uploaded in TinyMCE securely (supports /draft-synopsis/{id}/comment-images/{userId}/{filename} or fallback variations).
-    public function serveCommentImage($idOrUserIdOrFilename = null, $userIdOrFilename = null, $filename = null)
+    // Serve comment image uploaded in TinyMCE securely.
+    public function serveCommentImage(DraftSynopsisCirculation $draftSynopsisCirculation, $userId, $filename)
     {
-        $user = auth()->user();
-        if (!$user) {
-            abort(401, 'Unauthenticated');
-        }
+        $this->authorize('view', $draftSynopsisCirculation);
 
-        $id = null;
-        $targetUserId = null;
-        $actualFilename = null;
-
-        // Flexible argument resolution for all route patterns
-        if ($filename !== null) {
-            $id = is_numeric($idOrUserIdOrFilename) ? (int)$idOrUserIdOrFilename : null;
-            $targetUserId = is_numeric($userIdOrFilename) ? (int)$userIdOrFilename : null;
-            $actualFilename = basename($filename);
-        } elseif ($userIdOrFilename !== null) {
-            if (is_numeric($idOrUserIdOrFilename)) {
-                $id = (int)$idOrUserIdOrFilename;
-                $actualFilename = basename($userIdOrFilename);
-            } else {
-                $targetUserId = is_numeric($idOrUserIdOrFilename) ? (int)$idOrUserIdOrFilename : null;
-                $actualFilename = basename($userIdOrFilename);
-            }
-        } else {
-            $actualFilename = basename($idOrUserIdOrFilename);
-        }
-
+        $actualFilename = basename($filename);
         if (empty($actualFilename)) {
             abort(404, 'Invalid image filename.');
         }
 
-        // 1. Resolve student roll number and user ID from filename or database
-        $rollNumber = null;
-        if (preg_match('/^([A-Za-z0-9]+)_([0-9]+)_Img_/', $actualFilename, $matches)) {
-            $rollNumber = $matches[1];
-            if (!$targetUserId) {
-                $targetUserId = (int)$matches[2];
-            }
-        } elseif (preg_match('/^([A-Za-z0-9]+)_Comment_Img_/', $actualFilename, $matches)) {
-            $rollNumber = $matches[1];
+        $circulation = $draftSynopsisCirculation->loadMissing(['thesis.student']);
+        $student = $circulation->thesis?->student;
+        if (!$student) {
+            abort(404, 'Student not found.');
         }
 
-        $student = null;
-        if ($id) {
-            $circulation = DraftSynopsisCirculation::with('thesis.student')->find($id);
-            $student = $circulation?->thesis?->student;
-        }
+        $rollNumber = $student->roll_number;
+        $thesisId = $circulation->thesis_id;
+        $targetUserId = (int)$userId;
 
-        if (!$student && $rollNumber) {
-            $student = \App\Models\Student::where('roll_number', $rollNumber)->first();
-        }
-
-        if ($student && !$rollNumber) {
-            $rollNumber = $student->roll_number;
-        }
-
-        $thesisId = $circulation?->thesis_id;
-
-        // 2. Locate file on disk across candidate directory paths
         $disk = Storage::disk('local');
-        $candidates = array_filter([
-            ($rollNumber && $thesisId && $targetUserId) ? "students/{$rollNumber}/thesis_{$thesisId}/draft_synopsis/comment_images/{$targetUserId}/{$actualFilename}" : null,
-            ($rollNumber && $targetUserId) ? "students/{$rollNumber}/draft_synopsis/comment_images/{$targetUserId}/{$actualFilename}" : null,
-            $rollNumber ? "students/{$rollNumber}/draft_synopsis/comment_images/{$actualFilename}" : null,
+        $candidates = [
+            "students/{$rollNumber}/thesis_{$thesisId}/draft_synopsis/comment_images/{$targetUserId}/{$actualFilename}",
+            "students/{$rollNumber}/draft_synopsis/comment_images/{$targetUserId}/{$actualFilename}",
+            "students/{$rollNumber}/draft_synopsis/comment_images/{$actualFilename}",
             "draft_synopsis_documents/{$actualFilename}",
-        ]);
+        ];
 
         $foundPath = null;
         foreach ($candidates as $cand) {
@@ -237,37 +198,15 @@ class DraftSynopsisReviewController extends Controller
             abort(404, 'Comment image not found on server storage.');
         }
 
-        // 3. Authorization check
-        $isAuthorized = false;
-        if ($student) {
-            $isOwner = ($user->isStudent() && $student->user_id === $user->id);
-            $isReviewer = ($student->isSupervisor($user) || $student->isPspcMember($user));
-
-            $isAuthorized = ($isOwner || $isReviewer);
-        }
-
-        if (!$isAuthorized) {
-            abort(403, 'Unauthorized to view this comment image');
-        }
-
         return response()->file($disk->path($foundPath));
     }
 
     // Serve the uploaded draft synopsis document securely.
-    public function serveDocument($id)
+    public function serveDocument(DraftSynopsisCirculation $draftSynopsisCirculation)
     {
-        $circulation = DraftSynopsisCirculation::with('thesis.student')->findOrFail($id);
-        $user = auth()->user();
-        $student = $circulation->thesis?->student;
+        $this->authorize('view', $draftSynopsisCirculation);
 
-        if ($student) {
-            $isOwner = ($user->isStudent() && $student->user_id === $user->id);
-            $isReviewer = ($student->isSupervisor($user) || $student->isPspcMember($user));
-
-            if (!$isOwner && !$isReviewer) {
-                abort(403, 'Unauthorized to access this draft synopsis document.');
-            }
-        }
+        $circulation = $draftSynopsisCirculation->loadMissing(['thesis.student']);
 
         if (!Storage::disk('local')->exists($circulation->draft_synopsis_doc_path)) {
             abort(404, 'Draft synopsis document file not found.');

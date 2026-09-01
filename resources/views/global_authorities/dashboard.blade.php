@@ -1,24 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Thesis Management Portal') }}
-            </h2>
-            <div class="flex justify-between items-center">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                    @if($user->isDoaa()) Dean of Academic Affairs (DOAA) @endif
-                    @if($user->isAdoaa()) Associate Dean of Academic Affairs (ADoAA) @endif
-                    @if($user->isSenateChairperson()) Senate Chairperson @endif
-                    @if($user->isArAcademic()) Assistant Registrar (Academic) @endif
-                    @if($user->isDrAcademic()) Deputy Registrar (Academic) @endif
-                    @if($user->isAcademicOffice()) Academic Office @endif
-                    @if($user->isAcademicOffice()) Academic Office @endif
-                </span>
-                <x-profile_dropdown/>
-            </div>
-        </div>
-    </x-slot>
-
     <div class="py-8" x-data="{
         programTab: 'phd',
         expandedStudent: null,
@@ -79,15 +59,15 @@
                         :class="programTab === 'phd' 
                             ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">PhD Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">PhD Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                         {{ $phdStudents->count() }}
                     </span>
                 </button>
@@ -98,15 +78,15 @@
                         :class="programTab === 'msr' 
                             ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-blue-600 dark:text-blue-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.6 15.12a2 2 0 00-1.183.184l-1.02.51a2 2 0 00-1.107 1.789v.894a2 2 0 002 2h15.428a2 2 0 002-2v-.894a2 2 0 00-1.107-1.789l-1.02-.51z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12a4 4 0 108 0 4 4 0 00-8 0z"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">MS(R) Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">MS(R) Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300'">
                         {{ $msrStudents->count() }}
                     </span>
                 </button>
@@ -217,263 +197,10 @@
                 <!-- SECTION 1: PhD Students List -->
                 <div x-show="programTab === 'phd'">
                     @forelse($phdStudents as $student)
-                        <div x-show="matchesFilter(@js($student->searchable_text), {{ $student->department_id ?? 'null' }})" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
-                            <!-- Student Header Card -->
-                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-base border border-indigo-200 dark:border-indigo-800">
-                                        {{ substr($student->user->name ?? 'S', 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-gray-900 dark:text-white text-base flex items-center">
-                                            <span>{{ $student->user->name }}</span>
-                                            <x-student-info-modal :student="$student" />
-                                            <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
-                                                {{ $student->roll_number }}
-                                            </span>
-                                            <span class="ml-2 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-2 py-0.5 rounded">
-                                                Dept: {{ $student->department->code ?? 'N/A' }}
-                                            </span>
-                                        </h4>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center space-x-2 text-xs font-bold">
-                                    @php
-                                        $stageLabel = $student->getThesisStageLabel();
-                                        $needsAction = $student->requiresActionFromUser($user);
-                                    @endphp
-
-                                    @if($needsAction)
-                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
-                                            Action Required
-                                        </span>
-                                    @endif
-
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
-                                        @if($stageLabel === 'Unregistered')
-                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
-                                        @else
-                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
-                                        @endif
-                                    ">
-                                        {{ $stageLabel }}
-                                    </span>
-
-                                    <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === {{ $student->id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-
-                            <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
-                                @forelse($student->theses as $thesis)
-                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
-                                        <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
-                                            <div class="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Thesis Title</div>
-                                            <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
-                                        </div>
-
-                                        <!-- PTS Milestone Forms Breakdown -->
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <!-- PTS-1 Card -->
-                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-1 (Open Seminar)</span>
-                                                    <div class="flex items-center gap-1">
-                                                        @if($thesis->pts1Form)
-                                                            <x-submission-timeline-modal :form="$thesis->pts1Form" title="PTS-1 Submission Timeline" />
-                                                            @if($thesis->pts1Form->status === 'in_progress')
-                                                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                            @elseif($thesis->pts1Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
-                                                            @elseif($thesis->pts1Form->status === 'approved')
-                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                            @elseif($thesis->pts1Form->status === 'rejected')
-                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
-                                                            @endif
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                @if($thesis->pts1Form)
-                                                    <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
-                                                        <div class="text-indigo-600 dark:text-indigo-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
-                                                    </div>
-
-                                                    @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                                ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
-                                                    @if($user->isAcademicOffice() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'academic_office')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
-                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($thesis->pts1Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
-                                                        @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                            <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.show' : 'pts1.submitted', $thesis->pts1Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted PTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected PTS-1 Form' : 'View Approved PTS-1 Form') }} &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                @endif
-                                            </div>
-
-                                            <!-- PTS-2 Card -->
-                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">PTS-2 (Synopsis Report)</span>
-                                                    <div class="flex items-center gap-1">
-                                                        <x-submission-timeline-modal :form="$thesis->pts2Form" title="PTS-2 Submission Timeline" />
-                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved')
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
-                                                        @elseif($thesis->pts2Form)
-                                                            @if($thesis->pts2Form->status === 'in_progress')
-                                                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                            @elseif($thesis->pts2Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
-                                                            @elseif($thesis->pts2Form->status === 'approved')
-                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                            @elseif($thesis->pts2Form->status === 'rejected')
-                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
-                                                            @endif
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                @if($thesis->pts2Form)
-                                                    <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
-                                                    </div>
-
-                                                    @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                                ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
-                                                    @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
-                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($thesis->pts2Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted PTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
-                                                        @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                            <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.show' : 'pts2.submitted', $thesis->pts2Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted PTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected PTS-2 Form' : 'View Approved PTS-2 Form') }} &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                @endif
-
-                                                @if($thesis->pts2Extension)
-                                                    @php
-                                                        $extRole = $user->isAcademicOffice() ? 'academic_office' : 'doaa';
-                                                        $extViewerRank = \App\Models\Pts2Extension::getRoleRank($extRole);
-                                                        $extStageRank = \App\Models\Pts2Extension::getRoleRank($thesis->pts2Extension->current_stage);
-                                                    @endphp
-                                                    <div class="mt-3 p-2.5 rounded-lg border text-xs space-y-2 bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800">
-                                                        <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200">
-                                                            <span>📅 PTS-2 Extension Requested</span>
-                                                            <div class="flex items-center gap-1">
-                                                                <x-submission-timeline-modal :form="$thesis->pts2Extension" title="PTS-2 Extension Timeline" />
-                                                                <span class="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-900 rounded font-extrabold uppercase">
-                                                                    {{ str_replace('_', ' ', $thesis->pts2Extension->status) }}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="text-[11px] text-purple-800 dark:text-purple-300">
-                                                            Requested Until: <strong>{{ $thesis->pts2Extension->extended_until_date?->format('d-M-Y') }}</strong>
-                                                        </div>
-
-                                                        @if($thesis->pts2Extension->status === 'in_progress')
-                                                            <div class="text-[11px] font-semibold text-purple-800 dark:text-purple-300">
-                                                                ⏳ Current Stage: {{ $thesis->pts2Extension->stage_label }}
-                                                            </div>
-                                                        @endif
-
-                                                        @if(($user->isAcademicOffice() && $thesis->pts2Extension->current_stage === 'academic_office' && $thesis->pts2Extension->status === 'in_progress') || ($user->isDoaa() && $thesis->pts2Extension->current_stage === 'doaa' && $thesis->pts2Extension->status === 'in_progress'))
-                                                            <div class="pt-1">
-                                                                <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    Review & Evaluate PTS-2 Extension &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @elseif(in_array($thesis->pts2Extension->status, ['approved', 'rejected', 'reverted']))
-                                                            @if($thesis->pts2Extension->status !== 'reverted' || $thesis->pts2Extension->canUserViewRevertedForm($user))
-                                                                <div class="pt-1">
-                                                                    <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
-                                                                       class="block w-full text-center px-3 py-1.5 {{ $thesis->pts2Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
-                                                                        {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : ($thesis->pts2Extension->status === 'rejected' ? 'View Rejected Extension' : 'View Approved Extension') }} &rarr;
-                                                                    </a>
-                                                                </div>
-                                                            @endif
-                                                        @elseif($extViewerRank < $extStageRank)
-                                                            <div class="pt-1">
-                                                                <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold text-xs rounded-lg transition">
-                                                                    View Extension Details &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
-                                @endforelse
-                            </div>
-                        </div>
+                        <x-student-card :student="$student" :user="$user" :isMsr="false" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                            No PhD students registered in the institute.
+                            No PhD students found matching criteria.
                         </div>
                     @endforelse
                 </div>
@@ -481,212 +208,10 @@
                 <!-- SECTION 2: MS(R) Students List -->
                 <div x-show="programTab === 'msr'">
                     @forelse($msrStudents as $student)
-                        <div x-show="matchesFilter(@js($student->searchable_text), {{ $student->department_id ?? 'null' }})" class="mb-4 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm bg-gray-50/50 dark:bg-gray-800/50">
-                            <!-- Student Header Card -->
-                            <div @click="toggleStudent({{ $student->id }})" class="p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 transition">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-base border border-blue-200 dark:border-blue-800">
-                                        {{ substr($student->user->name ?? 'S', 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-gray-900 dark:text-white text-base flex items-center">
-                                            <span>{{ $student->user->name }}</span>
-                                            <x-student-info-modal :student="$student" />
-                                            <span class="ml-2 text-xs font-semibold font-medium text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
-                                                {{ $student->roll_number }}
-                                            </span>
-                                            <span class="ml-2 text-xs font-semibold bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded">
-                                                Dept: {{ $student->department->code ?? 'N/A' }}
-                                            </span>
-                                        </h4>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center space-x-2 text-xs font-bold">
-                                    @php
-                                        $stageLabel = $student->getThesisStageLabel();
-                                        $needsAction = $student->requiresActionFromUser($user);
-                                    @endphp
-
-                                    @if($needsAction)
-                                        <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-sm">
-                                            Action Required
-                                        </span>
-                                    @endif
-
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold shadow-sm border
-                                        @if($stageLabel === 'Unregistered')
-                                            bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
-                                        @else
-                                            bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
-                                        @endif
-                                    ">
-                                        {{ $stageLabel }}
-                                    </span>
-
-                                    <svg class="w-5 h-5 text-gray-400 transform transition-transform" :class="expandedStudent === {{ $student->id }} ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
-
-                            <!-- Expandable Student Theses & PTS Form Breakdown -->
-                            <div x-show="expandedStudent === {{ $student->id }}" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
-                                @forelse($student->theses as $thesis)
-                                    <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
-                                        <div class="border-b border-gray-100 dark:border-gray-700 pb-2">
-                                            <div class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400">Thesis Title</div>
-                                            <h5 class="font-bold text-base text-gray-900 dark:text-white">{{ $thesis->title }}</h5>
-                                        </div>
-
-                                        <!-- MSRTS Milestone Forms Breakdown -->
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <!-- MSRTS-1 Card -->
-                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-1 (Open Seminar)</span>
-                                                    <div class="flex items-center gap-1">
-                                                        <x-submission-timeline-modal :form="$thesis->pts1Form" title="MSRTS-1 Submission Timeline" />
-                                                        @if($thesis->pts1Form)
-                                                            @if($thesis->pts1Form->status === 'in_progress')
-                                                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                            @elseif($thesis->pts1Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
-                                                            @elseif($thesis->pts1Form->status === 'approved')
-                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                            @elseif($thesis->pts1Form->status === 'rejected')
-                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
-                                                            @endif
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                @if($thesis->pts1Form)
-                                                    <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div>Open Seminar: <strong>{{ $thesis->pts1Form->seminar_date?->format('d-m-Y') }}</strong> at {{ $thesis->pts1Form->seminar_time }}</div>
-                                                        <div class="text-blue-600 dark:text-blue-400 font-semibold">Current Stage: {{ $thesis->pts1Form->stage_label }}</div>
-                                                    </div>
-
-                                                    @if($thesis->pts1Form->status === 'reverted' && $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                                ⚠️ Reverted by {{ $thesis->pts1Form->getRevertedByRoleLabel() }}
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
-                                                    @if($user->isAcademicOffice() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'academic_office')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse MSRTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($user->isDoaa() && $thesis->pts1Form->status === 'in_progress' && $thesis->pts1Form->current_stage === 'doaa')
-                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.review', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse MSRTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($thesis->pts1Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted MSRTS-1 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
-                                                        @if($thesis->pts1Form->status !== 'reverted' || $thesis->pts1Form->canUserViewRevertedForm($user))
-                                                            <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.reverted' : 'pts1.show', $thesis->pts1Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted MSRTS-1 Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected MSRTS-1 Form' : 'View Approved MSRTS-1 Form') }} &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                @endif
-                                            </div>
-
-                                            <!-- MSRTS-2 Card -->
-                                            <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="font-bold text-sm text-gray-900 dark:text-white">MSRTS-2 (Synopsis Report)</span>
-                                                    <div class="flex items-center gap-1">
-                                                        <x-submission-timeline-modal :form="$thesis->pts2Form" title="MSRTS-2 Submission Timeline" />
-                                                        @if(!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved')
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded">🔒 Locked</span>
-                                                        @elseif($thesis->pts2Form)
-                                                            @if($thesis->pts2Form->status === 'in_progress')
-                                                                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-0.5 rounded">In Progress</span>
-                                                            @elseif($thesis->pts2Form->status === 'reverted')
-                                                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Reverted</span>
-                                                            @elseif($thesis->pts2Form->status === 'approved')
-                                                                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Approved</span>
-                                                            @elseif($thesis->pts2Form->status === 'rejected')
-                                                                <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded">Rejected</span>
-                                                            @endif
-                                                        @else
-                                                            <span class="bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded">Not Submitted</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                @if($thesis->pts2Form)
-                                                    <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
-                                                        <div class="text-purple-600 dark:text-purple-400 font-semibold">Current Stage: {{ $thesis->pts2Form->stage_label }}</div>
-                                                    </div>
-
-                                                    @if($thesis->pts2Form->status === 'reverted' && $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                            <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                                ⚠️ Reverted by {{ $thesis->pts2Form->getRevertedByRoleLabel() }}
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    <!-- Action Button ONLY for Academic Office when stage is academic_office -->
-                                                    @if(($user->isAcademicOffice() || $user->isGlobalAuthority()) && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'academic_office')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse MSRTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($user->isDoaa() && $thesis->pts2Form->status === 'in_progress' && $thesis->pts2Form->current_stage === 'doaa')
-                                                        <!-- Action Button ONLY for DOAA when stage is doaa -->
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.review', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                Review & Endorse MSRTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif($thesis->pts2Form->status === 'in_progress')
-                                                        <div class="pt-2">
-                                                            <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Submitted MSRTS-2 Form &rarr;
-                                                            </a>
-                                                        </div>
-                                                    @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
-                                                        @if($thesis->pts2Form->status !== 'reverted' || $thesis->pts2Form->canUserViewRevertedForm($user))
-                                                            <div class="pt-2">
-                                                                <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.reverted' : 'pts2.show', $thesis->pts2Form->id) }}" 
-                                                                   class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                                                    {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted MSRTS-2 Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected MSRTS-2 Form' : 'View Approved MSRTS-2 Form') }} &rarr;
-                                                                </a>
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">No theses registered for this student.</p>
-                                @endforelse
-                            </div>
-                        </div>
+                        <x-student-card :student="$student" :user="$user" :isMsr="true" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                            No MS(R) students registered in the institute.
+                            No MS(R) students found matching criteria.
                         </div>
                     @endforelse
                 </div>

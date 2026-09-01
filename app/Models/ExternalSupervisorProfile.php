@@ -12,7 +12,6 @@ class ExternalSupervisorProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
         'affiliated_institute',
     ];
 

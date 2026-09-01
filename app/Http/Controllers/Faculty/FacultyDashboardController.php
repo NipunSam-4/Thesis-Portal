@@ -21,11 +21,19 @@ class FacultyDashboardController extends Controller
             'user',
             'department',
             'supervisors',
+            'mainSupervisors',
+            'coSupervisors',
+            'externalSupervisors.externalSupervisorProfile',
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
             'theses.pts2Form',
-            'theses.pts2Extension'
+            'theses.pts2Extension',
+            'theses.pts3Form',
+            'theses.pts4Form',
+            'theses.pts4Extension',
+            'theses.pts5Form',
+            'theses.pts6Form'
         ])
         ->get();
 
@@ -33,21 +41,24 @@ class FacultyDashboardController extends Controller
         $coStudents = Student::whereHas('supervisors', function ($query) use ($user) {
             $query->where('users.id', $user->id)->where('supervisor_type', 'co');
         })
-        ->orWhereHas('theses.pts1Form', function ($query) use ($user) {
-            $query->where('co_supervisor_1_id', $user->id)
-                ->orWhere('co_supervisor_2_id', $user->id)
-                ->orWhere('co_supervisor_3_id', $user->id);
-        })
         ->orderBy('roll_number', 'asc')
         ->with([
             'user',
             'department',
             'supervisors',
+            'mainSupervisors',
+            'coSupervisors',
+            'externalSupervisors.externalSupervisorProfile',
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
             'theses.pts2Form',
-            'theses.pts2Extension'
+            'theses.pts2Extension',
+            'theses.pts3Form',
+            'theses.pts4Form',
+            'theses.pts4Extension',
+            'theses.pts5Form',
+            'theses.pts6Form'
         ])
         ->get();
 
@@ -55,21 +66,24 @@ class FacultyDashboardController extends Controller
         $pspcStudents = Student::whereHas('pspcMembers', function ($query) use ($user) {
             $query->where('users.id', $user->id);
         })
-        ->orWhereHas('theses.pts1Form', function ($query) use ($user) {
-            $query->where('pspc_member_1_id', $user->id)
-                ->orWhere('pspc_member_2_id', $user->id)
-                ->orWhere('pspc_member_3_id', $user->id);
-        })
         ->orderBy('roll_number', 'asc')
         ->with([
             'user',
             'department',
             'supervisors',
+            'mainSupervisors',
+            'coSupervisors',
+            'externalSupervisors.externalSupervisorProfile',
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
             'theses.pts2Form',
-            'theses.pts2Extension'
+            'theses.pts2Extension',
+            'theses.pts3Form',
+            'theses.pts4Form',
+            'theses.pts4Extension',
+            'theses.pts5Form',
+            'theses.pts6Form'
         ])
         ->get();
 

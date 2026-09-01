@@ -18,11 +18,17 @@ class StudentThesisController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        $isReinitiation = $student->theses()->exists();
+        $isReinitiation = $student->canReinitiateThesis();
 
-        // Check if an active thesis already exists in progress
-        if ($student->hasActiveThesis()) {
-            return redirect()->route('student.dashboard')->with('warning', 'You cannot re-initiate a new thesis while your current thesis submission is in progress.');
+        // Check if student is allowed to initiate or re-initiate a thesis
+        if (!$student->canInitiateThesis() && !$isReinitiation) {
+            if ($student->hasActiveThesis()) {
+                return redirect()->route('student.dashboard')->with('warning', 'You cannot re-initiate a new thesis while your current thesis submission is in progress.');
+            }
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('warning', 'Your thesis has already been completed and approved.');
+            }
+            return redirect()->route('student.dashboard')->with('warning', 'You cannot initiate a thesis at this time.');
         }
 
         $validated = $request->validate([
@@ -36,8 +42,8 @@ class StudentThesisController extends Controller
         ]);
 
         $msg = $isReinitiation 
-            ? 'PhD Thesis submission re-initiated successfully! You can now submit your new PTS-1 Form.'
-            : 'PhD Thesis title registered successfully! You can now submit your PTS-1 Form.';
+            ? 'PhD Thesis submission re-initiated successfully!'
+            : 'PhD Thesis title registered successfully!';
 
         return redirect()->route('student.dashboard')->with('success', $msg);
     }

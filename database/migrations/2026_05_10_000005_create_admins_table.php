@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('admin_type')->default('system_admin'); // 'system_admin' or 'super_admin'
+            $table->enum('admin_type', ['system_admin', 'super_admin'])->default('system_admin');
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('is_active')->default(true);
             $table->rememberToken();

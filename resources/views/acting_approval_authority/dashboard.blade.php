@@ -1,18 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Thesis Management Portal') }}
-            </h2>
-            <div class="flex justify-between items-center">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                    Acting Approval Authority
-                </span>
-                <x-profile_dropdown/>
-            </div>
-        </div>
-    </x-slot>
-
     <div class="py-8" x-data="{
         programTab: 'phd',
         subTab: 'acting',
@@ -70,15 +56,15 @@
                         :class="programTab === 'phd' 
                             ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'phd' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">PhD Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">PhD Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'phd' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                         {{ $actingPhdStudents->merge($vestedPhdStudents)->unique('id')->count() }}
                     </span>
                 </button>
@@ -89,14 +75,14 @@
                         :class="programTab === 'msr' 
                             ? 'bg-indigo-600 text-white shadow-md rounded-xl font-bold' 
                             : 'bg-white dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl font-semibold'" 
-                        class="w-full py-4 px-6 transition-all duration-200 flex items-center justify-center space-x-3 group">
-                    <div class="flex items-center space-x-2.5">
-                        <svg class="w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="w-full py-3 sm:py-4 px-2 sm:px-6 transition-all duration-200 flex items-center justify-center sm:justify-between group">
+                    <div class="flex items-center space-x-1.5 sm:space-x-2.5">
+                        <svg class="hidden sm:block w-5 h-5" :class="programTab === 'msr' ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
-                        <span class="text-sm tracking-wide">MS(R) Students</span>
+                        <span class="text-xs sm:text-sm tracking-wide">MS(R) Students</span>
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
+                    <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold transition-colors" :class="programTab === 'msr' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300'">
                         {{ $actingMsrStudents->merge($vestedMsrStudents)->unique('id')->count() }}
                     </span>
                 </button>
@@ -242,7 +228,7 @@
                     <!-- PhD: Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingPhdStudents as $student)
-                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => false])
+                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" :isMsr="false" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are appointed as Acting DOAA.
@@ -253,7 +239,7 @@
                     <!-- PhD: Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedPhdStudents as $student)
-                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => false])
+                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" :isMsr="false" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are designated as Vested DOAA.
@@ -267,7 +253,7 @@
                     <!-- MS(R): Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingMsrStudents as $student)
-                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'acting', 'isMsr' => true])
+                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" :isMsr="true" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are appointed as Acting DOAA.
@@ -278,7 +264,7 @@
                     <!-- MS(R): Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedMsrStudents as $student)
-                            @include('acting_approval_authority.student_card', ['student' => $student, 'user' => $user, 'subTab' => 'vested', 'isMsr' => true])
+                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" :isMsr="true" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are designated as Vested DOAA.

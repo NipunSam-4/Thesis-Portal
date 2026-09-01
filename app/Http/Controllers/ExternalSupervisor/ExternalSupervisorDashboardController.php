@@ -27,6 +27,7 @@ class ExternalSupervisorDashboardController extends Controller
             'theses.pts2Extension',
             'theses.pts3Form',
             'theses.pts4Form',
+            'theses.pts4Extension',
             'theses.pts5Form',
             'theses.pts6Form'
         ])->get();

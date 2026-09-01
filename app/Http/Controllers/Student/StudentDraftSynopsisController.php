@@ -16,7 +16,7 @@ class StudentDraftSynopsisController extends Controller
         $this->ptsDocService = $ptsDocService;
     }
     // Display the student draft synopsis circulation form and comments trail.
-    public function show()
+    public function show(?DraftSynopsisCirculation $draftSynopsisCirculation = null)
     {
         $user = auth()->user();
         $student = $user->student;
@@ -25,13 +25,24 @@ class StudentDraftSynopsisController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
-        if (!$thesis) {
-            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+        if ($draftSynopsisCirculation) {
+            if ($draftSynopsisCirculation->thesis?->student_id !== $student->id) {
+                abort(403, 'Unauthorized to view this draft synopsis circulation.');
+            }
+            $circulation = $draftSynopsisCirculation;
+            $thesis = $circulation->thesis;
+        } else {
+            $thesis = $student->theses()->where('status', 'in_progress')->latest()->first()
+                ?? $student->theses()->where('status', 'completed')->latest()->first();
+
+            if (!$thesis) {
+                return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+            }
+
+            $circulation = $thesis->draftSynopsisCirculation;
         }
 
         $pts1Approved = $thesis->pts1Form && $thesis->pts1Form->status === 'approved';
-        $circulation = $thesis->draftSynopsisCirculation;
 
         // If PTS-1 is approved and student never submitted draft synopsis, disallow access
         if ($pts1Approved && !$circulation) {

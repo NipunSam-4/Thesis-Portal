@@ -1,34 +1,39 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    {{ __('PTS-2 Extension Application Details') }}
-                </h2>
-                @if($extension->status === 'approved')
-                    <span class="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                        ✓ Approved
-                    </span>
-                @elseif($extension->status === 'rejected')
-                    <span class="px-3 py-1 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                        ❌ Rejected
-                    </span>
-                @elseif($extension->status === 'reverted')
-                    <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                        ⚠️ Reverted
-                    </span>
-                @else
-                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-sm">
-                        In Progress
-                    </span>
-                @endif
-            </div>
-            <x-back-to-dashboard-button />
-        </div>
-    </x-slot>
-
     <div class="py-6">
-        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
+
+            <!-- Top Back to Dashboard Button -->
+            <div>
+                <x-back-to-dashboard-button />
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                        {{ __('PTS-2 Extension Application Details') }}
+                    </h2>
+                </div>
+                <div class="flex items-center space-x-3 shrink-0">
+                    @if($extension->status === 'approved')
+                        <span class="px-3.5 py-1.5 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-emerald-200 dark:border-emerald-800">
+                            ✓ Approved
+                        </span>
+                    @elseif($extension->status === 'rejected')
+                        <span class="px-3.5 py-1.5 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-red-200 dark:border-red-800">
+                            ❌ Rejected
+                        </span>
+                    @elseif($extension->status === 'reverted')
+                        <span class="px-3.5 py-1.5 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-amber-200 dark:border-amber-800">
+                            ⚠️ Reverted
+                        </span>
+                    @else
+                        <span class="px-3.5 py-1.5 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-blue-200 dark:border-blue-800">
+                            ⏳ In Progress
+                        </span>
+                    @endif
+                </div>
+            </div>
 
             <!-- Flash Session Alerts -->
             @if(session('success'))

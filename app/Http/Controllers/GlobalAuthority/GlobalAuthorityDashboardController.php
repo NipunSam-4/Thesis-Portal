@@ -21,6 +21,9 @@ class GlobalAuthorityDashboardController extends Controller
             'user',
             'department',
             'supervisors',
+            'mainSupervisors',
+            'coSupervisors',
+            'externalSupervisors.externalSupervisorProfile',
             'pspcMembers',
             'theses.draftSynopsisCirculation.comments',
             'theses.pts1Form',
@@ -28,6 +31,7 @@ class GlobalAuthorityDashboardController extends Controller
             'theses.pts2Extension',
             'theses.pts3Form',
             'theses.pts4Form',
+            'theses.pts4Extension',
             'theses.pts5Form',
             'theses.pts6Form'
         ])->get();

@@ -92,33 +92,33 @@
                             <img src="{{ asset('images/iiti_logo.png') }}" alt="IIT Indore"
                                 class="h-10 sm:h-14 lg:h-16 w-auto object-contain bg-white dark:bg-white rounded-xl p-1 sm:p-1.5 shadow-sm border border-slate-200 dark:border-slate-700 transition-transform group-hover:scale-105 duration-300 shrink-0" />
                         </a>
-                        <div class="flex flex-col md:hidden">
+                        <div class="flex flex-col">
                             <span class="text-base sm:text-xl font-bold text-slate-900 dark:text-white leading-tight">
                                 Thesis Management Portal
                             </span>
                         </div>
                     </div>
 
-                    <!-- Desktop Right: Header Slot Content (Hidden on Mobile) -->
+                    <!-- Desktop Right: Header Slot Content OR Default Reusable Navbar -->
                     <div class="hidden md:flex flex-1 items-center justify-end space-x-4 pl-4">
-                        @isset($header)
+                        @if(isset($header) && trim($header) !== '')
                             <div class="flex-1">
                                 {{ $header }}
                             </div>
-                        @endisset
+                        @else
+                            <div class="flex items-center space-x-3">
+                                @if($authUser)
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full dark:bg-blue-900/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-xs">
+                                        {{ $userRoleLabel }}
+                                    </span>
+                                    <x-profile_dropdown/>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </header>
-
-        @auth
-            @if(!request()->routeIs(['*.dashboard', 'dashboard', 'welcome']))
-                <!-- Mobile-Only 'Back to Dashboard' Button -->
-                <div class="sm:hidden px-4 pt-3 flex justify-end">
-                    <x-back-to-dashboard-button />
-                </div>
-            @endif
-        @endauth
 
         <!-- FULL-SCREEN MOBILE SIDEBAR DRAWER (Root Viewport Level - Full Vertical 100vh Screen Space) -->
         <div x-show="mobileMenuOpen" 

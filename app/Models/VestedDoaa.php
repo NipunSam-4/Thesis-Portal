@@ -28,4 +28,16 @@ class VestedDoaa extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function getActiveVestedUser(): ?User
+    {
+        $vested = self::where('is_active', true)->with('user')->first();
+        return $vested ? $vested->user : null;
+    }
+
+    public static function getActiveVestedEmail(): ?string
+    {
+        $user = self::getActiveVestedUser();
+        return $user ? $user->email : null;
+    }
 }

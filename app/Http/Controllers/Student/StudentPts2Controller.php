@@ -154,6 +154,8 @@ class StudentPts2Controller extends Controller
             'thesis_id' => $thesis->id,
             'thesis_title' => $validated['thesis_title'],
             'synopsis_report_doc_path' => $filePath,
+            'main_supervisor_id' => $student->mainSupervisor?->id,
+            'vested_doaa_email' => \App\Models\VestedDoaa::getActiveVestedEmail(),
             'current_stage' => 'main_supervisor',
             'status' => 'in_progress',
             'date_of_submission' => now()->toDateString(),

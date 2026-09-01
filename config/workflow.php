@@ -23,4 +23,8 @@ return [
         ? (int) env('PTS2_EXTENSION_AUTO_RECOMMEND_MINUTES') 
         : (int) env('PTS2_EXTENSION_AUTO_RECOMMEND_HOURS') * 60,
 
+    'pts4_extension_minutes' => env('PTS4_EXTENSION_AUTO_RECOMMEND_MINUTES') !== null 
+        ? (int) env('PTS4_EXTENSION_AUTO_RECOMMEND_MINUTES') 
+        : (int) env('PTS4_EXTENSION_AUTO_RECOMMEND_HOURS') * 60,
+
 ];

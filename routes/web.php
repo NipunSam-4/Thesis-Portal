@@ -16,6 +16,7 @@ use App\Http\Controllers\ActingApprovalAuthority\ActingApprovalAuthorityDashboar
 use App\Http\Controllers\Student\StudentDraftSynopsisController;
 use App\Http\Controllers\DraftSynopsisReviewController;
 use App\Http\Controllers\Pts2ExtensionController;
+use App\Http\Controllers\Pts4ExtensionController;
 use App\Http\Controllers\ExternalSupervisor\ExternalSupervisorDashboardController;
 use App\Http\Controllers\ProfileController;
 
@@ -27,7 +28,7 @@ Route::get('/', function () {
 // Profile, Dashboard Dispatcher
 Route::get('/dashboard', function () {
     if (auth('admin')->check()) {
-        return redirect()->route('system_admin.dashboard');
+        return redirect()->route('admin.dashboard');
     }
 
     $user = auth()->user();
@@ -64,7 +65,6 @@ Route::middleware('auth')->group(function () {
     // User Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Secure Private Document Streaming
     Route::get('/pts/document/{formType}/{id}/{field}', [PtsDocumentController::class, 'serveDocument'])->name('pts.document.serve');
@@ -113,6 +113,21 @@ Route::middleware('auth')->group(function () {
 
 
     // ==========================================
+    // PTS-3 (Panel of Examiners) Form Routes
+    // ==========================================
+    // Main Supervisor Form Actions
+    Route::get('/faculty/pts3/create/{student}', [\App\Http\Controllers\Pts3Controller::class, 'create'])->name('faculty.pts3.create');
+    Route::get('/faculty/pts3/{pts3}/edit', [\App\Http\Controllers\Pts3Controller::class, 'edit'])->name('faculty.pts3.edit');
+    Route::post('/faculty/pts3/store/{student}', [\App\Http\Controllers\Pts3Controller::class, 'store'])->name('faculty.pts3.store');
+    Route::match(['post', 'put'], '/faculty/pts3/{pts3}/update', [\App\Http\Controllers\Pts3Controller::class, 'update'])->name('faculty.pts3.update');
+
+    // Single Universal Viewing & Evaluation Routes for PTS-3
+    Route::get('/pts3/{pts3}/show', [\App\Http\Controllers\Pts3Controller::class, 'show'])->name('pts3.show');
+    Route::post('/pts3/{pts3}/endorse', [\App\Http\Controllers\Pts3Controller::class, 'endorse'])->name('pts3.endorse');
+    Route::post('/pts3/{pts3}/revert', [\App\Http\Controllers\Pts3Controller::class, 'revert'])->name('pts3.revert');
+
+
+    // ==========================================
     // PTS-2 Extension Form Routes
     // ==========================================
     // Student Form Actions
@@ -120,24 +135,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/student/pts2-extension/store', [Pts2ExtensionController::class, 'store'])->name('student.pts2_extension.store');
 
     // Universal Viewing & Review Actions
-    Route::get('/pts2-extension/{id}/show', [Pts2ExtensionController::class, 'show'])->name('pts2_extension.show');
-    Route::get('/pts2-extension/{id}/review', [Pts2ExtensionController::class, 'review'])->name('pts2_extension.review');
-    Route::post('/pts2-extension/{id}/review', [Pts2ExtensionController::class, 'submitReview'])->name('pts2_extension.endorse');
+    Route::get('/pts2-extension/{pts2Extension}/show', [Pts2ExtensionController::class, 'show'])->name('pts2_extension.show');
+    Route::get('/pts2-extension/{pts2Extension}/review', [Pts2ExtensionController::class, 'review'])->name('pts2_extension.review');
+    Route::post('/pts2-extension/{pts2Extension}/review', [Pts2ExtensionController::class, 'submitReview'])->name('pts2_extension.endorse');
+
+    // ==========================================
+    // PTS-4 Extension Form Routes
+    // ==========================================
+    // Student Form Actions
+    Route::get('/student/pts4-extension/create', [Pts4ExtensionController::class, 'create'])->name('student.pts4_extension.create');
+    Route::post('/student/pts4-extension/store', [Pts4ExtensionController::class, 'store'])->name('student.pts4_extension.store');
+
+    // Universal Viewing & Review Actions
+    Route::get('/pts4-extension/{pts4Extension}/show', [Pts4ExtensionController::class, 'show'])->name('pts4_extension.show');
+    Route::get('/pts4-extension/{pts4Extension}/review', [Pts4ExtensionController::class, 'review'])->name('pts4_extension.review');
+    Route::post('/pts4-extension/{pts4Extension}/review', [Pts4ExtensionController::class, 'submitReview'])->name('pts4_extension.endorse');
 
 
     // ==========================================
     // Draft Synopsis Circulation Routes
     // ==========================================
     // Student Circulation Submission
-    Route::get('/student/draft-synopsis', [StudentDraftSynopsisController::class, 'show'])->name('student.draft_synopsis.show');
+    Route::get('/student/draft-synopsis/{draftSynopsisCirculation?}', [StudentDraftSynopsisController::class, 'show'])->name('student.draft_synopsis.show');
     Route::post('/student/draft-synopsis/store', [StudentDraftSynopsisController::class, 'store'])->name('student.draft_synopsis.store');
 
     // Authority Review, Comments & Image Streaming
-    Route::get('/draft-synopsis/{id}/review', [DraftSynopsisReviewController::class, 'show'])->name('draft_synopsis.review');
-    Route::post('/draft-synopsis/{id}/comment', [DraftSynopsisReviewController::class, 'comment'])->name('draft_synopsis.comment');
-    Route::post('/draft-synopsis/{id}/upload-comment-image', [DraftSynopsisReviewController::class, 'uploadCommentImage'])->name('draft_synopsis.upload_comment_image');
-    Route::get('/draft-synopsis/{id}/comment-images/{userId}/{filename}', [DraftSynopsisReviewController::class, 'serveCommentImage'])->name('draft_synopsis.serve_comment_image');
-    Route::get('/draft-synopsis/{id}/document', [DraftSynopsisReviewController::class, 'serveDocument'])->name('draft_synopsis.document.serve');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/review', [DraftSynopsisReviewController::class, 'show'])->name('draft_synopsis.review');
+    Route::post('/draft-synopsis/{draftSynopsisCirculation}/comment', [DraftSynopsisReviewController::class, 'comment'])->name('draft_synopsis.comment');
+    Route::post('/draft-synopsis/{draftSynopsisCirculation}/upload-comment-image', [DraftSynopsisReviewController::class, 'uploadCommentImage'])->name('draft_synopsis.upload_comment_image');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/comment-images/{userId}/{filename}', [DraftSynopsisReviewController::class, 'serveCommentImage'])->name('draft_synopsis.serve_comment_image');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/document', [DraftSynopsisReviewController::class, 'serveDocument'])->name('draft_synopsis.document.serve');
 });
 
 // Role-Based Dashboards & General Actions
@@ -171,7 +198,7 @@ Route::prefix('external-supervisor')->middleware(['auth', 'role:external_supervi
 });
 
 // System Admin Routes (System Admin Model Guard)
-Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
     Route::get('/dashboard', [SystemAdminController::class, 'index'])->name('dashboard');
 
     // Department Management
@@ -182,21 +209,39 @@ Route::prefix('system-admin')->name('system_admin.')->middleware(['auth:admin'])
 
     // Core Admin Accounts Management
     Route::get('/admins', [SystemAdminController::class, 'manageCoreAdmins'])->name('admins.index');
-    Route::post('/users', [SystemAdminController::class, 'storeUser'])->name('users.store');
-    Route::put('/users/{user}', [SystemAdminController::class, 'updateUser'])->name('users.update');
-    Route::post('/users/{user}/toggle', [SystemAdminController::class, 'toggleUserStatus'])->name('users.toggle');
+    Route::post('/admins', [SystemAdminController::class, 'storeAdmin'])->name('admins.store');
+    Route::put('/admins/{admin}', [SystemAdminController::class, 'updateAdmin'])->name('admins.update');
+    Route::post('/admins/{admin}/toggle', [SystemAdminController::class, 'toggleAdminStatus'])->name('admins.toggle');
 
-    // Department Authorities Management
+    // General User Status Toggle & Name Update
+    Route::post('/users/{user}/toggle', [SystemAdminController::class, 'toggleUserStatus'])->name('users.toggle');
+    Route::put('/users/{user}/name', [SystemAdminController::class, 'updateAuthorityName'])->name('users.update');
+
+    // Department & Global Authorities Management
     Route::get('/dept-authorities', [SystemAdminController::class, 'manageDeptAuthorities'])->name('dept_authorities.index');
     Route::post('/dept-authorities', [SystemAdminController::class, 'storeDeptAuthority'])->name('dept_authorities.store');
-
-    // Global Authorities Management
     Route::get('/global-authorities', [SystemAdminController::class, 'manageGlobalAuthorities'])->name('global_authorities.index');
     Route::post('/global-authorities', [SystemAdminController::class, 'storeGlobalAuthority'])->name('global_authorities.store');
 
-    // PhD Student Management
+    // Faculties & External Supervisors Management
+    Route::get('/faculties', [SystemAdminController::class, 'manageFaculties'])->name('faculties.index');
+
+    // External Examiners Management
+    Route::get('/examiners', [SystemAdminController::class, 'manageExaminers'])->name('examiners.index');
+
+    // Student Management
     Route::get('/students', [SystemAdminController::class, 'manageStudents'])->name('students.index');
-    Route::post('/students', [SystemAdminController::class, 'storeStudent'])->name('students.store');
+
+    // DOAA Delegation & Pool Management
+    Route::get('/doaa-delegation', [SystemAdminController::class, 'manageDoaaDelegation'])->name('doaa_delegation.index');
+    Route::post('/doaa-delegation/user', [SystemAdminController::class, 'storeActingDoaaUser'])->name('doaa_delegation.user.store');
+    Route::post('/doaa-delegation/pool-save', [SystemAdminController::class, 'saveDoaaPoolMembers'])->name('doaa_delegation.pool.save');
+    Route::post('/doaa-delegation/visibility-save', [SystemAdminController::class, 'saveActingDoaaVisibility'])->name('doaa_delegation.visibility.save');
+    Route::post('/doaa-delegation/vested', [SystemAdminController::class, 'updateVestedDoaa'])->name('doaa_delegation.vested.update');
+
+    // Admin Profile Management
+    Route::get('/profile', [SystemAdminController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [SystemAdminController::class, 'updateProfile'])->name('profile.update');
 });
 
 require __DIR__.'/auth.php';

@@ -51,18 +51,12 @@ class LoginRequest extends FormRequest
             return;
         }
 
-        // Attempt admin guard (system_admin, super_admin)
-        if (Auth::guard('admin')->attempt($credentials, $remember)) {
-            $admin = Auth::guard('admin')->user();
-            if ($admin && !$admin->is_active) {
-                Auth::guard('admin')->logout();
-                RateLimiter::hit($this->throttleKey());
-                throw ValidationException::withMessages([
-                    'email' => 'Your account has been deactivated. Please contact the Academic Office.',
-                ]);
-            }
-            RateLimiter::clear($this->throttleKey());
-            return;
+        // If credentials match an admin, direct them to /admin portal
+        if (Auth::guard('admin')->once($credentials)) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'Admin accounts must log in via the Admin Portal at /admin.',
+            ]);
         }
 
         RateLimiter::hit($this->throttleKey());

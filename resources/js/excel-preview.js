@@ -409,15 +409,18 @@ export async function previewExcelUrl(url, options = {}) {
 
     try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error(`Failed to load publication list: ${res.statusText}`);
+        if (!res.ok) {
+            console.warn(`Excel document could not be fetched from ${url} (Status: ${res.status})`);
+            return { isValid: false, errors: [`Document file not found (${res.status})`], workbook: null };
+        }
         const ab = await res.arrayBuffer();
         const data = new Uint8Array(ab);
         const workbook = window.XLSX.read(data, { type: 'array', cellDates: false, cellText: true, raw: false });
         const valResult = renderExcelPreview(workbook, options);
         return { ...valResult, workbook };
     } catch (err) {
-        console.error('Error previewing Excel from URL:', err);
-        throw err;
+        console.warn('Error previewing Excel from URL:', err);
+        return { isValid: false, errors: [err.message || 'Error loading Excel preview'], workbook: null };
     }
 }
 

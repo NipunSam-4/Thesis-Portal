@@ -38,6 +38,11 @@ class Pts2Extension extends Model
         'doaa_student_comment',
         'doaa_submitted_at',
         'approved_extended_until_date',
+        'main_supervisor_id',
+        'dpgc_user_id',
+        'hod_user_id',
+        'academic_office_user_id',
+        'doaa_user_id',
         'acting_doaa_email',
         'vested_doaa_email',
         'approved_by_authority',
@@ -291,7 +296,7 @@ class Pts2Extension extends Model
     // Format reverted by role label.
     public function getRevertedByRoleLabel(): string
     {
-        return \App\Http\Controllers\ThesisController::getRevertedByRoleLabel($this);
+        return Thesis::getRevertedByRoleLabel($this);
     }
     
     // Get the reversion comment left by the reverting authority.
@@ -300,11 +305,18 @@ class Pts2Extension extends Model
         return $this->reversion_comment;
     }
 
-    // Accessor for human-readable stage label mapped from ThesisController.
+    // Accessor for human-readable stage label mapped from Thesis.
     // Usage in Blade: {{ $pts2Extension->stage_label }}
     public function getStageLabelAttribute(): string
     {
-        return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
+        return Thesis::getStageLabel($this->current_stage);
+    }
+
+    // Accessor for human-readable status label mapped from Thesis.
+    // Usage in Blade: {{ $pts2Extension->status_label }}
+    public function getStatusLabelAttribute(): string
+    {
+        return Thesis::getStatusLabel($this->status);
     }
 
     // Get array of completed submission timestamps for all authorities and student.
@@ -433,10 +445,35 @@ class Pts2Extension extends Model
         }
 
         // 7. Reverted Event (if reverted)
-        if ($revertedItem = \App\Http\Controllers\ThesisController::getRevertedTimelineItem($this)) {
+        if ($revertedItem = Thesis::getRevertedTimelineItem($this)) {
             $timeline[] = $revertedItem;
         }
 
         return $timeline;
+    }
+
+    public function mainSupervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'main_supervisor_id');
+    }
+
+    public function dpgcUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dpgc_user_id');
+    }
+
+    public function hodUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hod_user_id');
+    }
+
+    public function academicOfficeUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'academic_office_user_id');
+    }
+
+    public function doaaUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'doaa_user_id');
     }
 }

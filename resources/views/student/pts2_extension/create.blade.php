@@ -1,15 +1,27 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ $isReverted ? __('Resubmit PTS-2 Extension Application') : __('Apply for PTS-2(Synopsis) Extension') }}
-            </h2>
-            <x-back-to-dashboard-button />
-        </div>
-    </x-slot>
+    <div class="py-6" x-data="pts2ExtensionForm()">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
 
-    <div class="py-4" x-data="pts2ExtensionForm()">
-        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
+            <!-- Top Back to Dashboard Button -->
+            <div>
+                <x-back-to-dashboard-button />
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                        {{ $isReverted ? __('Resubmit PTS-2 Extension Application') : __('Apply for PTS-2(Synopsis) Extension') }}
+                    </h2>
+                </div>
+                @if($isReverted)
+                    <div class="flex items-center space-x-3 shrink-0">
+                        <span class="px-3.5 py-1.5 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-amber-200 dark:border-amber-800">
+                            ⚠️ Reverted
+                        </span>
+                    </div>
+                @endif
+            </div>
 
             <!-- Error Alerts -->
             @if($errors->any())

@@ -50,6 +50,12 @@ return new class extends Migration
             $table->date('approved_extended_until_date')->nullable();
 
             // Acting & Vested DOAA Assignment
+            $table->foreignId('main_supervisor_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('dpgc_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('hod_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('academic_office_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('doaa_user_id')->nullable()->constrained('users')->nullOnDelete();
+
             $table->string('acting_doaa_email')->nullable();
             $table->string('vested_doaa_email')->nullable();
             $table->string('approved_by_authority')->nullable();

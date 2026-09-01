@@ -185,11 +185,11 @@ class DatabaseSeeder extends Seeder
             );
 
             if ($ga['email'] === 'actingdoaa@iiti.ac.in') {
-                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_acting_doaa' => true]);
             } elseif ($ga['email'] === 'vesteddoaa@iiti.ac.in') {
                 VestedDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
             } elseif ($ga['email'] === 'actingvesteddoaa@iiti.ac.in') {
-                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
+                ActingDoaa::firstOrCreate(['user_id' => $u->id], ['is_acting_doaa' => true]);
                 VestedDoaa::firstOrCreate(['user_id' => $u->id], ['is_active' => true]);
             }
         }
@@ -222,7 +222,7 @@ class DatabaseSeeder extends Seeder
 
             ExternalSupervisorProfile::firstOrCreate(
                 ['user_id' => $extUser->id],
-                ['name' => $extData['name'], 'affiliated_institute' => $extData['institute']]
+                ['affiliated_institute' => $extData['institute']]
             );
 
             $extSupUsers[] = $extUser;
@@ -262,7 +262,7 @@ class DatabaseSeeder extends Seeder
                     ['email' => $fac['email']],
                     ['name' => $fac['name'], 'password' => $password, 'role' => 'faculty', 'is_active' => true]
                 );
-                $faculty->facultyProfile()->firstOrCreate(['department_id' => $department->id], ['name' => $fac['name']]);
+                $faculty->facultyProfile()->firstOrCreate(['department_id' => $department->id]);
                 $facultyUsers[] = $faculty;
             }
 

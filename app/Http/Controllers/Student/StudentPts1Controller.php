@@ -232,6 +232,8 @@ class StudentPts1Controller extends Controller
             'main_supervisor_publication_list_doc_path' => $pubListPath,
             'main_supervisor_publication_approval_doc_path' => $pubAppDocPath,
             'main_supervisor_min_time_approval_doc_path' => $minTimeAppDocPath,
+            'main_supervisor_id' => $student->mainSupervisor?->id,
+            'vested_doaa_email' => \App\Models\VestedDoaa::getActiveVestedEmail(),
             'current_stage' => 'main_supervisor',
             'status' => 'in_progress',
         ];

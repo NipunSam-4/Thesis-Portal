@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Pts1Form;
 use App\Models\User;
 use App\Services\PtsDocumentService;
+use App\Http\Requests\Pts1\UpdatePts1SupervisorRequest;
+use App\Http\Requests\Pts1\EndorsePts1Request;
+use App\Http\Requests\Pts1\RevertPts1Request;
 use Illuminate\Http\Request;
 
 class Pts1Controller extends Controller
@@ -18,16 +21,9 @@ class Pts1Controller extends Controller
     // Show the Main Supervisor review & edit form for a PTS-1 submission.
     public function review(Pts1Form $pts1)
     {
-        $user = auth()->user();
+        $this->authorize('supervisorEdit', $pts1);
 
-        // Check if logged-in user is Main Supervisor for this thesis
         $thesis = $pts1->thesis;
-        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
-
-        if (!$isMainSupervisor || $pts1->status !== 'in_progress' || $pts1->current_stage !== 'main_supervisor') {
-            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-1 review.');
-        }
-
         $student = $thesis->student;
         $studentUser = $student->user;
 
@@ -35,50 +31,15 @@ class Pts1Controller extends Controller
     }
 
     // Process Main Supervisor review submission (Edits, Evaluation & Endorsement/Reversion).
-    public function update(Request $request, Pts1Form $pts1)
+    public function update(UpdatePts1SupervisorRequest $request, Pts1Form $pts1)
     {
-        $user = auth()->user();
         $thesis = $pts1->thesis;
-
-        $isMainSupervisor = $thesis->student->isMainSupervisor($user);
-
-        if (!$isMainSupervisor) {
-            return redirect()->route('faculty.dashboard')->with('error', 'Unauthorized access to PTS-1 review.');
-        }
-
+        $validated = $request->validated();
         $pubNormFulfilled = $request->boolean('publication_norm_fulfillment');
         $pubSpecialApproval = $pubNormFulfilled ? null : ($request->has('special_approval_publication') ? $request->boolean('special_approval_publication') : null);
 
         $minTimeFulfilled = $request->boolean('min_time_req_fulfilled');
         $minTimeSpecialApproval = $minTimeFulfilled ? null : ($request->has('special_approval_min_time') ? $request->boolean('special_approval_min_time') : null);
-
-        $requirePubDoc = !$pubNormFulfilled && $pubSpecialApproval && !$pts1->publication_approval_doc_path;
-        $requireMinTimeDoc = !$minTimeFulfilled && $minTimeSpecialApproval && !$pts1->min_time_approval_doc_path;
-
-        $validated = $request->validate([
-            'thesis_title' => 'required|string|max:1000',
-            'date_confirmation' => 'required|date',
-            'seminar_date' => 'required|date',
-            'seminar_time' => 'required|string|max:100',
-            'seminar_venue' => 'required|string|max:255',
-            'meeting_link' => 'nullable|url|max:255',
-            
-            'publication_norm_fulfillment' => 'required|boolean',
-            'special_approval_publication' => 'nullable|boolean',
-            'publication_approval_doc' => ($requirePubDoc ? 'required' : 'nullable') . '|file|mimes:pdf,png,jpg,jpeg|max:2048',
-
-            'min_time_req_fulfilled' => 'required|boolean',
-            'special_approval_min_time' => 'nullable|boolean',
-            'min_time_approval_doc' => ($requireMinTimeDoc ? 'required' : 'nullable') . '|file|mimes:pdf,png,jpg,jpeg|max:2048',
-
-            'draft_synopsis_report' => 'nullable|file|mimes:pdf,docx|max:10240',
-            'publication_list' => 'nullable|file|mimes:xlsx,xls|max:2048',
-
-            'work_status' => 'required|in:adequate,inadequate',
-            'main_supervisor_student_comment' => 'required|string|max:2000',
-            'main_supervisor_confidential_remark' => $request->input('work_status') === 'inadequate' ? 'required|string|max:2000' : 'nullable|string|max:2000',
-            'pspc_undertaking' => 'required|accepted',
-        ]);
 
         // Update active thesis title in database
         $thesis->update(['title' => $validated['thesis_title']]);
@@ -169,7 +130,7 @@ class Pts1Controller extends Controller
         }
 
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -251,7 +212,7 @@ class Pts1Controller extends Controller
         }
 
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
         // Load co-supervisors and PSPC members maps
         $coSupervisors = [];
@@ -333,7 +294,7 @@ class Pts1Controller extends Controller
         $thesis = $pts1->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -365,20 +326,13 @@ class Pts1Controller extends Controller
     // Display dedicated full-page review & endorsement view for PTS-1 with complete audit trail.
     public function reviewEndorse(Pts1Form $pts1)
     {
+        $this->authorize('evaluate', $pts1);
+
         $user = auth()->user();
-
-        // Must be currently authorized to evaluate at this stage
-        if (!$pts1->canUserEvaluate($user)) {
-            if ($pts1->canUserView($user)) {
-                return redirect()->route('pts1.submitted', $pts1->id);
-            }
-            abort(403, 'Unauthorized access to review this submission.');
-        }
-
         $thesis = $pts1->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
-        $mainSupervisor = $student->mainSupervisors->first();
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
         $coSupervisors = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -397,7 +351,7 @@ class Pts1Controller extends Controller
         }
 
         $academicoffice = $user->isAcademicOffice();
-        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_active', true)->with('user')->get()->pluck('user')->filter();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_acting_doaa', true)->with('user')->get()->pluck('user')->filter();
 
         return view('pts1.review_endorse', compact(
             'pts1',
@@ -413,32 +367,18 @@ class Pts1Controller extends Controller
     }
 
     // Handle Endorsement of PTS-1 by an authority (Co-Supervisor, PSPC, DPGC, HOD, Academic Office, DOAA).
-    public function endorse(Request $request, Pts1Form $pts1)
+    public function endorse(EndorsePts1Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();
-
-        if (!$pts1->canUserEvaluate($user)) {
-            abort(403, 'Unauthorized action on this submission.');
-        }
-
         $thesis = $pts1->thesis;
         $stage = $pts1->current_stage;
+        $validated = $request->validated();
 
         if ($stage === 'academic_office') {
-            $validated = $request->validate([
-                'verified_details' => 'required|accepted',
-                'confidential_remark' => 'required|string|max:2000',
-                'acting_doaa_email' => 'nullable|email',
-            ]);
             $isRecommended = true;
             $comment = null;
             $remark = $validated['confidential_remark'];
         } else {
-            $validated = $request->validate([
-                'recommendation' => 'required|boolean',
-                'student_comment' => 'nullable|string|max:2000',
-                'confidential_remark' => $request->boolean('recommendation') ? 'nullable|string|max:2000' : 'required|string|max:2000',
-            ]);
             $isRecommended = $request->boolean('recommendation');
             $comment = $validated['student_comment'] ?? null;
             $remark = $validated['confidential_remark'] ?? null;
@@ -542,6 +482,7 @@ class Pts1Controller extends Controller
                     'dpgc_recommendation' => $isRecommended,
                     'dpgc_confidential_remark' => $remark,
                     'dpgc_submitted_at' => now(),
+                    'dpgc_user_id' => $user->id,
                     'current_stage' => 'hod',
                 ]);
                 break;
@@ -556,6 +497,7 @@ class Pts1Controller extends Controller
                     'hod_recommendation' => $isRecommended,
                     'hod_confidential_remark' => $remark,
                     'hod_submitted_at' => now(),
+                    'hod_user_id' => $user->id,
                     'current_stage' => 'academic_office',
                 ]);
                 break;
@@ -570,6 +512,7 @@ class Pts1Controller extends Controller
                     'academic_office_verified' => $isRecommended,
                     'academic_office_confidential_remark' => $remark,
                     'academic_office_submitted_at' => now(),
+                    'academic_office_user_id' => $user->id,
                     'acting_doaa_email' => $actingDoaaEmail,
                     'current_stage' => 'doaa',
                 ]);
@@ -584,6 +527,7 @@ class Pts1Controller extends Controller
                     'doaa_approval' => $isRecommended,
                     'doaa_confidential_remark' => $remark,
                     'doaa_submitted_at' => now(),
+                    'doaa_user_id' => $user->id,
                     'approved_by_authority' => $user->email,
                     'current_stage' => 'completed',
                     'status' => $isRecommended ? 'approved' : 'rejected',
@@ -605,16 +549,11 @@ class Pts1Controller extends Controller
     }
 
     // Handle Reversion of PTS-1 form by an authority back to student.
-    public function revert(Request $request, Pts1Form $pts1)
+    public function revert(RevertPts1Request $request, Pts1Form $pts1)
     {
         $user = auth()->user();
-
-        if (!$pts1->canUserEvaluate($user)) {
-            abort(403, 'Unauthorized action on this submission.');
-        }
-
-        $request->validate(['reversion_comment' => 'required|string|max:2000']);
-        $comment = $request->input('reversion_comment');
+        $validated = $request->validated();
+        $comment = $validated['reversion_comment'];
 
         $student = $pts1->thesis?->student;
         $isMainSup = $student && ($student->isMainSupervisor($user) || $student->mainSupervisors->pluck('id')->contains($user->id));

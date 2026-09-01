@@ -26,9 +26,9 @@ class Pts6Form extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    // Accessor for human-readable stage label mapped from ThesisController.
+    // Accessor for human-readable stage label mapped from Thesis.
     public function getStageLabelAttribute(): string
     {
-        return \App\Http\Controllers\ThesisController::getStageLabel($this->current_stage);
+        return Thesis::getStageLabel($this->current_stage);
     }
 }
