@@ -13,7 +13,7 @@ class PtsDocumentService
      */
     public function storeDraftSynopsis(UploadedFile $file, string $rollNumber, int $thesisId): string
     {
-        $ext = $file->getClientOriginalExtension();
+        $ext = $file->getClientOriginalExtension() ?: 'pdf';
         $filename = "{$rollNumber}_Draft_Synopsis_Circulation.{$ext}";
         $dir = "students/{$rollNumber}/thesis_{$thesisId}/draft_synopsis";
 
@@ -57,57 +57,52 @@ class PtsDocumentService
     }
 
     /**
-     * Store an in-progress document for PTS-1, PTS-2, etc.
-     * Path: students/{rollNumber}/thesis_{thesisId}/{formType}/in_progress/{rollNumber}_{FORM}_{DocKey}_{Origin}.{ext}
+     * Handle document upload or retention for an in-progress form.
+     * - If a new file is uploaded ($file): saves it fresh into in_progress/
+     * - If no new file is uploaded ($file is null): checks $existingPath. If $existingPath is in reverted/ or elsewhere outside in_progress/, copies it into in_progress/. If already in in_progress/, keeps it.
+     * - Returns the final in_progress storage path (or null if no file).
      */
-    public function storeInProgressDocument(
-        UploadedFile $file,
-        string $rollNumber,
-        int $thesisId,
-        string $formType,      // 'pts1', 'pts2'
-        string $docKey,        // 'Draft_Synopsis', 'Publication_List', 'Min_Time_Approval', etc.
-        string $origin = 'Student' // 'Student' or 'Supervisor_Modified'
-    ): string {
-        $ext = $file->getClientOriginalExtension();
-        $formPrefix = strtoupper($formType);
-        $filename = "{$rollNumber}_{$formPrefix}_{$docKey}_{$origin}.{$ext}";
-        $dir = "students/{$rollNumber}/thesis_{$thesisId}/{$formType}/in_progress";
-
-        return $file->storeAs($dir, $filename, 'local');
-    }
-
-    /**
-     * Copy an existing file (e.g. from a reverted folder) into in_progress/ for resubmission.
-     */
-    public function copyExistingToInProgress(
+    public function handleInProgressFile(
+        ?UploadedFile $file,
         ?string $existingPath,
         string $rollNumber,
         int $thesisId,
-        string $formType,
-        string $docKey,
-        string $origin = 'Student'
+        string $formType,          // 'pts1', 'pts2', 'pts3', 'pts4'
+        string $docKey,            // 'Draft_Synopsis', 'Publication_List', 'Synopsis_Report', etc.
+        string $origin = 'Student' // 'Student' or 'Supervisor_Modified'
     ): ?string {
-        if (!$existingPath) {
-            return null;
-        }
-
         $disk = Storage::disk('local');
-        if (!$disk->exists($existingPath)) {
-            return null;
-        }
-
-        $ext = pathinfo($existingPath, PATHINFO_EXTENSION) ?: 'pdf';
-        $formPrefix = strtoupper($formType);
-        $filename = "{$rollNumber}_{$formPrefix}_{$docKey}_{$origin}.{$ext}";
         $dir = "students/{$rollNumber}/thesis_{$thesisId}/{$formType}/in_progress";
-        $targetPath = "{$dir}/{$filename}";
+        $formPrefix = strtoupper($formType);
 
-        if (!$disk->exists($dir)) {
-            $disk->makeDirectory($dir);
+        // Case 1: Fresh file uploaded in request
+        if ($file instanceof UploadedFile) {
+            $ext = $file->getClientOriginalExtension() ?: 'pdf';
+            $filename = "{$rollNumber}_{$formPrefix}_{$docKey}_{$origin}.{$ext}";
+            return $file->storeAs($dir, $filename, 'local');
         }
 
-        $disk->copy($existingPath, $targetPath);
-        return $targetPath;
+        // Case 2: Existing file retention (e.g. student resubmitting after reversion without re-uploading)
+        if ($existingPath && $disk->exists($existingPath)) {
+            $ext = pathinfo($existingPath, PATHINFO_EXTENSION) ?: 'pdf';
+            $filename = "{$rollNumber}_{$formPrefix}_{$docKey}_{$origin}.{$ext}";
+            $targetPath = "{$dir}/{$filename}";
+
+            // If already in target in_progress directory, keep it
+            if ($existingPath === $targetPath) {
+                return $existingPath;
+            }
+
+            if (!$disk->exists($dir)) {
+                $disk->makeDirectory($dir);
+            }
+
+            // Copy from reverted/archived folder into in_progress
+            $disk->copy($existingPath, $targetPath);
+            return $targetPath;
+        }
+
+        return null;
     }
 
     /**
@@ -205,6 +200,8 @@ class PtsDocumentService
             'synopsis_report_doc_path',
             'main_supervisor_synopsis_report_doc_path',
             'draft_synopsis_doc_path',
+            'thesis_doc_path',
+            'main_supervisor_thesis_doc_path',
         ];
 
         $updatedAttributes = [];

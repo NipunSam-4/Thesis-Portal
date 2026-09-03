@@ -25,7 +25,7 @@
     ])
 
     @include('emails.components.action_button', [
-        'actionUrl' => $actionUrl ?? route('draft_synopsis.review.index'),
+        'actionUrl' => $actionUrl ?? route('login'),
         'actionText' => 'Review Draft Synopsis in Portal'
     ])
 

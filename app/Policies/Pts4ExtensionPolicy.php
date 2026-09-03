@@ -36,9 +36,9 @@ class Pts4ExtensionPolicy
     }
 
     /**
-     * Determine if the user can evaluate/endorse the PTS-4 Extension form.
+     * Determine if the user can review/endorse the PTS-4 Extension form.
      */
-    public function evaluate(User $user, Pts4Extension $pts4Extension): bool
+    public function review(User $user, Pts4Extension $pts4Extension): bool
     {
         if ($pts4Extension->status !== 'in_progress') {
             return false;
@@ -69,6 +69,6 @@ class Pts4ExtensionPolicy
      */
     public function revert(User $user, Pts4Extension $pts4Extension): bool
     {
-        return $this->evaluate($user, $pts4Extension);
+        return $this->review($user, $pts4Extension);
     }
 }

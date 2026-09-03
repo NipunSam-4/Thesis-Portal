@@ -55,12 +55,15 @@ class DraftSynopsisCirculation extends Model
     public function getSubmittedTimeline(): array
     {
         $timeline = [];
+        $student = $this->thesis?->student;
 
         if ($this->created_at) {
             $timeline[] = [
                 'role' => 'Student Circulation',
-                'name' => $this->student?->user?->name ?? 'Student',
+                'name' => $student?->user?->name ?? 'Student',
                 'submitted_at' => $this->created_at,
+                'status_type' => 'submitted',
+                'status_label' => '✓ Circulated',
             ];
         }
 
@@ -69,10 +72,10 @@ class DraftSynopsisCirculation extends Model
                 'main_supervisor' => 'Main Supervisor',
                 'co_supervisor' => 'Co-Supervisor',
                 'pspc_member' => 'PSPC Member',
-                'dpgc' => 'DPGC Convenor',
+                'dpgc' => 'DPGC Convener',
                 'hod' => 'Head of Department',
                 'academic_office' => 'Academic Office',
-                'doaa' => 'DOAA',
+                'doaa' => 'Dean of Academic Affairs',
                 default => str_replace('_', ' ', ucfirst($comment->authority_role ?? '')),
             };
 
@@ -86,6 +89,8 @@ class DraftSynopsisCirculation extends Model
                 'name' => $user?->name ?? $roleLabel,
                 'institute' => $institute,
                 'submitted_at' => $comment->created_at,
+                'status_type' => 'submitted',
+                'status_label' => '💬 Commented',
             ];
         }
         return $timeline;

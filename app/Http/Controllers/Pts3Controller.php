@@ -6,15 +6,18 @@ use App\Models\Pts3Form;
 use App\Models\Pts3Examiner;
 use App\Models\Pts3OebMember;
 use App\Models\Student;
+use App\Models\VestedDoaa;
 use App\Models\User;
 use App\Models\Thesis;
 use App\Http\Requests\Pts3\StorePts3Request;
 use App\Http\Requests\Pts3\UpdatePts3Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class Pts3Controller extends Controller
 {
+    use AuthorizesRequests;
     // Show Main Supervisor initiation form
     public function create(Student $student)
     {
@@ -67,8 +70,8 @@ class Pts3Controller extends Controller
         }
         $thesis->update(['title' => $validated['thesis_title']]);
 
-        // Map co-supervisors
-        $coSupervisors = $student->allCoSupervisors()->pluck('id')->all();
+        // Map active co-supervisors
+        $coSupervisors = $student->activeAllCoSupervisors()->pluck('id')->all();
         $coSupData = [];
         for ($i = 1; $i <= 10; $i++) {
             $col = "co_supervisor_{$i}_id";
@@ -160,7 +163,8 @@ class Pts3Controller extends Controller
             return redirect()->route('dashboard')->with('error', 'You are not authorized to view this reverted PTS-3 form trail.');
         }
 
-        $canEvaluate = $this->canUserEvaluate($user, $pts3);
+        $canReview = $this->canUserReview($user, $pts3);
+        $canEvaluate = $canReview;
         $thesis = $pts3->thesis;
         $student = $thesis?->student;
         
@@ -177,6 +181,7 @@ class Pts3Controller extends Controller
             'student',
             'studentUser',
             'userRank',
+            'canReview',
             'canEvaluate',
             'indianExaminers',
             'internationalExaminers',
@@ -187,7 +192,7 @@ class Pts3Controller extends Controller
     // Endorse action for active evaluating authority
     public function endorse(Request $request, Pts3Form $pts3)
     {
-        $this->authorize('evaluate', $pts3);
+        $this->authorize('review', $pts3);
 
         $user = auth()->user();
         $stage = $pts3->current_stage;
@@ -287,7 +292,7 @@ class Pts3Controller extends Controller
                 $pts3->senate_chairperson_confidential_remark = $request->input('senate_chairperson_confidential_remark');
                 $pts3->status = $isApproved ? 'approved' : 'rejected';
                 $pts3->current_stage = 'completed';
-                $pts3->approved_by_authority = $isApproved ? 'Senate Chairperson' : null;
+                $pts3->approved_by_id = $isApproved ? $user->id : null;
                 $pts3->save();
 
                 // Save Senate Chairperson priorities
@@ -404,8 +409,8 @@ class Pts3Controller extends Controller
         };
     }
 
-    // Helper: Check if user is currently authorized to evaluate
-    protected function canUserEvaluate(User $user, Pts3Form $pts3): bool
+    // Helper: Check if user is currently authorized to review/endorse
+    protected function canUserReview(User $user, Pts3Form $pts3): bool
     {
         if ($pts3->status !== 'in_progress') {
             return false;

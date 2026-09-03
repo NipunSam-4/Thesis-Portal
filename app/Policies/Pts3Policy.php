@@ -24,9 +24,9 @@ class Pts3Policy
     }
 
     /**
-     * Determine if the user can evaluate/endorse the PTS-3 form at the current stage.
+     * Determine if the user can review and endorse the PTS-3 form at the current stage.
      */
-    public function evaluate(User $user, Pts3Form $pts3): bool
+    public function review(User $user, Pts3Form $pts3): bool
     {
         if ($pts3->status !== 'in_progress') {
             return false;

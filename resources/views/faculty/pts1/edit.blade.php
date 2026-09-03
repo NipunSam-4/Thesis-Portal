@@ -14,7 +14,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="space-y-1">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                        {{ __("Review & Evaluate {$formPrefix}-1 Form") }}
+                        {{ __("Review & Endorse {$formPrefix}-1 Form") }}
                     </h2>
                 </div>
             </div>
@@ -74,41 +74,44 @@
 
                 <!-- Section 1: Read-Only Student Information -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center">
-                            1. Student Information
-                        </h3>
-                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+                        1. Student Information
+                    </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
-                            <input type="text" value="{{ $studentUser->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Student Name" />
+                            <x-readonly-input :value="$studentUser->name" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Roll Number" />
+                            <x-readonly-input :value="$student->roll_number" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Department" />
+                            <x-readonly-input :value="$student->department->name ?? 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Registration" />
+                            <x-readonly-input :value="$student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Joining" />
+                            <x-readonly-input :value="$student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation <span class="text-red-500">*</span></label>
-                            <input type="date" name="date_confirmation" required x-model="dateConfirmation" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
+                            <x-form-label value="Date of Confirmation" :required="true" />
+                            <x-form-input type="date" name="date_confirmation" required x-model="dateConfirmation" />
+                        </div>
+
+                        <div>
+                            <x-readonly-label value="Date of Submission" />
+                            <x-readonly-input :value="$pts1->created_at ? $pts1->created_at->format('d-m-Y') : 'N/A'" />
                         </div>
                     </div>
                 </div>
@@ -119,8 +122,8 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Thesis Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="thesis_title" required value="{{ old('thesis_title', $pts1->effective_thesis_title) }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
+                        <x-form-label value="Thesis Title" :required="true" />
+                        <x-form-input type="text" name="thesis_title" required :value="old('thesis_title', $pts1->effective_thesis_title)" />
                     </div>
                 </div>
 
@@ -132,23 +135,23 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Date of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="date" name="seminar_date" required x-model="seminarDate" min="{{ $pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : '' }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"> 
+                            <x-form-label value="Date of Open Seminar" :required="true" />
+                            <x-form-input type="date" name="seminar_date" required x-model="seminarDate" min="{{ $pts1->seminar_date ? $pts1->seminar_date->format('Y-m-d') : '' }}" /> 
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Time of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="time" name="seminar_time" required x-model="seminarTime" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
+                            <x-form-label value="Time of Open Seminar" :required="true" />
+                            <x-form-input type="time" name="seminar_time" required x-model="seminarTime" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Venue of Open Seminar <span class="text-red-500">*</span></label>
-                            <input type="text" name="seminar_venue" required x-model="seminarVenue" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <x-form-label value="Venue of Open Seminar" :required="true" />
+                            <x-form-input type="text" name="seminar_venue" required x-model="seminarVenue" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Online Meeting Link (Optional)</label>
-                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <x-form-label value="Online Meeting Link (Optional)" />
+                            <x-form-input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" />
                         </div>
                     </div>
                 </div>
@@ -156,7 +159,7 @@
                 <!-- Section 4: Institute Norms & Criteria Verification -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        4. Institute Norms & Criteria Verification
+                        4. Institute Norms & Requirements
                     </h3>
                     
                     <!-- Minimum Time Requirement -->
@@ -347,7 +350,7 @@
                 <!-- Section 5: Document Uploads & Live Multi-Sheet XLSX Preview -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        5. Uploaded Documents & Replacement Options
+                        5. Submitted Documents
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -485,7 +488,7 @@
                     <!-- Item 1: Work Status Radio Cards -->
                     <div class="space-y-4">
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
-                            1. The work done by the candidate towards the degree of Doctor of Philosophy (PhD) is, as of date: <span class="text-red-500">*</span>
+                            1. The work done by the student towards the degree of Doctor of Philosophy (PhD) is, as of date: <span class="text-red-500">*</span>
                         </label>
 
                         <div class="grid grid-cols-1 gap-4">
@@ -593,66 +596,13 @@
             </form>
 
             <!-- Revert Confirmation Pop-Up Modal -->
-            <div x-show="showRevertModal" 
-                 x-cloak 
-                 class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0">
-
-                <div @click.away="showRevertModal = false" 
-                     class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-700 space-y-5"
-                     x-transition:enter="transition ease-out duration-200"
-                     x-transition:enter-start="opacity-0 scale-95"
-                     x-transition:enter-end="opacity-100 scale-100">
-
-                    <div class="flex items-center space-x-3 border-b border-gray-100 dark:border-gray-700 pb-3">
-                        <div class="p-2.5 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600 dark:text-amber-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Revert PTS-1 Form to Student</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Send form back to candidate for required changes</p>
-                        </div>
-                    </div>
-
-                    <!-- Independent Revert Form -->
-                    <form action="{{ route('pts1.revert', $pts1->id) }}" method="POST" class="space-y-4" @submit="clearDraft()">
-                        @csrf
-
-                        <div>
-                            <label class="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-1.5">
-                                Reversion Comment <span class="text-red-500">*</span>
-                            </label>
-                            <textarea name="reversion_comment" 
-                                      required 
-                                      rows="4" 
-                                      placeholder="Provide clear reasons/instructions for the student regarding required modifications..." 
-                                      class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500 whitespace-pre-wrap"></textarea>
-                        </div>
-
-                        <div class="flex justify-end space-x-3 pt-2">
-                            <button type="button" 
-                                    @click="showRevertModal = false" 
-                                    class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl transition">
-                                Cancel
-                            </button>
-                            <button type="submit" 
-                                    class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center">
-                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                                </svg>
-                                Confirm Revert
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <x-revert-modal 
+                show="showRevertModal" 
+                :action="route('pts1.revert', $pts1->id)" 
+                :title="__('Revert :prefix-1 Form to Student', ['prefix' => $formPrefix])"
+                subtitle="Send form back to student for required changes"
+                onSubmit="clearDraft()"
+            />
 
         </div>
     </div>
@@ -761,7 +711,16 @@
                     const limitMB = this.maxSizes[key] || 2;
 
                     if (sizeInMB > limitMB) {
-                        this.fileErrors[key] = `File size (${sizeInMB.toFixed(2)} MB) exceeds standard default PHP limit of ${limitMB} MB. Please select a smaller file.`;
+                        const formattedSize = sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+                        window.dispatchEvent(new CustomEvent('file-size-exceeded', {
+                            detail: {
+                                fileName: file.name,
+                                fileSize: formattedSize,
+                                limitMB: `${limitMB} MB`,
+                                inputId: event.target.id
+                            }
+                        }));
+                        this.fileErrors[key] = `File size (${formattedSize}) exceeds permissible limit of ${limitMB} MB. Please select a smaller file.`;
                         event.target.value = '';
                         this.clearFile(key, event.target.id);
                         return false;

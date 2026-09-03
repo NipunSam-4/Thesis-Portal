@@ -93,7 +93,7 @@ class SeedApprovedPts2 extends Command
 
                 'status' => 'approved',
                 'current_stage' => 'completed',
-                'approved_by_authority' => 'DOAA',
+                'approved_by_id' => $doaa?->id,
             ], $coSupData)
         );
 

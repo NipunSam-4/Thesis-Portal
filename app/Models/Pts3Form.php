@@ -74,12 +74,12 @@ class Pts3Form extends Model
 
     public function indianExaminers(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class)->where('type', 'indian');
+        return $this->hasMany(Pts3Examiner::class)->where('examiner_type', 'indian');
     }
 
     public function internationalExaminers(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class)->where('type', 'international');
+        return $this->hasMany(Pts3Examiner::class)->where('examiner_type', 'international');
     }
 
     public function oebMembers(): HasMany
@@ -96,6 +96,35 @@ class Pts3Form extends Model
     {
         $id = $this->{"co_supervisor_{$index}_id"};
         return $id ? User::find($id) : null;
+    }
+
+    /**
+     * Get all co-supervisors assigned to this form keyed by slot index (1 to 10).
+     * Executes in 1 single database query.
+     */
+    public function getCoSupervisors(): array
+    {
+        $ids = [];
+        for ($i = 1; $i <= 10; $i++) {
+            if ($id = $this->{"co_supervisor_{$i}_id"}) {
+                $ids[$i] = $id;
+            }
+        }
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $users = User::whereIn('id', array_values($ids))->get()->keyBy('id');
+
+        $result = [];
+        foreach ($ids as $slot => $userId) {
+            if (isset($users[$userId])) {
+                $result[$slot] = $users[$userId];
+            }
+        }
+
+        return $result;
     }
 
     public function dpgcUser(): BelongsTo
@@ -168,108 +197,76 @@ class Pts3Form extends Model
 
         $thesis = $this->thesis;
         $student = $thesis?->student;
-        $stage = $this->current_stage;
-        $stageRank = self::getRoleRank($stage);
-        $statuses = [];
+        $stageRank = self::getRoleRank($this->current_stage);
 
         // 1. Main Supervisor (Rank 1)
         if ($student?->isMainSupervisor($user) || $this->main_supervisor_id === $user->id) {
-            if ($stageRank < 1) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 1) {
-                $statuses[] = ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 1) return 'not_reached';
+            if ($stageRank === 1) {
+                return ($this->main_supervisor_submitted_at && $this->main_supervisor_recommendation !== null) ? 'allowed' : 'pending_endorsement';
             }
+            return 'allowed';
         }
 
         // 2. Co-Supervisors (Internal and External) (Rank 2)
-        $coSupSlot = null;
         for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($this->$col == $user->id) {
-                $coSupSlot = $i;
-                break;
-            }
-        }
-        if ($coSupSlot !== null) {
-            if ($stageRank < 2) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 2) {
-                $subCol = "co_supervisor_{$coSupSlot}_submitted_at";
-                $recCol = "co_supervisor_{$coSupSlot}_recommendation";
-                $statuses[] = ($this->$subCol || !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($this->{"co_supervisor_{$i}_id"} == $user->id) {
+                if ($stageRank < 2) return 'not_reached';
+                if ($stageRank === 2) {
+                    $subCol = "co_supervisor_{$i}_submitted_at";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    return ($this->$subCol && !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
+                }
+                return 'allowed';
             }
         }
 
         // 3. DPGC (Rank 3)
         if ($user->isDpgc() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
-            if ($stageRank < 3) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 3) {
-                $statuses[] = ($this->dpgc_submitted_at || !is_null($this->dpgc_recommendation)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 3) return 'not_reached';
+            if ($stageRank === 3) {
+                return ($this->dpgc_submitted_at && !is_null($this->dpgc_recommendation)) ? 'allowed' : 'pending_endorsement';
             }
+            return 'allowed';
         }
 
         // 4. HOD (Rank 4)
         if ($user->isHod() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
-            if ($stageRank < 4) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 4) {
-                $statuses[] = ($this->hod_submitted_at || !is_null($this->hod_recommendation)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 4) return 'not_reached';
+            if ($stageRank === 4) {
+                return ($this->hod_submitted_at && !is_null($this->hod_recommendation)) ? 'allowed' : 'pending_endorsement';
             }
+            return 'allowed';
         }
 
         // 5. Academic Office (Rank 5)
         if ($user->isAcademicOffice()) {
-            if ($stageRank < 5) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 5) {
-                $statuses[] = ($this->academic_office_submitted_at || !is_null($this->academic_office_is_verified)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 5) return 'not_reached';
+            if ($stageRank === 5) {
+                return ($this->academic_office_submitted_at && !is_null($this->academic_office_is_verified)) ? 'allowed' : 'pending_endorsement';
             }
+            return 'allowed';
         }
 
         // 6. DOAA / ADoAA / Acting DOAA / Vested DOAA (Rank 6)
         if ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
-            if ($stageRank < 6) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 6) {
-                $statuses[] = ($this->doaa_submitted_at || !is_null($this->doaa_is_verified)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 6) return 'not_reached';
+            if ($stageRank === 6) {
+                return ($this->doaa_submitted_at && !is_null($this->doaa_is_verified)) ? 'allowed' : 'pending_endorsement';
             }
+            return 'allowed';
         }
 
         // 7. Senate Chairperson (Rank 7)
         if ($user->isSenateChairperson()) {
-            if ($stageRank < 7) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 7) {
-                $statuses[] = ($this->senate_chairperson_submitted_at || !is_null($this->senate_chairperson_approval)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+            if ($stageRank < 7) return 'not_reached';
+            if ($stageRank === 7) {
+                return ($this->senate_chairperson_submitted_at && !is_null($this->senate_chairperson_approval)) ? 'allowed' : 'pending_endorsement';
             }
-        }
-
-        if (empty($statuses)) {
-            return 'unauthorized';
-        }
-
-        if (in_array('pending_endorsement', $statuses)) {
-            return 'pending_endorsement';
-        }
-        if (in_array('allowed', $statuses)) {
             return 'allowed';
         }
-        return 'not_reached';
+
+        return 'unauthorized';
     }
 
     // Check if user is authorized to view this PTS-3 form in its current state
@@ -320,8 +317,8 @@ class Pts3Form extends Model
         return false;
     }
 
-    // Check if user is currently authorized to evaluate/endorse this PTS-3 form
-    public function canUserEvaluate(?User $user): bool
+    // Check if user is currently authorized to review/endorse this PTS-3 form
+    public function canUserReview(?User $user): bool
     {
         if (!$user || $this->status !== 'in_progress') {
             return false;
@@ -330,15 +327,19 @@ class Pts3Form extends Model
         return $this->getUserSubmissionAccessStatus($user) === 'pending_endorsement';
     }
 
-    public function canUserViewRevertedForm(User $user): bool
+    public function canUserViewRevertedForm(?User $user): bool
     {
+        if (!$user || $this->status !== 'reverted') {
+            return false;
+        }
+
         if ($user->isStudent()) {
             return false;
         }
 
         $reverterRole = $this->reverted_by_role;
         if (!$reverterRole) {
-            return true;
+            return false;
         }
 
         $reverterRank = self::getRoleRank($reverterRole);
@@ -386,166 +387,11 @@ class Pts3Form extends Model
      */
     public function getSubmittedTimeline(): array
     {
-        $timeline = [];
-        $student = $this->thesis?->student;
+        return Thesis::getSubmissionTimeline($this);
+    }
 
-        // 1. Main Supervisor
-        $mainSup = $student?->mainSupervisors?->first() ?? $student?->mainSupervisor;
-        $mainSupSubmitted = $this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null;
-        if ($mainSupSubmitted) {
-            $timeline[] = [
-                'role' => 'Main Supervisor',
-                'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => $this->main_supervisor_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'main_supervisor') {
-            $timeline[] = [
-                'role' => 'Main Supervisor',
-                'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 3. Co-Supervisors & External Supervisors
-        $coSupervisors = $student?->allCoSupervisors() ?? collect();
-        $hasCoSupervisors = $coSupervisors->count() > 0 || $this->co_supervisor_1_id;
-        if ($hasCoSupervisors) {
-            $maxCo = max(1, $coSupervisors->count());
-            for ($i = 1; $i <= 10; $i++) {
-                $coSup = $this->getCoSupervisor($i) ?? $coSupervisors->get($i - 1);
-                if (!$coSup && $i > $maxCo) break;
-
-                $roleLabel = ($student && $coSup) ? $student->getSupervisorRoleTitle($coSup) : "Co-Supervisor {$i}";
-                $nameLabel = $coSup?->name ?? "Co-Supervisor {$i}";
-                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"}
-                    ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null);
-                $isSubmitted = $this->{"co_supervisor_{$i}_recommendation"} !== null || $submittedAt;
-
-                if ($isSubmitted) {
-                    $timeline[] = [
-                        'role' => $roleLabel,
-                        'name' => $nameLabel,
-                        'submitted_at' => $submittedAt,
-                        'status_type' => 'submitted',
-                        'status_label' => '✓ Submitted',
-                    ];
-                } elseif ($this->status === 'in_progress' && $this->current_stage === 'co_supervisors') {
-                    $timeline[] = [
-                        'role' => $roleLabel,
-                        'name' => $nameLabel,
-                        'submitted_at' => null,
-                        'status_type' => 'pending',
-                        'status_label' => '⏳ Pending',
-                    ];
-                }
-            }
-        }
-
-        // 4. DPGC
-        if ($this->dpgc_submitted_at || $this->dpgc_recommendation !== null) {
-            $timeline[] = [
-                'role' => 'DPGC',
-                'name' => $this->dpgcUser?->name ?? 'DPGC Convener',
-                'submitted_at' => $this->dpgc_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'dpgc') {
-            $timeline[] = [
-                'role' => 'DPGC',
-                'name' => $this->dpgcUser?->name ?? 'DPGC Convener',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 5. HOD
-        if ($this->hod_submitted_at || $this->hod_recommendation !== null) {
-            $timeline[] = [
-                'role' => 'HOD',
-                'name' => $this->hodUser?->name ?? 'Head of Department',
-                'submitted_at' => $this->hod_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'hod') {
-            $timeline[] = [
-                'role' => 'HOD',
-                'name' => $this->hodUser?->name ?? 'Head of Department',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 6. Academic Office
-        if ($this->academic_office_submitted_at || $this->academic_office_is_verified !== null) {
-            $timeline[] = [
-                'role' => 'Academic Office',
-                'name' => $this->academicOfficeUser?->name ?? 'Academic Office Staff',
-                'submitted_at' => $this->academic_office_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Verified',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'academic_office') {
-            $timeline[] = [
-                'role' => 'Academic Office',
-                'name' => $this->academicOfficeUser?->name ?? 'Academic Office Staff',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 7. DOAA
-        if ($this->doaa_submitted_at || $this->doaa_is_verified !== null) {
-            $timeline[] = [
-                'role' => 'DOAA',
-                'name' => $this->doaaUser?->name ?? 'Dean of Academic Affairs',
-                'submitted_at' => $this->doaa_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Evaluated',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'doaa') {
-            $timeline[] = [
-                'role' => 'DOAA',
-                'name' => $this->doaaUser?->name ?? 'Dean of Academic Affairs',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 8. Senate Chairperson
-        if ($this->senate_chairperson_submitted_at || $this->senate_chairperson_approval !== null) {
-            $timeline[] = [
-                'role' => 'Senate Chairperson',
-                'name' => $this->senateChairpersonUser?->name ?? 'Senate Chairperson',
-                'submitted_at' => $this->senate_chairperson_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => $this->senate_chairperson_approval ? '✓ Approved' : 'Rejected',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'senate_chairperson') {
-            $timeline[] = [
-                'role' => 'Senate Chairperson',
-                'name' => $this->senateChairpersonUser?->name ?? 'Senate Chairperson',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 9. Reverted step if reverted
-        $revertedItem = Thesis::getRevertedTimelineItem($this);
-        if ($revertedItem) {
-            $timeline[] = $revertedItem;
-        }
-
-        return $timeline;
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_id');
     }
 }

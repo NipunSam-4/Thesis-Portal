@@ -70,7 +70,7 @@
                     <!-- Website -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Website Profile Link (Optional)</label>
-                        <input type="url" x-model="examiner.website" :name="`{{ $namePrefix }}[${index}][website]`" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="https://...">
+                        <input type="url" x-model="examiner.website" :name="`{{ $namePrefix }}[${index}][website]`" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="https://example.com">
                     </div>
                     <!-- Research Area -->
                     <div>
@@ -93,8 +93,8 @@
                         </div>
                         
                         <div x-show="examiner.has_consent === '1'" class="mt-3 p-3 bg-white dark:bg-gray-800 rounded border border-gray-300 dark:border-gray-600">
-                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Upload Consent Letter/Email (PDF/DOCX, Max 2MB) *</label>
-                            <input type="file" :name="`{{ $namePrefix }}[${index}][consent_doc]`" accept=".pdf,.doc,.docx" :required="examiner.has_consent === '1'" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Upload Consent Letter/Email (PDF/DOCX, Max 2 MB) *</label>
+                            <input type="file" :name="`{{ $namePrefix }}[${index}][consent_doc]`" accept=".pdf,.doc,.docx" data-max-size="2" :required="examiner.has_consent === '1'" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                     </div>
                 </div>

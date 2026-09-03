@@ -294,145 +294,152 @@
                 <div class="space-y-4">
                     <!-- 1. Main Supervisor -->
                     @if($userRank >= 1)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="main_supervisor">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">Main Supervisor Recommendation</span>
+                                <span class="font-semibold text-indigo-900 dark:text-indigo-200">Main Supervisor Recommendation</span>
                                 @if($pts3->main_supervisor_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->main_supervisor_submitted_at)
-                                <p class="text-xs text-gray-400 mt-1">Submitted at: {{ $pts3->main_supervisor_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->main_supervisor_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 2. Co-Supervisors -->
                     @if($userRank >= 2)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="co_supervisor">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">Co-Supervisors Recommendations</span>
+                                <span class="font-semibold text-blue-900 dark:text-blue-200">Co-Supervisors Recommendations</span>
                                 @if($pts3->co_supervisors_submitted_at)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Completed</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Completed</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full font-medium">In Progress</span>
+                                    <span class="text-xs px-2.5 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 rounded-full font-medium">In Progress</span>
                                 @endif
                             </div>
                             <div class="mt-3 space-y-2 text-xs">
                                 @for ($i = 1; $i <= 10; $i++)
                                     @php $coUser = $pts3->getCoSupervisor($i); @endphp
                                     @if($coUser)
-                                        <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-100 dark:border-gray-700">
-                                            <span>{{ $coUser->name }}</span>
+                                        @php
+                                            $isExt = $coUser->isExternalSupervisor();
+                                            $roleTitle = $pts3->student ? $pts3->student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                            $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                        @endphp
+                                        <div class="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-blue-900">
+                                            <span>{{ $roleTitle }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ $coUser->name }}{{ $inst }})</span></span>
                                             @if($pts3->{"co_supervisor_{$i}_recommendation"})
-                                                <span class="text-emerald-600 font-semibold">✓ Recommended</span>
+                                                <span class="text-emerald-600 dark:text-emerald-400 font-semibold">✓ Recommended</span>
                                             @else
-                                                <span class="text-amber-600 font-semibold">Pending</span>
+                                                <span class="text-amber-600 dark:text-amber-400 font-semibold">Pending</span>
                                             @endif
                                         </div>
                                     @endif
                                 @endfor
                             </div>
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 3. DPGC -->
                     @if($userRank >= 3)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="dpgc">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">DPGC Recommendation</span>
+                                <span class="font-semibold text-teal-900 dark:text-teal-200">DPGC Recommendation</span>
                                 @if($pts3->dpgc_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->dpgc_submitted_at)
-                                <p class="text-xs text-gray-400 mt-1">Submitted at: {{ $pts3->dpgc_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->dpgc_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 4. HOD -->
                     @if($userRank >= 4)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="hod">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">HOD Recommendation</span>
+                                <span class="font-semibold text-sky-900 dark:text-sky-200">HOD Recommendation</span>
                                 @if($pts3->hod_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->hod_submitted_at)
-                                <p class="text-xs text-gray-400 mt-1">Submitted at: {{ $pts3->hod_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->hod_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 5. Academic Office -->
                     @if($userRank >= 5)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="academic_office">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">Academic Office Verification</span>
+                                <span class="font-semibold text-violet-900 dark:text-violet-200">Academic Office Verification</span>
                                 @if($pts3->academic_office_is_verified)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Verified</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Verified</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->academic_office_submitted_at)
-                                <p class="text-xs text-gray-400 mt-1">Submitted at: {{ $pts3->academic_office_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->academic_office_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 6. DOAA Evaluation -->
                     @if($userRank >= 6)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <x-role-card role="doaa">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">DOAA Evaluation & Priority Ranking</span>
+                                <span class="font-semibold text-purple-900 dark:text-purple-200">DOAA Evaluation &amp; Priority Ranking</span>
                                 @if($pts3->doaa_is_verified)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Evaluated</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Evaluated</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->doaa_submitted_at)
-                                <p class="text-xs text-gray-400 mt-1">Submitted at: {{ $pts3->doaa_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->doaa_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                     <!-- 7. Senate Chairperson Approval -->
                     @if($userRank >= 7)
-                        <div class="p-4 bg-gray-50 dark:bg-gray-750 rounded-xl border border-gray-100 dark:border-gray-700 space-y-2">
+                        <x-role-card role="senate_chairperson">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-gray-900 dark:text-white">Senate Chairperson Approval</span>
+                                <span class="font-semibold text-slate-900 dark:text-slate-200">Senate Chairperson Approval</span>
                                 @if($pts3->senate_chairperson_approval === true)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-medium">✓ Approved</span>
+                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Approved</span>
                                 @elseif($pts3->senate_chairperson_approval === false)
-                                    <span class="text-xs px-2.5 py-1 bg-rose-100 text-rose-800 rounded-full font-medium">Rejected</span>
+                                    <span class="text-xs px-2.5 py-1 bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300 rounded-full font-medium">Rejected</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">Pending</span>
+                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->senate_chairperson_approval_remark)
-                                <div class="text-sm text-gray-700 dark:text-gray-300">
-                                    <span class="font-semibold">Remark:</span> {{ $pts3->senate_chairperson_approval_remark }}
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Remark:</strong>
+                                    <x-feedback-box :text="$pts3->senate_chairperson_approval_remark" fallback="Remark not provided" role="senate_chairperson" />
                                 </div>
                             @endif
                             @if($pts3->senate_chairperson_confidential_remark && (auth()->user()?->isDoaa() || auth()->user()?->role === 'senate_chairperson' || auth('admin')->check()))
-                                <div class="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800">
-                                    <span class="font-semibold">Confidential Remark (DOAA & Senate Only):</span> {{ $pts3->senate_chairperson_confidential_remark }}
+                                <div class="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                                    <strong>Confidential Remark (DOAA &amp; Senate Only):</strong>
+                                    <x-feedback-box :text="$pts3->senate_chairperson_confidential_remark" fallback="Remark not provided" role="senate_chairperson" />
                                 </div>
                             @endif
                             @if($pts3->senate_chairperson_submitted_at)
-                                <p class="text-xs text-gray-400">Submitted at: {{ $pts3->senate_chairperson_submitted_at->format('d M Y, h:i A') }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Submitted at: {{ $pts3->senate_chairperson_submitted_at->format('d M Y, h:i A') }}</p>
                             @endif
-                        </div>
+                        </x-role-card>
                     @endif
 
                 </div>
@@ -504,12 +511,12 @@
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Approval Remark (Visible to all authorities)</label>
-                                    <textarea name="senate_chairperson_approval_remark" rows="2" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Optional remark..."></textarea>
+                                    <textarea name="senate_chairperson_approval_remark" rows="2" class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Optional remark"></textarea>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-amber-700 dark:text-amber-400 mb-1">Confidential Remark (Visible to DOAA & Senate Chairperson only)</label>
-                                    <textarea name="senate_chairperson_confidential_remark" rows="2" class="w-full text-sm rounded-lg border-amber-300 dark:border-amber-800 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Optional confidential remark..."></textarea>
+                                    <textarea name="senate_chairperson_confidential_remark" rows="2" class="w-full text-sm rounded-lg border-amber-300 dark:border-amber-800 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Optional confidential remark"></textarea>
                                 </div>
                             </div>
                         @endif
@@ -534,7 +541,7 @@
                                 @csrf
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for Reversion</label>
-                                    <textarea name="reversion_comment" rows="3" required class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Specify reasons for reverting back to the Main Supervisor..."></textarea>
+                                    <textarea name="reversion_comment" rows="3" required class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white" placeholder="Specify reasons for reverting back to the Main Supervisor"></textarea>
                                 </div>
                                 <button type="submit" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-semibold transition shadow-sm">
                                     Confirm Revert to Main Supervisor

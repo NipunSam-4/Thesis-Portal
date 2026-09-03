@@ -404,7 +404,7 @@ class PtsMailService
                 'thesisTitle' => $thesisTitle,
                 'actionVerb' => $actionVerb,
                 'circulationDate' => now()->format('d M Y, h:i A'),
-                'actionUrl' => $actionUrl ?: route('draft_synopsis.review.index'),
+                'actionUrl' => $actionUrl ?: route('login'),
             ]
         );
 

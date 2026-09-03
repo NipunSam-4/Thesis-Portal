@@ -86,7 +86,7 @@ class SeedApprovedPts3 extends Command
 
                 'status' => 'approved',
                 'current_stage' => 'completed',
-                'approved_by_authority' => 'Senate Chairperson',
+                'approved_by_id' => $senate?->id,
             ], $coSupData)
         );
 

@@ -1,0 +1,560 @@
+<x-app-layout>
+    @php
+        $user = $user ?? auth()->user();
+        $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+    @endphp
+    <div class="py-6" x-data="pts2EndorseForm()">
+        <div class="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
+
+            <!-- Top Back to Dashboard Button -->
+            <div>
+                <x-back-to-dashboard-button />
+            </div>
+
+            <!-- Page Header Card -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                        {{ __("Review & Endorse {$formPrefix}-2 Synopsis Form") }}
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Flash Session Alerts -->
+            @if(session('success'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('warning') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 text-red-800 dark:text-red-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">{{ session('info') }}</span>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Error Alerts -->
+            @if($errors->any())
+                <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm">
+                    <div class="font-bold">Please correct the validation errors below:</div>
+                    <ul class="mt-1 list-disc list-inside text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- Common Form Information Sections (1 to 5) -->
+            @include('pts2.form_info', ['pts2' => $pts2])
+
+            <!-- Section 6: Authority Recommendations & Remarks -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
+                    6. Authority Recommendations &amp; Remarks
+                </h3>
+
+                <div class="space-y-4">
+                    <!-- Main Supervisor Evaluation -->
+                    @if($pts2->hasPassedStage('main_supervisor'))
+                        <x-role-card role="main_supervisor">
+                            <div class="flex items-center justify-between font-bold text-indigo-900 dark:text-indigo-200 gap-2 sm:gap-4">
+                                <span class="text-sm font-bold">Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif</span>
+                                @if(!is_null($pts2->main_supervisor_recommendation))
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts2->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>Student Comment:</strong>
+                                <x-feedback-box :text="$pts2->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>Recommendation Remark:</strong>
+                                <x-feedback-box :text="$pts2->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                            </div>
+                        </x-role-card>
+                    @endif
+
+                    <!-- Co-Supervisors Recommendations (Slots 1..10) -->
+                    @php
+                        $passedCoSupervisors = $pts2->hasPassedStage('co_supervisors');
+                        $hasAnyCoRecommended = false;
+                        for ($i = 1; $i <= 10; $i++) {
+                            $idCol = "co_supervisor_{$i}_id";
+                            $remCol = "co_supervisor_{$i}_confidential_remark";
+                            $recCol = "co_supervisor_{$i}_recommendation";
+                            $comCol = "co_supervisor_{$i}_student_comment";
+                            if ($pts2->$idCol && (!is_null($pts2->$remCol) || !is_null($pts2->$recCol) || !is_null($pts2->$comCol) || $passedCoSupervisors)) {
+                                $hasAnyCoRecommended = true;
+                                break;
+                            }
+                        }
+                    @endphp
+
+                    @if($hasAnyCoRecommended)
+                        <x-role-card role="co_supervisor">
+                            <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                            
+                            @for($i = 1; $i <= 10; $i++)
+                                @php
+                                    $idCol = "co_supervisor_{$i}_id";
+                                    $recCol = "co_supervisor_{$i}_recommendation";
+                                    $remCol = "co_supervisor_{$i}_confidential_remark";
+                                    $comCol = "co_supervisor_{$i}_student_comment";
+                                    $coUser = $coSupervisors[$i] ?? null;
+                                @endphp
+
+                                @if($coUser && (!is_null($pts2->$remCol) || !is_null($pts2->$recCol) || !is_null($pts2->$comCol) || $passedCoSupervisors))
+                                    @php
+                                        $isExt = $coUser->isExternalSupervisor();
+                                        $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                        $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                    @endphp
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                            <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Student Comment:</strong>
+                                            <x-feedback-box :text="$pts2->$comCol" fallback="Comment not provided" role="co_supervisor" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Recommendation Remark:</strong>
+                                            <x-feedback-box :text="$pts2->$remCol" fallback="Remark not provided" role="co_supervisor" />
+                                        </div>
+                                    </div>
+                                @endif
+                            @endfor
+                        </x-role-card>
+                    @endif
+
+                    <!-- Academic Office Verification -->
+                    @if($pts2->hasPassedStage('academic_office'))
+                        @php
+                            $academicOfficeCredits = $pts2->academic_office_course_credits;
+                            $academicOfficeRemark = $pts2->academic_office_verification_remark;
+                        @endphp
+                        <x-role-card role="academic_office">
+                            <div class="flex items-center justify-between font-bold text-violet-900 dark:text-violet-200 gap-2 sm:gap-4">
+                                <h5 class="text-sm font-bold">Academic Office</h5>
+                                <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                    ✓ Verified &amp; Forwarded
+                                </span>
+                            </div>
+                            @if($academicOfficeCredits !== null)
+                                <div class="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
+                                    <strong>Verified Course Credits:</strong> <span class="font-bold text-violet-700 dark:text-violet-300">{{ $academicOfficeCredits }}</span>
+                                    <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                </div>
+                            @endif
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>Verification Remark:</strong>
+                                <x-feedback-box :text="$academicOfficeRemark" fallback="Remark not provided" role="academic_office" />
+                            </div>
+                        </x-role-card>
+                    @endif
+
+                    <!-- DOAA Approval -->
+                    @if($pts2->hasPassedStage('doaa'))
+                        <x-role-card role="doaa">
+                            <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200 gap-2 sm:gap-4">
+                                <h5 class="text-sm font-bold">Dean of Academic Affairs (DOAA)</h5>
+                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                    {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
+                                    @if($pts2->approvedBy)
+                                        by: {{ $pts2->approvedBy->email }}
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>Student Comment:</strong>
+                                <x-feedback-box :text="$pts2->doaa_student_comment" fallback="Comment not provided" role="doaa" />
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>DOAA Remark:</strong>
+                                <x-feedback-box :text="$pts2->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
+                            </div>
+                        </x-role-card>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Section 7: Action Required (Evaluation & Decision) -->
+            <form action="{{ route('pts2.endorse', $pts2->id) }}" method="POST" class="space-y-8" @submit="clearDraft()">
+                @csrf
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-indigo-100 dark:border-indigo-900/50 p-6 space-y-6">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-indigo-100 dark:border-indigo-900/50 pb-2 flex items-center">
+                            7. Endorsement Evaluation &amp; Recommendation
+                        </h3>
+
+                        <!-- Stage-Specific Evaluation Inputs -->
+                        @if($pts2->current_stage === 'main_supervisor')
+                            <!-- Declarations Review & Confirmation by Main Supervisor -->
+                            <div class="space-y-4 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/40 dark:bg-indigo-950/20">
+                                <label class="block font-bold text-indigo-900 dark:text-indigo-200 text-sm">
+                                    Declarations &amp; Certifications Review (Pre-filled from Student Submission): <span class="text-red-500">*</span>
+                                </label>
+
+                                <!-- 1. Prima Facie Case -->
+                                <label class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" name="cert_prima_facie_case" value="1" required x-model="certPrimaFacieCase" class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-4 h-4">
+                                    <div>
+                                        <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
+                                            1. Prima Facie Case
+                                        </span>
+                                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
+                                            There is a prima facie case for consideration of the thesis.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <!-- 2. No Prior Degree Submission -->
+                                <label class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" name="cert_no_prior_degree_submission" value="1" required x-model="certNoPriorDegreeSubmission" class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-4 h-4">
+                                    <div>
+                                        <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
+                                            2. No Prior Degree Submission
+                                        </span>
+                                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
+                                            To the best of our knowledge the thesis does not include any work which has, at any time, previously, been submitted for the award of a degree except to the extent of point 3 below.
+                                        </p>
+                                    </div>
+                                </label>
+
+                                <!-- 3. Collaborative Work -->
+                                <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 space-y-3">
+                                    <label class="flex items-start space-x-3 cursor-pointer">
+                                        <input type="checkbox" name="collaborative_work_status" value="1" x-model="collaborativeWorkStatus" class="mt-1 text-indigo-600 focus:ring-indigo-500 rounded w-4 h-4">
+                                        <div>
+                                            <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
+                                                3. Collaborative Work
+                                            </span>
+                                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
+                                                Does any section of the Thesis relate to collaborative work? (Check if Yes)
+                                            </p>
+                                        </div>
+                                    </label>
+
+                                    <div x-show="collaborativeWorkStatus" class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
+                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                                            Collaborative Work Details <span class="text-red-500">*</span>
+                                        </label>
+                                        <textarea name="collaborative_work_details" rows="3" :required="collaborativeWorkStatus" x-model="collaborativeWorkDetails" placeholder="Specify parts of the thesis that relate to collaborative work" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <x-recommendation-block 
+                                label="Recommendation Status for Student Synopsis Submission"
+                                form-type="pts2"
+                                role="main_supervisor"
+                                remark-rows="3"
+                                :remark-value="old('confidential_remark')" />
+
+                            <x-student-comment-input :value="old('student_comment')" />
+                        @elseif($pts2->current_stage === 'academic_office')
+                            <div class="space-y-6">
+                                <!-- Course Credits Side-by-Side Comparison -->
+                                <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 space-y-3">
+                                    <label class="block font-bold text-gray-900 dark:text-white text-xs uppercase tracking-wide">
+                                        Course Credits Comparison
+                                    </label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="p-3.5 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                                            <span class="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
+                                                <span>Credits Earned (From System)</span>
+                                                <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                            </span>
+                                            <span class="text-base font-extrabold text-gray-900 dark:text-white block">
+                                                {{ $student->course_credits_earned ?? 'N/A' }}
+                                            </span>
+                                        </div>
+                                        <div class="p-3.5 bg-white dark:bg-gray-800 rounded-lg border border-indigo-200 dark:border-indigo-800/60 shadow-sm">
+                                            <span class="flex items-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase mb-1">
+                                                <span>Credits Submitted by Student</span>
+                                                <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                            </span>
+                                            <span class="text-base font-extrabold text-indigo-900 dark:text-indigo-200 block">
+                                                {{ $pts2->course_credits_student }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Course Credits Verification Decision -->
+                                <div class="space-y-3">
+                                    <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                        Is the course credits earned filled by student correct? <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <!-- Option (a) YES -->
+                                        <label class="p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="isCreditsCorrect === '1' ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
+                                            <input type="radio" name="is_credits_correct" value="1" required x-model="isCreditsCorrect" class="mt-1 text-emerald-600 focus:ring-emerald-500">
+                                            <div>
+                                                <span class="block font-bold text-sm text-emerald-900 dark:text-emerald-300">
+                                                    Yes, Credits are Correct
+                                                </span>
+                                                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                                    Credits submitted by the student match official records.
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        <!-- Option (b) NO -->
+                                        <label class="p-3.5 rounded-xl border-2 transition cursor-pointer flex items-start space-x-3" :class="isCreditsCorrect === '0' ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/30' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'">
+                                            <input type="radio" name="is_credits_correct" value="0" required x-model="isCreditsCorrect" class="mt-1 text-amber-600 focus:ring-amber-500">
+                                            <div>
+                                                <span class="block font-bold text-sm text-amber-900 dark:text-amber-300">
+                                                    No, Enter Corrected Credits
+                                                </span>
+                                                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                                                    Credits submitted by the student require correction.
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <!-- If Yes: Pass student credits directly -->
+                                    <input type="hidden" name="academic_office_course_credits" value="{{ $pts2->course_credits_student }}" :disabled="isCreditsCorrect !== '1'">
+
+                                    <!-- If No: Option to enter verified/corrected credits -->
+                                    <div x-show="isCreditsCorrect === '0'" x-cloak class="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 space-y-2">
+                                        <label class="flex items-center font-bold text-amber-900 dark:text-amber-200 text-xs uppercase tracking-wide">
+                                            Enter Corrected Course Credits <span class="text-red-500">*</span>
+                                            <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                        </label>
+                                        <input type="number" 
+                                               step="0.5" 
+                                               min="0" 
+                                               name="academic_office_course_credits" 
+                                               x-model="academicOfficeCourseCredits" 
+                                               :required="isCreditsCorrect === '0'" 
+                                               :disabled="isCreditsCorrect !== '0'" 
+                                               @wheel="$event.target.blur()" 
+                                               onwheel="this.blur()" 
+                                               placeholder="Enter verified course credits (e.g. 16, 18.5)" 
+                                               class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-amber-500">
+                                    </div>
+                                </div>
+
+                                <!-- Verification Confirmation (Above Verification Remark) -->
+                                <div class="space-y-2 pt-2">
+                                    <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                        Verification: <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <label class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 flex items-start space-x-3 cursor-pointer">
+                                        <input type="checkbox" name="verified_details" value="1" required x-model="isVerified" class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-4 h-4">
+                                        <div>
+                                            <span class="block font-bold text-sm text-emerald-900 dark:text-emerald-300 uppercase tracking-wide">
+                                                ✓ Verification Confirmation
+                                            </span>
+                                            <p class="text-xs text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">
+                                                I have verified all student details, academic records, open seminar date, and attached synopsis documentation for this PTS-2 submission.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Academic Office Mandatory Verification Remark -->
+                            <div class="space-y-2 pt-2">
+                                <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                    Verification Remark <span class="text-red-500">*</span>
+                                </label>
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="verificationRemark" form-type="pts2" role="academic_office" comment-type="verification_remark" />
+                                </div>
+                                <textarea name="verification_remark" 
+                                           rows="5" 
+                                           required 
+                                           x-model="verificationRemark" 
+                                           placeholder="Provide mandatory verification remarks" 
+                                           class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 whitespace-pre-wrap">{{ trim(old('verification_remark')) }}</textarea>
+                            </div>
+
+                            <!-- Academic Office: Optional Acting DOAA Dropdown -->
+                            <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                                <label class="block font-bold text-gray-900 dark:text-white text-sm">
+                                    Assign Acting DOAA (Optional)
+                                </label>
+                                <select name="acting_doaa_email" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">None (Forward to Default DOAA only)</option>
+                                    @foreach($actingDoaaUsers as $actingUser)
+                                        <option value="{{ $actingUser->email }}" {{ (old('acting_doaa_email', $pts2?->acting_doaa_email) === $actingUser->email) ? 'selected' : '' }}>
+                                            {{ $actingUser->name }} ({{ $actingUser->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    If selected, this form will be visible and actionable for the chosen Acting DOAA alongside the DOAA.
+                                </p>
+                            </div>
+                        @elseif($pts2->current_stage === 'doaa')
+                            <x-recommendation-block 
+                                label="Approval Status for Student PTS-2 Synopsis Submission"
+                                positive-label="(a) APPROVE"
+                                positive-desc="Approve the student's PTS-2 synopsis submission."
+                                negative-label="(b) DO NOT APPROVE"
+                                negative-desc="Do not approve the student's PTS-2 synopsis submission."
+                                remark-label-positive="Approval Remark (Optional)"
+                                remark-label-negative="Non-Approval Remark"
+                                remark-placeholder-positive="Optional approval remarks"
+                                remark-placeholder-negative="Provide mandatory non-approval remarks"
+                                remark-rows="5"
+                                form-type="pts2"
+                                role="doaa"
+                                :remark-value="old('confidential_remark')" />
+
+                            <x-student-comment-input :value="old('student_comment')" />
+                        @else
+                            <x-recommendation-block 
+                                label="Recommendation Status for Student Synopsis Submission"
+                                form-type="pts2"
+                                role="co_supervisor"
+                                remark-rows="3"
+                                :remark-value="old('confidential_remark')" />
+
+                            <x-student-comment-input :value="old('student_comment')" />
+                        @endif 
+                    </div>
+                    
+                    <!-- Submit & Revert Action Buttons Bar -->
+                    <div class="flex flex-col-reverse sm:flex-row items-center sm:justify-end gap-3 pt-4">
+                        @if(!$user->isAcademicOffice())
+                            <!-- Revert Button (Triggers Independent Pop-Up Modal) -->
+                            <button type="button" 
+                                    @click="showRevertModal = true" 
+                                    class="w-full sm:w-auto justify-center bg-red-600 hover:bg-red-700 text-white text-base font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                </svg>
+                                Revert Form
+                            </button>
+                        @endif
+
+                        <!-- Main Submit Button -->
+                        @if($pts2->current_stage === 'academic_office')
+                            <button type="submit" 
+                                    :disabled="!isVerified" 
+                                    :class="!isVerified ? 'bg-gray-400 opacity-50 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg'"
+                                    class="w-full sm:w-auto justify-center text-white text-base font-bold px-8 py-3 rounded-xl transition flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                                Submit &amp; Forward
+                            </button>
+                        @else
+                            <button type="submit" 
+                                    class="w-full sm:w-auto justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold px-8 py-3 rounded-xl shadow-lg transition flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                                Submit @if($pts2->current_stage !== 'doaa') &amp; Forward @endif
+                            </button>
+                        @endif
+                    </div>
+                </form>
+
+                <!-- Revert Confirmation Pop-Up Modal -->
+                <x-revert-modal 
+                    show="showRevertModal" 
+                    :action="route('pts2.revert', $pts2->id)" 
+                    :title="__('Revert :prefix-2 Form to Student', ['prefix' => 'PTS'])"
+                    subtitle="Send form back to student for required changes"
+                />
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function pts2EndorseForm() {
+            const userId = @js(auth()->id());
+            const thesisId = @js($thesis->id);
+            const formId = @js($pts2->id);
+            const draftKey = 'pts2_review_draft_user_' + userId + '_thesis_' + thesisId + '_form_' + formId;
+
+            let savedDraft = {};
+            try {
+                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
+            } catch (e) {}
+
+            return {
+                showRevertModal: false,
+                recommendation: @js(old('approval') ?? old('recommendation')) || savedDraft.recommendation || '1',
+                isVerified: savedDraft.isVerified !== undefined ? savedDraft.isVerified : false,
+                certPrimaFacieCase: savedDraft.certPrimaFacieCase !== undefined ? savedDraft.certPrimaFacieCase : @js((bool)$pts2->getEffectiveCertPrimaFacieCase()),
+                certNoPriorDegreeSubmission: savedDraft.certNoPriorDegreeSubmission !== undefined ? savedDraft.certNoPriorDegreeSubmission : @js((bool)$pts2->getEffectiveCertNoPriorDegreeSubmission()),
+                collaborativeWorkStatus: savedDraft.collaborativeWorkStatus !== undefined ? savedDraft.collaborativeWorkStatus : @js((bool)$pts2->getEffectiveCollaborativeWorkStatus()),
+                collaborativeWorkDetails: @js(old('collaborative_work_details')) || savedDraft.collaborativeWorkDetails || @js($pts2->getEffectiveCollaborativeWorkDetails() ?? ''),
+                confidentialRemark: @js(old('doaa_confidential_remark') ?? old('confidential_remark')) || savedDraft.confidentialRemark || '',
+                studentComment: @js(old('doaa_student_comment') ?? old('student_comment')) || savedDraft.studentComment || '',
+                verificationRemark: @js(old('verification_remark')) || savedDraft.verificationRemark || '',
+                isCreditsCorrect: @js(old('is_credits_correct')) || (savedDraft.isCreditsCorrect !== undefined ? savedDraft.isCreditsCorrect : '1'),
+                academicOfficeCourseCredits: @js(old('academic_office_course_credits')) || savedDraft.academicOfficeCourseCredits || '',
+
+                init() {
+                    const watchFields = ['recommendation', 'isVerified', 'certPrimaFacieCase', 'certNoPriorDegreeSubmission', 'collaborativeWorkStatus', 'collaborativeWorkDetails', 'confidentialRemark', 'studentComment', 'verificationRemark', 'isCreditsCorrect', 'academicOfficeCourseCredits'];
+                    watchFields.forEach(field => {
+                        this.$watch(field, () => this.saveDraft());
+                    });
+                },
+
+                saveDraft() {
+                    try {
+                        sessionStorage.setItem(draftKey, JSON.stringify({
+                            recommendation: this.recommendation,
+                            isVerified: this.isVerified,
+                            certPrimaFacieCase: this.certPrimaFacieCase,
+                            certNoPriorDegreeSubmission: this.certNoPriorDegreeSubmission,
+                            collaborativeWorkStatus: this.collaborativeWorkStatus,
+                            collaborativeWorkDetails: this.collaborativeWorkDetails,
+                            confidentialRemark: this.confidentialRemark,
+                            studentComment: this.studentComment,
+                            verificationRemark: this.verificationRemark,
+                            isCreditsCorrect: this.isCreditsCorrect,
+                            academicOfficeCourseCredits: this.academicOfficeCourseCredits,
+                        }));
+                    } catch (e) {}
+                },
+
+                clearDraft() {
+                    try {
+                        sessionStorage.removeItem(draftKey);
+                    } catch (e) {}
+                }
+            };
+        }
+    </script>
+</x-app-layout>

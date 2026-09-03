@@ -46,7 +46,7 @@
                                 Circulated Draft Synopsis Details
                             </h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Your draft synopsis report has been submitted and shared with all academic authorities for comments.
+                                Your draft synopsis report has been submitted and shared with Supervisors and PSPC Members for comments.
                             </p>
                         </div>
                         <span class="px-3 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 text-xs font-bold rounded-full">
@@ -122,12 +122,12 @@
                     @else
                         <div class="space-y-3">
                             @foreach($comments as $comment)
-                                <div class="p-4 bg-gray-50/80 dark:bg-gray-700/40 border-l-4 border-indigo-500 rounded-xl space-y-2 min-w-0 max-w-full">
+                                <x-role-card :role="$comment->authority_role ?? 'main_supervisor'" class="min-w-0 max-w-full">
                                     <div class="flex items-center justify-between text-xs gap-2 sm:gap-4 flex-wrap sm:flex-nowrap min-w-0">
-                                        <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200 min-w-0 break-words">
+                                        <span class="font-bold text-sm min-w-0 break-words">
                                             @php
                                                 $label = $comment->authority_label;
-                                                $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-indigo-700 dark:text-indigo-300 mt-0.5 sm:mt-0">$1</span>', e($label));
+                                                $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">$1</span>', e($label));
                                             @endphp
                                             {!! $formattedLabel !!}
                                         </span>
@@ -147,7 +147,7 @@
                                     <div @click="openImagePreview($event)" class="prose dark:prose-invert max-w-none text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 leading-relaxed break-words [overflow-wrap:anywhere] max-h-[480px] overflow-y-auto overflow-x-auto [&_img]:inline-block [&_img]:align-middle [&_img]:my-1 [&_img]:cursor-zoom-in [&_img]:rounded-none [&_img]:max-w-full [&_img]:shadow-sm hover:[&_img]:shadow-md transition">
                                         {!! class_exists(\Stevebauman\Purify\Facades\Purify::class) ? \Stevebauman\Purify\Facades\Purify::clean($comment->comment) : nl2br(e($comment->comment)) !!}
                                     </div>
-                                </div>
+                                </x-role-card>
                             @endforeach
                         </div>
                     @endif
@@ -212,7 +212,7 @@
                                 Draft Synopsis Circulation Details
                             </h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Circulate your draft synopsis report to all academic authorities simultaneously for feedback before submitting your PTS-1 form.
+                                Circulate your draft synopsis report to Supervisors and PSPC Members for feedback before submitting your PTS-1 form.
                             </p>
                         </div>
 
@@ -226,7 +226,7 @@
                                    value="{{ old('thesis_title', $thesis->title) }}" 
                                    required 
                                    x-model="thesisTitle"
-                                   placeholder="Enter your thesis title..." 
+                                   placeholder="Enter your thesis title" 
                                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:ring-indigo-500 focus:border-indigo-500">
                             <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                                 Updating the thesis title here will also update your registered thesis record.
@@ -327,7 +327,17 @@
 
                     const maxMB = 10;
                     if (file.size > maxMB * 1024 * 1024) {
-                        this.fileError = `File size exceeds the maximum limit of ${maxMB} MB.`;
+                        const sizeInMB = file.size / (1024 * 1024);
+                        const formattedSize = sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+                        window.dispatchEvent(new CustomEvent('file-size-exceeded', {
+                            detail: {
+                                fileName: file.name,
+                                fileSize: formattedSize,
+                                limitMB: `${maxMB} MB`,
+                                inputId: event.target.id
+                            }
+                        }));
+                        this.fileError = `File size (${formattedSize}) exceeds the permissible limit of ${maxMB} MB.`;
                         event.target.value = '';
                         this.selectedFile = { name: '', size: '', url: '' };
                         return;

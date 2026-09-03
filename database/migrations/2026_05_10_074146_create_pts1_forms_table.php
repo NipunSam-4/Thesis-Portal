@@ -191,9 +191,8 @@ return new class extends Migration
             $table->text('hod_confidential_remark')->nullable();
             $table->timestamp('hod_submitted_at')->nullable();
 
-            // 6. Academic Office
-            $table->text('academic_office_student_comment')->nullable();
-            $table->boolean('academic_office_verified')->nullable();
+            // 6. Academic Office Verification
+            $table->boolean('academic_office_is_verified')->nullable();
             $table->text('academic_office_confidential_remark')->nullable();
             $table->timestamp('academic_office_submitted_at')->nullable();
 
@@ -212,7 +211,7 @@ return new class extends Migration
 
             $table->string('acting_doaa_email')->nullable();
             $table->string('vested_doaa_email')->nullable();
-            $table->string('approved_by_authority')->nullable();
+            $table->foreignId('approved_by_id')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
         });

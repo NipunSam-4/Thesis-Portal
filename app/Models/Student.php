@@ -23,6 +23,15 @@ class Student extends Model
         'course_credits_required',
         'roll_number',
         'date_confirmation',
+        'phone_number',
+        'phone_country_code',
+        'phone_iso2',
+        'alternate_phone_number',
+        'alternate_phone_country_code',
+        'alternate_phone_iso2',
+        'alternate_email',
+        'hindi_name',
+        'current_address',
     ];
 
     protected function casts(): array
@@ -185,6 +194,62 @@ class Student extends Model
         return $this->coSupervisors->merge($this->externalSupervisors);
     }
 
+    /**
+     * Get the currently active Main Supervisor for this student.
+     */
+    public function getActiveMainSupervisorAttribute(): ?User
+    {
+        return $this->mainSupervisors()->where('users.is_active', true)->first();
+    }
+
+    /**
+     * Get all currently active internal Co-Supervisors.
+     */
+    public function activeCoSupervisors()
+    {
+        return $this->coSupervisors()->where('users.is_active', true)->get();
+    }
+
+    /**
+     * Get all currently active External Supervisors.
+     */
+    public function activeExternalSupervisors()
+    {
+        return $this->externalSupervisors()->where('users.is_active', true)->get();
+    }
+
+    /**
+     * Get all active Co-Supervisors (Internal + External combined).
+     */
+    public function activeAllCoSupervisors()
+    {
+        return $this->activeCoSupervisors()->merge($this->activeExternalSupervisors());
+    }
+
+    /**
+     * Get all currently active PSPC Members.
+     */
+    public function activePspcMembers()
+    {
+        return $this->pspcMembers()->where('users.is_active', true)->get();
+    }
+
+    /**
+     * Get the currently active Head of Department for this student's department.
+     */
+    public function getActiveHodAttribute(): ?User
+    {
+        return $this->department?->active_hod;
+    }
+
+    /**
+     * Get the currently active DPGC Convener for this student's department.
+     */
+    public function getActiveDpgcAttribute(): ?User
+    {
+        return $this->department?->active_dpgc;
+    }
+
     public function isMainSupervisor(User $user): bool
     {
         if ($this->relationLoaded('mainSupervisors')) {
@@ -286,7 +351,9 @@ class Student extends Model
             return 'Rejected';
         }
 
-        $thesis = $this->activeThesis;
+        $thesis = $this->relationLoaded('theses') 
+            ? $this->theses->where('status', 'in_progress')->sortByDesc('id')->first() 
+            : $this->activeThesis;
         if (!$thesis) {
             return 'Unregistered';
         }
@@ -367,7 +434,9 @@ class Student extends Model
     // - Stage 5 & 6: PTS-5 & PTS-6 (sequential)
     public function getPendingActionItemsForUser(User $user, ?string $roleFilter = null): array
     {
-        $thesis = $this->activeThesis;
+        $thesis = $this->relationLoaded('theses') 
+            ? $this->theses->where('status', 'in_progress')->sortByDesc('id')->first() 
+            : $this->activeThesis;
         if (!$thesis) {
             return [];
         }
@@ -666,7 +735,9 @@ class Student extends Model
     // Tier 4 (500): Pending / Not started forms
     public function getAuthoritySortScore(User $user): int
     {
-        $thesis = $this->activeThesis;
+        $thesis = $this->relationLoaded('theses') 
+            ? $this->theses->where('status', 'in_progress')->sortByDesc('id')->first() 
+            : $this->activeThesis;
         if (!$thesis) {
             return 500; // Tier 4: No active thesis registered
         }

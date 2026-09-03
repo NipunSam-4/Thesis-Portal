@@ -64,33 +64,33 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
-                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Student Name" />
+                            <x-readonly-input :value="$user->name" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Roll Number" />
+                            <x-readonly-input :value="$student->roll_number" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Department" />
+                            <x-readonly-input :value="$student->department->name ?? 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Registration" />
+                            <x-readonly-input :value="$student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Joining" />
+                            <x-readonly-input :value="$student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation</label>
-                            <input type="text" value="{{ $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Confirmation" />
+                            <x-readonly-input :value="$student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A'" />
                         </div>
                     </div>
                 </div>
@@ -103,25 +103,21 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
-                            <input type="text" 
-                                   value="{{ isset($seminarDate) && $seminarDate ? $seminarDate->format('d-M-Y') : 'N/A' }}" 
-                                   readonly 
-                                   class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed text-sm">
+                            <x-readonly-label value="Open Seminar Date" />
+                            <x-readonly-input :value="isset($seminarDate) && $seminarDate ? $seminarDate->format('d-M-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">
-                                Extended Date Required <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" 
-                                   name="extended_until_date" 
-                                   required 
-                                   min="{{ $minExtensionDate ? $minExtensionDate->format('Y-m-d') : \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
-                                   max="{{ $maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '' }}"
-                                   x-model="extendedUntilDate"
-                                   value="{{ old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : '')) }}" 
-                                   class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark] focus:ring-purple-500 focus:border-purple-500 text-sm">
+                            <x-readonly-label value="Extended Date Required" :required="true" />
+                            <x-form-input 
+                                type="date" 
+                                name="extended_until_date" 
+                                required 
+                                :min="$minExtensionDate ? $minExtensionDate->format('Y-m-d') : \Carbon\Carbon::tomorrow()->format('Y-m-d')"
+                                :max="$maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : ''"
+                                x-model="extendedUntilDate"
+                                :value="old('extended_until_date', isset($pts2Extension) && $pts2Extension->extended_until_date ? $pts2Extension->extended_until_date->format('Y-m-d') : ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : ''))" 
+                            />
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Select the extended deadline date till which you are requesting extension for PTS-2 form submission.
                             </p>
@@ -134,14 +130,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                            Detailed Reason for Extension <span class="text-red-500">*</span>
-                        </label>
+                        <x-form-label value="Detailed Reason for Extension" :required="true" />
                         <textarea name="reason_for_extension" 
                                     rows="5" 
                                     required 
                                     x-model="reasonForExtension"
-                                    placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension..." 
+                                    placeholder="Please provide a comprehensive description of the reason for requesting PTS-2 submission extension" 
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed whitespace-pre-wrap">{{ trim(old('reason_for_extension', isset($pts2Extension) ? $pts2Extension->reason_for_extension : '')) }}</textarea>
                     </div>
                 </div>

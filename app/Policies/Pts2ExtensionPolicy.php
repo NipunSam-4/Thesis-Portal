@@ -16,11 +16,11 @@ class Pts2ExtensionPolicy
     }
 
     /**
-     * Determine if the user can evaluate/endorse the PTS-2 Extension form.
+     * Determine if the user can review/endorse the PTS-2 Extension form.
      */
-    public function evaluate(User $user, Pts2Extension $pts2Extension): bool
+    public function review(User $user, Pts2Extension $pts2Extension): bool
     {
-        return $pts2Extension->canUserEvaluate($user);
+        return $pts2Extension->canUserReview($user);
     }
 
     /**
@@ -28,6 +28,6 @@ class Pts2ExtensionPolicy
      */
     public function revert(User $user, Pts2Extension $pts2Extension): bool
     {
-        return $pts2Extension->canUserEvaluate($user);
+        return $this->review($user, $pts2Extension);
     }
 }

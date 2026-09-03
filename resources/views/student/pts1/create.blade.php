@@ -43,10 +43,10 @@
                 @csrf
 
                 @php
-                    $showModified = isset($pts1Form) && $pts1Form->status === 'reverted' && $pts1Form->reverted_by_role !== 'main_supervisor';
+                    $showModified = $isReverted && $pts1Form->reverted_by_role !== 'main_supervisor';
                 @endphp
 
-                @if(isset($pts1Form) && $pts1Form->status === 'reverted')
+                @if($isReverted)
                     <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
                         <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200">
                             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,40 +71,40 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
-                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Student Name" />
+                            <x-readonly-input :value="$user->name" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Roll Number" />
+                            <x-readonly-input :value="$student->roll_number" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Department" />
+                            <x-readonly-input :value="$student->department->name ?? 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Registration" />
+                            <x-readonly-input :value="$student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Joining" />
+                            <x-readonly-input :value="$student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1 flex items-center gap-2">
+                            <x-form-label class="flex items-center gap-2">
                                 <span>Date of Confirmation <span class="text-red-500">*</span></span>
                                 @if($showModified && $pts1Form->main_supervisor_date_confirmation && ($student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('Y-m-d') !== $pts1Form->main_supervisor_date_confirmation->format('Y-m-d') : true))
                                     <x-modified-badge 
                                         :old-value="$student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : null" 
                                         :new-value="$pts1Form->main_supervisor_date_confirmation->format('d-m-Y')" />
                                 @endif
-                            </label>
-                            <input type="date" name="date_confirmation" required x-model="dateConfirmation" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
+                            </x-form-label>
+                            <x-form-input type="date" name="date_confirmation" required x-model="dateConfirmation" />
                         </div>
                     </div>
                 </div>
@@ -115,15 +115,15 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                        <x-form-label class="flex items-center gap-2">
                             <span>Thesis Title <span class="text-red-500">*</span></span>
                             @if($showModified && $pts1Form->main_supervisor_thesis_title && $pts1Form->main_supervisor_thesis_title !== $pts1Form->thesis_title)
                                 <x-modified-badge 
                                     :old-value="$pts1Form->thesis_title ?: ($thesis->title ?? 'N/A')" 
                                     :new-value="$pts1Form->main_supervisor_thesis_title" />
                             @endif
-                        </label>
-                        <input type="text" name="thesis_title" required x-model="thesisTitle" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
+                        </x-form-label>
+                        <x-form-input type="text" name="thesis_title" required x-model="thesisTitle" placeholder="Enter full title of thesis" />
                     </div>
                 </div>
 
@@ -136,51 +136,51 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <x-form-label class="flex items-center gap-2">
                                 <span>Date of Open Seminar <span class="text-red-500">*</span></span>
                                 @if($showModified && $pts1Form->main_supervisor_seminar_date && ($pts1Form->seminar_date ? $pts1Form->main_supervisor_seminar_date->format('Y-m-d') !== $pts1Form->seminar_date->format('Y-m-d') : true))
                                     <x-modified-badge 
                                         :old-value="$pts1Form->seminar_date ? $pts1Form->seminar_date->format('d-m-Y') : 'N/A'" 
                                         :new-value="$pts1Form->main_supervisor_seminar_date->format('d-m-Y')" />
                                 @endif
-                            </label>
-                            <input type="date" name="seminar_date" required x-model="seminarDate" min="{{ isset($pts1Form) && $pts1Form->seminar_date ? (\Carbon\Carbon::parse($pts1Form->seminar_date)->lt(\Carbon\Carbon::today()) ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : \Carbon\Carbon::today()->format('Y-m-d')) : \Carbon\Carbon::today()->format('Y-m-d') }}" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
+                            </x-form-label>
+                            <x-form-input type="date" name="seminar_date" required x-model="seminarDate" min="{{ isset($pts1Form) && $pts1Form->seminar_date ? (\Carbon\Carbon::parse($pts1Form->seminar_date)->lt(\Carbon\Carbon::today()) ? \Carbon\Carbon::parse($pts1Form->seminar_date)->format('Y-m-d') : \Carbon\Carbon::today()->format('Y-m-d')) : \Carbon\Carbon::today()->format('Y-m-d') }}" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <x-form-label class="flex items-center gap-2">
                                 <span>Time of Open Seminar <span class="text-red-500">*</span></span>
                                 @if($showModified && $pts1Form->main_supervisor_seminar_time && $pts1Form->main_supervisor_seminar_time !== $pts1Form->seminar_time)
                                     <x-modified-badge 
                                         :old-value="$pts1Form->seminar_time ?? 'N/A'" 
                                         :new-value="$pts1Form->main_supervisor_seminar_time" />
                                 @endif
-                            </label>
-                            <input type="time" name="seminar_time" required x-model="seminarTime" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]">
+                            </x-form-label>
+                            <x-form-input type="time" name="seminar_time" required x-model="seminarTime" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <x-form-label class="flex items-center gap-2">
                                 <span>Venue of Open Seminar <span class="text-red-500">*</span></span>
                                 @if($showModified && $pts1Form->main_supervisor_seminar_venue && $pts1Form->main_supervisor_seminar_venue !== $pts1Form->seminar_venue)
                                     <x-modified-badge 
                                         :old-value="$pts1Form->seminar_venue ?? 'N/A'" 
                                         :new-value="$pts1Form->main_supervisor_seminar_venue" />
                                 @endif
-                            </label>
-                            <input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required x-model="seminarVenue" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </x-form-label>
+                            <x-form-input type="text" name="seminar_venue" placeholder="e.g. Seminar Hall 1, CSE Dept" required x-model="seminarVenue" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                            <x-form-label class="flex items-center gap-2">
                                 <span>Online Meeting Link (Optional)</span>
                                 @if($showModified && $pts1Form->main_supervisor_meeting_link !== null && $pts1Form->main_supervisor_meeting_link !== $pts1Form->meeting_link)
                                     <x-modified-badge 
                                         :old-value="$pts1Form->meeting_link ?: null" 
                                         :new-value="$pts1Form->main_supervisor_meeting_link ?: 'None'" />
                                 @endif
-                            </label>
-                            <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </x-form-label>
+                            <x-form-input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" x-model="meetingLink" />
                         </div>
                     </div>
                 </div>
@@ -622,7 +622,16 @@
                     const limitMB = this.maxSizes[key] || 2;
 
                     if (sizeInMB > limitMB) {
-                        this.fileErrors[key] = `File size (${sizeInMB.toFixed(2)} MB) exceeds standard default PHP limit of ${limitMB} MB. Please select a smaller file.`;
+                        const formattedSize = sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+                        window.dispatchEvent(new CustomEvent('file-size-exceeded', {
+                            detail: {
+                                fileName: file.name,
+                                fileSize: formattedSize,
+                                limitMB: `${limitMB} MB`,
+                                inputId: event.target.id
+                            }
+                        }));
+                        this.fileErrors[key] = `File size (${formattedSize}) exceeds permissible limit of ${limitMB} MB. Please select a smaller file.`;
                         event.target.value = '';
                         this.clearFile(key, event.target.id);
                         return false;

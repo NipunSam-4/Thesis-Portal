@@ -80,10 +80,10 @@ class Pts1Form extends Model
 
         'dpgc_student_comment', 'dpgc_recommendation', 'dpgc_confidential_remark', 'dpgc_submitted_at',
         'hod_student_comment', 'hod_recommendation', 'hod_confidential_remark', 'hod_submitted_at',
-        'academic_office_student_comment', 'academic_office_verified', 'academic_office_confidential_remark', 'academic_office_submitted_at',
+        'academic_office_is_verified', 'academic_office_confidential_remark', 'academic_office_submitted_at',
         'doaa_student_comment', 'doaa_approval', 'doaa_confidential_remark', 'doaa_submitted_at',
         'main_supervisor_id', 'dpgc_user_id', 'hod_user_id', 'academic_office_user_id', 'doaa_user_id',
-        'acting_doaa_email', 'vested_doaa_email', 'approved_by_authority',
+        'acting_doaa_email', 'vested_doaa_email', 'approved_by_id',
     ];
 
     protected function casts(): array
@@ -127,7 +127,7 @@ class Pts1Form extends Model
 
             'dpgc_recommendation' => 'boolean',
             'hod_recommendation' => 'boolean',
-            'academic_office_verified' => 'boolean',
+            'academic_office_is_verified' => 'boolean',
             'doaa_approval' => 'boolean',
 
             'main_supervisor_submitted_at' => 'datetime',
@@ -277,27 +277,63 @@ class Pts1Form extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function coSupervisor1(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_1_id'); }
-    public function coSupervisor2(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_2_id'); }
-    public function coSupervisor3(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_3_id'); }
-    public function coSupervisor4(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_4_id'); }
-    public function coSupervisor5(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_5_id'); }
-    public function coSupervisor6(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_6_id'); }
-    public function coSupervisor7(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_7_id'); }
-    public function coSupervisor8(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_8_id'); }
-    public function coSupervisor9(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_9_id'); }
-    public function coSupervisor10(): BelongsTo { return $this->belongsTo(User::class, 'co_supervisor_10_id'); }
+    /**
+     * Get all co-supervisors assigned to this form keyed by slot index (1 to 10).
+     * Executes in 1 single database query.
+     */
+    public function getCoSupervisors(): array
+    {
+        $ids = [];
+        for ($i = 1; $i <= 10; $i++) {
+            if ($id = $this->{"co_supervisor_{$i}_id"}) {
+                $ids[$i] = $id;
+            }
+        }
 
-    public function pspcMember1(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_1_id'); }
-    public function pspcMember2(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_2_id'); }
-    public function pspcMember3(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_3_id'); }
-    public function pspcMember4(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_4_id'); }
-    public function pspcMember5(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_5_id'); }
-    public function pspcMember6(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_6_id'); }
-    public function pspcMember7(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_7_id'); }
-    public function pspcMember8(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_8_id'); }
-    public function pspcMember9(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_9_id'); }
-    public function pspcMember10(): BelongsTo { return $this->belongsTo(User::class, 'pspc_member_10_id'); }
+        if (empty($ids)) {
+            return [];
+        }
+
+        $users = User::whereIn('id', array_values($ids))->get()->keyBy('id');
+
+        $result = [];
+        foreach ($ids as $slot => $userId) {
+            if (isset($users[$userId])) {
+                $result[$slot] = $users[$userId];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get all PSPC members assigned to this form keyed by slot index (1 to 10).
+     * Executes in 1 single database query.
+     */
+    public function getPspcMembers(): array
+    {
+        $ids = [];
+        for ($i = 1; $i <= 10; $i++) {
+            if ($id = $this->{"pspc_member_{$i}_id"}) {
+                $ids[$i] = $id;
+            }
+        }
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $users = User::whereIn('id', array_values($ids))->get()->keyBy('id');
+
+        $result = [];
+        foreach ($ids as $slot => $userId) {
+            if (isset($users[$userId])) {
+                $result[$slot] = $users[$userId];
+            }
+        }
+
+        return $result;
+    }
 
     // Get numerical rank for role in workflow hierarchy.
     public static function getRoleRank(?string $role): int
@@ -315,32 +351,56 @@ class Pts1Form extends Model
         return match ($role) {
             'student' => 0,
             'main_supervisor' => 1,
+            'co_supervisors' => 2,
+            'pspc_members' => 3,
             'dpgc' => 4,
             'hod' => 5,
             'academic_office' => 6,
             'doaa' => 7,
+            'completed' => 8,
             default => 999,
+        };
+    }
+
+    /**
+     * Check if the form has passed or submitted a specific evaluation stage.
+     */
+    public function hasPassedStage(string $stage): bool
+    {
+        $currentRank = self::getRoleRank($this->current_stage);
+        $targetRank = self::getRoleRank($stage);
+
+        if ($currentRank > $targetRank) {
+            return true;
+        }
+
+        return match ($stage) {
+            'main_supervisor' => !is_null($this->main_supervisor_submitted_at) && !is_null($this->main_supervisor_recommendation),
+            'co_supervisors'  => !is_null($this->co_supervisors_submitted_at),
+            'pspc_members'    => !is_null($this->pspc_members_submitted_at),
+            'dpgc'            => !is_null($this->dpgc_submitted_at) && !is_null($this->dpgc_recommendation),
+            'hod'             => !is_null($this->hod_submitted_at) && !is_null($this->hod_recommendation),
+            'academic_office' => !is_null($this->academic_office_submitted_at) && !is_null($this->academic_office_is_verified),
+            'doaa'            => !is_null($this->doaa_submitted_at) && !is_null($this->doaa_approval),
+            default           => false,
         };
     }
 
     // Allowed only for the reverting authority, authorities prior to them in rank, and the student.
     public function canUserViewRevertedForm(?User $user): bool
     {
-        if (!$user) {
+        if (!$user || $this->status !== 'reverted') {
             return false;
         }
-
-        // If form is not reverted, default viewing rules apply
-        if ($this->status !== 'reverted') {
-            return true;
-        }
-
-        $revertingRank = self::getRoleRank($this->reverted_by_role);
 
         // Students are not allowed to access authority reverted view
         if ($user->isStudent()) {
             return false;
         }
+
+        $thesis = $this->thesis;
+        $student = $thesis?->student;
+        $revertingRank = self::getRoleRank($this->reverted_by_role);
 
         $userRanks = [];
         if ($student) {
@@ -376,7 +436,9 @@ class Pts1Form extends Model
         return $minUserRank <= $revertingRank;
     }
 
-    // Determine access status for in-progress submitted form: 'allowed', 'pending_endorsement', 'not_reached', or 'unauthorized'
+    // Determine access status for in-progress submitted form: 'allowed', 'pending_endorsement', 'not_reached', or 'unauthorized'.
+    // Supports dual/triple-role faculty: a user may simultaneously be main supervisor, co-supervisor, and/or PSPC member.
+    // The current stage rank is used as the tiebreaker to decide which role is active right now.
     public function getUserSubmissionAccessStatus(?User $user): string
     {
         if (!$user) {
@@ -386,123 +448,103 @@ class Pts1Form extends Model
         $thesis = $this->thesis;
         $student = $thesis?->student;
 
-        // Student owner can always view their in-progress submission
+        // 1. Student owner can always view their in-progress submission
         if ($student && (int)$user->id === (int)$student->user_id) {
             return 'allowed';
         }
 
-        $stage = $this->current_stage;
-        $stageRank = self::getRoleRank($stage);
-        $statuses = [];
+        $stageRank = self::getRoleRank($this->current_stage);
 
-        // 1. Main Supervisor (Rank 1)
-        if ($student?->isMainSupervisor($user)) {
-            if ($stageRank < 1) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 1) {
-                $statuses[] = ($this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
+        // --- Collect all role slots this user occupies ---
+        $isMainSup = (bool)$student?->isMainSupervisor($user);
 
-        // 2. Co-Supervisor (Rank 2)
-        $coSupSlot = null;
+        $coSlot = null;
         for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($this->$col == $user->id) {
-                $coSupSlot = $i;
+            if ($this->{"co_supervisor_{$i}_id"} == $user->id) {
+                $coSlot = $i;
                 break;
             }
         }
-        if ($coSupSlot !== null) {
-            if ($stageRank < 2) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 2) {
-                $subCol = "co_supervisor_{$coSupSlot}_submitted_at";
-                $recCol = "co_supervisor_{$coSupSlot}_recommendation";
-                $statuses[] = ($this->$subCol || !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
 
-        // 3. PSPC Member (Rank 3)
         $pspcSlot = null;
         for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($this->$col == $user->id) {
+            if ($this->{"pspc_member_{$i}_id"} == $user->id) {
                 $pspcSlot = $i;
                 break;
             }
         }
-        if ($pspcSlot !== null) {
-            if ($stageRank < 3) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 3) {
+
+        // --- Resolve access based on which role is active at the current stage ---
+        if ($isMainSup || $coSlot !== null || $pspcSlot !== null) {
+            // Rank 1 — main supervisor stage
+            if ($stageRank === 1 && $isMainSup) {
+                return ($this->main_supervisor_submitted_at && $this->main_supervisor_recommendation !== null)
+                    ? 'allowed' : 'pending_endorsement';
+            }
+
+            // Rank 2 — co-supervisor stage
+            if ($stageRank === 2 && $coSlot !== null) {
+                $subCol = "co_supervisor_{$coSlot}_submitted_at";
+                $recCol = "co_supervisor_{$coSlot}_recommendation";
+                return ($this->$subCol && !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
+            }
+
+            // Rank 3 — pspc stage
+            if ($stageRank === 3 && $pspcSlot !== null) {
                 $subCol = "pspc_member_{$pspcSlot}_submitted_at";
                 $recCol = "pspc_member_{$pspcSlot}_recommendation";
-                $statuses[] = ($this->$subCol || !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
+                return ($this->$subCol && !is_null($this->$recCol)) ? 'allowed' : 'pending_endorsement';
             }
-        }
 
-        // 4. DPGC (Rank 4)
-        if ($user->isDpgc() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
-            if ($stageRank < 4) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 4) {
-                $statuses[] = ($this->dpgc_submitted_at || !is_null($this->dpgc_recommendation)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
+            // Stage hasn't reached any of this user's roles yet
+            $minOwnedRank = min(
+                $isMainSup  ? 1   : PHP_INT_MAX,
+                $coSlot !== null  ? 2   : PHP_INT_MAX,
+                $pspcSlot !== null ? 3  : PHP_INT_MAX
+            );
+            if ($stageRank < $minOwnedRank) return 'not_reached';
 
-        // 5. HOD (Rank 5)
-        if ($user->isHod() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
-            if ($stageRank < 5) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 5) {
-                $statuses[] = ($this->hod_submitted_at || !is_null($this->hod_recommendation)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
-
-        // 6. Academic Office (Rank 6)
-        if ($user->isAcademicOffice()) {
-            if ($stageRank < 6) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 6) {
-                $statuses[] = ($this->academic_office_submitted_at || !is_null($this->academic_office_verified)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
-
-        // 7. DOAA / Global Authorities (Rank 7)
-        if ($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
-            if ($stageRank < 7) {
-                $statuses[] = 'not_reached';
-            } elseif ($stageRank === 7) {
-                $statuses[] = ($this->doaa_submitted_at || !is_null($this->doaa_approval)) ? 'allowed' : 'pending_endorsement';
-            } else {
-                $statuses[] = 'allowed';
-            }
-        }
-
-        if (empty($statuses)) {
-            return 'unauthorized';
-        }
-
-        if (in_array('pending_endorsement', $statuses)) {
-            return 'pending_endorsement';
-        }
-        if (in_array('allowed', $statuses)) {
+            // Stage has passed all of this user's roles
             return 'allowed';
         }
-        return 'not_reached';
+
+        // 5. DPGC (Rank 4)
+        if ($user->isDpgc() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
+            if ($stageRank < 4) return 'not_reached';
+            if ($stageRank === 4) {
+                return ($this->dpgc_submitted_at && !is_null($this->dpgc_recommendation)) ? 'allowed' : 'pending_endorsement';
+            }
+            return 'allowed';
+        }
+
+        // 6. HOD (Rank 5)
+        if ($user->isHod() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
+            if ($stageRank < 5) return 'not_reached';
+            if ($stageRank === 5) {
+                return ($this->hod_submitted_at && !is_null($this->hod_recommendation)) ? 'allowed' : 'pending_endorsement';
+            }
+            return 'allowed';
+        }
+
+        // 7. Academic Office (Rank 6)
+        if ($user->isAcademicOffice()) {
+            if ($stageRank < 6) return 'not_reached';
+            if ($stageRank === 6) {
+                return ($this->academic_office_submitted_at && !is_null($this->academic_office_is_verified)) ? 'allowed' : 'pending_endorsement';
+            }
+            return 'allowed';
+        }
+
+        // 8. DOAA / Global Authorities (Rank 7)
+        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email))) {
+            if ($stageRank < 7) return 'not_reached';
+            if ($stageRank === 7) {
+                return ($this->doaa_submitted_at && !is_null($this->doaa_approval)) ? 'allowed' : 'pending_endorsement';
+            }
+            return 'allowed';
+        }
+
+        return 'unauthorized';
     }
 
     // Check if user is authorized to view this form in its current state
@@ -540,7 +582,7 @@ class Pts1Form extends Model
             }
         }
 
-        if ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic()) {
+        if ($user->isAcademicOffice() || $user->isDoaa()) {
             return true;
         }
 
@@ -551,14 +593,39 @@ class Pts1Form extends Model
         return false;
     }
 
-    // Check if user is currently authorized to evaluate/endorse this form
-    public function canUserEvaluate(?User $user): bool
+    // Check if user is currently authorized to review/endorse this form
+    public function canUserReview(?User $user): bool
     {
         if (!$user || $this->status !== 'in_progress') {
             return false;
         }
 
         return $this->getUserSubmissionAccessStatus($user) === 'pending_endorsement';
+    }
+
+    // Check if user is the Main Supervisor allowed to edit the submission
+    public function canMainSupervisorEdit(?User $user): bool
+    {
+        if (!$user || $this->status !== 'in_progress' || $this->current_stage !== 'main_supervisor') {
+            return false;
+        }
+
+        $thesis = $this->thesis;
+        return (bool)($thesis && $thesis->student && $thesis->student->isMainSupervisor($user));
+    }
+
+    // Check if user is authorized to revert this form back to student
+    public function canUserRevert(?User $user): bool
+    {
+        if (!$user || $this->status !== 'in_progress') {
+            return false;
+        }
+
+        if ($this->current_stage === 'academic_office' || $user->isAcademicOffice()) {
+            return false;
+        }
+
+        return $this->canUserReview($user);
     }
 
     // Get human-readable role label for the authority who reverted the form, including user name.
@@ -579,214 +646,16 @@ class Pts1Form extends Model
         return Thesis::getStageLabel($this->current_stage);
     }
 
+    // Usage in Blade: {{ $pts1Form->status_label }}
+    public function getStatusLabelAttribute(): string
+    {
+        return Thesis::getStatusLabel($this->status);
+    }
+
     // Get array of completed submission timestamps for all authorities and student.
     public function getSubmittedTimeline(): array
     {
-        $timeline = [];
-        $student = $this->thesis?->student;
-        $deptId = $student?->department_id;
-
-        $dpgcUser = $deptId ? User::where('role', 'dpgc')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
-        $hodUser = $deptId ? User::where('role', 'hod')->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $deptId))->first() : null;
-        $soUser = User::where('role', 'academic_office')->first();
-        $doaaUser = User::whereIn('role', ['doaa', 'adoaa'])->first();
-
-        // 1. Student Submission
-        if ($this->created_at) {
-            $timeline[] = [
-                'role' => 'Student Submission',
-                'name' => $student?->user?->name ?? 'Student',
-                'submitted_at' => $this->created_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        }
-
-        // 2. Main Supervisor
-        $mainSup = $student?->mainSupervisors?->first() ?? $student?->mainSupervisor;
-        $mainSupSubmitted = $this->main_supervisor_submitted_at || $this->main_supervisor_recommendation !== null;
-        if ($mainSupSubmitted) {
-            $timeline[] = [
-                'role' => 'Main Supervisor',
-                'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => $this->main_supervisor_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'main_supervisor') {
-            $timeline[] = [
-                'role' => 'Main Supervisor',
-                'name' => $mainSup?->name ?? 'Main Supervisor',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 3. Co-Supervisors & External Supervisors
-        $coSupervisors = $student?->allCoSupervisors() ?? collect();
-        $hasCoSupervisors = $coSupervisors->count() > 0 || $this->co_supervisor_1_id;
-        if ($hasCoSupervisors) {
-            $maxCo = max(1, $coSupervisors->count());
-        for ($i = 1; $i <= 10; $i++) {
-                $coSup = $this->{"coSupervisor{$i}"} ?? $coSupervisors->get($i - 1);
-                if (!$coSup && $i > $maxCo) break;
-
-                $roleLabel = ($student && $coSup) ? $student->getSupervisorRoleTitle($coSup) : "Co-Supervisor {$i}";
-                $nameLabel = $coSup?->name ?? "Co-Supervisor {$i}";
-                $institute = ($coSup?->isExternalSupervisor() && $coSup->externalSupervisorProfile?->affiliated_institute)
-                    ? $coSup->externalSupervisorProfile->affiliated_institute
-                    : null;
-
-                $submittedAt = $this->{"co_supervisor_{$i}_submitted_at"} 
-                    ?? ($this->co_supervisors_submitted_at && $this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->co_supervisors_submitted_at : null)
-                    ?? ($this->{"co_supervisor_{$i}_recommendation"} !== null ? $this->updated_at : null);
-                $isSubmitted = $this->{"co_supervisor_{$i}_recommendation"} !== null || $submittedAt;
-
-                if ($isSubmitted) {
-                    $timeline[] = [
-                        'role' => $roleLabel,
-                        'name' => $nameLabel,
-                        'institute' => $institute,
-                        'submitted_at' => $submittedAt,
-                        'status_type' => 'submitted',
-                        'status_label' => '✓ Submitted',
-                    ];
-                } elseif ($this->status === 'in_progress' && $this->current_stage === 'co_supervisors' && $coSup) {
-                    $timeline[] = [
-                        'role' => $roleLabel,
-                        'name' => $nameLabel,
-                        'institute' => $institute,
-                        'submitted_at' => null,
-                        'status_type' => 'pending',
-                        'status_label' => '⏳ Pending',
-                    ];
-                }
-            }
-        }
-
-        // 4. PSPC Members
-        $pspcMembers = $student?->pspcMembers ?? collect();
-        $hasPspc = $pspcMembers->count() > 0 || $this->pspc_member_1_id;
-        if ($hasPspc) {
-            $maxPspc = max(1, $pspcMembers->count());
-        for ($i = 1; $i <= 10; $i++) {
-                $pspc = $this->{"pspcMember{$i}"} ?? $pspcMembers->get($i - 1);
-                if (!$pspc && $i > $maxPspc) break;
-
-                $submittedAt = $this->{"pspc_member_{$i}_submitted_at"} 
-                    ?? ($this->pspc_members_submitted_at && $this->{"pspc_member_{$i}_recommendation"} !== null ? $this->pspc_members_submitted_at : null)
-                    ?? ($this->{"pspc_member_{$i}_recommendation"} !== null ? $this->updated_at : null);
-                $isSubmitted = $this->{"pspc_member_{$i}_recommendation"} !== null || $submittedAt;
-
-                if ($isSubmitted) {
-                    $timeline[] = [
-                        'role' => 'PSPC Member',
-                        'name' => $pspc?->name ?? "PSPC Member {$i}",
-                        'submitted_at' => $submittedAt ?? $this->updated_at,
-                        'status_type' => 'submitted',
-                        'status_label' => '✓ Submitted',
-                    ];
-                } elseif ($this->status === 'in_progress' && $this->current_stage === 'pspc_members' && $pspc) {
-                    $timeline[] = [
-                        'role' => 'PSPC Member',
-                        'name' => $pspc->name ?? "PSPC Member {$i}",
-                        'submitted_at' => null,
-                        'status_type' => 'pending',
-                        'status_label' => '⏳ Pending',
-                    ];
-                }
-            }
-        }
-
-        // 5. DPGC Convener
-        $dpgcSubmitted = $this->dpgc_submitted_at || $this->dpgc_recommendation !== null;
-        if ($dpgcSubmitted) {
-            $timeline[] = [
-                'role' => 'DPGC Convenor',
-                'name' => 'DPGC Convenor',
-                'submitted_at' => $this->dpgc_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'dpgc') {
-            $timeline[] = [
-                'role' => 'DPGC Convenor',
-                'name' => 'DPGC Convenor',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 6. Head of Department (HOD)
-        $hodSubmitted = $this->hod_submitted_at || $this->hod_recommendation !== null;
-        if ($hodSubmitted) {
-            $timeline[] = [
-                'role' => 'Head of Department',
-                'name' => 'HOD',
-                'submitted_at' => $this->hod_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'hod') {
-            $timeline[] = [
-                'role' => 'Head of Department',
-                'name' => 'HOD',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 7. Academic Office
-        $soSubmitted = $this->academic_office_submitted_at || $this->academic_office_verified !== null;
-        if ($soSubmitted) {
-            $timeline[] = [
-                'role' => 'Academic Office',
-                'name' => 'Academic Office',
-                'submitted_at' => $this->academic_office_submitted_at,
-                'status_type' => 'submitted',
-                'status_label' => '✓ Submitted',
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'academic_office') {
-            $timeline[] = [
-                'role' => 'Academic Office',
-                'name' => 'Academic Office',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 8. DOAA
-        $doaaSubmitted = $this->doaa_submitted_at || $this->doaa_approval !== null;
-        if ($doaaSubmitted) {
-            $isApproved = $this->status === 'approved' || $this->doaa_approval == true;
-            $isRejected = $this->status === 'rejected' || $this->doaa_approval === false;
-            $timeline[] = [
-                'role' => 'Dean of Academic Affairs',
-                'name' => 'DOAA',
-                'submitted_at' => $this->doaa_submitted_at ?? $this->pts1_submitted_at,
-                'status_type' => $isRejected ? 'rejected' : ($isApproved ? 'approved' : 'submitted'),
-                'status_label' => $isRejected ? '❌ Rejected' : ($isApproved ? '✓ Approved' : '✓ Submitted'),
-            ];
-        } elseif ($this->status === 'in_progress' && $this->current_stage === 'doaa') {
-            $timeline[] = [
-                'role' => 'Dean of Academic Affairs',
-                'name' => $doaaUser?->name ?? 'DOAA',
-                'submitted_at' => null,
-                'status_type' => 'pending',
-                'status_label' => '⏳ Pending',
-            ];
-        }
-
-        // 9. Reverted Event (if reverted)
-        if ($revertedItem = Thesis::getRevertedTimelineItem($this)) {
-            $timeline[] = $revertedItem;
-        }
-
-        return $timeline;
+        return Thesis::getSubmissionTimeline($this);
     }
 
     public function revertedBy(): BelongsTo
@@ -817,5 +686,10 @@ class Pts1Form extends Model
     public function doaaUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'doaa_user_id');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_id');
     }
 }

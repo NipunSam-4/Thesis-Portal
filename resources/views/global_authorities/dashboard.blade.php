@@ -175,7 +175,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
-                            <input type="text" x-model="searchQuery" placeholder="Search by Name, Roll No..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition shadow-sm">
+                            <input type="text" x-model="searchQuery" placeholder="Search by Name, Roll No" class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition shadow-sm">
                             <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
@@ -197,7 +197,7 @@
                 <!-- SECTION 1: PhD Students List -->
                 <div x-show="programTab === 'phd'">
                     @forelse($phdStudents as $student)
-                        <x-student-card :student="$student" :user="$user" :isMsr="false" />
+                        <x-student-card :student="$student" :user="$user" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No PhD students found matching criteria.
@@ -208,7 +208,7 @@
                 <!-- SECTION 2: MS(R) Students List -->
                 <div x-show="programTab === 'msr'">
                     @forelse($msrStudents as $student)
-                        <x-student-card :student="$student" :user="$user" :isMsr="true" />
+                        <x-student-card :student="$student" :user="$user" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No MS(R) students found matching criteria.

@@ -52,4 +52,26 @@ class Department extends Model
     {
         return $user->isDpgc() && $this->deptAuthorityProfiles()->where('user_id', $user->id)->exists();
     }
+
+    /**
+     * Get the currently active Head of Department (HOD) for this department.
+     */
+    public function getActiveHodAttribute(): ?User
+    {
+        return User::where('role', 'hod')
+            ->where('is_active', true)
+            ->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $this->id))
+            ->first();
+    }
+
+    /**
+     * Get the currently active DPGC Convener for this department.
+     */
+    public function getActiveDpgcAttribute(): ?User
+    {
+        return User::where('role', 'dpgc')
+            ->where('is_active', true)
+            ->whereHas('deptAuthorityProfile', fn($q) => $q->where('department_id', $this->id))
+            ->first();
+    }
 }

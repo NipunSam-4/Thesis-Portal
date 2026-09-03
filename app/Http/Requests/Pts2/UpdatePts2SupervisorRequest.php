@@ -9,7 +9,7 @@ class UpdatePts2SupervisorRequest extends FormRequest
     public function authorize(): bool
     {
         $pts2 = $this->route('pts2');
-        return $pts2 && $this->user()->can('supervisorEdit', $pts2);
+        return $pts2 && $this->user()->can('mainSupervisorEdit', $pts2);
     }
 
     public function rules(): array

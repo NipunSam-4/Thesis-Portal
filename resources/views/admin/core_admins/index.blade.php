@@ -246,7 +246,7 @@
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Assigned Department <span class="text-rose-500">*</span></label>
                                 <select name="department_id" class="w-full border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-sm text-sm focus:ring-emerald-500" required>
-                                    <option value="" disabled selected>Select Department...</option>
+                                    <option value="" disabled selected>Select Department</option>
                                     @foreach($departments as $dept)
                                         <option value="{{ $dept->id }}">{{ $dept->name }} ({{ $dept->code }})</option>
                                     @endforeach

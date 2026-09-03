@@ -9,7 +9,7 @@ class EndorsePts1Request extends FormRequest
     public function authorize(): bool
     {
         $pts1 = $this->route('pts1');
-        return $pts1 && $this->user()->can('evaluate', $pts1);
+        return $pts1 && $this->user()->can('review', $pts1);
     }
 
     public function rules(): array

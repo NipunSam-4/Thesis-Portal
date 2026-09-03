@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Pts4Extension;
 use App\Models\Student;
 use App\Models\Thesis;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class Pts4ExtensionController extends Controller
 {
+    use AuthorizesRequests;
     // Show form for student to apply for PTS-4 Extension.
     public function create()
     {
@@ -38,10 +40,10 @@ class Pts4ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-2 Form to apply for PTS-4 extension.');
         }
 
-        // Extension application is allowed up to 60 days after open seminar
+        // Extension application is allowed up to maximum configured days after open seminar
         if (!$thesis->canApplyForPts4Extension()) {
             $maxExtDate = $thesis->getMaxPts4ExtensionDate();
-            return redirect()->route('student.dashboard')->with('warning', 'The window to apply for PTS-4 extension has expired (maximum 60 days from Open Seminar passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
+            return redirect()->route('student.dashboard')->with('warning', 'The window to apply for PTS-4 extension has expired (passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
         }
 
         $existingExtension = Pts4Extension::where('thesis_id', $thesis->id)->latest()->first();
@@ -84,7 +86,8 @@ class Pts4ExtensionController extends Controller
         }
 
         if (!$thesis->canApplyForPts4Extension()) {
-            return redirect()->route('student.dashboard')->with('error', 'The window to apply for PTS-4 extension has expired (maximum 60 days from Open Seminar).');
+            $maxExtDate = $thesis->getMaxPts4ExtensionDate();
+            return redirect()->route('student.dashboard')->with('error', 'The window to apply for PTS-4 extension has expired (passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
         }
 
         $minExtensionDate = $thesis->getMinPts4ExtensionDate();
@@ -96,38 +99,32 @@ class Pts4ExtensionController extends Controller
                 'required',
                 'date',
                 'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
-                'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+60 days'),
+                'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+1 year'),
             ],
         ], [
             'extended_until_date.after_or_equal' => 'Extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
-            'extended_until_date.before_or_equal' => 'Extension date cannot exceed 60 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
+            'extended_until_date.before_or_equal' => 'Extension date cannot exceed ' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'the maximum allowed extension limit') . '.',
         ]);
 
         $existingExtension = Pts4Extension::where('thesis_id', $thesis->id)->latest()->first();
-
         if ($existingExtension && $existingExtension->status === 'in_progress') {
             return redirect()->route('student.dashboard')->with('warning', 'Your PTS-4 extension application is currently under review.');
         }
 
-        if ($existingExtension && $existingExtension->status === 'reverted') {
-            $existingExtension->update([
-                'reason_for_extension' => $request->reason_for_extension,
-                'extended_until_date' => $request->extended_until_date,
-                'status' => 'in_progress',
-                'current_stage' => 'main_supervisor',
-                'reverted_by_id' => null,
-                'reverted_by_role' => null,
-                'reversion_comment' => null,
-            ]);
-        } else {
-            Pts4Extension::create([
-                'thesis_id' => $thesis->id,
-                'reason_for_extension' => $request->reason_for_extension,
-                'extended_until_date' => $request->extended_until_date,
-                'current_stage' => 'main_supervisor',
-                'status' => 'in_progress',
-            ]);
+        $activeMainSup = $student->active_main_supervisor;
+        if (!$activeMainSup) {
+            return back()->withInput()->with('error', 'Unable to apply for PTS-4 extension: No active Main Supervisor is assigned to your profile. Please contact the Academic Office.');
         }
+
+        Pts4Extension::create([
+            'thesis_id' => $thesis->id,
+            'reason_for_extension' => $request->reason_for_extension,
+            'extended_until_date' => $request->extended_until_date,
+            'status' => 'in_progress',
+            'main_supervisor_id' => $activeMainSup->id,
+            'vested_doaa_email' => \App\Models\VestedDoaa::getActiveVestedEmail(),
+            'current_stage' => 'main_supervisor',
+        ]);
 
         $prefix = $student->isPhd() ? 'PTS' : 'MSRTS';
         return redirect()->route('student.dashboard')->with('success', "{$prefix}-4 Extension application submitted successfully to Main Supervisor for endorsement.");
@@ -140,156 +137,162 @@ class Pts4ExtensionController extends Controller
 
         $user = Auth::user();
         $extension = $pts4Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
-        $thesis = $extension->thesis;
-        $student = $thesis->student;
 
-        $seminarDate = $thesis->getOpenSeminarDate();
-        return view('pts4_extension.show', compact('user', 'student', 'thesis', 'extension', 'seminarDate'));
+        return view('pts4_extension.show', compact('user', 'extension'));
     }
 
     // Review & Endorsement page for authorities.
     public function review(Pts4Extension $pts4Extension)
     {
-        $this->authorize('evaluate', $pts4Extension);
+        $this->authorize('review', $pts4Extension);
 
         $user = Auth::user();
         $extension = $pts4Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
         $thesis = $extension->thesis;
-        $student = $thesis->student;
 
-        $userRole = $this->determineUserRole($user, $extension);
-        $seminarDate = $thesis->getOpenSeminarDate();
-        $minExtensionDate = $thesis->getMinPts4ExtensionDate();
-        $maxExtensionDate = $thesis->getMaxPts4ExtensionDate();
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
+        $seminarDate = $thesis?->getOpenSeminarDate();
+        $minExtensionDate = $thesis?->getMinPts4ExtensionDate();
+        $maxExtensionDate = $thesis?->getMaxPts4ExtensionDate();
 
-        return view('pts4_extension.review', compact('user', 'student', 'thesis', 'extension', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
+        return view('pts4_extension.review', compact('user', 'extension', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
     }
 
-    // Submit Review (Endorse, Revert, Reject, Approve).
-    public function submitReview(Request $request, Pts4Extension $pts4Extension)
+    // Handle evaluation submission (endorsement, verification, approval) by an authority.
+    public function endorse(Request $request, Pts4Extension $pts4Extension)
     {
-        $this->authorize('evaluate', $pts4Extension);
+        $this->authorize('review', $pts4Extension);
 
-        $user = Auth::user();
         $extension = $pts4Extension;
-        $thesis = $extension->thesis;
-        $student = $thesis->student;
+        $user = Auth::user();
 
-        $userRole = $this->determineUserRole($user, $extension);
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
+        if (!$userRole || $extension->current_stage !== $userRole) {
+            abort(403, 'You are not authorized to evaluate this extension request at this stage.');
+        }
 
-        $action = $request->input('action');
-        $minExtensionDate = $thesis->getMinPts4ExtensionDate();
-        $maxExtensionDate = $thesis->getMaxPts4ExtensionDate();
+        $minExtensionDate = $extension->thesis?->getMinPts4ExtensionDate();
+        $maxExtensionDate = $extension->thesis?->getMaxPts4ExtensionDate();
 
-        $prefix = $student->isPhd() ? 'PTS' : 'MSRTS';
+        $updateData = [];
 
-        if ($action === 'endorse') {
-            $dataToUpdate = [
-                "{$userRole}_id" => $user->id,
-                "{$userRole}_comments" => $request->input('comments'),
-                "{$userRole}_signed_at" => now(),
+        if ($userRole === 'academic_office') {
+            $request->validate([
+                'verified_details' => 'required|accepted',
+                'confidential_remark' => 'required|string|max:2000',
+                'acting_doaa_email' => 'nullable|email',
+            ]);
+
+            $updateData = [
+                'academic_office_recommendation' => true,
+                'academic_office_confidential_remark' => $request->confidential_remark,
+                'academic_office_submitted_at' => now(),
+                'academic_office_user_id' => $user->id,
+                'acting_doaa_email' => $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null,
+                'current_stage' => 'doaa',
             ];
-
-            if ($userRole === 'doaa') {
-                $request->validate([
-                    'approved_extended_until_date' => [
-                        'required',
-                        'date',
-                        'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
-                        'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+60 days'),
-                    ],
-                ]);
-                $dataToUpdate['approved_extended_until_date'] = $request->approved_extended_until_date;
-                $dataToUpdate['status'] = 'approved';
-                $dataToUpdate['current_stage'] = 'completed';
-            } else {
-                $nextStage = match ($userRole) {
-                    'main_supervisor' => 'dpgc',
-                    'dpgc'            => 'hod',
-                    'hod'             => 'academic_office',
-                    'academic_office' => 'doaa',
-                    default           => 'completed',
-                };
-                $dataToUpdate['current_stage'] = $nextStage;
+        } else {
+            $approvedDateRules = ['nullable', 'date'];
+            if ($userRole === 'doaa' && $request->recommendation == '1') {
+                $approvedDateRules = [
+                    'required',
+                    'date',
+                    'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
+                    'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+1 year'),
+                ];
             }
 
-            $extension->update($dataToUpdate);
-
-            $msg = $userRole === 'doaa'
-                ? "{$prefix}-4 Extension approved successfully."
-                : "{$prefix}-4 Extension endorsed and forwarded to the next authority.";
-
-            return redirect()->route($this->getDashboardRouteForUser($user))->with('success', $msg);
-        }
-
-        if ($action === 'revert') {
-            $request->validate(['reversion_comment' => 'required|string|max:2000']);
-
-            $extension->update([
-                'status' => 'reverted',
-                'reverted_by_id' => $user->id,
-                'reverted_by_role' => $userRole,
-                'reversion_comment' => $request->input('reversion_comment'),
+            $request->validate([
+                'recommendation' => 'required|in:1,0',
+                'confidential_remark' => $request->recommendation === '0' ? 'required|string|max:2000' : 'nullable|string|max:2000',
+                'doaa_student_comment' => $userRole === 'doaa' ? 'required|string|max:2000' : 'nullable|string|max:2000',
+                'approved_extended_until_date' => $approvedDateRules,
+            ], [
+                'approved_extended_until_date.after_or_equal' => 'Approved extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
+                'approved_extended_until_date.before_or_equal' => 'Approved extension date cannot exceed ' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'the maximum allowed extension limit') . '.',
             ]);
 
-            return redirect()->route($this->getDashboardRouteForUser($user))->with('warning', "{$prefix}-4 Extension application reverted to the student.");
+            $isRecommended = $request->recommendation == '1';
+
+            switch ($userRole) {
+                case 'main_supervisor':
+                    $updateData = [
+                        'main_supervisor_recommendation' => $isRecommended,
+                        'main_supervisor_confidential_remark' => $request->confidential_remark,
+                        'main_supervisor_submitted_at' => now(),
+                        'current_stage' => 'dpgc',
+                    ];
+                    break;
+
+                case 'dpgc':
+                    $updateData = [
+                        'dpgc_recommendation' => $isRecommended,
+                        'dpgc_confidential_remark' => $request->confidential_remark,
+                        'dpgc_submitted_at' => now(),
+                        'dpgc_user_id' => $user->id,
+                        'current_stage' => 'hod',
+                    ];
+                    break;
+
+                case 'hod':
+                    $updateData = [
+                        'hod_recommendation' => $isRecommended,
+                        'hod_confidential_remark' => $request->confidential_remark,
+                        'hod_submitted_at' => now(),
+                        'hod_user_id' => $user->id,
+                        'current_stage' => 'academic_office',
+                    ];
+                    break;
+
+                case 'doaa':
+                    $updateData = [
+                        'doaa_recommendation' => $isRecommended,
+                        'doaa_confidential_remark' => $request->confidential_remark,
+                        'doaa_student_comment' => $request->doaa_student_comment,
+                        'doaa_submitted_at' => now(),
+                        'doaa_user_id' => $user->id,
+                        'approved_by_id' => $user->id,
+                        'approved_extended_until_date' => $isRecommended ? ($request->approved_extended_until_date ?? $extension->extended_until_date) : null,
+                        'status' => $isRecommended ? 'approved' : 'rejected',
+                        'current_stage' => 'completed',
+                    ];
+                    break;
+            }
         }
 
-        if ($action === 'reject') {
-            $request->validate(['rejection_comment' => 'required|string|max:2000']);
+        $extension->update($updateData);
 
-            $extension->update([
-                'status' => 'rejected',
-                'current_stage' => 'rejected',
-                'rejection_comment' => $request->input('rejection_comment'),
-            ]);
-
-            return redirect()->route($this->getDashboardRouteForUser($user))->with('error', "{$prefix}-4 Extension application rejected.");
-        }
-
-        abort(400, 'Invalid review action.');
+        $prefix = ($extension->thesis?->student && $extension->thesis->student->isPhd()) ? 'PTS' : 'MSRTS';
+        return redirect()->route('dashboard')->with('success', "{$prefix}-4 Extension Application evaluated and submitted successfully.");
     }
 
-    private function canUserAccessExtension($user, Pts4Extension $extension, Student $student): bool
+    // Handle Pop-Up Modal Reversion (All Authorities Except Academic Office)
+    public function revert(Request $request, Pts4Extension $pts4Extension)
     {
-        if ($user->isStudent() && $student->user_id === $user->id) return true;
-        if ($student->isSupervisor($user)) return true;
-        if ($student->isPspcMember($user)) return true;
-        if ($user->isAcademicOffice() || $user->isDoaa() || $user->isAdoaa()) return true;
-        if ($user->isActingApprovalAuthority()) return true;
-        if (($user->isDpgc() || $user->isHod()) && $user->deptAuthorityProfile?->department_id === $student->department_id) return true;
+        $this->authorize('review', $pts4Extension);
 
-        return false;
-    }
+        $extension = $pts4Extension;
+        $user = Auth::user();
 
-    private function determineUserRole($user, Pts4Extension $extension): ?string
-    {
-        $student = $extension->thesis->student;
-
-        if ($extension->current_stage === 'main_supervisor' && $student->isMainSupervisor($user)) {
-            return 'main_supervisor';
-        }
-        if ($extension->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $student->department_id) {
-            return 'dpgc';
-        }
-        if ($extension->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $student->department_id) {
-            return 'hod';
-        }
-        if ($extension->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-            return 'academic_office';
-        }
-        if ($extension->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email)))) {
-            return 'doaa';
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
+        if (!$userRole || $userRole === 'academic_office' || $extension->current_stage === 'academic_office') {
+            return back()->with('error', 'Academic Office cannot revert extension applications.');
         }
 
-        return null;
-    }
+        $request->validate([
+            'reversion_comment' => 'required|string|max:2000',
+        ]);
 
-    private function getDashboardRouteForUser($user): string
-    {
-        if ($user->isDoaa() || $user->isAcademicOffice()) return 'global_authorities.dashboard';
-        if ($user->isDpgc() || $user->isHod()) return 'dept_authorities.dashboard';
-        if ($user->isActingApprovalAuthority()) return 'acting_approval_authority.dashboard';
-        return 'faculty.dashboard';
+        $extension->update([
+            'status' => 'reverted',
+            'current_stage' => 'reverted',
+            'reverted_by_role' => $userRole,
+            'reverted_by_id' => $user->id,
+            'reversion_comment' => $request->reversion_comment,
+        ]);
+
+        $prefix = ($extension->thesis?->student && $extension->thesis->student->isPhd()) ? 'PTS' : 'MSRTS';
+        return redirect()->route('dashboard')->with('success', "{$prefix}-4 Extension request reverted back to the student.");
     }
 }
+

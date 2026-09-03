@@ -16,7 +16,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'in_progress', 'approved', 'rejected', 'reverted'])->default('pending');
             $table->string('acting_doaa_email')->nullable();
             $table->string('vested_doaa_email')->nullable();
-            $table->string('approved_by_authority')->nullable();
+            $table->foreignId('approved_by_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

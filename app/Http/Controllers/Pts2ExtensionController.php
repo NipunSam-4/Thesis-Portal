@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Pts2Extension;
 use App\Models\Student;
 use App\Models\Thesis;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class Pts2ExtensionController extends Controller
 {
+    use AuthorizesRequests;
     // Show form for student to apply for PTS-2 Extension.
     public function create()
     {
@@ -33,10 +35,10 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
         }
 
-        // Extension application is allowed up to 30 days after open seminar
+        // Extension application is allowed up to maximum configured days after open seminar
         if (!$thesis->canApplyForPts2Extension()) {
             $maxExtDate = $thesis->getMaxExtensionDate();
-            return redirect()->route('student.dashboard')->with('warning', 'The window to apply for PTS-2 extension has expired (maximum 30 days from Open Seminar passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
+            return redirect()->route('student.dashboard')->with('warning', 'The window to apply for PTS-2 extension has expired (passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
         }
 
         $existingExtension = Pts2Extension::where('thesis_id', $thesis->id)->latest()->first();
@@ -75,7 +77,8 @@ class Pts2ExtensionController extends Controller
         }
 
         if (!$thesis->canApplyForPts2Extension()) {
-            return redirect()->route('student.dashboard')->with('error', 'The window to apply for PTS-2 extension has expired (maximum 30 days from Open Seminar).');
+            $maxExtDate = $thesis->getMaxExtensionDate();
+            return redirect()->route('student.dashboard')->with('error', 'The window to apply for PTS-2 extension has expired (passed on ' . ($maxExtDate ? $maxExtDate->format('d-M-Y') : 'the deadline') . ').');
         }
 
         $minExtensionDate = $thesis->getMinExtensionDate();
@@ -87,17 +90,21 @@ class Pts2ExtensionController extends Controller
                 'required',
                 'date',
                 'after_or_equal:' . ($minExtensionDate ? $minExtensionDate->format('Y-m-d') : 'today'),
-                'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+30 days'),
+                'before_or_equal:' . ($maxExtensionDate ? $maxExtensionDate->format('Y-m-d') : '+1 year'),
             ],
         ], [
             'extended_until_date.after_or_equal' => 'Extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
-            'extended_until_date.before_or_equal' => 'Extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
+            'extended_until_date.before_or_equal' => 'Extension date cannot exceed ' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'the maximum allowed extension limit') . '.',
         ]);
 
         $existingExtension = Pts2Extension::where('thesis_id', $thesis->id)->latest()->first();
-
         if ($existingExtension && $existingExtension->status === 'in_progress') {
             return redirect()->route('student.dashboard')->with('warning', 'Your PTS-2 extension application is currently under review.');
+        }
+
+        $activeMainSup = $student->active_main_supervisor;
+        if (!$activeMainSup) {
+            return back()->withInput()->with('error', 'Unable to apply for PTS-2 extension: No active Main Supervisor is assigned to your profile. Please contact the Academic Office.');
         }
 
         Pts2Extension::create([
@@ -105,12 +112,13 @@ class Pts2ExtensionController extends Controller
             'reason_for_extension' => $request->reason_for_extension,
             'extended_until_date' => $request->extended_until_date,
             'status' => 'in_progress',
-            'main_supervisor_id' => $student->mainSupervisor?->id,
+            'main_supervisor_id' => $activeMainSup->id,
             'vested_doaa_email' => \App\Models\VestedDoaa::getActiveVestedEmail(),
             'current_stage' => 'main_supervisor',
         ]);
 
-        return redirect()->route('student.dashboard')->with('success', 'PTS-2 Extension application submitted successfully.');
+        $prefix = $student->isPhd() ? 'PTS' : 'MSRTS';
+        return redirect()->route('student.dashboard')->with('success', "{$prefix}-2 Extension application submitted successfully to Main Supervisor for endorsement.");
     }
 
     // Show PTS-2 extension view for student or authority.
@@ -127,13 +135,12 @@ class Pts2ExtensionController extends Controller
     // Show evaluation portal for authority.
     public function review(Pts2Extension $pts2Extension)
     {
-        $this->authorize('evaluate', $pts2Extension);
+        $this->authorize('review', $pts2Extension);
 
         $extension = $pts2Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
         $user = Auth::user();
 
-        // Determine user authority role
-        $userRole = $this->determineUserRole($user, $extension);
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
 
         $seminarDate = $extension->thesis?->getOpenSeminarDate();
         $minExtensionDate = $extension->thesis?->getMinExtensionDate();
@@ -144,46 +151,39 @@ class Pts2ExtensionController extends Controller
         return view('pts2_extension.review', compact('extension', 'user', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate', 'actingDoaaUsers'));
     }
 
-    // Handle evaluation submission by an authority.
-    public function submitReview(Request $request, Pts2Extension $pts2Extension)
+    // Handle evaluation submission (endorsement, verification, approval) by an authority.
+    public function endorse(Request $request, Pts2Extension $pts2Extension)
     {
-        $this->authorize('evaluate', $pts2Extension);
+        $this->authorize('review', $pts2Extension);
 
         $extension = $pts2Extension;
         $user = Auth::user();
 
-        $userRole = $this->determineUserRole($user, $extension);
-        if (!$userRole) {
-            abort(403, 'You are not authorized to evaluate this extension request.');
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
+        if (!$userRole || $extension->current_stage !== $userRole) {
+            abort(403, 'You are not authorized to evaluate this extension request at this stage.');
         }
 
-        // 1. Handle Pop-Up Modal Reversion (All Authorities Including DOAA)
-        if ($request->action === 'revert' || $request->filled('reversion_comment')) {
-            $request->validate([
-                'reversion_comment' => 'required|string|max:2000',
-            ]);
-
-            $extension->update([
-                'status' => 'reverted',
-                'current_stage' => 'reverted',
-                'reverted_by_role' => $userRole,
-                'reverted_by_id' => $user->id,
-                'reversion_comment' => $request->reversion_comment,
-            ]);
-
-            return redirect()->route('dashboard')->with('success', 'PTS-2 Extension request reverted back to the student.');
-        }
-
-        // 2. Handle Recommendation / Approval Form
         $minExtensionDate = $extension->thesis?->getMinExtensionDate();
         $maxExtensionDate = $extension->thesis?->getMaxExtensionDate();
 
+        $updateData = [];
+
         if ($userRole === 'academic_office') {
             $request->validate([
+                'verified_details' => 'required|accepted',
                 'confidential_remark' => 'required|string|max:2000',
                 'acting_doaa_email' => 'nullable|email',
             ]);
-            $isRecommended = true;
+
+            $updateData = [
+                'academic_office_recommendation' => true,
+                'academic_office_confidential_remark' => $request->confidential_remark,
+                'academic_office_submitted_at' => now(),
+                'academic_office_user_id' => $user->id,
+                'acting_doaa_email' => $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null,
+                'current_stage' => 'doaa',
+            ];
         } else {
             $approvedDateRules = ['nullable', 'date'];
             if ($userRole === 'doaa' && $request->recommendation == '1') {
@@ -202,92 +202,89 @@ class Pts2ExtensionController extends Controller
                 'approved_extended_until_date' => $approvedDateRules,
             ], [
                 'approved_extended_until_date.after_or_equal' => 'Approved extension date must be on or after ' . ($minExtensionDate ? $minExtensionDate->format('d-M-Y') : 'N/A') . '.',
-                'approved_extended_until_date.before_or_equal' => 'Approved extension date cannot exceed 30 days from Open Seminar (' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'N/A') . ').',
+                'approved_extended_until_date.before_or_equal' => 'Approved extension date cannot exceed ' . ($maxExtensionDate ? $maxExtensionDate->format('d-M-Y') : 'the maximum allowed extension limit') . '.',
             ]);
+
             $isRecommended = $request->recommendation == '1';
+
+            switch ($userRole) {
+                case 'main_supervisor':
+                    $updateData = [
+                        'main_supervisor_recommendation' => $isRecommended,
+                        'main_supervisor_confidential_remark' => $request->confidential_remark,
+                        'main_supervisor_submitted_at' => now(),
+                        'current_stage' => 'dpgc',
+                    ];
+                    break;
+
+                case 'dpgc':
+                    $updateData = [
+                        'dpgc_recommendation' => $isRecommended,
+                        'dpgc_confidential_remark' => $request->confidential_remark,
+                        'dpgc_submitted_at' => now(),
+                        'dpgc_user_id' => $user->id,
+                        'current_stage' => 'hod',
+                    ];
+                    break;
+
+                case 'hod':
+                    $updateData = [
+                        'hod_recommendation' => $isRecommended,
+                        'hod_confidential_remark' => $request->confidential_remark,
+                        'hod_submitted_at' => now(),
+                        'hod_user_id' => $user->id,
+                        'current_stage' => 'academic_office',
+                    ];
+                    break;
+
+                case 'doaa':
+                    $updateData = [
+                        'doaa_recommendation' => $isRecommended,
+                        'doaa_confidential_remark' => $request->confidential_remark,
+                        'doaa_student_comment' => $request->doaa_student_comment,
+                        'doaa_submitted_at' => now(),
+                        'doaa_user_id' => $user->id,
+                        'approved_by_id' => $user->id,
+                        'approved_extended_until_date' => $isRecommended ? ($request->approved_extended_until_date ?? $extension->extended_until_date) : null,
+                        'status' => $isRecommended ? 'approved' : 'rejected',
+                        'current_stage' => 'completed',
+                    ];
+                    break;
+            }
         }
 
-        switch ($userRole) {
-            case 'main_supervisor':
-                $extension->main_supervisor_recommendation = $isRecommended;
-                $extension->main_supervisor_confidential_remark = $request->confidential_remark;
-                $extension->main_supervisor_submitted_at = now();
-                $extension->current_stage = 'dpgc';
-                break;
+        $extension->update($updateData);
 
-            case 'dpgc':
-                $extension->dpgc_recommendation = $isRecommended;
-                $extension->dpgc_confidential_remark = $request->confidential_remark;
-                $extension->dpgc_submitted_at = now();
-                $extension->dpgc_user_id = $user->id;
-                $extension->current_stage = 'hod';
-                break;
-
-            case 'hod':
-                $extension->hod_recommendation = $isRecommended;
-                $extension->hod_confidential_remark = $request->confidential_remark;
-                $extension->hod_submitted_at = now();
-                $extension->hod_user_id = $user->id;
-                $extension->current_stage = 'academic_office';
-                break;
-
-            case 'academic_office':
-                $extension->academic_office_recommendation = $isRecommended;
-                $extension->academic_office_confidential_remark = $request->confidential_remark;
-                $extension->academic_office_submitted_at = now();
-                $extension->academic_office_user_id = $user->id;
-                $extension->acting_doaa_email = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
-                $extension->current_stage = 'doaa';
-                break;
-
-            case 'doaa':
-                $extension->doaa_recommendation = $isRecommended;
-                $extension->doaa_confidential_remark = $request->confidential_remark;
-                $extension->doaa_student_comment = $request->doaa_student_comment;
-                $extension->doaa_submitted_at = now();
-                $extension->doaa_user_id = $user->id;
-                $extension->approved_by_authority = $user->email;
-                if ($isRecommended) {
-                    $extension->approved_extended_until_date = $request->approved_extended_until_date ?? $extension->extended_until_date;
-                    $extension->status = 'approved';
-                } else {
-                    $extension->approved_extended_until_date = null;
-                    $extension->status = 'rejected';
-                }
-                $extension->current_stage = 'completed';
-                break;
-        }
-
-        $extension->save();
-
-        return redirect()->route('dashboard')->with('success', 'PTS-2 Extension Application submitted successfully.');
+        $prefix = ($extension->thesis?->student && $extension->thesis->student->isPhd()) ? 'PTS' : 'MSRTS';
+        return redirect()->route('dashboard')->with('success', "{$prefix}-2 Extension Application evaluated and submitted successfully.");
     }
 
-    // Helper to determine logged-in user's role in relation to the extension form.
-    private function determineUserRole($user, Pts2Extension $extension): ?string
+    // Handle Pop-Up Modal Reversion (All Authorities Except Academic Office)
+    public function revert(Request $request, Pts2Extension $pts2Extension)
     {
-        $student = $extension->thesis?->student;
+        $this->authorize('review', $pts2Extension);
 
-        if ($student && $student->isMainSupervisor($user)) {
-            return 'main_supervisor';
+        $extension = $pts2Extension;
+        $user = Auth::user();
+
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
+        if (!$userRole || $userRole === 'academic_office' || $extension->current_stage === 'academic_office') {
+            return back()->with('error', 'Academic Office cannot revert extension applications.');
         }
 
-        if ($user->isDpgc()) {
-            return 'dpgc';
-        }
+        $request->validate([
+            'reversion_comment' => 'required|string|max:2000',
+        ]);
 
-        if ($user->isHod()) {
-            return 'hod';
-        }
+        $extension->update([
+            'status' => 'reverted',
+            'current_stage' => 'reverted',
+            'reverted_by_role' => $userRole,
+            'reverted_by_id' => $user->id,
+            'reversion_comment' => $request->reversion_comment,
+        ]);
 
-        if ($user->isAcademicOffice()) {
-            return 'academic_office';
-        }
-
-        if ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) {
-            return 'doaa';
-        }
-
-        return null;
+        $prefix = ($extension->thesis?->student && $extension->thesis->student->isPhd()) ? 'PTS' : 'MSRTS';
+        return redirect()->route('dashboard')->with('success', "{$prefix}-2 Extension request reverted back to the student.");
     }
 }

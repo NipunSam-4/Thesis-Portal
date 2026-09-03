@@ -21,6 +21,15 @@ return new class extends Migration
             $table->string('admission_category')->nullable()->default('TA');
             $table->float('course_credits_required')->nullable()->default(0);
             $table->float('course_credits_earned')->nullable()->default(0);
+            $table->string('phone_number')->nullable();
+            $table->string('phone_country_code')->nullable()->default('+91');
+            $table->string('phone_iso2')->nullable()->default('in');
+            $table->string('alternate_phone_number')->nullable();
+            $table->string('alternate_phone_country_code')->nullable()->default('+91');
+            $table->string('alternate_phone_iso2')->nullable()->default('in');
+            $table->string('alternate_email')->nullable();
+            $table->string('hindi_name')->nullable();
+            $table->text('current_address')->nullable();
             $table->timestamps();
         });
     }

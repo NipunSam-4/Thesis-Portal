@@ -24,31 +24,26 @@ class Pts2Policy
     }
 
     /**
-     * Determine if the user can evaluate/endorse the form at the current stage.
+     * Determine if the user can review and endorse the form at the current stage.
      */
-    public function evaluate(User $user, Pts2Form $pts2): bool
-    {
-        return $pts2->canUserEvaluate($user);
-    }
+     public function review(User $user, Pts2Form $pts2): bool
+     {
+         return $pts2->canUserReview($user);
+     }
 
-    /**
-     * Determine if the user is the Main Supervisor allowed to edit and review the student's submission.
-     */
-    public function supervisorEdit(User $user, Pts2Form $pts2): bool
-    {
-        $thesis = $pts2->thesis;
-        return $pts2->status === 'in_progress'
-            && $pts2->current_stage === 'main_supervisor'
-            && $thesis
-            && $thesis->student
-            && $thesis->student->isMainSupervisor($user);
-    }
+     /**
+      * Determine if the user is the Main Supervisor allowed to edit and update the student's submission.
+      */
+     public function mainSupervisorEdit(User $user, Pts2Form $pts2): bool
+     {
+         return $pts2->canMainSupervisorEdit($user);
+     }
 
-    /**
-     * Determine if the user can revert the form.
-     */
-    public function revert(User $user, Pts2Form $pts2): bool
-    {
-        return $pts2->canUserRevert($user);
-    }
-}
+     /**
+      * Determine if the user can revert the form.
+      */
+     public function revert(User $user, Pts2Form $pts2): bool
+     {
+         return $pts2->canUserRevert($user);
+     }
+ }

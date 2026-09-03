@@ -10,7 +10,7 @@
     <link rel="icon" href="{{ asset('favicon.png') }}">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800&display=swap" rel="stylesheet" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
@@ -234,6 +234,9 @@
         </main>
         
     </div>
+
+    <!-- Global File Size Exceeded Popup Modal -->
+    <x-file-size-modal />
 
     <!-- Prevent mouse wheel scroll from accidentally changing type="number" input values -->
     <script>

@@ -43,10 +43,10 @@
                 @csrf
 
                 @php
-                    $showModified = isset($pts2Form) && $pts2Form->status === 'reverted' && $pts2Form->reverted_by_role !== 'main_supervisor';
+                    $showModified = $isReverted && $pts2Form->reverted_by_role !== 'main_supervisor';
                 @endphp
 
-                @if(isset($pts2Form) && $pts2Form->status === 'reverted')
+                @if($isReverted)
                     <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-xl space-y-2">
                         <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200">
                             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,46 +71,46 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Student Name</label>
-                            <input type="text" value="{{ $user->name }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Student Name" />
+                            <x-readonly-input :value="$user->name" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Roll Number</label>
-                            <input type="text" value="{{ $student->roll_number }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Roll Number" />
+                            <x-readonly-input :value="$student->roll_number" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Department</label>
-                            <input type="text" value="{{ $student->department->name ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Department" />
+                            <x-readonly-input :value="$student->department->name ?? 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Registration</label>
-                            <input type="text" value="{{ $student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Registration" />
+                            <x-readonly-input :value="$student->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Joining</label>
-                            <input type="text" value="{{ $student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Joining" />
+                            <x-readonly-input :value="$student->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Date of Confirmation</label>
-                            <input type="text" value="{{ $student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Date of Confirmation" />
+                            <x-readonly-input :value="$student->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Open Seminar Date</label>
-                            <input type="text" value="{{ $thesis->getOpenSeminarDate()?->format('d-m-Y') ?? 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            <x-readonly-label value="Open Seminar Date" />
+                            <x-readonly-input :value="$thesis->getOpenSeminarDate()?->format('d-m-Y') ?? 'N/A'" />
                         </div>
 
                         <div>
-                            <label class="flex items-center text-xs font-semibold uppercase text-gray-500 mb-1">
+                            <x-readonly-label class="flex items-center">
                                 <span>Course Credits Required</span>
                                 <x-info-button text="Minimum course credits required for the degree program." />
-                            </label>
-                            <input type="text" value="{{ is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 'N/A' }}" readonly class="w-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg border-gray-300 dark:border-gray-600 cursor-not-allowed">
+                            </x-readonly-label>
+                            <x-readonly-input :value="is_numeric($student->course_credits_required) ? ($student->course_credits_required == (int)$student->course_credits_required ? (int)$student->course_credits_required : $student->course_credits_required) : 'N/A'" />
                         </div>
                     </div>
                 </div>
@@ -121,15 +121,15 @@
                         2. Name of Thesis
                     </h3>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                        <x-form-label class="flex items-center gap-2">
                             <span>Thesis Title <span class="text-red-500">*</span></span>
                             @if($showModified && $pts2Form->main_supervisor_thesis_title && $pts2Form->main_supervisor_thesis_title !== $pts2Form->thesis_title)
                                 <x-modified-badge 
                                     :old-value="$pts2Form->thesis_title ?: ($thesis->title ?? 'N/A')" 
                                     :new-value="$pts2Form->main_supervisor_thesis_title" />
                             @endif
-                        </label>
-                        <input type="text" name="thesis_title" required x-model="thesisTitle" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
+                        </x-form-label>
+                        <x-form-input type="text" name="thesis_title" required x-model="thesisTitle" placeholder="Enter full title of thesis" />
                     </div>
                 </div>
 
@@ -141,10 +141,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Current Residential / Correspondence Address <span class="text-red-500">*</span>
-                            </label>
-                            <textarea name="current_address" required rows="3" x-model="currentAddress" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your complete current address..."></textarea>
+                            <x-form-label value="Current Residential / Correspondence Address" :required="true" />
+                            <textarea name="current_address" required rows="3" x-model="currentAddress" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your complete current address"></textarea>
                         </div>
 
                         <div>
@@ -188,18 +186,16 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Alternate Email Address (Other than Institute ID) (Optional)
-                            </label>
-                            <input type="email" name="alternate_email" x-model="alternateEmail" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. personal.email@gmail.com">
+                            <x-form-label value="Alternate Email Address (Other than Institute ID) (Optional)" />
+                            <x-form-input type="email" name="alternate_email" x-model="alternateEmail" placeholder="e.g. personal.email@gmail.com" />
                         </div>
 
                         <div>
-                            <label class="flex items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            <x-form-label class="flex items-center">
                                 <span>Total Course Credits Earned <span class="text-red-500">*</span></span>
                                 <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
-                            </label>
-                            <input type="number" step="0.5" min="0" name="course_credits_student" required x-model="courseCredits" @wheel="$event.target.blur()" onwheel="this.blur()" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 16.0">
+                            </x-form-label>
+                            <x-form-input type="number" step="0.5" min="0" name="course_credits_student" required x-model="courseCredits" @wheel="$event.target.blur()" onwheel="this.blur()" placeholder="e.g. 16.0" />
                         </div>
                     </div>
                 </div>
@@ -261,14 +257,14 @@
 
                             <div x-show="collaborativeWorkStatus === '1'" x-transition class="pt-2">
                                 <label class="block text-xs font-semibold uppercase text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-2">
-                                    <span>Collaborative Work Sections &amp; Details <span class="text-red-500">*</span></span>
+                                    <span>Collaborative Work Details <span class="text-red-500">*</span></span>
                                     @if($showModified && $pts2Form->main_supervisor_collaborative_work_details !== null && $pts2Form->main_supervisor_collaborative_work_details !== $pts2Form->collaborative_work_details)
                                         <x-modified-badge 
                                             :old-value="$pts2Form->collaborative_work_details" 
                                             :new-value="$pts2Form->main_supervisor_collaborative_work_details" />
                                     @endif
                                 </label>
-                                <textarea name="collaborative_work_details" rows="3" x-model="collaborativeWorkDetails" :required="collaborativeWorkStatus === '1'" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Mention briefly the section(s) and details relating to collaborative work..."></textarea>
+                                <textarea name="collaborative_work_details" rows="3" x-model="collaborativeWorkDetails" :required="collaborativeWorkStatus === '1'" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Mention briefly the section(s) and details relating to collaborative work"></textarea>
                             </div>
                         </div>
 
@@ -390,16 +386,16 @@
 
             return {
                 thesisTitle: @js(old('thesis_title')) || savedDraft.thesisTitle || @js(isset($pts2Form) ? $pts2Form->thesis_title : ($thesis->title ?? '')),
-                currentAddress: @js(old('current_address')) || savedDraft.currentAddress || @js(isset($pts2Form) ? $pts2Form->current_address : ''),
-                recentPhone: @js(old('recent_phone_number')) || savedDraft.recentPhone || @js(isset($pts2Form) ? $pts2Form->recent_phone_number : ''),
-                recentPhoneCountryCode: @js(old('recent_phone_country_code')) || savedDraft.recentPhoneCountryCode || @js(isset($pts2Form) ? ($pts2Form->recent_phone_country_code ?? '+91') : '+91'),
-                recentPhoneIso2: @js(old('recent_phone_iso2')) || savedDraft.recentPhoneIso2 || @js(isset($pts2Form) ? ($pts2Form->recent_phone_iso2 ?? 'in') : 'in'),
+                currentAddress: @js(old('current_address')) || savedDraft.currentAddress || @js(isset($pts2Form) ? $pts2Form->current_address : ($student->current_address ?? '')),
+                recentPhone: @js(old('recent_phone_number')) || savedDraft.recentPhone || @js(isset($pts2Form) ? $pts2Form->recent_phone_number : ($student->phone_number ?? '')),
+                recentPhoneCountryCode: @js(old('recent_phone_country_code')) || savedDraft.recentPhoneCountryCode || @js(isset($pts2Form) ? ($pts2Form->recent_phone_country_code ?? ($student->phone_country_code ?? '+91')) : ($student->phone_country_code ?? '+91')),
+                recentPhoneIso2: @js(old('recent_phone_iso2')) || savedDraft.recentPhoneIso2 || @js(isset($pts2Form) ? ($pts2Form->recent_phone_iso2 ?? ($student->phone_iso2 ?? 'in')) : ($student->phone_iso2 ?? 'in')),
                 
-                alternatePhone: @js(old('alternate_phone_number')) || savedDraft.alternatePhone || @js(isset($pts2Form) ? $pts2Form->alternate_phone_number : ''),
-                alternatePhoneCountryCode: @js(old('alternate_phone_country_code')) || savedDraft.alternatePhoneCountryCode || @js(isset($pts2Form) ? ($pts2Form->alternate_phone_country_code ?? '+91') : '+91'),
-                alternatePhoneIso2: @js(old('alternate_phone_iso2')) || savedDraft.alternatePhoneIso2 || @js(isset($pts2Form) ? ($pts2Form->alternate_phone_iso2 ?? 'in') : 'in'),
+                alternatePhone: @js(old('alternate_phone_number')) || savedDraft.alternatePhone || @js(isset($pts2Form) ? $pts2Form->alternate_phone_number : ($student->alternate_phone_number ?? '')),
+                alternatePhoneCountryCode: @js(old('alternate_phone_country_code')) || savedDraft.alternatePhoneCountryCode || @js(isset($pts2Form) ? ($pts2Form->alternate_phone_country_code ?? ($student->alternate_phone_country_code ?? '+91')) : ($student->alternate_phone_country_code ?? '+91')),
+                alternatePhoneIso2: @js(old('alternate_phone_iso2')) || savedDraft.alternatePhoneIso2 || @js(isset($pts2Form) ? ($pts2Form->alternate_phone_iso2 ?? ($student->alternate_phone_iso2 ?? 'in')) : ($student->alternate_phone_iso2 ?? 'in')),
 
-                alternateEmail: @js(old('alternate_email')) || savedDraft.alternateEmail || @js(isset($pts2Form) ? $pts2Form->alternate_email : ''),
+                alternateEmail: @js(old('alternate_email')) || savedDraft.alternateEmail || @js(isset($pts2Form) ? $pts2Form->alternate_email : ($student->alternate_email ?? '')),
                 courseCredits: @js(old('course_credits_student')) || savedDraft.courseCredits || @js(isset($pts2Form) ? $pts2Form->course_credits_student : ($student->course_credits_earned ?? '')),
                 
                 certPrimaFacie: @js(old('cert_prima_facie_case')) !== null && @js(old('cert_prima_facie_case')) !== '' ? Boolean(Number(@js(old('cert_prima_facie_case')))) : (savedDraft.certPrimaFacie !== undefined ? savedDraft.certPrimaFacie : {{ (isset($pts2Form) && $pts2Form->cert_prima_facie_case) ? 'true' : 'false' }}),
@@ -503,7 +499,16 @@
                     const limitMB = this.maxSizes[key] || 10;
 
                     if (sizeInMB > limitMB) {
-                        this.fileErrors[key] = `File size (${sizeInMB.toFixed(2)} MB) exceeds limit of ${limitMB} MB. Please select a smaller file.`;
+                        const formattedSize = sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${(file.size / 1024).toFixed(1)} KB`;
+                        window.dispatchEvent(new CustomEvent('file-size-exceeded', {
+                            detail: {
+                                fileName: file.name,
+                                fileSize: formattedSize,
+                                limitMB: `${limitMB} MB`,
+                                inputId: event.target.id
+                            }
+                        }));
+                        this.fileErrors[key] = `File size (${formattedSize}) exceeds permissible limit of ${limitMB} MB. Please select a smaller file.`;
                         event.target.value = '';
                         this.clearFile(key, event.target.id);
                         return false;

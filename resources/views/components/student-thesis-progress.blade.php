@@ -67,7 +67,7 @@
                             </div>
                         </div>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            Draft synopsis report circulated to academic authorities for early comments before Open Seminar.
+                            Draft synopsis report circulated to Supervisors and PSPC Members for early comments before Open Seminar.
                         </p>
 
                         @if($draftSynopsis)

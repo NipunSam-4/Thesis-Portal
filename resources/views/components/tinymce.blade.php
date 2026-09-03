@@ -2,7 +2,7 @@
     'name',
     'id' => null,
     'value' => '',
-    'placeholder' => 'Type your comments here...',
+    'placeholder' => 'Type your comments here',
     'height' => 350,
     'uploadUrl' => null,
 ])
@@ -35,6 +35,7 @@
 
         tinymce.init({
             selector: '#{{ $elementId }}',
+            license_key: 'gpl',
             height: {{ $height }},
             menubar: true,
             plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons accordion',

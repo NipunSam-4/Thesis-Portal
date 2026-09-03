@@ -18,12 +18,17 @@ class Pts5Form extends Model
         'status',
         'acting_doaa_email',
         'vested_doaa_email',
-        'approved_by_authority',
+        'approved_by_id',
     ];
 
     public function thesis(): BelongsTo
     {
         return $this->belongsTo(Thesis::class);
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_id');
     }
 
     // Accessor for human-readable stage label mapped from Thesis.

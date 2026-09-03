@@ -61,7 +61,7 @@
                                         </div>
                                     </div>
                                     <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                                        Circulate draft synopsis report to academic authorities for early comments before Open Seminar.
+                                        Circulate draft synopsis report to Supervisors and PSPC Members for early comments before Open Seminar.
                                     </p>
 
                                     @if($rejThesis->draftSynopsisCirculation->comments->isNotEmpty())

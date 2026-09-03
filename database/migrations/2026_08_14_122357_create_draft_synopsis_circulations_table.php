@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('thesis_id')->constrained('theses')->cascadeOnDelete();
             $table->text('thesis_title')->nullable();
             $table->string('draft_synopsis_doc_path');
-            $table->string('status')->default('circulated');
+            $table->enum('status', ['pending', 'circulated'])->default('pending');
             $table->timestamps();
         });
     }

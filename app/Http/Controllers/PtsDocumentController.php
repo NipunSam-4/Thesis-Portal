@@ -50,6 +50,16 @@ class PtsDocumentController extends Controller
             }
 
             $filePath = $form->{$field};
+        } elseif ($formType === 'pts4') {
+            $form = \App\Models\Pts4Form::with('thesis.student')->findOrFail($id);
+            $thesis = $form->thesis;
+            $allowedFields = ['thesis_doc_path', 'main_supervisor_thesis_doc_path'];
+
+            if (!in_array($field, $allowedFields, true)) {
+                abort(400, 'Invalid document type');
+            }
+
+            $filePath = $form->{$field};
         } else {
             abort(404, 'Form type not supported');
         }

@@ -24,24 +24,19 @@ class Pts1Policy
     }
 
     /**
-     * Determine if the user can evaluate/endorse the form at the current stage.
+     * Determine if the user can review and endorse the form at the current stage.
      */
-    public function evaluate(User $user, Pts1Form $pts1): bool
+    public function review(User $user, Pts1Form $pts1): bool
     {
-        return $pts1->canUserEvaluate($user);
+        return $pts1->canUserReview($user);
     }
 
     /**
-     * Determine if the user is the Main Supervisor allowed to edit and review the student's submission.
+     * Determine if the user is the Main Supervisor allowed to edit and update the student's submission.
      */
-    public function supervisorEdit(User $user, Pts1Form $pts1): bool
+    public function mainSupervisorEdit(User $user, Pts1Form $pts1): bool
     {
-        $thesis = $pts1->thesis;
-        return $pts1->status === 'in_progress'
-            && $pts1->current_stage === 'main_supervisor'
-            && $thesis
-            && $thesis->student
-            && $thesis->student->isMainSupervisor($user);
+        return $pts1->canMainSupervisorEdit($user);
     }
 
     /**

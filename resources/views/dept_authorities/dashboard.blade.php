@@ -132,7 +132,7 @@
                 <!-- SECTION 1: PhD Students List -->
                 <div x-show="programTab === 'phd'">
                     @forelse($phdStudents as $student)
-                        <x-student-card :student="$student" :user="$user" :isMsr="false" />
+                        <x-student-card :student="$student" :user="$user" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No PhD students registered in your department.
@@ -143,7 +143,7 @@
                 <!-- SECTION 2: MS(R) Students List -->
                 <div x-show="programTab === 'msr'">
                     @forelse($msrStudents as $student)
-                        <x-student-card :student="$student" :user="$user" :isMsr="true" />
+                        <x-student-card :student="$student" :user="$user" />
                     @empty
                         <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                             No MS(R) students registered in your department.

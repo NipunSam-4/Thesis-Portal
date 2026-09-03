@@ -3,7 +3,6 @@
     'user',
     'role' => null,      // 'main', 'co', 'pspc' (in faculty context)
     'subTab' => null,    // 'acting', 'vested' (in acting authority context)
-    'isMsr' => false,
 ])
 
 @php
@@ -20,11 +19,40 @@
     $pts3Approved = $thesis && $thesis->pts3Form && $thesis->pts3Form->status === 'approved';
     $pts4Approved = $thesis && $thesis->pts4Form && $thesis->pts4Form->status === 'approved';
     $pts5Approved = $thesis && $thesis->pts5Form && $thesis->pts5Form->status === 'approved';
+
+    $getBtnColor = function (?string $status) {
+        return match($status) {
+            'reverted' => 'bg-amber-600 hover:bg-amber-700',
+            'rejected' => 'bg-red-600 hover:bg-red-700',
+            'approved' => 'bg-emerald-600 hover:bg-emerald-700',
+            default    => 'bg-blue-600 hover:bg-blue-700',
+        };
+    };
+
+    $getBtnText = function (?string $status, string $type = 'Form') {
+        return match($status) {
+            'in_progress' => "View Submitted {$type}",
+            'reverted'    => "View Reverted {$type}",
+            'rejected'    => "View Rejected {$type}",
+            'approved'    => "View Approved {$type}",
+            default       => "View {$type}",
+        };
+    };
+
+    $getBadgeColor = function (?string $status) {
+        return match($status) {
+            'in_progress' => 'bg-blue-100 text-blue-800',
+            'reverted'    => 'bg-amber-100 text-amber-800',
+            'approved'    => 'bg-emerald-100 text-emerald-800',
+            'rejected'    => 'bg-red-100 text-red-800',
+            default       => 'bg-gray-200 text-gray-700',
+        };
+    };
 @endphp
 
 <div x-show="matchesFilter(@js($student->searchable_text), {{ $student->department_id ?? 'null' }})" class="mb-2.5 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-xs bg-gray-50/50 dark:bg-gray-800/50 transition">
     <!-- Student Header Card -->
-    <div @click="toggleStudent('{{ $cardKey }}')" class="py-2.5 px-3.5 sm:px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/70 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-2 sm:gap-3 transition">
+    <div @click="toggleStudent('{{ $cardKey }}')" class="py-2.5 px-3.5 sm:px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/70 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 transition">
         <div class="flex items-center space-x-2.5 min-w-0">
             <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs border border-blue-200 dark:border-blue-800 shrink-0">
                 {{ substr($student->user->name ?? 'S', 0, 1) }}
@@ -33,34 +61,36 @@
                 <h4 class="font-bold text-gray-900 dark:text-white text-sm flex flex-wrap items-center gap-1.5 leading-tight">
                     <span class="truncate">{{ $student->user->name }}</span>
                     <x-student-info-modal :student="$student" />
-                    <span class="text-[11px] font-semibold text-gray-500 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                    <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded whitespace-nowrap">
                         {{ $student->roll_number }}
                     </span>
-                    <span class="text-[11px] font-semibold bg-blue-50 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800 px-1.5 py-0.5 rounded">
+                    <span class="text-[11px] font-semibold bg-blue-50 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800 px-1.5 py-0.5 rounded whitespace-nowrap">
                         Dept: {{ $student->department->code ?? 'N/A' }}
                     </span>
                 </h4>
             </div>
         </div>
 
-        <div class="flex items-center space-x-2 text-xs font-bold shrink-0 self-end md:self-auto">
-            @if($actionBadge)
-                <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-[11px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-xs whitespace-nowrap">
-                    {{ $actionBadge }}
-                </span>
-            @endif
-
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold shadow-xs border
-                @if($stageLabel === 'Unregistered')
-                    bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
-                @else
-                    bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs font-bold shrink-0 justify-between md:justify-end">
+            <div class="flex flex-wrap items-center gap-1.5">
+                @if($actionBadge)
+                    <span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shadow-xs whitespace-nowrap">
+                        {{ $actionBadge }}
+                    </span>
                 @endif
-            ">
-                {{ $stageLabel }}
-            </span>
 
-            <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" :class="expandedStudent === '{{ $cardKey }}' ? 'rotate-180 text-blue-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs border whitespace-nowrap
+                    @if($stageLabel === 'Unregistered')
+                        bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600
+                    @else
+                        bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                    @endif
+                ">
+                    {{ $stageLabel }}
+                </span>
+            </div>
+
+            <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200 shrink-0 ml-1" :class="expandedStudent === '{{ $cardKey }}' ? 'rotate-180 text-blue-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
         </div>
@@ -139,19 +169,9 @@
                                 <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $ptsPrefix }}-1: Open Seminar</span>
                                 <div class="flex items-center gap-1 shrink-0">
                                     <x-submission-timeline-modal :form="$thesis->pts1Form" :title="$ptsPrefix . '-1 Submission Timeline'" />
-                                    @if($thesis->pts1Form)
-                                        @if($thesis->pts1Form->status === 'in_progress')
-                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                        @elseif($thesis->pts1Form->status === 'reverted')
-                                            <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                        @elseif($thesis->pts1Form->status === 'approved')
-                                            <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                        @elseif($thesis->pts1Form->status === 'rejected')
-                                            <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
-                                        @endif
-                                    @else
-                                        <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Not Initiated</span>
-                                    @endif
+                                    <span class="shrink-0 {{ $getBadgeColor($thesis->pts1Form?->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                        {{ $thesis->pts1Form ? $thesis->pts1Form->status_label : 'Not Initiated' }}
+                                    </span>
                                 </div>
                             </div>
 
@@ -184,24 +204,26 @@
                                 <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
                                     Waiting for the Student to Initiate
                                 </button>
-                            @elseif(Gate::check('evaluate', $thesis->pts1Form))
+                            @elseif(Gate::check('review', $thesis->pts1Form))
                                 @php
                                     $pts1EvalRoute = ($role === 'main' && $thesis->pts1Form->current_stage === 'main_supervisor')
-                                        ? route('faculty.pts1.review', $thesis->pts1Form->id)
+                                        ? route('faculty.pts1.edit', $thesis->pts1Form->id)
                                         : route('pts1.review', $thesis->pts1Form->id);
                                 @endphp
                                 <a href="{{ $pts1EvalRoute }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Review & Endorse {{ $ptsPrefix }}-1 Form &rarr;
                                 </a>
-                            @elseif($thesis->pts1Form->status === 'in_progress' && Gate::check('view', $thesis->pts1Form))
-                                <a href="{{ route('pts1.submitted', $thesis->pts1Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    View Submitted Form &rarr;
-                                </a>
-                            @elseif(in_array($thesis->pts1Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif(Gate::check('view', $thesis->pts1Form))
+                                @php
+                                    $viewRoute = match($thesis->pts1Form->status) {
+                                        'in_progress' => route('pts1.submitted', $thesis->pts1Form->id),
+                                        'reverted'    => route('pts1.reverted', $thesis->pts1Form->id),
+                                        default       => route('pts1.show', $thesis->pts1Form->id),
+                                    };
+                                @endphp
                                 @if($thesis->pts1Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts1Form))
-                                    <a href="{{ route($thesis->pts1Form->status === 'reverted' ? 'pts1.reverted' : 'pts1.show', $thesis->pts1Form->id) }}" 
-                                       class="block w-full text-center px-4 py-2 {{ $thesis->pts1Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts1Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                        {{ $thesis->pts1Form->status === 'reverted' ? 'View Reverted Form' : ($thesis->pts1Form->status === 'rejected' ? 'View Rejected Form' : 'View Approved Form') }} &rarr;
+                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts1Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                        {{ $getBtnText($thesis->pts1Form->status) }} &rarr;
                                     </a>
                                 @endif
                             @endif
@@ -218,15 +240,9 @@
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                     @elseif($thesis->pts2Form)
                                         <x-submission-timeline-modal :form="$thesis->pts2Form" :title="$ptsPrefix . '-2 Submission Timeline'" />
-                                        @if($thesis->pts2Form->status === 'in_progress')
-                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                        @elseif($thesis->pts2Form->status === 'reverted')
-                                            <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                        @elseif($thesis->pts2Form->status === 'approved')
-                                            <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                        @elseif($thesis->pts2Form->status === 'rejected')
-                                            <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
-                                        @endif
+                                        <span class="shrink-0 {{ $getBadgeColor($thesis->pts2Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                            {{ $thesis->pts2Form->status_label }}
+                                        </span>
                                     @else
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Not Initiated</span>
                                     @endif
@@ -265,24 +281,26 @@
                                 <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
                                     Waiting for the Student to Initiate
                                 </button>
-                            @elseif(Gate::check('evaluate', $thesis->pts2Form))
+                            @elseif(Gate::check('review', $thesis->pts2Form))
                                 @php
                                     $pts2EvalRoute = ($role === 'main' && $thesis->pts2Form->current_stage === 'main_supervisor')
-                                        ? route('faculty.pts2.review', $thesis->pts2Form->id)
+                                        ? route('faculty.pts2.edit', $thesis->pts2Form->id)
                                         : route('pts2.review', $thesis->pts2Form->id);
                                 @endphp
                                 <a href="{{ $pts2EvalRoute }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Review & Endorse {{ $ptsPrefix }}-2 Form &rarr;
                                 </a>
-                            @elseif($thesis->pts2Form->status === 'in_progress' && Gate::check('view', $thesis->pts2Form))
-                                <a href="{{ route('pts2.submitted', $thesis->pts2Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    View Submitted Form &rarr;
-                                </a>
-                            @elseif(in_array($thesis->pts2Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif(Gate::check('view', $thesis->pts2Form))
+                                @php
+                                    $viewRoute = match($thesis->pts2Form->status) {
+                                        'in_progress' => route('pts2.submitted', $thesis->pts2Form->id),
+                                        'reverted'    => route('pts2.reverted', $thesis->pts2Form->id),
+                                        default       => route('pts2.show', $thesis->pts2Form->id),
+                                    };
+                                @endphp
                                 @if($thesis->pts2Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts2Form))
-                                    <a href="{{ route($thesis->pts2Form->status === 'reverted' ? 'pts2.reverted' : 'pts2.show', $thesis->pts2Form->id) }}" 
-                                       class="block w-full text-center px-4 py-2 {{ $thesis->pts2Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts2Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                        {{ $thesis->pts2Form->status === 'reverted' ? 'View Reverted Form' : ($thesis->pts2Form->status === 'rejected' ? 'View Rejected Form' : 'View Approved Form') }} &rarr;
+                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts2Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                        {{ $getBtnText($thesis->pts2Form->status) }} &rarr;
                                     </a>
                                 @endif
                             @endif
@@ -319,24 +337,18 @@
                                         ⏳ Current Stage: {{ $thesis->pts2Extension->stage_label }}
                                     </div>
                                 @endif
-
-                                @can('evaluate', $thesis->pts2Extension)
+                                
+                                @can('review', $thesis->pts2Extension)
                                     <div class="pt-1">
                                         <a href="{{ route('pts2_extension.review', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                             Review {{ $ptsPrefix }}-2 Extension &rarr;
                                         </a>
                                     </div>
-                                @elseif($thesis->pts2Extension->status === 'in_progress' && Gate::check('view', $thesis->pts2Extension))
-                                    <div class="pt-1">
-                                        <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold text-xs rounded-lg shadow transition">
-                                            View Submitted Extension &rarr;
-                                        </a>
-                                    </div>
-                                @elseif(in_array($thesis->pts2Extension->status, ['approved', 'rejected', 'reverted']) && Gate::check('view', $thesis->pts2Extension))
+                                @elsecan('view', $thesis->pts2Extension)
                                     <div class="pt-1">
                                         <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
-                                           class="block w-full text-center px-3 py-1.5 {{ $thesis->pts2Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
-                                            {{ $thesis->pts2Extension->status === 'reverted' ? 'View Reverted Extension' : ($thesis->pts2Extension->status === 'rejected' ? 'View Rejected Extension' : 'View Approved Extension') }} &rarr;
+                                           class="block w-full text-center px-3 py-1.5 {{ $getBtnColor($thesis->pts2Extension->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                            {{ $getBtnText($thesis->pts2Extension->status, 'Extension') }} &rarr;
                                         </a>
                                     </div>
                                 @endcan
@@ -354,15 +366,9 @@
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                     @elseif($thesis->pts3Form)
                                         <x-submission-timeline-modal :form="$thesis->pts3Form" :title="$ptsPrefix . '-3 Submission Timeline'" />
-                                        @if($thesis->pts3Form->status === 'in_progress')
-                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                        @elseif($thesis->pts3Form->status === 'reverted')
-                                            <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                        @elseif($thesis->pts3Form->status === 'approved')
-                                            <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                        @elseif($thesis->pts3Form->status === 'rejected')
-                                            <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
-                                        @endif
+                                        <span class="shrink-0 {{ $getBadgeColor($thesis->pts3Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                            {{ $thesis->pts3Form->status_label }}
+                                        </span>
                                     @else
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Not Initiated</span>
                                     @endif
@@ -411,18 +417,14 @@
                                 <a href="{{ route('faculty.pts3.edit', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Edit Reverted {{ $ptsPrefix }}-3 Form &rarr;
                                 </a>
-                            @elseif(Gate::check('evaluate', $thesis->pts3Form))
+                            @elseif(Gate::check('review', $thesis->pts3Form))
                                 <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Review & Endorse {{ $ptsPrefix }}-3 Form &rarr;
                                 </a>
-                            @elseif($thesis->pts3Form->status === 'in_progress' && Gate::check('view', $thesis->pts3Form))
-                                <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    View Submitted Form &rarr;
-                                </a>
-                            @elseif(in_array($thesis->pts3Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif(Gate::check('view', $thesis->pts3Form))
                                 @if($thesis->pts3Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts3Form))
-                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $thesis->pts3Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts3Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                        {{ $thesis->pts3Form->status === 'reverted' ? 'View Reverted Form' : ($thesis->pts3Form->status === 'rejected' ? 'View Rejected Form' : 'View Approved Form') }} &rarr;
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                        {{ $getBtnText($thesis->pts3Form->status) }} &rarr;
                                     </a>
                                 @endif
                             @endif
@@ -439,15 +441,9 @@
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                     @elseif($thesis->pts4Form)
                                         <x-submission-timeline-modal :form="$thesis->pts4Form" :title="$ptsPrefix . '-4 Submission Timeline'" />
-                                        @if($thesis->pts4Form->status === 'in_progress')
-                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                        @elseif($thesis->pts4Form->status === 'reverted')
-                                            <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                        @elseif($thesis->pts4Form->status === 'approved')
-                                            <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                        @elseif($thesis->pts4Form->status === 'rejected')
-                                            <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
-                                        @endif
+                                        <span class="shrink-0 {{ $getBadgeColor($thesis->pts4Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                            {{ $thesis->pts4Form->status_label }}
+                                        </span>
                                     @else
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Not Initiated</span>
                                     @endif
@@ -484,19 +480,19 @@
                                 <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
                                     Waiting for the Student to Initiate
                                 </button>
-                            @elseif($thesis->pts4Form->canUserEvaluate($user))
+                            @elseif($thesis->pts4Form->canUserReview($user))
                                 <a href="{{ route('pts4.review', $thesis->pts4Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Review & Endorse {{ $ptsPrefix }}-4 Form &rarr;
                                 </a>
-                            @elseif($thesis->pts4Form->status === 'in_progress' && $thesis->pts4Form->canUserView($user))
-                                <a href="{{ route('pts4.submitted', $thesis->pts4Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    View Submitted Form &rarr;
-                                </a>
-                            @elseif(in_array($thesis->pts4Form->status, ['approved', 'rejected', 'reverted']))
+                            @elseif($thesis->pts4Form->canUserView($user))
+                                @php
+                                    $viewRoute = $thesis->pts4Form->status === 'in_progress'
+                                        ? route('pts4.submitted', $thesis->pts4Form->id)
+                                        : route($thesis->pts4Form->status === 'reverted' ? 'pts4.reverted' : 'pts4.show', $thesis->pts4Form->id);
+                                @endphp
                                 @if($thesis->pts4Form->status !== 'reverted' || $thesis->pts4Form->canUserViewRevertedForm($user))
-                                    <a href="{{ route($thesis->pts4Form->status === 'reverted' ? 'pts4.reverted' : 'pts4.show', $thesis->pts4Form->id) }}" 
-                                       class="block w-full text-center px-4 py-2 {{ $thesis->pts4Form->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700' : ($thesis->pts4Form->status === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700') }} text-white font-bold text-xs rounded-lg shadow transition">
-                                        {{ $thesis->pts4Form->status === 'reverted' ? 'View Reverted Form' : ($thesis->pts4Form->status === 'rejected' ? 'View Rejected Form' : 'View Approved Form') }} &rarr;
+                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts4Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                        {{ $getBtnText($thesis->pts4Form->status) }} &rarr;
                                     </a>
                                 @endif
                             @endif
@@ -534,23 +530,17 @@
                                     </div>
                                 @endif
 
-                                @can('evaluate', $thesis->pts4Extension)
+                                @can('review', $thesis->pts4Extension)
                                     <div class="pt-1">
                                         <a href="{{ route('pts4_extension.review', $thesis->pts4Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg shadow transition">
                                             Review {{ $ptsPrefix }}-4 Extension &rarr;
                                         </a>
                                     </div>
-                                @elseif($thesis->pts4Extension->status === 'in_progress' && Gate::check('view', $thesis->pts4Extension))
-                                    <div class="pt-1">
-                                        <a href="{{ route('pts4_extension.show', $thesis->pts4Extension->id) }}" class="block w-full text-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold text-xs rounded-lg shadow transition">
-                                            View Submitted Extension &rarr;
-                                        </a>
-                                    </div>
-                                @elseif(in_array($thesis->pts4Extension->status, ['approved', 'rejected', 'reverted']) && Gate::check('view', $thesis->pts4Extension))
+                                @elsecan('view', $thesis->pts4Extension)
                                     <div class="pt-1">
                                         <a href="{{ route('pts4_extension.show', $thesis->pts4Extension->id) }}" 
-                                           class="block w-full text-center px-3 py-1.5 {{ $thesis->pts4Extension->status === 'reverted' ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }} font-bold text-xs rounded-lg shadow transition">
-                                            {{ $thesis->pts4Extension->status === 'reverted' ? 'View Reverted Extension' : ($thesis->pts4Extension->status === 'rejected' ? 'View Rejected Extension' : 'View Approved Extension') }} &rarr;
+                                           class="block w-full text-center px-3 py-1.5 {{ $getBtnColor($thesis->pts4Extension->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                            {{ $getBtnText($thesis->pts4Extension->status, 'Extension') }} &rarr;
                                         </a>
                                     </div>
                                 @endcan
@@ -571,12 +561,10 @@
                                     @endif
                                     @if(!$pts3Approved || !$pts4Approved)
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
-                                    @elseif($thesis->pts5Form && $thesis->pts5Form->status === 'approved')
-                                        <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                    @elseif($thesis->pts5Form && $thesis->pts5Form->status === 'in_progress')
-                                        <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
-                                    @elseif($thesis->pts5Form && $thesis->pts5Form->status === 'rejected')
-                                        <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
+                                    @elseif($thesis->pts5Form)
+                                        <span class="shrink-0 {{ $getBadgeColor($thesis->pts5Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                            {{ $thesis->pts5Form->status_label }}
+                                        </span>
                                     @else
                                         <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Available</span>
                                     @endif
@@ -623,10 +611,10 @@
                                     @endif
                                     @if(!$pts5Approved)
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
-                                    @elseif($thesis->pts6Form && $thesis->pts6Form->status === 'approved')
-                                        <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
-                                    @elseif($thesis->pts6Form && $thesis->pts6Form->status === 'in_progress')
-                                        <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
+                                    @elseif($thesis->pts6Form)
+                                        <span class="shrink-0 {{ $getBadgeColor($thesis->pts6Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
+                                            {{ $thesis->pts6Form->status_label }}
+                                        </span>
                                     @else
                                         <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Final Stage</span>
                                     @endif

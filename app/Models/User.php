@@ -116,6 +116,38 @@ class User extends Authenticatable
         return $this->role === 'external_supervisor';
     }
 
+    /**
+     * Get the currently active Academic Office user.
+     */
+    public static function getActiveAcademicOffice(): ?self
+    {
+        return self::where('role', 'academic_office')->where('is_active', true)->first();
+    }
+
+    /**
+     * Get the currently active DOAA user.
+     */
+    public static function getActiveDoaa(): ?self
+    {
+        return self::where('role', 'doaa')->where('is_active', true)->first();
+    }
+
+    /**
+     * Get the currently active Deputy Registrar (DR) user.
+     */
+    public static function getActiveDr(): ?self
+    {
+        return self::where('role', 'dr')->where('is_active', true)->first();
+    }
+
+    /**
+     * Get the currently active Senate Chairperson user.
+     */
+    public static function getActiveSenateChairperson(): ?self
+    {
+        return self::where('role', 'senate_chairperson')->where('is_active', true)->first();
+    }
+
     // |--------------------------------------------------------------------------
     // | Profile Relationships
     // |--------------------------------------------------------------------------

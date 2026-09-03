@@ -2,32 +2,249 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Pts1\StorePts1Request;
 use App\Models\Pts1Form;
+use App\Models\Thesis;
 use App\Models\User;
+use App\Models\VestedDoaa;
 use App\Services\PtsDocumentService;
 use App\Http\Requests\Pts1\UpdatePts1SupervisorRequest;
 use App\Http\Requests\Pts1\EndorsePts1Request;
 use App\Http\Requests\Pts1\RevertPts1Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class Pts1Controller extends Controller
 {
+    use AuthorizesRequests;
     protected PtsDocumentService $ptsDocService;
 
     public function __construct(PtsDocumentService $ptsDocService)
     {
         $this->ptsDocService = $ptsDocService;
     }
-    // Show the Main Supervisor review & edit form for a PTS-1 submission.
-    public function review(Pts1Form $pts1)
+
+    // Display the PTS-1 creation form for students.
+    public function create()
     {
-        $this->authorize('supervisorEdit', $pts1);
+        $user = auth()->user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
+        }
+
+        // Check if student has an active thesis with status in_progress
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        if ($pts1Form) {
+            if ($pts1Form->status === 'in_progress') {
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form is currently under review.');
+            }
+            if ($pts1Form->status === 'approved') {
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-1 form has already been approved.');
+            }
+            if ($pts1Form->status === 'reverted') {
+                return redirect()->route('student.pts1.edit')->with('warning', 'You have a reverted PTS-1 form. Please edit and resubmit your reverted form.');
+            }
+            if ($pts1Form->status === 'rejected') {
+                $pts1Form = null;
+            }
+        }
+
+        return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
+    }
+
+    // Download the sample Excel publication list template.
+    public function downloadTemplate()
+    {
+        $customTemplatePath = public_path('templates/publication_list_template.xlsx');
+        
+        if (file_exists($customTemplatePath)) {
+            return response()->download($customTemplatePath);
+        }
+
+        $xlsTemplatePath = public_path('templates/publication_list_template.xls');
+        if (file_exists($xlsTemplatePath)) {
+            return response()->download($xlsTemplatePath);
+        }
+
+        abort(404, 'Publication list template file not found.');
+    }
+
+    // Display the PTS-1 edit form for reverted student submissions.
+    public function edit()
+    {
+        $user = auth()->user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
+        }
+
+        // Check if student has an active thesis with status in_progress
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        if (!$pts1Form || $pts1Form->status !== 'reverted') {
+            return redirect()->route('student.dashboard')->with('warning', 'You do not have a reverted PTS-1 form to edit.');
+        }
+
+        return view('student.pts1.create', compact('user', 'student', 'thesis', 'pts1Form'));
+    }
+
+    // Store a newly created / resubmitted PTS-1 submission.
+    public function store(StorePts1Request $request)
+    {
+        $user = auth()->user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
+        }
+
+        $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
+        if (!$thesis) {
+            return redirect()->route('student.dashboard')->with('error', 'Please register your thesis title on your dashboard first before submitting PTS-1.');
+        }
+
+        $pts1Form = $thesis->pts1Form;
+        $hasExisting = $pts1Form && in_array($pts1Form->status, ['reverted', 'rejected']);
+        $validated = $request->validated();
+
+        $pubNormFulfilled = $request->boolean('publication_norm_fulfillment');
+        $pubSpecialApproval = $pubNormFulfilled ? null : ($request->has('special_approval_publication') ? $request->boolean('special_approval_publication') : null);
+
+        $minTimeFulfilled = $request->boolean('min_time_req_fulfilled');
+        $minTimeSpecialApproval = $minTimeFulfilled ? null : ($request->has('special_approval_min_time') ? $request->boolean('special_approval_min_time') : null);
+
+        // Guard validation: If norm/min-time is false and special approval is not true, reject
+        if (!$pubNormFulfilled && !$pubSpecialApproval) {
+            return back()->withInput()->withErrors(['special_approval_publication' => 'Special approval is required when publication norm criteria is not fulfilled.']);
+        }
+
+        if (!$minTimeFulfilled && !$minTimeSpecialApproval) {
+            return back()->withInput()->withErrors(['special_approval_min_time' => 'Special approval is required when minimum time requirement criteria is not fulfilled.']);
+        }
+
+        // Update student confirmation date
+        $student->update(['date_confirmation' => $validated['date_confirmation']]);
+
+        // Update thesis title in database
+        $thesis->update(['title' => $validated['thesis_title']]);
+
+        // Handle private local file uploads
+        $pubAppDocPath = null;
+        if (!$pubNormFulfilled && $pubSpecialApproval) {
+            $pubAppDocPath = $this->ptsDocService->handleInProgressFile(
+                $request->file('publication_approval_doc'),
+                $hasExisting ? $pts1Form?->publication_approval_doc_path : null,
+                $student->roll_number,
+                $thesis->id,
+                'pts1',
+                'Publication_Approval',
+                'Student'
+            );
+        }
+
+        $minTimeAppDocPath = null;
+        if (!$minTimeFulfilled && $minTimeSpecialApproval) {
+            $minTimeAppDocPath = $this->ptsDocService->handleInProgressFile(
+                $request->file('min_time_approval_doc'),
+                $hasExisting ? $pts1Form?->min_time_approval_doc_path : null,
+                $student->roll_number,
+                $thesis->id,
+                'pts1',
+                'Min_Time_Approval',
+                'Student'
+            );
+        }
+
+        $synopsisPath = $this->ptsDocService->handleInProgressFile(
+            $request->file('draft_synopsis_report'),
+            $hasExisting ? $pts1Form?->draft_synopsis_report_doc_path : null,
+            $student->roll_number,
+            $thesis->id,
+            'pts1',
+            'Draft_Synopsis',
+            'Student'
+        );
+
+        $pubListPath = $this->ptsDocService->handleInProgressFile(
+            $request->file('publication_list'),
+            $hasExisting ? $pts1Form?->publication_list_doc_path : null,
+            $student->roll_number,
+            $thesis->id,
+            'pts1',
+            'Publication_List',
+            'Student'
+        );
+
+        // Committee Co-Supervisors & PSPC IDs (Active Only)
+        $activeMainSup = $student->active_main_supervisor;
+        if (!$activeMainSup) {
+            return back()->withInput()->with('error', 'Unable to submit PTS-1: No active Main Supervisor is assigned to your profile. Please contact the Academic Office.');
+        }
+
+        $coSupervisors = $student->activeAllCoSupervisors()->pluck('id')->all();
+        $pspcMembers = $student->activePspcMembers()->pluck('id')->all();
+
+        $formData = [
+            'thesis_id' => $thesis->id,
+            'thesis_title' => $validated['thesis_title'],
+            'seminar_date' => $validated['seminar_date'],
+            'seminar_time' => $validated['seminar_time'],
+            'seminar_venue' => $validated['seminar_venue'],
+            'meeting_link' => $validated['meeting_link'] ?? null,
+            'publication_norm_fulfillment' => $pubNormFulfilled,
+            'special_approval_publication' => $pubSpecialApproval,
+            'publication_approval_doc_path' => $pubAppDocPath,
+            'min_time_req_fulfilled' => $minTimeFulfilled,
+            'special_approval_min_time' => $minTimeSpecialApproval,
+            'min_time_approval_doc_path' => $minTimeAppDocPath,
+            'draft_synopsis_report_doc_path' => $synopsisPath,
+            'publication_list_doc_path' => $pubListPath,
+            'main_supervisor_draft_synopsis_report_doc_path' => $synopsisPath,
+            'main_supervisor_publication_list_doc_path' => $pubListPath,
+            'main_supervisor_publication_approval_doc_path' => $pubAppDocPath,
+            'main_supervisor_min_time_approval_doc_path' => $minTimeAppDocPath,
+            'main_supervisor_id' => $activeMainSup->id,
+            'vested_doaa_email' => VestedDoaa::getActiveVestedEmail(),
+            'current_stage' => 'main_supervisor',
+            'status' => 'in_progress',
+        ];
+
+        // Dynamically assign up to 10 active Co-Supervisors and 10 active PSPC Members
+        for ($i = 1; $i <= 10; $i++) {
+            $formData["co_supervisor_{$i}_id"] = $coSupervisors[$i - 1] ?? null;
+            $formData["pspc_member_{$i}_id"] = $pspcMembers[$i - 1] ?? null;
+        }
+
+        // Create new active PTS-1 Form
+        Pts1Form::create($formData);
+
+        $actionVerb = $hasExisting ? 'resubmitted' : 'submitted';
+
+        return redirect()->route('student.dashboard')->with('success', "PTS-1 form {$actionVerb} successfully and forwarded to your Main Supervisor for review!");
+    }
+
+    // Show the Main Supervisor edit form for a PTS-1 submission.
+    public function mainSupervisorEdit(Pts1Form $pts1)
+    {
+        $this->authorize('mainSupervisorEdit', $pts1);
 
         $thesis = $pts1->thesis;
         $student = $thesis->student;
         $studentUser = $student->user;
 
-        return view('faculty.pts1.review', compact('pts1', 'thesis', 'student', 'studentUser'));
+        return view('faculty.pts1.edit', compact('pts1', 'thesis', 'student', 'studentUser'));
     }
 
     // Process Main Supervisor review submission (Edits, Evaluation & Endorsement/Reversion).
@@ -49,22 +266,22 @@ class Pts1Controller extends Controller
         // Optional File Replacements by Main Supervisor
         $msPubAppPath = $pts1->main_supervisor_publication_approval_doc_path;
         if (!$pubNormFulfilled && $pubSpecialApproval && $request->hasFile('publication_approval_doc')) {
-            $msPubAppPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_approval_doc'), $studentRoll, $thesis->id, 'pts1', 'Publication_Approval', 'Supervisor_Modified');
+            $msPubAppPath = $this->ptsDocService->handleInProgressFile($request->file('publication_approval_doc'), null, $studentRoll, $thesis->id, 'pts1', 'Publication_Approval', 'Supervisor_Modified');
         }
 
         $msMinTimeAppPath = $pts1->main_supervisor_min_time_approval_doc_path;
         if (!$minTimeFulfilled && $minTimeSpecialApproval && $request->hasFile('min_time_approval_doc')) {
-            $msMinTimeAppPath = $this->ptsDocService->storeInProgressDocument($request->file('min_time_approval_doc'), $studentRoll, $thesis->id, 'pts1', 'Min_Time_Approval', 'Supervisor_Modified');
+            $msMinTimeAppPath = $this->ptsDocService->handleInProgressFile($request->file('min_time_approval_doc'), null, $studentRoll, $thesis->id, 'pts1', 'Min_Time_Approval', 'Supervisor_Modified');
         }
 
         $msSynopsisPath = $pts1->main_supervisor_draft_synopsis_report_doc_path;
         if ($request->hasFile('draft_synopsis_report')) {
-            $msSynopsisPath = $this->ptsDocService->storeInProgressDocument($request->file('draft_synopsis_report'), $studentRoll, $thesis->id, 'pts1', 'Draft_Synopsis', 'Supervisor_Modified');
+            $msSynopsisPath = $this->ptsDocService->handleInProgressFile($request->file('draft_synopsis_report'), null, $studentRoll, $thesis->id, 'pts1', 'Draft_Synopsis', 'Supervisor_Modified');
         }
 
         $msPubListPath = $pts1->main_supervisor_publication_list_doc_path;
         if ($request->hasFile('publication_list')) {
-            $msPubListPath = $this->ptsDocService->storeInProgressDocument($request->file('publication_list'), $studentRoll, $thesis->id, 'pts1', 'Publication_List', 'Supervisor_Modified');
+            $msPubListPath = $this->ptsDocService->handleInProgressFile($request->file('publication_list'), null, $studentRoll, $thesis->id, 'pts1', 'Publication_List', 'Supervisor_Modified');
         }
 
         // Update Student confirmation date
@@ -109,224 +326,10 @@ class Pts1Controller extends Controller
         return redirect()->route('faculty.dashboard')->with('success', 'PTS-1 form submitted successfully and forwarded to next stage.');
     }
 
-    // Display view-only submitted PTS-1 form for students and authorities.
-    public function show(Pts1Form $pts1)
-    {
-        $user = auth()->user();
-        $thesis = $pts1->thesis;
-        $student = $thesis->student;
-
-        // Authorization check: User must be authorized to view this submission
-        if (!$pts1->canUserView($user)) {
-            abort(403, 'Unauthorized access to view this submission.');
-        }
-
-        if ($pts1->status === 'in_progress') {
-            return redirect()->route('pts1.submitted', $pts1->id);
-        }
-
-        if ($pts1->status === 'reverted') {
-            return redirect()->route('pts1.reverted', $pts1->id);
-        }
-
-        $studentUser = $student->user;
-        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
-
-        $coSupervisors = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($pts1->$col) {
-                $coSupervisors[$i] = User::find($pts1->$col);
-            }
-        }
-
-        $pspcMembers = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($pts1->$col) {
-                $pspcMembers[$i] = User::find($pts1->$col);
-            }
-        }
-
-        return view('pts1.show', compact(
-            'pts1',
-            'thesis',
-            'student',
-            'studentUser',
-            'mainSupervisor',
-            'coSupervisors',
-            'pspcMembers'
-        ));
-    }
-
-    // Display view of submitted PTS-1 form strictly scoped to viewing user's submission state.
-    public function submitted(Pts1Form $pts1)
-    {
-        $user = auth()->user();
-        $thesis = $pts1->thesis;
-        $student = $thesis->student;
-
-        // Status Guardrails
-        if (in_array($pts1->status, ['approved', 'rejected'])) {
-            return redirect()->route('pts1.show', $pts1->id);
-        }
-
-        if ($pts1->status === 'reverted') {
-            return redirect()->route('pts1.reverted', $pts1->id);
-        }
-
-        // Check workflow stage progression & access
-        $accessStatus = $pts1->getUserSubmissionAccessStatus($user);
-        if ($accessStatus === 'pending_endorsement') {
-            if ($student->isMainSupervisor($user) && $pts1->current_stage === 'main_supervisor') {
-                return redirect()->route('faculty.pts1.review', $pts1->id);
-            }
-            return redirect()->route('pts1.review', $pts1->id);
-        }
-        if ($accessStatus === 'not_reached' || $accessStatus === 'unauthorized') {
-            abort(403, 'This submission has not reached your review stage yet.');
-        }
-
-        // Role checks
-        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
-        $isMainSupervisor = $student->isMainSupervisor($user);
-        
-        // Find if user is a specific co-supervisor
-        $myCoSupSlot = null;
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($pts1->$col == $user->id) {
-                $myCoSupSlot = $i;
-                break;
-            }
-        }
-
-        // Find if user is a specific PSPC member
-        $myPspcSlot = null;
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($pts1->$col == $user->id) {
-                $myPspcSlot = $i;
-                break;
-            }
-        }
-
-        $studentUser = $student->user;
-        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
-
-        // Load co-supervisors and PSPC members maps
-        $coSupervisors = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($pts1->$col) {
-                $coSupervisors[$i] = User::find($pts1->$col);
-            }
-        }
-
-        $pspcMembers = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($pts1->$col) {
-                $pspcMembers[$i] = User::find($pts1->$col);
-            }
-        }
-
-        // Determine viewPerspective: 'student', 'main_supervisor', 'co_supervisor', 'pspc_member', 'dpgc', 'hod', 'doaa'
-        $viewPerspective = 'student';
-        if ($isOwnerStudent) {
-            $viewPerspective = 'student';
-        } elseif ($isMainSupervisor) {
-            $viewPerspective = 'main_supervisor';
-        } elseif ($myCoSupSlot !== null) {
-            $viewPerspective = 'co_supervisor';
-        } elseif ($myPspcSlot !== null) {
-            $viewPerspective = 'pspc_member';
-        } elseif ($user->isDpgc()) {
-            $viewPerspective = 'dpgc';
-        } elseif ($user->isHod()) {
-            $viewPerspective = 'hod';
-        } elseif ($user->isAcademicOffice()) {
-            $viewPerspective = 'academic_office';
-        } elseif ($user->isDoaa() || $user->isActingApprovalAuthority()) {
-            $viewPerspective = 'doaa';
-        }
-
-        return view('pts1.submitted', compact(
-            'pts1',
-            'thesis',
-            'student',
-            'studentUser',
-            'mainSupervisor',
-            'coSupervisors',
-            'pspcMembers',
-            'viewPerspective',
-            'myCoSupSlot',
-            'myPspcSlot'
-        ));
-    }
-
-    // Display form for reverted PTS-1 (read-only with complete audit trail and reversion details).
-    public function reverted(Pts1Form $pts1)
-    {
-        $user = auth()->user();
-
-        // Guardrail: Reverted view is only for reverted status
-        if ($pts1->status !== 'reverted') {
-            if (in_array($pts1->status, ['approved', 'rejected'])) {
-                return redirect()->route('pts1.show', $pts1->id);
-            }
-            return redirect()->route('pts1.submitted', $pts1->id);
-        }
-
-        // Student owner redirects to student form creation/edit; other students blocked
-        if ($user->isStudent()) {
-            if ($pts1->thesis?->student?->user_id === $user->id) {
-                return redirect()->route('student.pts1.create');
-            }
-            abort(403, 'Unauthorized access to reverted PTS-1 view.');
-        }
-
-        // Verify if user is authorized to view reverted form
-        if (!$pts1->canUserViewRevertedForm($user)) {
-            abort(403, 'Unauthorized access to reverted PTS-1 view.');
-        }
-
-        $thesis = $pts1->thesis;
-        $student = $thesis->student;
-        $studentUser = $student->user;
-        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
-
-        $coSupervisors = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($pts1->$col) {
-                $coSupervisors[$i] = User::find($pts1->$col);
-            }
-        }
-
-        $pspcMembers = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($pts1->$col) {
-                $pspcMembers[$i] = User::find($pts1->$col);
-            }
-        }
-
-        return view('pts1.reverted', compact(
-            'pts1',
-            'thesis',
-            'student',
-            'studentUser',
-            'mainSupervisor',
-            'coSupervisors',
-            'pspcMembers'
-        ));
-    }
-
     // Display dedicated full-page review & endorsement view for PTS-1 with complete audit trail.
-    public function reviewEndorse(Pts1Form $pts1)
+    public function review(Pts1Form $pts1)
     {
-        $this->authorize('evaluate', $pts1);
+        $this->authorize('review', $pts1);
 
         $user = auth()->user();
         $thesis = $pts1->thesis;
@@ -334,26 +337,14 @@ class Pts1Controller extends Controller
         $studentUser = $student->user;
         $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
-        $coSupervisors = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "co_supervisor_{$i}_id";
-            if ($pts1->$col) {
-                $coSupervisors[$i] = User::find($pts1->$col);
-            }
-        }
-
-        $pspcMembers = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $col = "pspc_member_{$i}_id";
-            if ($pts1->$col) {
-                $pspcMembers[$i] = User::find($pts1->$col);
-            }
-        }
+        $coSupervisors = $pts1->getCoSupervisors();
+        $pspcMembers = $pts1->getPspcMembers();
 
         $academicoffice = $user->isAcademicOffice();
         $actingDoaaUsers = \App\Models\ActingDoaa::where('is_acting_doaa', true)->with('user')->get()->pluck('user')->filter();
 
-        return view('pts1.review_endorse', compact(
+        return view('pts1.review', compact(
+            'user',
             'pts1',
             'thesis',
             'student',
@@ -508,8 +499,7 @@ class Pts1Controller extends Controller
                 }
                 $actingDoaaEmail = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
                 $pts1->update([
-                    'academic_office_student_comment' => $comment,
-                    'academic_office_verified' => $isRecommended,
+                    'academic_office_is_verified' => $isRecommended,
                     'academic_office_confidential_remark' => $remark,
                     'academic_office_submitted_at' => now(),
                     'academic_office_user_id' => $user->id,
@@ -528,7 +518,7 @@ class Pts1Controller extends Controller
                     'doaa_confidential_remark' => $remark,
                     'doaa_submitted_at' => now(),
                     'doaa_user_id' => $user->id,
-                    'approved_by_authority' => $user->email,
+                    'approved_by_id' => $user->id,
                     'current_stage' => 'completed',
                     'status' => $isRecommended ? 'approved' : 'rejected',
                     'pts1_submitted_at' => now(),
@@ -561,8 +551,8 @@ class Pts1Controller extends Controller
         $stage = $pts1->current_stage;
         $revertedRole = null;
 
-        if ($stage === 'main_supervisor' || $isMainSup) {
-            if (!$isMainSup && !$user->isFaculty()) {
+        if ($stage === 'main_supervisor') {
+            if (!$isMainSup) {
                 return back()->with('error', 'Unauthorized access. Only Main Supervisor can revert at this stage.');
             }
             $revertedRole = 'main_supervisor';
@@ -573,9 +563,6 @@ class Pts1Controller extends Controller
                     $revertedRole = "co_supervisor_{$i}";
                     break;
                 }
-            }
-            if (!$revertedRole && $isMainSup) {
-                $revertedRole = 'main_supervisor';
             }
             if (!$revertedRole) {
                 return back()->with('error', 'You are not an assigned Co-Supervisor for this thesis.');
@@ -588,38 +575,26 @@ class Pts1Controller extends Controller
                     break;
                 }
             }
-            if (!$revertedRole && $isMainSup) {
-                $revertedRole = 'main_supervisor';
-            }
             if (!$revertedRole) {
                 return back()->with('error', 'You are not an assigned PSPC member for this thesis.');
             }
         } elseif ($stage === 'dpgc') {
-            if (!$user->isDpgc() && !$isMainSup) {
+            if (!$user->isDpgc()) {
                 return back()->with('error', 'Unauthorized access.');
             }
-            $revertedRole = $user->isDpgc() ? 'dpgc' : 'main_supervisor';
+            $revertedRole = 'dpgc';
         } elseif ($stage === 'hod') {
-            if (!$user->isHod() && !$isMainSup) {
+            if (!$user->isHod()) {
                 return back()->with('error', 'Unauthorized access.');
             }
-            $revertedRole = $user->isHod() ? 'hod' : 'main_supervisor';
-        } elseif ($stage === 'academic_office') {
-            if (!$user->isAcademicOffice() && !$isMainSup) {
-                return back()->with('error', 'Unauthorized access.');
-            }
-            $revertedRole = $user->isAcademicOffice() ? 'academic_office' : 'main_supervisor';
+            $revertedRole = 'hod';
         } elseif ($stage === 'doaa') {
-            if (!($user->isDoaa() || $user->isAdoaa() || $user->isSenateChairperson() || $user->isArAcademic() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email))) && !$isMainSup) {
+            if (!($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts1->acting_doaa_email === $user->email || $pts1->vested_doaa_email === $user->email)))) {
                 return back()->with('error', 'Unauthorized access.');
             }
-            $revertedRole = $isMainSup ? 'main_supervisor' : 'doaa';
+            $revertedRole = 'doaa';
         } else {
-            if ($isMainSup) {
-                $revertedRole = 'main_supervisor';
-            } else {
-                return back()->with('error', 'Invalid stage for reversion.');
-            }
+            return back()->with('error', 'Invalid stage for reversion.');
         }
 
         $pts1->update([
@@ -632,7 +607,181 @@ class Pts1Controller extends Controller
 
         $this->ptsDocService->moveToReverted($pts1, 'pts1');
 
-        $redirectRoute = $user->isExternalSupervisor() ? 'external_supervisor.dashboard' : ($user->isFaculty() ? 'faculty.dashboard' : 'dashboard');
-        return redirect()->route($redirectRoute)->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
+        return redirect()->route('dashboard')->with('warning', 'PTS-1 form has been reverted to the student for resubmission.');
+    }
+
+        // Display view-only submitted PTS-1 form for students and authorities.
+    public function show(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+        $thesis = $pts1->thesis;
+        $student = $thesis->student;
+
+        // Authorization check: User must be authorized to view this submission
+        if (!$pts1->canUserView($user)) {
+            abort(403, 'Unauthorized access to view this submission.');
+        }
+
+        if ($pts1->status === 'in_progress') {
+            return redirect()->route('pts1.submitted', $pts1->id);
+        }
+
+        if ($pts1->status === 'reverted') {
+            return redirect()->route('pts1.reverted', $pts1->id);
+        }
+
+        $studentUser = $student->user;
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
+
+        $coSupervisors = $pts1->getCoSupervisors();
+        $pspcMembers = $pts1->getPspcMembers();
+
+        return view('pts1.show', compact(
+            'pts1',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'pspcMembers'
+        ));
+    }
+
+    // Display view of submitted PTS-1 form strictly scoped to viewing user's submission state.
+    public function submitted(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+        $thesis = $pts1->thesis;
+        $student = $thesis->student;
+
+        // Status Guardrails
+        if (in_array($pts1->status, ['approved', 'rejected'])) {
+            return redirect()->route('pts1.show', $pts1->id);
+        }
+
+        if ($pts1->status === 'reverted') {
+            return redirect()->route('pts1.reverted', $pts1->id);
+        }
+
+        // Check workflow stage progression & access
+        $accessStatus = $pts1->getUserSubmissionAccessStatus($user);
+        if ($accessStatus === 'pending_endorsement') {
+            if ($student->isMainSupervisor($user) && $pts1->current_stage === 'main_supervisor') {
+                return redirect()->route('faculty.pts1.edit', $pts1->id);
+            }
+            return redirect()->route('pts1.review', $pts1->id);
+        }
+        if ($accessStatus === 'not_reached' || $accessStatus === 'unauthorized') {
+            abort(403, 'This submission has not reached your review stage yet.');
+        }
+
+        // Role checks
+        $isOwnerStudent = ($user->isStudent() && $student->user_id === $user->id);
+        $isMainSupervisor = $student->isMainSupervisor($user);
+        
+        // Find if user is a specific co-supervisor
+        $myCoSupSlot = null;
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "co_supervisor_{$i}_id";
+            if ($pts1->$col == $user->id) {
+                $myCoSupSlot = $i;
+                break;
+            }
+        }
+
+        // Find if user is a specific PSPC member
+        $myPspcSlot = null;
+        for ($i = 1; $i <= 10; $i++) {
+            $col = "pspc_member_{$i}_id";
+            if ($pts1->$col == $user->id) {
+                $myPspcSlot = $i;
+                break;
+            }
+        }
+
+        $studentUser = $student->user;
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
+
+        // Load co-supervisors and PSPC members maps
+        $coSupervisors = $pts1->getCoSupervisors();
+        $pspcMembers = $pts1->getPspcMembers();
+
+        // Determine viewPerspective: 'student', 'main_supervisor', 'co_supervisor', 'pspc_member', 'dpgc', 'hod', 'doaa'
+        $viewPerspective = 'student';
+        if ($isOwnerStudent) {
+            $viewPerspective = 'student';
+        } elseif ($isMainSupervisor) {
+            $viewPerspective = 'main_supervisor';
+        } elseif ($myCoSupSlot !== null) {
+            $viewPerspective = 'co_supervisor';
+        } elseif ($myPspcSlot !== null) {
+            $viewPerspective = 'pspc_member';
+        } elseif ($user->isDpgc()) {
+            $viewPerspective = 'dpgc';
+        } elseif ($user->isHod()) {
+            $viewPerspective = 'hod';
+        } elseif ($user->isAcademicOffice()) {
+            $viewPerspective = 'academic_office';
+        } elseif ($user->isDoaa() || $user->isActingApprovalAuthority()) {
+            $viewPerspective = 'doaa';
+        }
+
+        return view('pts1.submitted', compact(
+            'pts1',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'pspcMembers',
+            'viewPerspective',
+            'myCoSupSlot',
+            'myPspcSlot'
+        ));
+    }
+
+    // Display form for reverted PTS-1 (read-only with complete audit trail and reversion details).
+    public function reverted(Pts1Form $pts1)
+    {
+        $user = auth()->user();
+
+        // Guardrail: Reverted view is only for reverted status
+        if ($pts1->status !== 'reverted') {
+            if (in_array($pts1->status, ['approved', 'rejected'])) {
+                return redirect()->route('pts1.show', $pts1->id);
+            }
+            return redirect()->route('pts1.submitted', $pts1->id);
+        }
+
+        // Student owner redirects to student form creation/edit; other students blocked
+        if ($user->isStudent()) {
+            if ($pts1->thesis?->student?->user_id === $user->id) {
+                return redirect()->route('student.pts1.create');
+            }
+            abort(403, 'Unauthorized access to reverted PTS-1 view.');
+        }
+
+        // Verify if user is authorized to view reverted form
+        if (!$pts1->canUserViewRevertedForm($user)) {
+            abort(403, 'Unauthorized access to reverted PTS-1 view.');
+        }
+
+        $thesis = $pts1->thesis;
+        $student = $thesis->student;
+        $studentUser = $student->user;
+        $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
+
+        $coSupervisors = $pts1->getCoSupervisors();
+        $pspcMembers = $pts1->getPspcMembers();
+
+        return view('pts1.reverted', compact(
+            'pts1',
+            'thesis',
+            'student',
+            'studentUser',
+            'mainSupervisor',
+            'coSupervisors',
+            'pspcMembers'
+        ));
     }
 }

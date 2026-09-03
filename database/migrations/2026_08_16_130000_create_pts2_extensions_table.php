@@ -58,7 +58,7 @@ return new class extends Migration
 
             $table->string('acting_doaa_email')->nullable();
             $table->string('vested_doaa_email')->nullable();
-            $table->string('approved_by_authority')->nullable();
+            $table->foreignId('approved_by_id')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
         });

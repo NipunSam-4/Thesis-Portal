@@ -340,7 +340,8 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 6. Seed Comment Snippets
+        // 6. Seed System Settings & Comment Snippets
+        $this->call(SystemSettingsSeeder::class);
         $this->call(CommentSnippetSeeder::class);
 
         $this->command->info('Successfully seeded all 8 departments, HODs, DPGCs, Faculty, and Students (PhD & MS(R))!');

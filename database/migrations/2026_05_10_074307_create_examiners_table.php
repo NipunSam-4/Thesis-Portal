@@ -11,6 +11,7 @@ return new class extends Migration
     {
         Schema::create('examiners', function (Blueprint $table) {
             $table->id();
+            $table->enum('examiner_type', ['indian', 'international']);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

@@ -119,7 +119,7 @@
                                         <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                              Thesis Title <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" name="title" disabled placeholder="Thesis submission in progress..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 text-xs py-2.5 px-3 cursor-not-allowed opacity-60">
+                                        <input type="text" name="title" disabled placeholder="Thesis submission in progress" class="w-full rounded-xl border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 text-xs py-2.5 px-3 cursor-not-allowed opacity-60">
                                     </div>
 
                                     <button type="button" disabled class="w-full px-4 py-2.5 bg-gray-400 dark:bg-gray-600 text-white font-bold text-xs rounded-xl shadow cursor-not-allowed opacity-60">
@@ -143,7 +143,7 @@
                                         <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                             Thesis Title <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" name="title" required value="{{ old('title') }}" placeholder="e.g. Deep Learning Architectures..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs py-2.5 px-3">
+                                        <input type="text" name="title" required value="{{ old('title') }}" placeholder="e.g. Deep Learning Architectures" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs py-2.5 px-3">
                                     </div>
 
                                     <button type="submit" class="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition">
@@ -158,7 +158,7 @@
                                         <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                             Thesis Title <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="text" name="title" required value="{{ old('title') }}" placeholder="e.g. Deep Learning Architectures..." class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs py-2.5 px-3">
+                                        <input type="text" name="title" required value="{{ old('title') }}" placeholder="e.g. Deep Learning Architectures" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs py-2.5 px-3">
                                     </div>
 
                                     <button type="submit" class="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition">
@@ -276,7 +276,7 @@
                                             </div>
                                         </div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                            Circulate draft synopsis report to academic authorities for early comments before Open Seminar.
+                                            Circulate draft synopsis report to Supervisors and PSPC Members for early comments before Open Seminar.
                                         </p>
 
                                         @if($draftSynopsis)
@@ -409,77 +409,6 @@
                                             Submission and sequential endorsement of the {{ $degreeType }} Synopsis Report.
                                         </p>
 
-                                        <!-- PTS-2 Extension Card (Purple Theme) -->
-                                        @if($pts2Extension)
-                                            <div class="p-3 rounded-xl border text-xs my-2 space-y-2 {{ $pts2Extension->status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : ($pts2Extension->status === 'reverted' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200' : ($pts2Extension->status === 'rejected' ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200' : 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200')) }}">
-                                                <div class="flex items-center justify-between font-bold">
-                                                    <span>📅 {{ $ptsPrefix }}-2 Extension</span>
-                                                    <div class="flex items-center gap-1">
-                                                        <x-submission-timeline-modal :form="$pts2Extension" :title="$ptsPrefix . '-2 Extension Timeline'" />
-                                                        @if($pts2Extension->status !== 'reverted')
-                                                            <span class="text-[10px] px-2.5 py-0.5 rounded-full uppercase font-extrabold tracking-wider {{ $pts2Extension->status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300' : ($pts2Extension->status === 'reverted' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300' : ($pts2Extension->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300' : 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300')) }}">
-                                                                @if($pts2Extension->status === 'approved')
-                                                                    ✓ Approved
-                                                                @elseif($pts2Extension->status === 'rejected')
-                                                                    ❌ Rejected
-                                                                @else
-                                                                    {{ str_replace('_', ' ', $pts2Extension->status) }}
-                                                                @endif
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                @if($pts2Extension->status === 'in_progress')
-                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-0.5">
-                                                        <span class="font-semibold text-purple-800 dark:text-purple-300 leading-tight break-words">⏳ Under Review Stage: {{ $pts2Extension->stage_label }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
-                                                    </div>
-                                                @elseif($pts2Extension->status === 'approved')
-                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
-                                                        <span>Extended Until: {{ ($pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
-                                                    </div>
-                                                @elseif($pts2Extension->status === 'reverted')
-                                                    <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
-                                                        <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                            ⚠️ Reverted by {{ $pts2Extension->getRevertedByRoleLabel() }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="pt-1">
-                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition whitespace-nowrap">
-                                                            ⚠️ Resubmit {{ $ptsPrefix }}-2 Extension &rarr;
-                                                        </a>
-                                                    </div>
-                                                @elseif($pts2Extension->status === 'rejected')
-                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
-                                                        <span>Application Rejected</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        <!-- Apply for Extension Button (Purple Theme) -->
-                                        @if($pts1Approved && (!$pts2Form || $pts2Form->status !== 'approved'))
-                                            @if(!$pts2Extension || $pts2Extension->status === 'approved' || $pts2Extension->status === 'rejected')
-                                                <div class="my-2 space-y-1">
-                                                    @if($activeThesis->canApplyForPts2Extension())
-                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold text-xs rounded-lg transition border border-purple-200 dark:border-purple-800">
-                                                            📅 Apply for {{ $ptsPrefix }}-2 (Synopsis) Extension &rarr;
-                                                        </a>
-                                                        <div class="text-[10px] text-purple-700 dark:text-purple-300 text-center font-medium">
-                                                            Extension window open till {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }} (30 days from Open Seminar)
-                                                        </div>
-                                                    @else
-                                                        <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-[10px] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                                                            🔒 Extension application window closed (30 days from Open Seminar elapsed on {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }}).
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        @endif
-
                                         @if($pts2Form && $pts2Form->status === 'reverted')
                                             <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
                                                 <div class="font-bold text-amber-900 dark:text-amber-200">
@@ -556,9 +485,80 @@
                                             <p class="text-[11px] text-red-600 dark:text-red-400 text-center leading-tight">
                                                 {{ $ptsPrefix }}-2 submission window closed on {{ $pts2Deadline?->format('d-M-Y') }}.
                                                 @if($activeThesis->canApplyForPts2Extension())
-                                                    You may apply for an extension above.
+                                                    You may apply for an extension below.
                                                 @endif
                                             </p>
+                                        @endif
+
+                                        <!-- PTS-2 Extension Section (Positioned Below PTS-2 Actions) -->
+                                        @if($pts2Extension)
+                                            <div class="p-3 rounded-xl border text-xs my-2 space-y-2 {{ $pts2Extension->status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : ($pts2Extension->status === 'reverted' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200' : ($pts2Extension->status === 'rejected' ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200' : 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200')) }}">
+                                                <div class="flex items-center justify-between font-bold">
+                                                    <span>📅 {{ $ptsPrefix }}-2 Extension</span>
+                                                    <div class="flex items-center gap-1">
+                                                        <x-submission-timeline-modal :form="$pts2Extension" :title="$ptsPrefix . '-2 Extension Timeline'" />
+                                                        @if($pts2Extension->status !== 'reverted')
+                                                             <span class="text-[10px] px-2.5 py-0.5 rounded-full uppercase font-extrabold tracking-wider {{ $pts2Extension->status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300' : ($pts2Extension->status === 'reverted' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300' : ($pts2Extension->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300' : 'bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-300')) }}">
+                                                                @if($pts2Extension->status === 'approved')
+                                                                    ✓ Approved
+                                                                @elseif($pts2Extension->status === 'rejected')
+                                                                    ❌ Rejected
+                                                                @else
+                                                                    {{ str_replace('_', ' ', $pts2Extension->status) }}
+                                                                @endif
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                @if($pts2Extension->status === 'in_progress')
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-0.5">
+                                                        <span class="font-semibold text-purple-800 dark:text-purple-300 leading-tight break-words">⏳ Under Review Stage: {{ $pts2Extension->stage_label }}</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'approved')
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
+                                                        <span>Extended Until: {{ ($pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'reverted')
+                                                    <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
+                                                        <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                            ⚠️ Reverted by {{ $pts2Extension->getRevertedByRoleLabel() }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="pt-1">
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition whitespace-nowrap">
+                                                            ⚠️ Resubmit {{ $ptsPrefix }}-2 Extension &rarr;
+                                                        </a>
+                                                    </div>
+                                                @elseif($pts2Extension->status === 'rejected')
+                                                    <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
+                                                        <span>Application Rejected</span>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+
+                                        <!-- Apply for Extension Button (Purple Theme) -->
+                                        @if($pts1Approved && (!$pts2Form || $pts2Form->status !== 'approved'))
+                                            @if(!$pts2Extension || $pts2Extension->status === 'approved' || $pts2Extension->status === 'rejected')
+                                                <div class="my-2 space-y-1">
+                                                    @if($activeThesis->canApplyForPts2Extension())
+                                                        <a href="{{ route('student.pts2_extension.create') }}" class="block w-full text-center px-3 py-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold text-xs rounded-lg transition border border-purple-200 dark:border-purple-800">
+                                                            📅 Apply for {{ $ptsPrefix }}-2 (Synopsis) Extension &rarr;
+                                                        </a>
+                                                        <div class="text-[10px] text-purple-700 dark:text-purple-300 text-center font-medium">
+                                                            Extension window open till {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }} (30 days from Open Seminar)
+                                                        </div>
+                                                    @else
+                                                        <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-[10px] text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                                                            🔒 Extension application window closed (30 days from Open Seminar elapsed on {{ $activeThesis->getMaxExtensionDate()?->format('d-M-Y') }}).
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                 </div>
@@ -675,7 +675,88 @@
                                             Submission and sequential endorsement of the {{ $degreeType }} Thesis.
                                         </p>
 
-                                        <!-- PTS-4 Extension Card (Purple Theme) -->
+                                        @if($pts4Form && $pts4Form->status === 'reverted')
+                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
+                                                <div class="font-bold text-amber-900 dark:text-amber-200">
+                                                    ⚠️ Reverted by {{ $pts4Form->getRevertedByRoleLabel() }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
+                                        @if(!$pts2Approved)
+                                            <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                                Requires {{ $ptsPrefix }}-2 Approval
+                                            </button>
+                                        @elseif($pts4Form && $pts4Form->status === 'approved')
+                                            <div class="flex items-center justify-between gap-2 pt-1">
+                                                <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
+                                                <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    View Approved Form &rarr;
+                                                </a>
+                                            </div>
+                                        @elseif($pts4Form && $pts4Form->status === 'in_progress')
+                                            <div class="flex items-center justify-between gap-2 pt-1">
+                                                <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
+                                                    ⏳ Under Review Stage: {{ $pts4Form->stage_label }}
+                                                </div>
+                                                <a href="{{ route('pts4.submitted', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    View Submitted Form &rarr;
+                                                </a>
+                                            </div>
+                                        @elseif($pts4Form && $pts4Form->status === 'rejected')
+                                            <div class="space-y-2">
+                                                <div class="flex items-center justify-between gap-2 pt-1">
+                                                    <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
+                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                        View Rejected Form &rarr;
+                                                    </a>
+                                                </div>
+                                                <div class="pt-2">
+                                                    <a href="{{ route('student.pts4.create') }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition whitespace-nowrap">
+                                                        Create New {{ $ptsPrefix }}-4 Form &rarr;
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @elseif($activeThesis->isPts4SubmissionActive())
+                                            @php
+                                                $pts4Deadline = $activeThesis->getPts4Deadline();
+                                                $hasApprovedExt = $pts4Extension && $pts4Extension->status === 'approved';
+                                            @endphp
+                                            @if(!$pts4Form)
+                                                <a href="{{ route('student.pts4.create') }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                    Create {{ $ptsPrefix }}-4 Form &rarr;
+                                                </a>
+                                                <div class="text-[10px] text-blue-700 dark:text-blue-300 text-center font-medium">
+                                                    ⏳ Submission Deadline: <strong>{{ $pts4Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '30 days from Open Seminar' }})
+                                                </div>
+                                            @elseif($pts4Form->status === 'reverted')
+                                                <div class="space-y-2">
+                                                    <a href="{{ route('student.pts4.edit') }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                        Edit your {{ $ptsPrefix }}-4 Form &rarr;
+                                                    </a>
+                                                    <div class="text-[10px] text-amber-700 dark:text-amber-300 text-center font-medium">
+                                                        ⏳ Submission Deadline: <strong>{{ $pts4Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '30 days from Open Seminar' }})
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @else
+                                            @php
+                                                $pts4Deadline = $activeThesis->getPts4Deadline();
+                                            @endphp
+                                            <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                                Submission Deadline Passed ({{ $pts4Deadline?->format('d-M-Y') }})
+                                            </button>
+                                            <p class="text-[11px] text-red-600 dark:text-red-400 text-center leading-tight">
+                                                {{ $ptsPrefix }}-4 submission window closed on {{ $pts4Deadline?->format('d-M-Y') }}.
+                                                @if($activeThesis->canApplyForPts4Extension())
+                                                    You may apply for an extension below.
+                                                @endif
+                                            </p>
+                                        @endif
+
+                                        <!-- PTS-4 Extension Section (Positioned Below PTS-4 Actions) -->
                                         @if($pts4Extension)
                                             <div class="p-3 rounded-xl border text-xs my-2 space-y-2 {{ $pts4Extension->status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200' : ($pts4Extension->status === 'reverted' ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200' : ($pts4Extension->status === 'rejected' ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800 text-red-900 dark:text-red-200' : 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-900 dark:text-purple-200')) }}">
                                                 <div class="flex items-center justify-between font-bold">
@@ -744,82 +825,6 @@
                                                     @endif
                                                 </div>
                                             @endif
-                                        @endif
-
-                                        @if($pts4Form && $pts4Form->status === 'reverted')
-                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                    ⚠️ Reverted by {{ $pts4Form->getRevertedByRoleLabel() }}
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                                        @if(!$pts2Approved)
-                                            <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                Requires {{ $ptsPrefix }}-2 Approval
-                                            </button>
-                                        @elseif($pts4Form && $pts4Form->status === 'approved')
-                                            <div class="flex items-center justify-between gap-2 pt-1">
-                                                <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
-                                                <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Approved Form &rarr;
-                                                </a>
-                                            </div>
-                                        @elseif($pts4Form && $pts4Form->status === 'in_progress')
-                                            <div class="flex items-center justify-between gap-2 pt-1">
-                                                <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
-                                                    ⏳ Under Review Stage: {{ $pts4Form->stage_label }}
-                                                </div>
-                                                <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Submitted Form &rarr;
-                                                </a>
-                                            </div>
-                                        @elseif($pts4Form && $pts4Form->status === 'rejected')
-                                            <div class="space-y-2">
-                                                <div class="flex items-center justify-between gap-2 pt-1">
-                                                    <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
-                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                        View Rejected Form &rarr;
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @elseif($activeThesis->isPts4SubmissionActive())
-                                            @php
-                                                $pts4Deadline = $activeThesis->getPts4Deadline();
-                                                $hasApprovedExt = $pts4Extension && $pts4Extension->status === 'approved';
-                                            @endphp
-                                            @if(!$pts4Form)
-                                                <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
-                                                    {{ $ptsPrefix }}-4 Submission Window Open
-                                                </button>
-                                                <div class="text-[10px] text-blue-700 dark:text-blue-300 text-center font-medium">
-                                                    ⏳ Submission Deadline: <strong>{{ $pts4Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '30 days from Open Seminar' }})
-                                                </div>
-                                            @elseif($pts4Form->status === 'reverted')
-                                                <div class="space-y-2">
-                                                    <button disabled class="w-full text-center px-4 py-2 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-semibold text-xs rounded-lg border border-amber-200 dark:border-amber-800 cursor-not-allowed">
-                                                        {{ $ptsPrefix }}-4 Reverted - Submission Window Open
-                                                    </button>
-                                                    <div class="text-[10px] text-amber-700 dark:text-amber-300 text-center font-medium">
-                                                        ⏳ Submission Deadline: <strong>{{ $pts4Deadline?->format('d-M-Y') }}</strong> ({{ $hasApprovedExt ? 'Approved Extension' : '30 days from Open Seminar' }})
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @else
-                                            @php
-                                                $pts4Deadline = $activeThesis->getPts4Deadline();
-                                            @endphp
-                                            <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                Submission Deadline Passed ({{ $pts4Deadline?->format('d-M-Y') }})
-                                            </button>
-                                            <p class="text-[11px] text-red-600 dark:text-red-400 text-center leading-tight">
-                                                {{ $ptsPrefix }}-4 submission window closed on {{ $pts4Deadline?->format('d-M-Y') }}.
-                                                @if($activeThesis->canApplyForPts4Extension())
-                                                    You may apply for an extension above.
-                                                @endif
-                                            </p>
                                         @endif
                                     </div>
                                 </div>

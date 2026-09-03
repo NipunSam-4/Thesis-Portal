@@ -4,17 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\SystemAdminController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentThesisController;
-use App\Http\Controllers\Student\StudentPts1Controller;
-use App\Http\Controllers\Student\StudentPts2Controller;
 use App\Http\Controllers\PtsDocumentController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Pts1Controller;
 use App\Http\Controllers\Pts2Controller;
+use App\Http\Controllers\Pts4Controller;
 use App\Http\Controllers\Dept_Authority\DeptAuthorityDashboardController;
 use App\Http\Controllers\GlobalAuthority\GlobalAuthorityDashboardController;
 use App\Http\Controllers\ActingApprovalAuthority\ActingApprovalAuthorityDashboardController;
-use App\Http\Controllers\Student\StudentDraftSynopsisController;
-use App\Http\Controllers\DraftSynopsisReviewController;
+use App\Http\Controllers\DraftSynopsisController;
 use App\Http\Controllers\Pts2ExtensionController;
 use App\Http\Controllers\Pts4ExtensionController;
 use App\Http\Controllers\ExternalSupervisor\ExternalSupervisorDashboardController;
@@ -73,20 +71,20 @@ Route::middleware('auth')->group(function () {
     // PTS-1 (Comprehensive Exam) Form Routes
     // ==========================================
     // Student Form Actions
-    Route::get('/student/pts1/create', [StudentPts1Controller::class, 'create'])->name('student.pts1.create');
-    Route::get('/student/pts1/edit', [StudentPts1Controller::class, 'edit'])->name('student.pts1.edit');
-    Route::post('/student/pts1/store', [StudentPts1Controller::class, 'store'])->name('student.pts1.store');
-    Route::get('/student/pts1/template/download', [StudentPts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
+    Route::get('/student/pts1/create', [Pts1Controller::class, 'create'])->name('student.pts1.create');
+    Route::get('/student/pts1/edit', [Pts1Controller::class, 'edit'])->name('student.pts1.edit');
+    Route::post('/student/pts1/store', [Pts1Controller::class, 'store'])->name('student.pts1.store');
+    Route::get('/student/pts1/template/download', [Pts1Controller::class, 'downloadTemplate'])->name('student.pts1.template.download');
 
-    // Faculty Review & Supervisor Modification Actions
-    Route::get('/faculty/pts1/{pts1}/review', [Pts1Controller::class, 'review'])->name('faculty.pts1.review');
+    // Faculty Edit & Supervisor Modification Actions
+    Route::get('/faculty/pts1/{pts1}/edit', [Pts1Controller::class, 'mainSupervisorEdit'])->name('faculty.pts1.edit');
     Route::match(['post', 'put'], '/faculty/pts1/{pts1}/update', [Pts1Controller::class, 'update'])->name('faculty.pts1.update');
 
     // Universal Viewing & Endorsement Full-Page Views
     Route::get('/pts1/{pts1}/show', [Pts1Controller::class, 'show'])->name('pts1.show');
     Route::get('/pts1/{pts1}/submitted', [Pts1Controller::class, 'submitted'])->name('pts1.submitted');
     Route::get('/pts1/{pts1}/reverted', [Pts1Controller::class, 'reverted'])->name('pts1.reverted');
-    Route::get('/pts1/{pts1}/review', [Pts1Controller::class, 'reviewEndorse'])->name('pts1.review');
+    Route::get('/pts1/{pts1}/review', [Pts1Controller::class, 'review'])->name('pts1.review');
     Route::post('/pts1/{pts1}/review', [Pts1Controller::class, 'endorse'])->name('pts1.endorse');
     Route::post('/pts1/{pts1}/revert', [Pts1Controller::class, 'revert'])->name('pts1.revert');
 
@@ -95,19 +93,19 @@ Route::middleware('auth')->group(function () {
     // PTS-2 (Synopsis Submission) Form Routes
     // ==========================================
     // Student Form Actions
-    Route::get('/student/pts2/create', [StudentPts2Controller::class, 'create'])->name('student.pts2.create');
-    Route::get('/student/pts2/edit', [StudentPts2Controller::class, 'edit'])->name('student.pts2.edit');
-    Route::post('/student/pts2/store', [StudentPts2Controller::class, 'store'])->name('student.pts2.store');
+    Route::get('/student/pts2/create', [Pts2Controller::class, 'create'])->name('student.pts2.create');
+    Route::get('/student/pts2/edit', [Pts2Controller::class, 'edit'])->name('student.pts2.edit');
+    Route::post('/student/pts2/store', [Pts2Controller::class, 'store'])->name('student.pts2.store');
 
-    // Faculty Review & Supervisor Modification Actions
-    Route::get('/faculty/pts2/{pts2}/review', [Pts2Controller::class, 'review'])->name('faculty.pts2.review');
+    // Faculty Edit & Supervisor Modification Actions
+    Route::get('/faculty/pts2/{pts2}/edit', [Pts2Controller::class, 'mainSupervisorEdit'])->name('faculty.pts2.edit');
     Route::match(['post', 'put'], '/faculty/pts2/{pts2}/update', [Pts2Controller::class, 'update'])->name('faculty.pts2.update');
 
     // Universal Viewing & Endorsement Full-Page Views
     Route::get('/pts2/{pts2}/show', [Pts2Controller::class, 'show'])->name('pts2.show');
     Route::get('/pts2/{pts2}/submitted', [Pts2Controller::class, 'submitted'])->name('pts2.submitted');
     Route::get('/pts2/{pts2}/reverted', [Pts2Controller::class, 'reverted'])->name('pts2.reverted');
-    Route::get('/pts2/{pts2}/review', [Pts2Controller::class, 'reviewEndorse'])->name('pts2.review');
+    Route::get('/pts2/{pts2}/review', [Pts2Controller::class, 'review'])->name('pts2.review');
     Route::post('/pts2/{pts2}/review', [Pts2Controller::class, 'endorse'])->name('pts2.endorse');
     Route::post('/pts2/{pts2}/revert', [Pts2Controller::class, 'revert'])->name('pts2.revert');
 
@@ -128,6 +126,27 @@ Route::middleware('auth')->group(function () {
 
 
     // ==========================================
+    // PTS-4 (Thesis Submission) Form Routes
+    // ==========================================
+    // Student Form Actions
+    Route::get('/student/pts4/create', [Pts4Controller::class, 'create'])->name('student.pts4.create');
+    Route::get('/student/pts4/edit', [Pts4Controller::class, 'edit'])->name('student.pts4.edit');
+    Route::post('/student/pts4/store', [Pts4Controller::class, 'store'])->name('student.pts4.store');
+
+    // Faculty Edit & Supervisor Modification Actions
+    Route::get('/faculty/pts4/{pts4}/edit', [Pts4Controller::class, 'mainSupervisorEdit'])->name('faculty.pts4.edit');
+    Route::match(['post', 'put'], '/faculty/pts4/{pts4}/update', [Pts4Controller::class, 'update'])->name('faculty.pts4.update');
+
+    // Universal Viewing & Endorsement Full-Page Views
+    Route::get('/pts4/{pts4}/show', [Pts4Controller::class, 'show'])->name('pts4.show');
+    Route::get('/pts4/{pts4}/submitted', [Pts4Controller::class, 'submitted'])->name('pts4.submitted');
+    Route::get('/pts4/{pts4}/reverted', [Pts4Controller::class, 'reverted'])->name('pts4.reverted');
+    Route::get('/pts4/{pts4}/review', [Pts4Controller::class, 'review'])->name('pts4.review');
+    Route::post('/pts4/{pts4}/review', [Pts4Controller::class, 'endorse'])->name('pts4.endorse');
+    Route::post('/pts4/{pts4}/revert', [Pts4Controller::class, 'revert'])->name('pts4.revert');
+
+
+    // ==========================================
     // PTS-2 Extension Form Routes
     // ==========================================
     // Student Form Actions
@@ -137,7 +156,8 @@ Route::middleware('auth')->group(function () {
     // Universal Viewing & Review Actions
     Route::get('/pts2-extension/{pts2Extension}/show', [Pts2ExtensionController::class, 'show'])->name('pts2_extension.show');
     Route::get('/pts2-extension/{pts2Extension}/review', [Pts2ExtensionController::class, 'review'])->name('pts2_extension.review');
-    Route::post('/pts2-extension/{pts2Extension}/review', [Pts2ExtensionController::class, 'submitReview'])->name('pts2_extension.endorse');
+    Route::post('/pts2-extension/{pts2Extension}/review', [Pts2ExtensionController::class, 'endorse'])->name('pts2_extension.endorse');
+    Route::post('/pts2-extension/{pts2Extension}/revert', [Pts2ExtensionController::class, 'revert'])->name('pts2_extension.revert');
 
     // ==========================================
     // PTS-4 Extension Form Routes
@@ -149,22 +169,25 @@ Route::middleware('auth')->group(function () {
     // Universal Viewing & Review Actions
     Route::get('/pts4-extension/{pts4Extension}/show', [Pts4ExtensionController::class, 'show'])->name('pts4_extension.show');
     Route::get('/pts4-extension/{pts4Extension}/review', [Pts4ExtensionController::class, 'review'])->name('pts4_extension.review');
-    Route::post('/pts4-extension/{pts4Extension}/review', [Pts4ExtensionController::class, 'submitReview'])->name('pts4_extension.endorse');
+    Route::post('/pts4-extension/{pts4Extension}/review', [Pts4ExtensionController::class, 'endorse'])->name('pts4_extension.endorse');
+    Route::post('/pts4-extension/{pts4Extension}/revert', [Pts4ExtensionController::class, 'revert'])->name('pts4_extension.revert');
 
 
     // ==========================================
     // Draft Synopsis Circulation Routes
     // ==========================================
     // Student Circulation Submission
-    Route::get('/student/draft-synopsis/{draftSynopsisCirculation?}', [StudentDraftSynopsisController::class, 'show'])->name('student.draft_synopsis.show');
-    Route::post('/student/draft-synopsis/store', [StudentDraftSynopsisController::class, 'store'])->name('student.draft_synopsis.store');
+    Route::get('/student/draft-synopsis/{draftSynopsisCirculation?}', [DraftSynopsisController::class, 'studentShow'])->name('student.draft_synopsis.show');
+    Route::post('/student/draft-synopsis/store', [DraftSynopsisController::class, 'studentStore'])->name('student.draft_synopsis.store');
 
     // Authority Review, Comments & Image Streaming
-    Route::get('/draft-synopsis/{draftSynopsisCirculation}/review', [DraftSynopsisReviewController::class, 'show'])->name('draft_synopsis.review');
-    Route::post('/draft-synopsis/{draftSynopsisCirculation}/comment', [DraftSynopsisReviewController::class, 'comment'])->name('draft_synopsis.comment');
-    Route::post('/draft-synopsis/{draftSynopsisCirculation}/upload-comment-image', [DraftSynopsisReviewController::class, 'uploadCommentImage'])->name('draft_synopsis.upload_comment_image');
-    Route::get('/draft-synopsis/{draftSynopsisCirculation}/comment-images/{userId}/{filename}', [DraftSynopsisReviewController::class, 'serveCommentImage'])->name('draft_synopsis.serve_comment_image');
-    Route::get('/draft-synopsis/{draftSynopsisCirculation}/document', [DraftSynopsisReviewController::class, 'serveDocument'])->name('draft_synopsis.document.serve');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/review', [DraftSynopsisController::class, 'review'])->name('draft_synopsis.review');
+    Route::post('/draft-synopsis/{draftSynopsisCirculation}/comment', [DraftSynopsisController::class, 'comment'])->name('draft_synopsis.comment');
+    Route::post('/draft-synopsis/{draftSynopsisCirculation}/upload-comment-image', [DraftSynopsisController::class, 'uploadCommentImage'])
+        ->middleware('throttle:30,1')
+        ->name('draft_synopsis.upload_comment_image');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/comment-images/{userId}/{filename}', [DraftSynopsisController::class, 'serveCommentImage'])->name('draft_synopsis.serve_comment_image');
+    Route::get('/draft-synopsis/{draftSynopsisCirculation}/document', [DraftSynopsisController::class, 'serveDocument'])->name('draft_synopsis.document.serve');
 });
 
 // Role-Based Dashboards & General Actions

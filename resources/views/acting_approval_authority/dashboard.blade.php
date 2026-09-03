@@ -138,11 +138,11 @@
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-700 pb-4">
                     <div>
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>Candidate Submissions</span>
+                            <span>Student Submissions</span>
                             <span class="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-semibold" x-text="programTab.toUpperCase()"></span>
                         </h3>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Filter candidates by department or search by name and roll number.
+                            Filter students by department or search by name and roll number.
                         </p>
                     </div>
 
@@ -204,7 +204,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
-                            <input type="text" x-model="searchQuery" placeholder="Search by Name, Roll No..." class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition shadow-sm">
+                            <input type="text" x-model="searchQuery" placeholder="Search by Name, Roll No" class="w-full pl-9 pr-9 py-2 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 text-xs font-medium transition shadow-sm">
                             <button x-show="searchQuery" @click="searchQuery = ''" type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
@@ -228,7 +228,7 @@
                     <!-- PhD: Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingPhdStudents as $student)
-                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" :isMsr="false" />
+                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are appointed as Acting DOAA.
@@ -239,7 +239,7 @@
                     <!-- PhD: Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedPhdStudents as $student)
-                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" :isMsr="false" />
+                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No PhD students found where you are designated as Vested DOAA.
@@ -253,7 +253,7 @@
                     <!-- MS(R): Acting DOAA Subtab -->
                     <div x-show="subTab === 'acting'">
                         @forelse($actingMsrStudents as $student)
-                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" :isMsr="true" />
+                            <x-student-card :student="$student" :user="$user" :subTab="'acting'" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are appointed as Acting DOAA.
@@ -264,7 +264,7 @@
                     <!-- MS(R): Vested DOAA Subtab -->
                     <div x-show="subTab === 'vested'">
                         @forelse($vestedMsrStudents as $student)
-                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" :isMsr="true" />
+                            <x-student-card :student="$student" :user="$user" :subTab="'vested'" />
                         @empty
                             <div class="text-center py-8 text-sm text-gray-500 dark:text-gray-400 font-medium bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
                                 No MS(R) students found where you are designated as Vested DOAA.
