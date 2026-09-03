@@ -492,7 +492,7 @@ class Student extends Model
                 for ($i = 1; $i <= 10; $i++) {
                     $idCol = "co_supervisor_{$i}_id";
                     $recCol = "co_supervisor_{$i}_recommendation";
-                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
+                    if ($pts1->$idCol && (int)$pts1->$idCol === (int)$user->id && is_null($pts1->$recCol)) {
                         $pts1NeedsAction = true;
                         break;
                     }
@@ -502,7 +502,7 @@ class Student extends Model
                 for ($i = 1; $i <= 10; $i++) {
                     $idCol = "pspc_member_{$i}_id";
                     $recCol = "pspc_member_{$i}_recommendation";
-                    if ($pts1->$idCol === $user->id && is_null($pts1->$recCol)) {
+                    if ($pts1->$idCol && (int)$pts1->$idCol === (int)$user->id && is_null($pts1->$recCol)) {
                         $pts1NeedsAction = true;
                         break;
                     }
@@ -540,7 +540,7 @@ class Student extends Model
                     for ($i = 1; $i <= 10; $i++) {
                         $idCol = "co_supervisor_{$i}_id";
                         $recCol = "co_supervisor_{$i}_recommendation";
-                        if ($pts2->$idCol === $user->id && is_null($pts2->$recCol)) {
+                        if ($pts2->$idCol && (int)$pts2->$idCol === (int)$user->id && is_null($pts2->$recCol)) {
                             $pts2NeedsAction = true;
                             break;
                         }
@@ -584,76 +584,84 @@ class Student extends Model
         }
 
         // ==========================================
-        // STAGE 3 & 4 (PARALLEL): PTS-3, PTS-4 & PTS-4 Extension (Requires PTS-2 Approved)
+        // STAGE 3 & 4 (PARALLEL): PTS-3, PTS-4 & PTS-4 Extension
         // ==========================================
-        if ($pts2Approved) {
-            // 3.1 PTS-3 Action Check
-            if ($pts3 && $pts3->status === 'in_progress') {
-                $pts3NeedsAction = false;
-                if ((!$roleFilter || $roleFilter === 'dpgc') && $pts3->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                    $pts3NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'hod') && $pts3->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                    $pts3NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts3->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-                    $pts3NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'doaa') && $pts3->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts3->acting_doaa_email === $user->email || $pts3->vested_doaa_email === $user->email)))) {
-                    $pts3NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'senate_chairperson') && $pts3->current_stage === 'senate_chairperson' && $user->isSenateChairperson()) {
-                    $pts3NeedsAction = true;
-                }
+        // 3.1 PTS-3 Action Check
+        if ($pts3 && $pts3->status === 'in_progress') {
+            $pts3NeedsAction = false;
+            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts3->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                $pts3NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'hod') && $pts3->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                $pts3NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts3->current_stage === 'academic_office' && ($user->isAcademicOffice() || ($user->isGlobalAuthority() && !$user->isActingApprovalAuthority()))) {
+                $pts3NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts3->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($pts3->acting_doaa_email === $user->email || $pts3->vested_doaa_email === $user->email)))) {
+                $pts3NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'senate_chairperson') && $pts3->current_stage === 'senate_chairperson' && $user->isSenateChairperson()) {
+                $pts3NeedsAction = true;
+            }
 
-                if ($pts3NeedsAction) {
-                    $items[] = "{$prefix}-3";
-                }
-            } elseif (($pts3 && $pts3->status === 'reverted') && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
-                // Main supervisor action to initiate or resubmit PTS-3
+            if ($pts3NeedsAction) {
                 $items[] = "{$prefix}-3";
             }
+        } elseif (($pts3 && $pts3->status === 'reverted') && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
+            // Main supervisor action to initiate or resubmit PTS-3
+            $items[] = "{$prefix}-3";
+        }
 
-            // 3.2 PTS-4 Action Check
-            if ($pts4 && $pts4->status === 'in_progress') {
-                $pts4NeedsAction = false;
-                if ((!$roleFilter || $roleFilter === 'main') && $pts4->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
-                    $pts4NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-                    $pts4NeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'doaa') && $pts4->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts4->acting_doaa_email === $user->email || $pts4->vested_doaa_email === $user->email)))) {
-                    $pts4NeedsAction = true;
-                }
-
-                if ($pts4NeedsAction) {
-                    $items[] = "{$prefix}-4";
+        // 3.2 PTS-4 Action Check
+        if ($pts4 && $pts4->status === 'in_progress') {
+            $pts4NeedsAction = false;
+            if ((!$roleFilter || $roleFilter === 'main') && $pts4->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                $pts4NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'co') && $pts4->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts4->$idCol && (int)$pts4->$idCol === (int)$user->id && is_null($pts4->$recCol)) {
+                        $pts4NeedsAction = true;
+                        break;
+                    }
                 }
             }
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4->current_stage === 'academic_office' && $user->isAcademicOffice()) {
+                $pts4NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'dr') && $pts4->current_stage === 'dr' && ($user->isDr())) {
+                $pts4NeedsAction = true;
+            }
 
-            // 3.3 PTS-4 Extension Action Check (parallel with PTS-3 and PTS-4)
-            if ($pts4Ext && $pts4Ext->status === 'in_progress' && !$pts4Approved) {
-                $pts4ExtNeedsAction = false;
-                if ((!$roleFilter || $roleFilter === 'main') && $pts4Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
-                    $pts4ExtNeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'dpgc') && $pts4Ext->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                    $pts4ExtNeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'hod') && $pts4Ext->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                    $pts4ExtNeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-                    $pts4ExtNeedsAction = true;
-                }
-                if ((!$roleFilter || $roleFilter === 'doaa') && $pts4Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts4Ext->acting_doaa_email === $user->email || $pts4Ext->vested_doaa_email === $user->email)))) {
-                    $pts4ExtNeedsAction = true;
-                }
+            if ($pts4NeedsAction) {
+                $items[] = "{$prefix}-4";
+            }
+        }
 
-                if ($pts4ExtNeedsAction) {
-                    $items[] = "{$prefix}-4 Extension";
-                }
+        // 3.3 PTS-4 Extension Action Check (parallel with PTS-3 and PTS-4)
+        if ($pts4Ext && $pts4Ext->status === 'in_progress' && !$pts4Approved) {
+            $pts4ExtNeedsAction = false;
+            if ((!$roleFilter || $roleFilter === 'main') && $pts4Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                $pts4ExtNeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts4Ext->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                $pts4ExtNeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'hod') && $pts4Ext->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                $pts4ExtNeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) {
+                $pts4ExtNeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'doaa') && $pts4Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts4Ext->acting_doaa_email === $user->email || $pts4Ext->vested_doaa_email === $user->email)))) {
+                $pts4ExtNeedsAction = true;
+            }
+
+            if ($pts4ExtNeedsAction) {
+                $items[] = "{$prefix}-4 Extension";
             }
         }
 

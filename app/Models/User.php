@@ -95,10 +95,20 @@ class User extends Authenticatable
     {
         return $this->role === 'ar';
     }
+
+    public function isAr(): bool
+    {
+        return $this->isArAcademic();
+    }
     
     public function isDrAcademic(): bool
     {
         return $this->role === 'dr';
+    }
+
+    public function isDr(): bool
+    {
+        return $this->isDrAcademic();
     }
 
     public function isAcademicOffice(): bool

@@ -21,7 +21,6 @@ class EndorsePts4Request extends FormRequest
             return [
                 'verified_details' => 'required|accepted',
                 'verification_remark' => 'required|string|max:2000',
-                'confidential_remark' => 'nullable|string|max:2000',
             ];
         }
 

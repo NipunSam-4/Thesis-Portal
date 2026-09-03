@@ -136,6 +136,26 @@
                             <x-readonly-input :value="$pts4->alternate_email ?: ($student->alternate_email ?: 'N/A')" />
                         </div>
 
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="Main Supervisor" />
+                            <x-readonly-input :value="$student?->mainSupervisors?->pluck('name')->join(', ') ?: ($student?->supervisors?->first()?->name ?? 'Not Assigned')" />
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="Co-Supervisor(s)" />
+                            <x-readonly-input :value="$student?->coSupervisors?->pluck('name')->join(', ') ?: 'None'" />
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="External Supervisor(s)" />
+                            @php
+                                $extSupText = ($student && $student->externalSupervisors->isNotEmpty())
+                                    ? $student->externalSupervisors->map(fn($s) => $s->name . ($s->externalSupervisorProfile?->affiliated_institute ? ' (' . $s->externalSupervisorProfile->affiliated_institute . ')' : ''))->join(', ')
+                                    : 'None';
+                            @endphp
+                            <x-readonly-input :value="$extSupText" />
+                        </div>
+
                         <div>
                             <x-readonly-label value="Date of Submission" />
                             <x-readonly-input :value="$pts4->created_at ? $pts4->created_at->format('d-m-Y') : 'N/A'" />
@@ -143,21 +163,14 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Name of Thesis (Editable by Main Supervisor) -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
+                <!-- Section 2: Name of Thesis -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Name of Thesis (Main Supervisor Editable)
+                        2. Name of Thesis
                     </h3>
                     <div>
-                        <x-form-label for="thesis_title" value="Title of the Thesis" :required="true" />
-                        <x-form-input 
-                            type="text" 
-                            name="thesis_title" 
-                            id="thesis_title" 
-                            :value="old('thesis_title', $pts4->main_supervisor_thesis_title ?? $pts4->thesis_title ?? $thesis->title)" 
-                            required 
-                            class="font-medium"
-                        />
+                        <x-form-label value="Thesis Title" :required="true" />
+                        <x-form-input type="text" name="thesis_title" required :value="old('thesis_title', $pts4->effective_thesis_title)" />
                     </div>
                 </div>
 
@@ -175,27 +188,22 @@
                             <span class="text-[11px] text-gray-400">Max 100 MB</span>
                         </div>
 
-                        @if($pts4->thesis_doc_path)
+                        @php
+                            $effectiveDocPath = $pts4->getEffectiveThesisDocPath();
+                            $effectiveDocField = $pts4->getEffectiveThesisDocField();
+                        @endphp
+                        @if($effectiveDocPath)
                             <div class="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-center justify-between">
-                                <span class="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">Student Submitted File:</span>
-                                <a href="{{ route('pts.document.serve', ['pts4', $pts4->id, 'thesis_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-md text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
-                                    📄 View Student File
-                                </a>
-                            </div>
-                        @endif
-
-                        @if($pts4->main_supervisor_thesis_doc_path)
-                            <div class="p-2.5 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between">
-                                <span class="text-xs text-indigo-800 dark:text-indigo-300 font-semibold">Active Supervisor Replacement File:</span>
-                                <a href="{{ route('pts.document.serve', ['pts4', $pts4->id, 'main_supervisor_thesis_doc_path']) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700 rounded-md text-xs font-bold shadow-sm hover:bg-indigo-100 flex items-center">
-                                    📄 View Supervisor File
+                                <span class="text-xs text-emerald-800 dark:text-emerald-300 font-semibold">Existing Submitted File:</span>
+                                <a href="{{ route('pts.document.serve', ['pts4', $pts4->id, $effectiveDocField]) }}" target="_blank" class="px-2.5 py-1 bg-white dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-md text-xs font-bold shadow-sm hover:bg-emerald-100 flex items-center">
+                                    📄 View Existing File
                                 </a>
                             </div>
                         @endif
 
                         <div x-show="!fileStates.thesis.name">
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Upload Revised Document (Optional Replacement)</label>
-                            <input type="file" id="thesisInput" name="thesis_doc" accept=".pdf,.doc,.docx" data-max-size="100" @change="handleFileSelect($event, 'thesis')" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">Replace File</label>
+                            <input type="file" id="thesisInput" name="thesis_doc" accept=".pdf,.doc,.docx" @change="handleFileSelect($event, 'thesis')" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                         </div>
 
                         <!-- File Size Error Alert -->
@@ -227,10 +235,6 @@
                                 </button>
                             </div>
                         </div>
-
-                        <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                            Leave blank to retain the student's submitted document without alterations.
-                        </p>
                     </div>
                 </div>
 

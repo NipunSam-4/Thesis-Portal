@@ -298,9 +298,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-indigo-900 dark:text-indigo-200">Main Supervisor Recommendation</span>
                                 @if($pts3->main_supervisor_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->main_supervisor_submitted_at)
@@ -315,9 +315,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-blue-900 dark:text-blue-200">Co-Supervisors Recommendations</span>
                                 @if($pts3->co_supervisors_submitted_at)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Completed</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Completed</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 rounded-full font-medium">In Progress</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-amber-600 dark:text-amber-400">In Progress</span>
                                 @endif
                             </div>
                             <div class="mt-3 space-y-2 text-xs">
@@ -332,9 +332,9 @@
                                         <div class="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800 rounded-lg border border-blue-100 dark:border-blue-900">
                                             <span>{{ $roleTitle }} <span class="text-xs font-normal text-gray-500 dark:text-gray-400">({{ $coUser->name }}{{ $inst }})</span></span>
                                             @if($pts3->{"co_supervisor_{$i}_recommendation"})
-                                                <span class="text-emerald-600 dark:text-emerald-400 font-semibold">✓ Recommended</span>
+                                                <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Recommended</span>
                                             @else
-                                                <span class="text-amber-600 dark:text-amber-400 font-semibold">Pending</span>
+                                                <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-amber-600 dark:text-amber-400">Pending</span>
                                             @endif
                                         </div>
                                     @endif
@@ -349,9 +349,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-teal-900 dark:text-teal-200">DPGC Recommendation</span>
                                 @if($pts3->dpgc_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->dpgc_submitted_at)
@@ -366,9 +366,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-sky-900 dark:text-sky-200">HOD Recommendation</span>
                                 @if($pts3->hod_recommendation)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Recommended</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Recommended</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->hod_submitted_at)
@@ -383,9 +383,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-violet-900 dark:text-violet-200">Academic Office Verification</span>
                                 @if($pts3->academic_office_is_verified)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Verified</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Verified &amp; Forwarded</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->academic_office_submitted_at)
@@ -400,9 +400,9 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-purple-900 dark:text-purple-200">DOAA Evaluation &amp; Priority Ranking</span>
                                 @if($pts3->doaa_is_verified)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Evaluated</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Evaluated</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->doaa_submitted_at)
@@ -417,11 +417,11 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-slate-900 dark:text-slate-200">Senate Chairperson Approval</span>
                                 @if($pts3->senate_chairperson_approval === true)
-                                    <span class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 rounded-full font-medium">✓ Approved</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">✓ Approved</span>
                                 @elseif($pts3->senate_chairperson_approval === false)
-                                    <span class="text-xs px-2.5 py-1 bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300 rounded-full font-medium">Rejected</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-red-600 dark:text-red-400">❌ Rejected</span>
                                 @else
-                                    <span class="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-full font-medium">Pending</span>
+                                    <span class="font-semibold text-xs whitespace-nowrap shrink-0 text-gray-500 dark:text-gray-400">Pending</span>
                                 @endif
                             </div>
                             @if($pts3->senate_chairperson_approval_remark)

@@ -1,6 +1,7 @@
 @php
     $student = $extension->thesis->student ?? ($student ?? null);
     $formPrefix = (isset($student) && $student->isPhd()) ? 'PTS' : 'MSRTS';
+    $actingDoaaUsers = $actingDoaaUsers ?? collect();
 @endphp
 
 <x-app-layout>
@@ -62,32 +63,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <x-readonly-label value="Student Name" />
-                        <x-readonly-input :value="$extension->thesis->student->user->name ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->user?->name ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Roll Number" />
-                        <x-readonly-input :value="$extension->thesis->student->roll_number ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->roll_number ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Department" />
-                        <x-readonly-input :value="$extension->thesis->student->department->name ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->department?->name ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Registration" />
-                        <x-readonly-input :value="$extension->thesis->student->date_registration ? \Carbon\Carbon::parse($extension->thesis->student->date_registration)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Joining" />
-                        <x-readonly-input :value="$extension->thesis->student->date_joining ? \Carbon\Carbon::parse($extension->thesis->student->date_joining)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Confirmation" />
-                        <x-readonly-input :value="$extension->thesis->student->date_confirmation ? \Carbon\Carbon::parse($extension->thesis->student->date_confirmation)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
@@ -148,12 +149,13 @@
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
                             <x-role-card role="main_supervisor">
                                  <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                     <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Main Supervisor Recommendation</span>
-                                     <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                                     <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                     <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                          {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                      </span>
                                  </div>
-                                 <div class="space-y-1">
+                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                     <strong>Confidential Remark:</strong>
                                      <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
                                  </div>
                             </x-role-card>
@@ -161,14 +163,14 @@
 
                         <!-- DPGC Evaluation (Rank 2) -->
                         @if($viewerRank > 2 && $extension->dpgc_recommendation !== null)
-                            <x-role-card role="dpgc">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-teal-900 dark:text-teal-200">DPGC Recommendation</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
                                 </div>
                             </x-role-card>
@@ -176,14 +178,14 @@
 
                         <!-- HOD Evaluation (Rank 3) -->
                         @if($viewerRank > 3 && $extension->hod_recommendation !== null)
-                            <x-role-card role="hod">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-sky-900 dark:text-sky-200">HOD Recommendation</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="hod" title="Head of Department (HOD)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
                                 </div>
                             </x-role-card>
@@ -191,14 +193,14 @@
 
                         <!-- Academic Office Evaluation (Rank 4) -->
                         @if($viewerRank > 4 && $extension->academic_office_recommendation !== null)
-                            <x-role-card role="academic_office">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-violet-900 dark:text-violet-200">Academic Office Verification</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 whitespace-nowrap shrink-0">
+                            <x-role-card role="academic_office" title="Academic Office">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Verification Remark:</strong>
                                     <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
                                 </div>
                             </x-role-card>
@@ -287,10 +289,10 @@
                                     positive-desc="Approve the student's PTS-4 extension submission."
                                     negative-label="(b) DO NOT APPROVE"
                                     negative-desc="Do not approve the student's PTS-4 extension submission."
-                                    remark-label-positive="Recommendation Remark (Optional)"
-                                    remark-label-negative="Non-Recommendation Remark"
-                                    remark-placeholder-positive="Optional evaluation remarks for higher academic authorities"
-                                    remark-placeholder-negative="Provide mandatory non-recommendation remarks"
+                                    remark-label-positive="Approval Remark (Optional)"
+                                    remark-label-negative="Non-Approval Remark"
+                                    remark-placeholder-positive="Optional approval remarks"
+                                    remark-placeholder-negative="Provide mandatory non-approval remarks"
                                     remark-rows="5"
                                     :remark-value="old('confidential_remark')" />
                             @else

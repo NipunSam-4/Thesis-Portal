@@ -124,10 +124,10 @@ class Pts2Extension extends Model
             $userRanks[] = self::getRoleRank('main_supervisor');
         }
 
-        if ($user->isDpgc()) {
+        if ($user->isDpgc() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
             $userRanks[] = self::getRoleRank('dpgc');
         }
-        if ($user->isHod()) {
+        if ($user->isHod() && ($user->deptAuthorityProfile?->department_id === $student?->department_id || !$user->deptAuthorityProfile)) {
             $userRanks[] = self::getRoleRank('hod');
         }
         if ($user->isAcademicOffice()) {

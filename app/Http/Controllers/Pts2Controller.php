@@ -260,6 +260,12 @@ class Pts2Controller extends Controller
         $user = auth()->user();
         $thesis = $pts2->thesis;
         $student = $thesis->student;
+
+        if ($student->isMainSupervisor($user) && $pts2->current_stage === 'main_supervisor') {
+            return redirect()->route('faculty.pts2.edit', $pts2->id);
+        }
+
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
 
         $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
@@ -448,6 +454,7 @@ class Pts2Controller extends Controller
         $user = auth()->user();
         $thesis = $pts2->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
 
         // Authorization check: User must be authorized to view this submission
@@ -483,6 +490,7 @@ class Pts2Controller extends Controller
         $user = auth()->user();
         $thesis = $pts2->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
 
         // Status Guardrails
         if (in_array($pts2->status, ['approved', 'rejected'])) {
@@ -585,6 +593,7 @@ class Pts2Controller extends Controller
 
         $thesis = $pts2->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
         $mainSupervisor = $pts2->mainSupervisor ?? $student->mainSupervisors->first();
         $coSupervisors = $pts2->getCoSupervisors();

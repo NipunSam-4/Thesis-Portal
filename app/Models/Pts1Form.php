@@ -66,16 +66,16 @@ class Pts1Form extends Model
         'co_supervisor_10_id', 'co_supervisor_10_recommendation', 'co_supervisor_10_confidential_remark', 'co_supervisor_10_submitted_at',
         'co_supervisors_submitted_at',
 
-        'pspc_member_1_id', 'pspc_member_1_recommendation', 'pspc_member_1_confidential_remark',
-        'pspc_member_2_id', 'pspc_member_2_recommendation', 'pspc_member_2_confidential_remark',
-        'pspc_member_3_id', 'pspc_member_3_recommendation', 'pspc_member_3_confidential_remark',
-        'pspc_member_4_id', 'pspc_member_4_recommendation', 'pspc_member_4_confidential_remark',
-        'pspc_member_5_id', 'pspc_member_5_recommendation', 'pspc_member_5_confidential_remark',
-        'pspc_member_6_id', 'pspc_member_6_recommendation', 'pspc_member_6_confidential_remark',
-        'pspc_member_7_id', 'pspc_member_7_recommendation', 'pspc_member_7_confidential_remark',
-        'pspc_member_8_id', 'pspc_member_8_recommendation', 'pspc_member_8_confidential_remark',
-        'pspc_member_9_id', 'pspc_member_9_recommendation', 'pspc_member_9_confidential_remark',
-        'pspc_member_10_id', 'pspc_member_10_recommendation', 'pspc_member_10_confidential_remark',
+        'pspc_member_1_id', 'pspc_member_1_recommendation', 'pspc_member_1_confidential_remark', 'pspc_member_1_submitted_at',
+        'pspc_member_2_id', 'pspc_member_2_recommendation', 'pspc_member_2_confidential_remark', 'pspc_member_2_submitted_at',
+        'pspc_member_3_id', 'pspc_member_3_recommendation', 'pspc_member_3_confidential_remark', 'pspc_member_3_submitted_at',
+        'pspc_member_4_id', 'pspc_member_4_recommendation', 'pspc_member_4_confidential_remark', 'pspc_member_4_submitted_at',
+        'pspc_member_5_id', 'pspc_member_5_recommendation', 'pspc_member_5_confidential_remark', 'pspc_member_5_submitted_at',
+        'pspc_member_6_id', 'pspc_member_6_recommendation', 'pspc_member_6_confidential_remark', 'pspc_member_6_submitted_at',
+        'pspc_member_7_id', 'pspc_member_7_recommendation', 'pspc_member_7_confidential_remark', 'pspc_member_7_submitted_at',
+        'pspc_member_8_id', 'pspc_member_8_recommendation', 'pspc_member_8_confidential_remark', 'pspc_member_8_submitted_at',
+        'pspc_member_9_id', 'pspc_member_9_recommendation', 'pspc_member_9_confidential_remark', 'pspc_member_9_submitted_at',
+        'pspc_member_10_id', 'pspc_member_10_recommendation', 'pspc_member_10_confidential_remark', 'pspc_member_10_submitted_at',
         'pspc_members_submitted_at',
 
         'dpgc_student_comment', 'dpgc_recommendation', 'dpgc_confidential_remark', 'dpgc_submitted_at',
@@ -294,7 +294,7 @@ class Pts1Form extends Model
             return [];
         }
 
-        $users = User::whereIn('id', array_values($ids))->get()->keyBy('id');
+        $users = User::with('externalSupervisorProfile')->whereIn('id', array_values($ids))->get()->keyBy('id');
 
         $result = [];
         foreach ($ids as $slot => $userId) {

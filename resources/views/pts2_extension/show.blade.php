@@ -46,6 +46,9 @@
             @endif
 
             <!-- Section 1: Pre-filled Student Details (Read-Only Card 1 - Exact PTS-1 Design) -->
+            @php
+                $student = $extension->thesis?->student;
+            @endphp
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
                     1. Student Information
@@ -54,32 +57,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <x-readonly-label value="Student Name" />
-                        <x-readonly-input :value="$extension->thesis->student->user->name ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->user?->name ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Roll Number" />
-                        <x-readonly-input :value="$extension->thesis->student->roll_number ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->roll_number ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Department" />
-                        <x-readonly-input :value="$extension->thesis->student->department->name ?? 'N/A'" />
+                        <x-readonly-input :value="$student?->department?->name ?? 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Registration" />
-                        <x-readonly-input :value="$extension->thesis->student->date_registration ? \Carbon\Carbon::parse($extension->thesis->student->date_registration)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_registration ? \Carbon\Carbon::parse($student->date_registration)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Joining" />
-                        <x-readonly-input :value="$extension->thesis->student->date_joining ? \Carbon\Carbon::parse($extension->thesis->student->date_joining)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_joining ? \Carbon\Carbon::parse($student->date_joining)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
                         <x-readonly-label value="Date of Confirmation" />
-                        <x-readonly-input :value="$extension->thesis->student->date_confirmation ? \Carbon\Carbon::parse($extension->thesis->student->date_confirmation)->format('d-m-Y') : 'N/A'" />
+                        <x-readonly-input :value="$student?->date_confirmation ? \Carbon\Carbon::parse($student->date_confirmation)->format('d-m-Y') : 'N/A'" />
                     </div>
 
                     <div>
@@ -163,7 +166,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
                                 <label class="block text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase">DOAA Student Comment</label>
-                                <span class="px-2.5 py-0.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full  tracking-wider flex items-center shadow-sm">
+                                <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
                                     ✓ Approved
                                 </span>
                             </div>
@@ -175,7 +178,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-1 gap-2 sm:gap-4">
                                 <label class="block text-xs font-semibold text-red-800 dark:text-red-300 uppercase">DOAA Student Comment</label>
-                                <span class="px-2.5 py-0.5 text-red-800 dark:text-red-300 text-xs font-bold rounded-full tracking-wider flex items-center shadow-sm">
+                                <span class="font-bold text-xs whitespace-nowrap shrink-0 text-red-600 dark:text-red-400">
                                     ❌ Rejected
                                 </span>
                             </div>
@@ -200,15 +203,7 @@
             <!-- Section 4: Authority Recommendations & Remarks Trail (For Authorities) -->
             @if($user->isFaculty() || $user->isDeptAuthority() || $user->isGlobalAuthority() || $user->isActingApprovalAuthority())
                 @php
-                    $viewerRole = $user->isFaculty() ? 'main_supervisor' : (
-                        $user->isDpgc() ? 'dpgc' : (
-                            $user->isHod() ? 'hod' : (
-                            $user->isAcademicOffice() ? 'academic_office' : (
-                                ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($extension->acting_doaa_email === $user->email || $extension->vested_doaa_email === $user->email))) ? 'doaa' : 'student'
-                            )
-                            )
-                        )
-                    );
+                    $viewerRole = $userRole ?? \App\Models\Thesis::determineExtensionUserRole($user, $extension);
                     $viewerRank = \App\Models\Pts2Extension::getRoleRank($viewerRole);
                     $hasAnyAuthorityRecommendation = 
                         ($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null) ||
@@ -218,7 +213,7 @@
                         ($viewerRank >= 5 && $extension->doaa_recommendation !== null);
                 @endphp
 
-                @if($viewerRank>1 || $extension->reverted_by_role !== 'main_supervisor')
+                @if($viewerRank > 1 || $extension->reverted_by_role !== 'main_supervisor')
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
                         4. Authority Recommendations & Confidential Remarks
@@ -230,12 +225,13 @@
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
                             <x-role-card role="main_supervisor">
                                 <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Main Supervisor Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
                                 </div>
-                                <div class="space-y-1">
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
                                 </div>
                             </x-role-card>
@@ -243,14 +239,14 @@
 
                         <!-- DPGC Evaluation (Rank 2) -->
                         @if($viewerRank >= 2 && $extension->dpgc_recommendation !== null)
-                            <x-role-card role="dpgc">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-teal-900 dark:text-teal-200">DPGC Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
                                 </div>
                             </x-role-card>
@@ -258,14 +254,14 @@
 
                         <!-- HOD Evaluation (Rank 3) -->
                         @if($viewerRank >= 3 && $extension->hod_recommendation !== null)
-                            <x-role-card role="hod">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-sky-900 dark:text-sky-200">HOD Remark</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="hod" title="Head of Department (HOD)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
                                 </div>
                             </x-role-card>
@@ -273,14 +269,14 @@
 
                         <!-- Academic Office Evaluation (Rank 4) -->
                         @if($viewerRank >= 4 && $extension->academic_office_recommendation !== null)
-                            <x-role-card role="academic_office">
-                                <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-violet-900 dark:text-violet-200">Academic Office Verification</span>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 whitespace-nowrap shrink-0">
+                            <x-role-card role="academic_office" title="Academic Office">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
                                         ✓ Verified &amp; Forwarded
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Verification Remark:</strong>
                                     <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
                                 </div>
                             </x-role-card>
@@ -288,19 +284,17 @@
 
                         <!-- DOAA Decision (Rank 5) -->
                         @if($viewerRank >= 5 && $extension->doaa_recommendation !== null)
-                            <x-role-card role="doaa">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-bold text-sm text-purple-900 dark:text-purple-200">DOAA Remark</span>
-                                    </div>
-                                    <span class="px-2.5 py-0.5 rounded text-xs font-bold {{ $extension->doaa_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->doaa_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->doaa_recommendation ? '✓ Approved' : '❌ Rejected' }}
                                         @if($extension->approvedBy)
                                             by: {{ $extension->approvedBy->email }}
                                         @endif
                                     </span>
-                                </div>
-                                <div class="space-y-1">
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$extension->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
                                 </div>
                             </x-role-card>

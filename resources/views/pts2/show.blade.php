@@ -79,21 +79,10 @@
             <!-- Common Form Information Sections (1 to 5) -->
             @include('pts2.form_info', ['pts2' => $pts2])
 
-
             @php
-                $isStudent = auth()->user()->isStudent();
-                $hasAnyCo = false;
-                for ($i = 1; $i <= 10; $i++) {
-                    $idCol = "co_supervisor_{$i}_id";
-                    if ($pts2->$idCol) {
-                        $hasAnyCo = true;
-                        break;
-                    }
-                }
-                $hasAnyComment = ($pts2->main_supervisor_submitted_at || $pts2->main_supervisor_recommendation !== null || !is_null($pts2->main_supervisor_student_comment))
-                    || $hasAnyCo
-                    || (!$isStudent && ($pts2->academic_office_submitted_at || $pts2->academic_office_is_verified !== null || !is_null($pts2->academic_office_verification_remark)))
-                    || ($pts2->doaa_submitted_at || $pts2->doaa_approval !== null || !is_null($pts2->doaa_student_comment));
+                $currentUser = $user ?? auth()->user();
+                $isStudent = $currentUser?->isStudent() ?? false;
+                $hasAnyCo = !empty($coSupervisors);
             @endphp
 
             <!-- Section 6: Authority Comments (Student) or Authority Recommendations & Remarks (Authorities) -->
@@ -103,144 +92,120 @@
                         {{ $isStudent ? '6. Authority Comments' : '6. Authority Recommendations & Remarks' }}
                     </h3>
 
-                    @if($hasAnyComment)
-                        <div class="space-y-4">
-                            <!-- Main Supervisor -->
-                            @if($pts2->main_supervisor_submitted_at || $pts2->main_supervisor_recommendation !== null)
-                                <x-role-card role="main_supervisor">
-                                    <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
-                                        <span class="font-bold text-indigo-900 dark:text-indigo-200">
-                                            Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
-                                        </span>
-                                        @if(!$isStudent && $pts2->main_supervisor_recommendation !== null)
-                                            <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts2->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                                {{ $pts2->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                        <strong>Student Comment:</strong>
-                                        <x-feedback-box :text="$pts2->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
-                                    </div>
-                            
-                                    @if(!$isStudent)
-                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                            <strong>Main Supervisor Remark:</strong>
-                                            <x-feedback-box :text="$pts2->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
-                                        </div>
-                                    @endif
-                                </x-role-card>
+                    <div class="space-y-4">
+                        <!-- Main Supervisor -->
+                        <x-role-card role="main_supervisor">
+                            <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
+                                <span class="font-bold text-indigo-900 dark:text-indigo-200">
+                                    Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
+                                </span>
+                                @if(!$isStudent && $pts2->main_supervisor_recommendation !== null)
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts2->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                <strong>Student Comment:</strong>
+                                <x-feedback-box :text="$pts2->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
+                            </div>
+                            @if(!$isStudent)
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
+                                    <x-feedback-box :text="$pts2->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                                </div>
                             @endif
+                        </x-role-card>
 
-                            <!-- Co-Supervisors -->
-                            @if($hasAnyCo)
-                                <x-role-card role="co_supervisor">
-                                    <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
-                                    
-                                    @for($i = 1; $i <= 10; $i++)
-                                        @php
-                                            $idCol = "co_supervisor_{$i}_id";
-                                            $recCol = "co_supervisor_{$i}_recommendation";
-                                            $remCol = "co_supervisor_{$i}_confidential_remark";
-                                            $comCol = "co_supervisor_{$i}_student_comment";
-                                            $coUser = $coSupervisors[$i] ?? null;
-                                        @endphp
-
-                                        @if($coUser)
-                                            @php
-                                                $isExt = $coUser->isExternalSupervisor();
-                                                $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
-                                                $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
-                                            @endphp
-                                            <div class="text-xs space-y-1.5 pt-1.5 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                                <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
-                                                    <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
-                                                    @if(!$isStudent && !is_null($pts2->$recCol))
-                                                        <span class="font-bold whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                                            {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                <div class="space-y-1">
-                                                    <strong>Student Comment:</strong>
-                                                    <x-feedback-box :text="$pts2->$comCol" fallback="Comment not provided" role="co_supervisor" />
-                                                </div>
-                                                @if(!$isStudent)
-                                                    <div class="space-y-1">
-                                                        <strong>{{ $roleTitle }} Remark:</strong>
-                                                        <x-feedback-box :text="$pts2->$remCol" fallback="Remark not provided" role="co_supervisor" />
-                                                    </div>
-                                                @endif
+                        <!-- Co-Supervisors -->
+                        @if($hasAnyCo)
+                            <x-role-card role="co_supervisor">
+                                <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                
+                                @foreach($coSupervisors as $i => $coUser)
+                                    @php
+                                        $recCol = "co_supervisor_{$i}_recommendation";
+                                        $remCol = "co_supervisor_{$i}_confidential_remark";
+                                        $comCol = "co_supervisor_{$i}_student_comment";
+                                        $isExt = $coUser->isExternalSupervisor();
+                                        $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                        $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                    @endphp
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                            <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                            @if(!$isStudent && !is_null($pts2->$recCol))
+                                                <span class="font-bold whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Student Comment:</strong>
+                                            <x-feedback-box :text="$pts2->$comCol" fallback="Comment not provided" role="co_supervisor" />
+                                        </div>
+                                        @if(!$isStudent)
+                                            <div class="space-y-1">
+                                                <strong>Confidential Remark:</strong>
+                                                <x-feedback-box :text="$pts2->$remCol" fallback="Remark not provided" role="co_supervisor" />
                                             </div>
                                         @endif
-                                    @endfor
-                                </x-role-card>
-                            @endif
+                                    </div>
+                                @endforeach
+                            </x-role-card>
+                        @endif
 
-                            <!-- Academic Office Endorsement (Only visible to non-students) -->
-                            @if(!$isStudent && ($pts2->academic_office_submitted_at || $pts2->academic_office_is_verified !== null))
-                                @php
-                                    $academicOfficeCredits = $pts2->academic_office_course_credits;
-                                    $academicOfficeRemark = $pts2->academic_office_verification_remark;
-                                @endphp
-                                <x-role-card role="academic_office">
-                                    <div class="flex items-center justify-between font-bold text-violet-900 dark:text-violet-200 gap-2 sm:gap-4">
-                                        <h5 class="text-s">Academic Office</h5>
-                                        <span class="font-bold text-xs text-emerald-600 whitespace-nowrap shrink-0">
-                                            ✓ Verified &amp; Forwarded
+                        <!-- Academic Office -->
+                        @if(!$isStudent && ($pts2->academic_office_submitted_at || $pts2->academic_office_is_verified !== null))
+                            @php
+                                $academicOfficeCredits = $pts2->academic_office_course_credits;
+                                $academicOfficeRemark = $pts2->academic_office_verification_remark;
+                            @endphp
+                            <x-role-card role="academic_office" title="Academic Office">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                        ✓ Verified &amp; Forwarded
+                                    </span>
+                                </x-slot:badge>
+                                @if($academicOfficeCredits !== null)
+                                    <div class="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
+                                        <strong>Verified Course Credits:</strong> <span class="font-bold text-violet-700 dark:text-violet-300">{{ $academicOfficeCredits }}</span>
+                                        <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
+                                    </div>
+                                @endif
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Verification Remark:</strong>
+                                    <x-feedback-box :text="$academicOfficeRemark" fallback="Remark not provided" role="academic_office" />
+                                </div>
+                            </x-role-card>
+                        @endif
+
+                        <!-- DOAA Approval -->
+                        @if($pts2->doaa_submitted_at || $pts2->doaa_approval !== null)
+                            <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                                @if(!$isStudent && $pts2->doaa_approval !== null)
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Rejected' }}
+                                            @if($pts2->approvedBy)
+                                                by: {{ $pts2->approvedBy->email }}
+                                            @endif
                                         </span>
-                                    </div>
-                                    @if($academicOfficeCredits !== null)
-                                        <div class="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
-                                            <strong>Verified Course Credits:</strong> <span class="font-bold text-violet-700 dark:text-violet-300">{{ $academicOfficeCredits }}</span>
-                                            <x-info-button text="Course credits earned including coursework, seminars, and research credits." />
-                                        </div>
-                                    @endif
+                                    </x-slot:badge>
+                                @endif
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Student Comment:</strong>
+                                    <x-feedback-box :text="$pts2->doaa_student_comment" fallback="Comment not provided" role="doaa" />
+                                </div>
+                                @if(!$isStudent)
                                     <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                        <strong>Verification Remark:</strong>
-                                        <x-feedback-box :text="$academicOfficeRemark" fallback="Remark not provided" role="academic_office" />
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$pts2->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
                                     </div>
-                                </x-role-card>
-                            @endif
-
-                            <!-- DOAA Approval -->
-                            @if($pts2->doaa_submitted_at || $pts2->doaa_approval !== null)
-                                <x-role-card role="doaa">
-                                    <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200 gap-2 sm:gap-4">
-                                        <div class="flex items-center gap-2">
-                                            <h5 class="text-s">Dean of Academic Affairs (DOAA)</h5>
-                                        </div>
-                                        @if(!$isStudent && $pts2->doaa_approval !== null)
-                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600' : 'text-red-600' }}">
-                                                {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
-                                                @if($pts2->approvedBy)
-                                                    by: {{ $pts2->approvedBy->email }}
-                                                @endif
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                        <strong>Student Comment:</strong>
-                                        <x-feedback-box :text="$pts2->doaa_student_comment" fallback="Comment not provided" role="doaa" />
-                                    </div>
-                                    @if(!$isStudent)
-                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                            <strong>DOAA Remark:</strong>
-                                            <x-feedback-box :text="$pts2->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
-                                        </div>
-                                    @endif
-                                </x-role-card>
-                            @endif
-                        </div>
-                    @else
-                        <div class="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700/60">
-                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"></path>
-                            </svg>
-                            <span class="italic font-normal">No comments</span>
-                        </div>
-                    @endif
+                                @endif
+                            </x-role-card>
+                        @endif
+                    </div>
                 </div>
             @endif
         </div>

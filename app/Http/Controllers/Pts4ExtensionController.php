@@ -30,6 +30,8 @@ class Pts4ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have an active thesis registered to apply for PTS-4 extension.');
         }
 
+        $thesis->loadMissing(['pts1Form', 'pts2Form']);
+
         // Must have an APPROVED PTS-1 Form
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-1 Form to apply for PTS-4 extension.');
@@ -76,6 +78,8 @@ class Pts4ExtensionController extends Controller
         if (!$thesis) {
             return redirect()->route('student.dashboard')->with('error', 'Active thesis not found.');
         }
+
+        $thesis->loadMissing(['pts1Form', 'pts2Form']);
 
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'You must have a fully approved PTS-1 Form to apply for PTS-4 extension.');
@@ -136,9 +140,10 @@ class Pts4ExtensionController extends Controller
         $this->authorize('view', $pts4Extension);
 
         $user = Auth::user();
-        $extension = $pts4Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
+        $extension = $pts4Extension->loadMissing(['thesis.student.user', 'thesis.student.department', 'approvedBy']);
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
 
-        return view('pts4_extension.show', compact('user', 'extension'));
+        return view('pts4_extension.show', compact('user', 'extension', 'userRole'));
     }
 
     // Review & Endorsement page for authorities.
@@ -154,8 +159,9 @@ class Pts4ExtensionController extends Controller
         $seminarDate = $thesis?->getOpenSeminarDate();
         $minExtensionDate = $thesis?->getMinPts4ExtensionDate();
         $maxExtensionDate = $thesis?->getMaxPts4ExtensionDate();
+        $actingDoaaUsers = \App\Models\ActingDoaa::where('is_acting_doaa', true)->with('user')->get()->pluck('user')->filter();
 
-        return view('pts4_extension.review', compact('user', 'extension', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate'));
+        return view('pts4_extension.review', compact('user', 'extension', 'userRole', 'seminarDate', 'minExtensionDate', 'maxExtensionDate', 'actingDoaaUsers'));
     }
 
     // Handle evaluation submission (endorsement, verification, approval) by an authority.

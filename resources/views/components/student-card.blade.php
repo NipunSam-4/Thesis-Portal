@@ -480,8 +480,13 @@
                                 <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
                                     Waiting for the Student to Initiate
                                 </button>
-                            @elseif($thesis->pts4Form->canUserReview($user))
-                                <a href="{{ route('pts4.review', $thesis->pts4Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                            @elseif(Gate::check('review', $thesis->pts4Form) || $thesis->pts4Form->canUserReview($user))
+                                @php
+                                    $pts4EvalRoute = ($role === 'main' && $thesis->pts4Form->current_stage === 'main_supervisor')
+                                        ? route('faculty.pts4.edit', $thesis->pts4Form->id)
+                                        : route('pts4.review', $thesis->pts4Form->id);
+                                @endphp
+                                <a href="{{ $pts4EvalRoute }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                     Review & Endorse {{ $ptsPrefix }}-4 Form &rarr;
                                 </a>
                             @elseif($thesis->pts4Form->canUserView($user))

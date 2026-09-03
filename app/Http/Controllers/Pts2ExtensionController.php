@@ -30,6 +30,8 @@ class Pts2ExtensionController extends Controller
             return redirect()->route('student.dashboard')->with('warning', 'You must have an active thesis registered to apply for PTS-2 extension.');
         }
 
+        $thesis->loadMissing('pts1Form');
+
         // Must have an APPROVED PTS-1 Form (status === 'approved')
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('warning', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
@@ -71,6 +73,8 @@ class Pts2ExtensionController extends Controller
         if (!$thesis) {
             return redirect()->route('student.dashboard')->with('error', 'Active thesis not found.');
         }
+
+        $thesis->loadMissing('pts1Form');
 
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'You must have a fully approved PTS-1 Form to apply for PTS-2 extension.');
@@ -126,10 +130,11 @@ class Pts2ExtensionController extends Controller
     {
         $this->authorize('view', $pts2Extension);
 
-        $extension = $pts2Extension->loadMissing(['thesis.student.user', 'thesis.student.department']);
+        $extension = $pts2Extension->loadMissing(['thesis.student.user', 'thesis.student.department', 'approvedBy']);
         $user = Auth::user();
+        $userRole = Thesis::determineExtensionUserRole($user, $extension);
 
-        return view('pts2_extension.show', compact('extension', 'user'));
+        return view('pts2_extension.show', compact('extension', 'user', 'userRole'));
     }
 
     // Show evaluation portal for authority.

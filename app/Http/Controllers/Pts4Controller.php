@@ -37,12 +37,14 @@ class Pts4Controller extends Controller
 
         $thesis = Thesis::where('student_id', $student->id)
             ->where('status', 'in_progress')
-            ->with(['pts1Form', 'pts2Form','pts4Form'])
+            ->with(['pts1Form', 'pts2Form', 'pts4Form'])
             ->first();
 
         if (!$thesis) {
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
+
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
 
         // Must have an APPROVED PTS-2 Form
         if (!$thesis->pts2Form || $thesis->pts2Form->status !== 'approved') {
@@ -97,6 +99,8 @@ class Pts4Controller extends Controller
         if (!$pts4Form || $pts4Form->status !== 'reverted') {
             return redirect()->route('student.dashboard')->with('warning', 'You do not have a reverted PTS-4 form to edit.');
         }
+
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
 
         return view('student.pts4.create', compact('user', 'student', 'thesis', 'pts4Form'));
     }
@@ -216,6 +220,7 @@ class Pts4Controller extends Controller
 
         $thesis = $pts4->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
 
         return view('faculty.pts4.edit', compact('pts4', 'thesis', 'student', 'studentUser'));
@@ -278,6 +283,12 @@ class Pts4Controller extends Controller
         $user = auth()->user();
         $thesis = $pts4->thesis;
         $student = $thesis->student;
+
+        if ($student->isMainSupervisor($user) && $pts4->current_stage === 'main_supervisor') {
+            return redirect()->route('faculty.pts4.edit', $pts4->id);
+        }
+
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
 
         $mainSupervisor = $pts4->mainSupervisor ?? $student->mainSupervisors->first();
@@ -359,7 +370,6 @@ class Pts4Controller extends Controller
                 $pts4->update([
                     'academic_office_is_verified' => true,
                     'academic_office_verification_remark' => $validated['verification_remark'],
-                    'academic_office_confidential_remark' => $validated['confidential_remark'] ?? null,
                     'academic_office_submitted_at' => now(),
                     'academic_office_user_id' => $user->id,
                     'current_stage' => 'dr',
@@ -455,6 +465,7 @@ class Pts4Controller extends Controller
         $user = auth()->user();
         $thesis = $pts4->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
 
         // Authorization check: User must be authorized to view this submission
@@ -490,6 +501,8 @@ class Pts4Controller extends Controller
         $user = auth()->user();
         $thesis = $pts4->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
+        $studentUser = $student->user;
 
         // Status Guardrails
         if (in_array($pts4->status, ['approved', 'rejected'])) {
@@ -579,6 +592,7 @@ class Pts4Controller extends Controller
 
         $thesis = $pts4->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['mainSupervisors', 'coSupervisors', 'externalSupervisors.externalSupervisorProfile']);
         $studentUser = $student->user;
         $mainSupervisor = $pts4->mainSupervisor ?? $student->mainSupervisors->first();
         $coSupervisors = $pts4->getCoSupervisors();

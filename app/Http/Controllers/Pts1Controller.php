@@ -334,6 +334,7 @@ class Pts1Controller extends Controller
         $user = auth()->user();
         $thesis = $pts1->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile', 'pspcMembers']);
         $studentUser = $student->user;
         $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 
@@ -380,7 +381,7 @@ class Pts1Controller extends Controller
                 $roleKey = null;
                 for ($i = 1; $i <= 10; $i++) {
                     $col = "co_supervisor_{$i}_id";
-                    if ($pts1->$col === $user->id) {
+                    if ($pts1->$col && (int)$pts1->$col === (int)$user->id) {
                         $roleKey = $i;
                         break;
                     }
@@ -428,7 +429,7 @@ class Pts1Controller extends Controller
                 $roleKey = null;
                 for ($i = 1; $i <= 10; $i++) {
                     $col = "pspc_member_{$i}_id";
-                    if ($pts1->$col === $user->id) {
+                    if ($pts1->$col && (int)$pts1->$col === (int)$user->id) {
                         $roleKey = $i;
                         break;
                     }
@@ -559,7 +560,7 @@ class Pts1Controller extends Controller
         } elseif ($stage === 'co_supervisors') {
             for ($i = 1; $i <= 10; $i++) {
                 $col = "co_supervisor_{$i}_id";
-                if ($pts1->$col === $user->id) {
+                if ($pts1->$col && (int)$pts1->$col === (int)$user->id) {
                     $revertedRole = "co_supervisor_{$i}";
                     break;
                 }
@@ -570,7 +571,7 @@ class Pts1Controller extends Controller
         } elseif ($stage === 'pspc_members') {
             for ($i = 1; $i <= 10; $i++) {
                 $col = "pspc_member_{$i}_id";
-                if ($pts1->$col === $user->id) {
+                if ($pts1->$col && (int)$pts1->$col === (int)$user->id) {
                     $revertedRole = "pspc_member_{$i}";
                     break;
                 }
@@ -626,6 +627,8 @@ class Pts1Controller extends Controller
             return redirect()->route('pts1.submitted', $pts1->id);
         }
 
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile', 'pspcMembers']);
+
         if ($pts1->status === 'reverted') {
             return redirect()->route('pts1.reverted', $pts1->id);
         }
@@ -653,6 +656,7 @@ class Pts1Controller extends Controller
         $user = auth()->user();
         $thesis = $pts1->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile', 'pspcMembers']);
 
         // Status Guardrails
         if (in_array($pts1->status, ['approved', 'rejected'])) {
@@ -768,6 +772,7 @@ class Pts1Controller extends Controller
 
         $thesis = $pts1->thesis;
         $student = $thesis->student;
+        $student->loadMissing(['coSupervisors', 'externalSupervisors.externalSupervisorProfile', 'pspcMembers']);
         $studentUser = $student->user;
         $mainSupervisor = $pts1->mainSupervisor ?? $student->mainSupervisors->first();
 

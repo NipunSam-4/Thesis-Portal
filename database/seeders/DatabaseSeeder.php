@@ -295,23 +295,26 @@ class DatabaseSeeder extends Seeder
                 );
 
                 // Determine Main Supervisor, Co-Supervisor, and PSPC members for this student
-                $mainSup = $facultyUsers[$idx % $facCount] ?? $facultyUsers[0];
-                
-                // Co-supervisor (assigned for students 0, 2, 3; omitted for student 1)
-                $coSup = ($idx !== 1) ? ($facultyUsers[($idx + 1) % $facCount] ?? null) : null;
-
-                // PSPC members (2 distinct faculty members different from main supervisor)
-                $pspc1 = $facultyUsers[($idx + 1) % $facCount] ?? $facultyUsers[0];
-                $pspc2 = $facultyUsers[($idx + 2) % $facCount] ?? $facultyUsers[0];
+                if ($code === 'CSE') {
+                    $mainSup = ($idx === 2 || $idx === 3) ? $facultyUsers[1] : $facultyUsers[0];
+                    $coSup = ($idx === 0) ? $facultyUsers[1] : (($idx === 2 || $idx === 3) ? $facultyUsers[2] : null);
+                    $pspc1 = $facultyUsers[3]; // pspcmember1@iiti.ac.in
+                    $pspc2 = $facultyUsers[4]; // pspcmember2@iiti.ac.in
+                } else {
+                    $mainSup = $facultyUsers[$idx % $facCount] ?? $facultyUsers[0];
+                    $coSup = ($idx !== 1) ? ($facultyUsers[($idx + 1) % $facCount] ?? null) : null;
+                    $pspc1 = $facultyUsers[($idx + 1) % $facCount] ?? $facultyUsers[0];
+                    $pspc2 = $facultyUsers[($idx + 2) % $facCount] ?? $facultyUsers[0];
+                }
 
                 // Attach Main Supervisor
-                if (!$student->supervisors()->where('faculty_user_id', $mainSup->id)->exists()) {
-                    $student->supervisors()->attach($mainSup->id, ['supervisor_type' => 'main']);
+                if (!$student->supervisors()->where('faculty_user_id', $mainSup->id)->where('supervisor_type', 'main')->exists()) {
+                    $student->supervisors()->syncWithoutDetaching([$mainSup->id => ['supervisor_type' => 'main']]);
                 }
 
                 // Attach Co-Supervisor (if assigned)
-                if ($coSup && !$student->supervisors()->where('faculty_user_id', $coSup->id)->exists()) {
-                    $student->supervisors()->attach($coSup->id, ['supervisor_type' => 'co']);
+                if ($coSup && !$student->supervisors()->where('faculty_user_id', $coSup->id)->where('supervisor_type', 'co')->exists()) {
+                    $student->supervisors()->syncWithoutDetaching([$coSup->id => ['supervisor_type' => 'co']]);
                 }
 
                 // Attach External Supervisor (realistic sample assignments)
@@ -329,14 +332,9 @@ class DatabaseSeeder extends Seeder
                     $student->externalSupervisors()->syncWithoutDetaching([$extSupUsers[0]->id]);
                 }
 
-                // Attach PSPC Members
-                if (!$student->pspcMembers()->where('faculty_user_id', $pspc1->id)->exists()) {
-                    $student->pspcMembers()->attach($pspc1->id);
-                }
-
-                if ($pspc2->id !== $pspc1->id && !$student->pspcMembers()->where('faculty_user_id', $pspc2->id)->exists()) {
-                    $student->pspcMembers()->attach($pspc2->id);
-                }
+                // Attach PSPC Members (PSPC 1 and PSPC 2)
+                $pspcIds = array_values(array_unique(array_filter([$pspc1?->id, $pspc2?->id])));
+                $student->pspcMembers()->sync($pspcIds);
             }
         }
 

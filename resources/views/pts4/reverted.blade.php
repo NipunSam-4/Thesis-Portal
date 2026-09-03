@@ -71,16 +71,27 @@
                 </h3>
 
                 @php
-                    $hasCoSigs = false;
-                    for ($i = 1; $i <= 10; $i++) {
+                    $revertedCoSupervisors = [];
+                    foreach ($coSupervisors as $i => $coUser) {
                         $recCol = "co_supervisor_{$i}_recommendation";
+                        $studComCol = "co_supervisor_{$i}_student_comment";
+                        $remCol = "co_supervisor_{$i}_confidential_remark";
                         if (!is_null($pts4->$recCol)) {
-                            $hasCoSigs = true;
-                            break;
+                            $isExt = $coUser->isExternalSupervisor();
+                            $revertedCoSupervisors[] = [
+                                'slot' => $i,
+                                'user' => $coUser,
+                                'roleTitle' => $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}"),
+                                'inst' => ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '',
+                                'recommended' => (bool)$pts4->$recCol,
+                                'studentComment' => $pts4->$studComCol,
+                                'remark' => $pts4->$remCol,
+                            ];
                         }
                     }
+
                     $hasAnyComment = !is_null($pts4->main_supervisor_recommendation)
-                        || $hasCoSigs
+                        || !empty($revertedCoSupervisors)
                         || !is_null($pts4->academic_office_is_verified)
                         || !is_null($pts4->dr_approval);
                 @endphp
@@ -94,11 +105,9 @@
                                     <span class="font-bold text-indigo-900 dark:text-indigo-200">
                                         Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
                                     </span>
-                                    @if(!is_null($pts4->main_supervisor_recommendation))
-                                        <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts4->main_supervisor_recommendation ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                            {{ $pts4->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                        </span>
-                                    @endif
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts4->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
                                 </div>
                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                                     <strong>Student Comment:</strong>
@@ -106,64 +115,49 @@
                                 </div>
 
                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                    <strong>Main Supervisor Remark:</strong>
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$pts4->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
                                 </div>
                             </x-role-card>
                         @endif
 
                         <!-- Co-Supervisors Endorsements -->
-                        @if($hasCoSigs)
+                        @if(!empty($revertedCoSupervisors))
                             <x-role-card role="co_supervisor">
                                 <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
-                                @for($i = 1; $i <= 10; $i++)
-                                    @php
-                                        $idCol = "co_supervisor_{$i}_id";
-                                        $recCol = "co_supervisor_{$i}_recommendation";
-                                        $studComCol = "co_supervisor_{$i}_student_comment";
-                                        $remCol = "co_supervisor_{$i}_confidential_remark";
-                                        $coUser = $coSupervisors[$i] ?? null;
-                                    @endphp
-                                    @if($coUser && !is_null($pts4->$recCol))
-                                        @php
-                                            $isExt = $coUser->isExternalSupervisor();
-                                            $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
-                                            $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
-                                        @endphp
-                                        <div class="text-xs space-y-1.5 pt-1.5 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                            <div class="flex items-center justify-between text-sm font-bold gap-2 sm:gap-4">
-                                                <span class="text-gray-800 dark:text-gray-200">
-                                                    {{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:
-                                                </span>
-                                                <span class="px-2.5 py-1 rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts4->$recCol ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                                    {{ $pts4->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                                </span>
-                                            </div>
-
-                                            <div class="space-y-1">
-                                                <strong>Student Comment:</strong>
-                                                <x-feedback-box :text="$pts4->$studComCol" fallback="Comment not provided" role="co_supervisor" />
-                                            </div>
-
-                                            <div class="space-y-1">
-                                                <strong>{{ $roleTitle }} Remark:</strong>
-                                                <x-feedback-box :text="$pts4->$remCol" fallback="Remark not provided" role="co_supervisor" />
-                                            </div>
+                                @foreach($revertedCoSupervisors as $index => $co)
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                        <div class="flex items-center justify-between text-sm font-bold gap-2 sm:gap-4">
+                                            <span class="text-gray-800 dark:text-gray-200">
+                                                {{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:
+                                            </span>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
                                         </div>
-                                    @endif
-                                @endfor
+
+                                        <div class="space-y-1">
+                                            <strong>Student Comment:</strong>
+                                            <x-feedback-box :text="$co['studentComment']" fallback="Comment not provided" role="co_supervisor" />
+                                        </div>
+
+                                        <div class="space-y-1">
+                                            <strong>Confidential Remark:</strong>
+                                            <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                        </div>
+                                    </div>
+                                @endforeach
                             </x-role-card>
                         @endif
 
                         <!-- Academic Office Endorsement -->
                         @if(!is_null($pts4->academic_office_is_verified))
-                            <x-role-card role="academic_office">
-                                <div class="flex items-center justify-between font-bold text-violet-900 dark:text-violet-200 gap-2 sm:gap-4">
-                                    <h5 class="text-s">Academic Office</h5>
-                                    <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts4->academic_office_is_verified ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
+                            <x-role-card role="academic_office" title="Academic Office">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->academic_office_is_verified ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $pts4->academic_office_is_verified ? '✓ Verified & Forwarded' : '❌ Verification Failed' }}
                                     </span>
-                                </div>
+                                </x-slot:badge>
 
                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                                     <strong>Verification Remark:</strong>
@@ -174,22 +168,21 @@
 
                         <!-- DR Approval -->
                         @if(!is_null($pts4->dr_approval))
-                            <x-role-card role="dr">
-                                <div class="flex items-center justify-between text-s font-bold text-fuchsia-900 dark:text-fuchsia-200 gap-2 sm:gap-4">
-                                    <span>Dean of Research (DR)</span>
-                                    <span class="px-2.5 py-1 font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[140px] sm:max-w-none {{ $pts4->dr_approval ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300' }}">
-                                        {{ $pts4->dr_approval ? '✓ Approved' : '❌ Not Approved' }}
+                            <x-role-card role="dr" title="Deputy Registrar (DR)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->dr_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts4->dr_approval ? '✓ Approved' : '❌ Rejected' }}
                                         @if($pts4->approvedBy)
                                             by: {{ $pts4->approvedBy->email }}
                                         @endif
                                     </span>
-                                </div>
+                                </x-slot:badge>
                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                                     <strong>Student Comment:</strong>
                                     <x-feedback-box :text="$pts4->dr_student_comment" fallback="Comment not provided" role="dr" />
                                 </div>
                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                    <strong>DR Remark:</strong>
+                                    <strong>Confidential Remark:</strong>
                                     <x-feedback-box :text="$pts4->dr_confidential_remark" fallback="Remark not provided" role="dr" />
                                 </div>
                             </x-role-card>

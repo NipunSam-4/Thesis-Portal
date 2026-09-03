@@ -139,7 +139,7 @@ class Pts4Form extends Model
             return [];
         }
 
-        $users = User::whereIn('id', array_values($ids))->get()->keyBy('id');
+        $users = User::with('externalSupervisorProfile')->whereIn('id', array_values($ids))->get()->keyBy('id');
 
         $result = [];
         foreach ($ids as $slot => $userId) {

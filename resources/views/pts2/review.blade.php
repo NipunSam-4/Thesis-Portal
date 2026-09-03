@@ -82,8 +82,10 @@
                     <!-- Main Supervisor Evaluation -->
                     @if($pts2->hasPassedStage('main_supervisor'))
                         <x-role-card role="main_supervisor">
-                            <div class="flex items-center justify-between font-bold text-indigo-900 dark:text-indigo-200 gap-2 sm:gap-4">
-                                <span class="text-sm font-bold">Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif</span>
+                            <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
+                                <span class="font-bold text-indigo-900 dark:text-indigo-200">
+                                    Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
+                                </span>
                                 @if(!is_null($pts2->main_supervisor_recommendation))
                                     <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $pts2->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
@@ -95,65 +97,57 @@
                                 <x-feedback-box :text="$pts2->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Recommendation Remark:</strong>
+                                <strong>Confidential Remark:</strong>
                                 <x-feedback-box :text="$pts2->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
                             </div>
                         </x-role-card>
                     @endif
 
-                    <!-- Co-Supervisors Recommendations (Slots 1..10) -->
+                    <!-- Co-Supervisors Recommendations -->
                     @php
                         $passedCoSupervisors = $pts2->hasPassedStage('co_supervisors');
-                        $hasAnyCoRecommended = false;
-                        for ($i = 1; $i <= 10; $i++) {
-                            $idCol = "co_supervisor_{$i}_id";
+                        $activeCoSupervisors = [];
+                        foreach ($coSupervisors as $i => $coUser) {
                             $remCol = "co_supervisor_{$i}_confidential_remark";
                             $recCol = "co_supervisor_{$i}_recommendation";
                             $comCol = "co_supervisor_{$i}_student_comment";
-                            if ($pts2->$idCol && (!is_null($pts2->$remCol) || !is_null($pts2->$recCol) || !is_null($pts2->$comCol) || $passedCoSupervisors)) {
-                                $hasAnyCoRecommended = true;
-                                break;
+                            if (!is_null($pts2->$remCol) || !is_null($pts2->$recCol) || !is_null($pts2->$comCol) || $passedCoSupervisors) {
+                                $isExt = $coUser->isExternalSupervisor();
+                                $activeCoSupervisors[] = [
+                                    'slot' => $i,
+                                    'user' => $coUser,
+                                    'roleTitle' => $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}"),
+                                    'inst' => ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '',
+                                    'recommended' => (bool)$pts2->$recCol,
+                                    'studentComment' => $pts2->$comCol,
+                                    'remark' => $pts2->$remCol,
+                                ];
                             }
                         }
                     @endphp
 
-                    @if($hasAnyCoRecommended)
+                    @if(!empty($activeCoSupervisors))
                         <x-role-card role="co_supervisor">
                             <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
                             
-                            @for($i = 1; $i <= 10; $i++)
-                                @php
-                                    $idCol = "co_supervisor_{$i}_id";
-                                    $recCol = "co_supervisor_{$i}_recommendation";
-                                    $remCol = "co_supervisor_{$i}_confidential_remark";
-                                    $comCol = "co_supervisor_{$i}_student_comment";
-                                    $coUser = $coSupervisors[$i] ?? null;
-                                @endphp
-
-                                @if($coUser && (!is_null($pts2->$remCol) || !is_null($pts2->$recCol) || !is_null($pts2->$comCol) || $passedCoSupervisors))
-                                    @php
-                                        $isExt = $coUser->isExternalSupervisor();
-                                        $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
-                                        $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
-                                    @endphp
-                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $i > 1 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                        <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
-                                            <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
-                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $pts2->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                                {{ $pts2->$recCol ? '✓ Recommended' : '❌ Not Recommended' }}
-                                            </span>
-                                        </div>
-                                        <div class="space-y-1">
-                                            <strong>Student Comment:</strong>
-                                            <x-feedback-box :text="$pts2->$comCol" fallback="Comment not provided" role="co_supervisor" />
-                                        </div>
-                                        <div class="space-y-1">
-                                            <strong>Recommendation Remark:</strong>
-                                            <x-feedback-box :text="$pts2->$remCol" fallback="Remark not provided" role="co_supervisor" />
-                                        </div>
+                            @foreach($activeCoSupervisors as $index => $co)
+                                <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                    <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <span>{{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:</span>
+                                        <span class="font-bold whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
                                     </div>
-                                @endif
-                            @endfor
+                                    <div class="space-y-1">
+                                        <strong>Student Comment:</strong>
+                                        <x-feedback-box :text="$co['studentComment']" fallback="Comment not provided" role="co_supervisor" />
+                                    </div>
+                                    <div class="space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                    </div>
+                                </div>
+                            @endforeach
                         </x-role-card>
                     @endif
 
@@ -163,13 +157,12 @@
                             $academicOfficeCredits = $pts2->academic_office_course_credits;
                             $academicOfficeRemark = $pts2->academic_office_verification_remark;
                         @endphp
-                        <x-role-card role="academic_office">
-                            <div class="flex items-center justify-between font-bold text-violet-900 dark:text-violet-200 gap-2 sm:gap-4">
-                                <h5 class="text-sm font-bold">Academic Office</h5>
+                        <x-role-card role="academic_office" title="Academic Office">
+                            <x-slot:badge>
                                 <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
                                     ✓ Verified &amp; Forwarded
                                 </span>
-                            </div>
+                            </x-slot:badge>
                             @if($academicOfficeCredits !== null)
                                 <div class="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
                                     <strong>Verified Course Credits:</strong> <span class="font-bold text-violet-700 dark:text-violet-300">{{ $academicOfficeCredits }}</span>
@@ -185,22 +178,21 @@
 
                     <!-- DOAA Approval -->
                     @if($pts2->hasPassedStage('doaa'))
-                        <x-role-card role="doaa">
-                            <div class="flex items-center justify-between font-bold text-purple-900 dark:text-purple-200 gap-2 sm:gap-4">
-                                <h5 class="text-sm font-bold">Dean of Academic Affairs (DOAA)</h5>
+                        <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                            <x-slot:badge>
                                 <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts2->doaa_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Not Approved' }}
+                                    {{ $pts2->doaa_approval ? '✓ Approved' : '❌ Rejected' }}
                                     @if($pts2->approvedBy)
                                         by: {{ $pts2->approvedBy->email }}
                                     @endif
                                 </span>
-                            </div>
+                            </x-slot:badge>
                             <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                                 <strong>Student Comment:</strong>
                                 <x-feedback-box :text="$pts2->doaa_student_comment" fallback="Comment not provided" role="doaa" />
                             </div>
                             <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>DOAA Remark:</strong>
+                                <strong>Confidential Remark:</strong>
                                 <x-feedback-box :text="$pts2->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
                             </div>
                         </x-role-card>
@@ -218,70 +210,8 @@
                         </h3>
 
                         <!-- Stage-Specific Evaluation Inputs -->
-                        @if($pts2->current_stage === 'main_supervisor')
-                            <!-- Declarations Review & Confirmation by Main Supervisor -->
-                            <div class="space-y-4 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/40 dark:bg-indigo-950/20">
-                                <label class="block font-bold text-indigo-900 dark:text-indigo-200 text-sm">
-                                    Declarations &amp; Certifications Review (Pre-filled from Student Submission): <span class="text-red-500">*</span>
-                                </label>
-
-                                <!-- 1. Prima Facie Case -->
-                                <label class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-start space-x-3 cursor-pointer">
-                                    <input type="checkbox" name="cert_prima_facie_case" value="1" required x-model="certPrimaFacieCase" class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-4 h-4">
-                                    <div>
-                                        <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
-                                            1. Prima Facie Case
-                                        </span>
-                                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
-                                            There is a prima facie case for consideration of the thesis.
-                                        </p>
-                                    </div>
-                                </label>
-
-                                <!-- 2. No Prior Degree Submission -->
-                                <label class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-start space-x-3 cursor-pointer">
-                                    <input type="checkbox" name="cert_no_prior_degree_submission" value="1" required x-model="certNoPriorDegreeSubmission" class="mt-1 text-emerald-600 focus:ring-emerald-500 rounded w-4 h-4">
-                                    <div>
-                                        <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
-                                            2. No Prior Degree Submission
-                                        </span>
-                                        <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
-                                            To the best of our knowledge the thesis does not include any work which has, at any time, previously, been submitted for the award of a degree except to the extent of point 3 below.
-                                        </p>
-                                    </div>
-                                </label>
-
-                                <!-- 3. Collaborative Work -->
-                                <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 space-y-3">
-                                    <label class="flex items-start space-x-3 cursor-pointer">
-                                        <input type="checkbox" name="collaborative_work_status" value="1" x-model="collaborativeWorkStatus" class="mt-1 text-indigo-600 focus:ring-indigo-500 rounded w-4 h-4">
-                                        <div>
-                                            <span class="block font-bold text-xs text-gray-900 dark:text-white uppercase tracking-wide">
-                                                3. Collaborative Work
-                                            </span>
-                                            <p class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">
-                                                Does any section of the Thesis relate to collaborative work? (Check if Yes)
-                                            </p>
-                                        </div>
-                                    </label>
-
-                                    <div x-show="collaborativeWorkStatus" class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
-                                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                                            Collaborative Work Details <span class="text-red-500">*</span>
-                                        </label>
-                                        <textarea name="collaborative_work_details" rows="3" :required="collaborativeWorkStatus" x-model="collaborativeWorkDetails" placeholder="Specify parts of the thesis that relate to collaborative work" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-xs"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <x-recommendation-block 
-                                label="Recommendation Status for Student Synopsis Submission"
-                                form-type="pts2"
-                                role="main_supervisor"
-                                remark-rows="3"
-                                :remark-value="old('confidential_remark')" />
-
-                            <x-student-comment-input :value="old('student_comment')" />
-                        @elseif($pts2->current_stage === 'academic_office')
+                        
+                    @if($pts2->current_stage === 'academic_office')
                             <div class="space-y-6">
                                 <!-- Course Credits Side-by-Side Comparison -->
                                 <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 space-y-3">

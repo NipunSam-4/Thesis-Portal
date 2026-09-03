@@ -72,6 +72,26 @@
             <x-readonly-input :value="$pts4->alternate_email ?: ($student->alternate_email ?: 'N/A')" />
         </div>
 
+        <div class="md:col-span-3">
+            <x-readonly-label value="Main Supervisor" />
+            <x-readonly-input :value="$student?->mainSupervisors?->pluck('name')->join(', ') ?: ($student?->supervisors?->first()?->name ?? 'Not Assigned')" />
+        </div>
+
+        <div class="md:col-span-3">
+            <x-readonly-label value="Co-Supervisor(s)" />
+            <x-readonly-input :value="$student?->coSupervisors?->pluck('name')->join(', ') ?: 'None'" />
+        </div>
+
+        <div class="md:col-span-3">
+            <x-readonly-label value="External Supervisor(s)" />
+            @php
+                $extSupText = ($student && $student->externalSupervisors->isNotEmpty())
+                    ? $student->externalSupervisors->map(fn($s) => $s->name . ($s->externalSupervisorProfile?->affiliated_institute ? ' (' . $s->externalSupervisorProfile->affiliated_institute . ')' : ''))->join(', ')
+                    : 'None';
+            @endphp
+            <x-readonly-input :value="$extSupText" />
+        </div>
+
         <div>
             <x-readonly-label value="Date of Submission" />
             <x-readonly-input :value="$pts4->created_at ? $pts4->created_at->format('d-m-Y') : 'N/A'" />

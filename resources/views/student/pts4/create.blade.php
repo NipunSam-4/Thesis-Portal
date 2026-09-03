@@ -114,6 +114,26 @@
                             <x-readonly-label value="Recent Contact No." />
                             <x-readonly-input :value="$student->phone_number ? (($student->phone_country_code ?? '+91') . ' ' . $student->phone_number) : 'N/A'" />
                         </div>
+
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="Main Supervisor" />
+                            <x-readonly-input :value="$student->mainSupervisors->pluck('name')->join(', ') ?: ($student->supervisors->first()?->name ?? 'Not Assigned')" />
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="Co-Supervisor(s)" />
+                            <x-readonly-input :value="$student->coSupervisors->pluck('name')->join(', ') ?: 'None'" />
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <x-readonly-label value="External Supervisor(s)" />
+                            @php
+                                $extSupText = $student->externalSupervisors->isNotEmpty()
+                                    ? $student->externalSupervisors->map(fn($s) => $s->name . ($s->externalSupervisorProfile?->affiliated_institute ? ' (' . $s->externalSupervisorProfile->affiliated_institute . ')' : ''))->join(', ')
+                                    : 'None';
+                            @endphp
+                            <x-readonly-input :value="$extSupText" />
+                        </div>
                     </div>
                 </div>
 
