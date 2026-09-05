@@ -230,6 +230,7 @@
         </div>
 
         <main class="flex-1">
+            <x-flash-alerts />
             {{ $slot }}
         </main>
         

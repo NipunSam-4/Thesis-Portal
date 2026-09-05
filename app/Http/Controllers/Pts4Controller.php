@@ -41,6 +41,9 @@ class Pts4Controller extends Controller
             ->first();
 
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
@@ -92,6 +95,9 @@ class Pts4Controller extends Controller
             ->first();
 
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'No active registered thesis found.');
         }
 
@@ -118,7 +124,14 @@ class Pts4Controller extends Controller
         $thesis = Thesis::where('student_id', $student->id)
             ->where('status', 'in_progress')
             ->with(['pts2Form', 'pts4Form', 'pts4Extension'])
-            ->firstOrFail();
+            ->first();
+
+        if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('error', 'This thesis has already been completed.');
+            }
+            return redirect()->route('student.dashboard')->with('error', 'Active registered thesis not found.');
+        }
 
         if (!$thesis->pts2Form || $thesis->pts2Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'Unauthorized: PTS-2 is not approved.');
@@ -394,6 +407,7 @@ class Pts4Controller extends Controller
 
                 if ($isRecommended) {
                     $this->ptsDocService->moveToApproved($pts4, 'pts4');
+                    $this->ptsDocService->generateThesisCertificate($pts4);
                 } else {
                     $this->ptsDocService->moveToRejected($pts4, 'pts4');
                 }
@@ -605,5 +619,43 @@ class Pts4Controller extends Controller
             'mainSupervisor',
             'coSupervisors'
         ));
+    }
+
+    /**
+     * Download the official Thesis Submission Certificate.
+     */
+    public function downloadCertificate(Pts4Form $pts4)
+    {
+        $user = auth()->user();
+        $thesis = $pts4->thesis;
+        $student = $thesis?->student;
+
+        // Authorization: student owner, faculty, authority, or admin
+        $isOwner = $student && $student->user_id === $user?->id;
+        $isStaffOrAuth = $user && ($user->isFaculty() || $user->isHod() || $user->isDpgc() || $user->isGlobalAuthority() || $user->isActingApprovalAuthority()) || auth('admin')->check();
+
+        if (!$isOwner && !$isStaffOrAuth) {
+            abort(403, 'Unauthorized access to thesis certificate.');
+        }
+
+        if ($pts4->status !== 'approved') {
+            abort(404, 'Thesis certificate is only available for approved PTS-4 submissions.');
+        }
+
+        // Generate certificate if not already created
+        if (!$pts4->thesis_certificate_doc_path || !\Illuminate\Support\Facades\Storage::disk('local')->exists($pts4->thesis_certificate_doc_path)) {
+            $this->ptsDocService->generateThesisCertificate($pts4);
+            $pts4->refresh();
+        }
+
+        $filePath = $pts4->thesis_certificate_doc_path;
+        if (!$filePath || !\Illuminate\Support\Facades\Storage::disk('local')->exists($filePath)) {
+            abort(404, 'Thesis certificate file not found.');
+        }
+
+        $rollNumber = $student?->roll_number ?? 'Student';
+        $downloadFilename = "{$rollNumber}_Thesiscerificate.pdf";
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->download($filePath, $downloadFilename);
     }
 }

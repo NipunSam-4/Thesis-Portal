@@ -36,7 +36,7 @@
 <div {{ $attributes->merge(['class' => $themes[$role] ?? $themes['main_supervisor']]) }}>
     @if($title)
         <div class="flex items-center justify-between font-bold gap-2 sm:gap-4">
-            <h5 class="text-sm font-bold {{ $titleColor }}">
+            <h5 class="text-base font-bold {{ $titleColor }}">
                 {{ $title }}
             </h5>
             {{ $badge ?? '' }}

@@ -433,7 +433,7 @@ class Thesis extends Model
 
         $roleLabel = self::getStageLabel($role);
         $name = $user?->name;
-        return $roleLabel . ($name ? " ({$name})" : '');
+        return $roleLabel;
     }
 
     // Get the standardized timeline item for a reverted form.

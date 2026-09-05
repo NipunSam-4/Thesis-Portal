@@ -22,6 +22,8 @@ class Student extends Model
         'course_credits_earned',
         'course_credits_required',
         'roll_number',
+        'date_joining',
+        'date_registration',
         'date_confirmation',
         'phone_number',
         'phone_country_code',
@@ -589,6 +591,19 @@ class Student extends Model
         // 3.1 PTS-3 Action Check
         if ($pts3 && $pts3->status === 'in_progress') {
             $pts3NeedsAction = false;
+            if ((!$roleFilter || $roleFilter === 'main') && $pts3->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                $pts3NeedsAction = true;
+            }
+            if ((!$roleFilter || $roleFilter === 'co') && $pts3->current_stage === 'co_supervisors') {
+                for ($i = 1; $i <= 10; $i++) {
+                    $idCol = "co_supervisor_{$i}_id";
+                    $recCol = "co_supervisor_{$i}_recommendation";
+                    if ($pts3->$idCol && (int)$pts3->$idCol === (int)$user->id && is_null($pts3->$recCol)) {
+                        $pts3NeedsAction = true;
+                        break;
+                    }
+                }
+            }
             if ((!$roleFilter || $roleFilter === 'dpgc') && $pts3->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
                 $pts3NeedsAction = true;
             }
@@ -608,8 +623,11 @@ class Student extends Model
             if ($pts3NeedsAction) {
                 $items[] = "{$prefix}-3";
             }
-        } elseif (($pts3 && $pts3->status === 'reverted') && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
+        } elseif (($pts3 && in_array($pts3->status, ['reverted', 'rejected'])) && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
             // Main supervisor action to initiate or resubmit PTS-3
+            $items[] = "{$prefix}-3";
+        } elseif (!$pts3 && $pts2Approved && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
+            // Main supervisor action to initiate PTS-3 after PTS-2 is approved
             $items[] = "{$prefix}-3";
         }
 

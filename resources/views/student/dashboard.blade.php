@@ -94,13 +94,18 @@
                         <div class="space-y-3">
                             @if($activeThesis && $activeThesis->status === 'completed')
                                 <!-- Notice when thesis is completed -->
-                                <div class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                                    <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 mb-1 flex items-center">
+                                <div class="p-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl space-y-2">
+                                    <div class="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center">
                                         <span class="mr-1.5">✓</span> Thesis Completed
                                     </div>
                                     <p class="text-[11px] text-emerald-700 dark:text-emerald-300">
                                         Your thesis has been successfully completed and approved.
                                     </p>
+                                    @if($pts4Form && $pts4Form->status === 'approved')
+                                        <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" class="inline-flex items-center justify-center w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
+                                            <span>📄 Download Thesis Certificate</span>
+                                        </a>
+                                    @endif
                                 </div>
                             @elseif($activeThesis && $activeThesis->status === 'in_progress')
                                 <!-- Notice when an active thesis is in progress -->
@@ -171,10 +176,35 @@
                 </div>
 
                 <!-- Right Main Content: Academic Milestones Grid -->
-                <div class="md:col-span-2 space-y-6">
+                <div class="md:col-span-2 space-y-6" x-data="{ thesisMainTab: 'active' }">
 
-                    <!-- Past Rejected Theses Collapsible Component -->
-                    <x-past-rejected-theses :rejectedTheses="$rejectedTheses" :student="$student" />
+                    <!-- Top Tabs: In Progress / Approved vs Rejected -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xs border border-gray-200 dark:border-gray-700 p-1.5 flex gap-2">
+                        <button type="button" @click="thesisMainTab = 'active'" :class="thesisMainTab === 'active' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                            <span>{{ ($activeThesis && $activeThesis->status === 'completed') ? 'Completed / Approved' : 'In Progress / Approved' }}</span>
+                        </button>
+                        <button type="button" @click="thesisMainTab = 'rejected'" :class="thesisMainTab === 'rejected' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium'" class="flex-1 py-2.5 px-4 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                            <span>Rejected</span>
+                            @if($rejectedTheses->isNotEmpty())
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">{{ $rejectedTheses->count() }}</span>
+                            @endif
+                        </button>
+                    </div>
+
+                    <!-- Rejected Tab Content -->
+                    <div x-show="thesisMainTab === 'rejected'" x-cloak class="space-y-6">
+                        @if($rejectedTheses->isEmpty())
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xs border border-gray-200 dark:border-gray-700 p-8 text-center space-y-2">
+                                <h4 class="font-bold text-sm text-gray-900 dark:text-white">No Rejected Theses</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">You do not have any past rejected thesis submissions.</p>
+                            </div>
+                        @else
+                            <x-past-rejected-theses :rejectedTheses="$rejectedTheses" :student="$student" :openByDefault="true" :showPill="false" />
+                        @endif
+                    </div>
+
+                    <!-- In Progress / Approved Tab Content -->
+                    <div x-show="thesisMainTab === 'active'" class="space-y-6">
 
                     @if(!$activeThesis)
                         @if($rejectedTheses->isNotEmpty())
@@ -590,14 +620,6 @@
                                         <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                             Panel of Indian &amp; International Examiners and Oral Examination Board (OEB) recommendations.
                                         </p>
-
-                                        @if($pts3Form && $pts3Form->status === 'reverted')
-                                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs my-2">
-                                                <div class="font-bold text-amber-900 dark:text-amber-200">
-                                                    ⚠️ Reverted by {{ $pts3Form->getRevertedByRoleLabel() }}
-                                                </div>
-                                            </div>
-                                        @endif
                                     </div>
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
@@ -608,34 +630,22 @@
                                         @elseif($pts3Form && $pts3Form->status === 'approved')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-3 Form Approved</span>
-                                                <a href="{{ route('pts3.show', $pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Approved Form &rarr;
-                                                </a>
                                             </div>
                                         @elseif($pts3Form && $pts3Form->status === 'in_progress')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts3Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts3.show', $pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Submitted Form &rarr;
-                                                </a>
                                             </div>
                                         @elseif($pts3Form && $pts3Form->status === 'reverted')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <div class="text-[11px] text-amber-700 dark:text-amber-300 font-semibold py-1 leading-tight break-words">
                                                     ⚠️ Form Reverted to Main Supervisor
                                                 </div>
-                                                <a href="{{ route('pts3.show', $pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Submitted Form &rarr;
-                                                </a>
                                             </div>
                                         @elseif($pts3Form && $pts3Form->status === 'rejected')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-3 Form Rejected</span>
-                                                <a href="{{ route('pts3.show', $pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Rejected Form &rarr;
-                                                </a>
                                             </div>
                                         @else
                                             <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
@@ -690,10 +700,15 @@
                                                 Requires {{ $ptsPrefix }}-2 Approval
                                             </button>
                                         @elseif($pts4Form && $pts4Form->status === 'approved')
-                                            <div class="flex items-center justify-between gap-2 pt-1">
-                                                <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
-                                                <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                    View Approved Form &rarr;
+                                            <div class="space-y-2 pt-1">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
+                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                        View Approved Form &rarr;
+                                                    </a>
+                                                </div>
+                                                <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" class="inline-flex items-center justify-center w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
+                                                    <span>📄 Download Thesis Certificate</span>
                                                 </a>
                                             </div>
                                         @elseif($pts4Form && $pts4Form->status === 'in_progress')
@@ -1015,6 +1030,7 @@
                             </div>
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
         </div>

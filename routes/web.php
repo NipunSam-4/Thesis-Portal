@@ -25,6 +25,8 @@ Route::get('/', function () {
 
 // Profile, Dashboard Dispatcher
 Route::get('/dashboard', function () {
+    session()->reflash();
+
     if (auth('admin')->check()) {
         return redirect()->route('admin.dashboard');
     }
@@ -119,8 +121,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/faculty/pts3/store/{student}', [\App\Http\Controllers\Pts3Controller::class, 'store'])->name('faculty.pts3.store');
     Route::match(['post', 'put'], '/faculty/pts3/{pts3}/update', [\App\Http\Controllers\Pts3Controller::class, 'update'])->name('faculty.pts3.update');
 
-    // Single Universal Viewing & Evaluation Routes for PTS-3
+    // Universal Viewing & Evaluation Routes for PTS-3
     Route::get('/pts3/{pts3}/show', [\App\Http\Controllers\Pts3Controller::class, 'show'])->name('pts3.show');
+    Route::get('/pts3/{pts3}/review', [\App\Http\Controllers\Pts3Controller::class, 'review'])->name('pts3.review');
     Route::post('/pts3/{pts3}/endorse', [\App\Http\Controllers\Pts3Controller::class, 'endorse'])->name('pts3.endorse');
     Route::post('/pts3/{pts3}/revert', [\App\Http\Controllers\Pts3Controller::class, 'revert'])->name('pts3.revert');
 
@@ -144,6 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pts4/{pts4}/review', [Pts4Controller::class, 'review'])->name('pts4.review');
     Route::post('/pts4/{pts4}/review', [Pts4Controller::class, 'endorse'])->name('pts4.endorse');
     Route::post('/pts4/{pts4}/revert', [Pts4Controller::class, 'revert'])->name('pts4.revert');
+    Route::get('/pts4/{pts4}/certificate', [Pts4Controller::class, 'downloadCertificate'])->name('student.pts4.certificate');
 
 
     // ==========================================

@@ -82,6 +82,9 @@ class DraftSynopsisController extends Controller
 
         $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('error', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('error', 'Active thesis registration not found.');
         }
 

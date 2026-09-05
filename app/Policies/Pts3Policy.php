@@ -12,7 +12,7 @@ class Pts3Policy
      */
     public function view(User $user, Pts3Form $pts3): bool
     {
-        return $pts3->canUserViewForm($user);
+        return $pts3->canUserView($user);
     }
 
     /**

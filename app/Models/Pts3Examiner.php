@@ -24,4 +24,13 @@ class Pts3Examiner extends Model
     {
         return $this->belongsTo(Pts3Form::class);
     }
+
+    public function getFormattedPhoneNumber(): string
+    {
+        if (!$this->phone_number) {
+            return 'N/A';
+        }
+        $code = $this->phone_country_code ?: '+91';
+        return trim("{$code} {$this->phone_number}");
+    }
 }

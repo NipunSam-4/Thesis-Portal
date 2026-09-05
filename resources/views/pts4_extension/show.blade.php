@@ -35,16 +35,6 @@
                 </div>
             </div>
 
-            <!-- Flash Session Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('success') }}</span>
-                    </div>
-                </div>
-            @endif
-
             <!-- Section 1: Pre-filled Student Details -->
             @php
                 $student = $extension->thesis?->student;
@@ -225,7 +215,7 @@
                         @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
                             <x-role-card role="main_supervisor">
                                 <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                    <span class="font-bold text-sm text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                    <span class="font-bold text-base text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
                                     <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                                         {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
                                     </span>

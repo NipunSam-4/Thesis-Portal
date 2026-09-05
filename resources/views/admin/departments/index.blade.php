@@ -52,12 +52,6 @@
             <!-- Responsive Header Component -->
             <x-admin-header title="Department Management" description="Create, edit, and toggle active status for departments across the institute." />
 
-            @if(session('success'))
-                <div class="bg-green-50 text-green-700 p-4 rounded-lg shadow-sm border border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400 flex items-center">
-                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 01-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    {{ session('success') }}
-                </div>
-            @endif
             @if($errors->any())
                 <div class="bg-red-50 text-red-700 p-4 rounded-lg shadow-sm border border-red-200 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
                     {{ $errors->first() }}

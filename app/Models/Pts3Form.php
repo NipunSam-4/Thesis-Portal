@@ -13,7 +13,66 @@ class Pts3Form extends Model
 
     protected $table = 'pts3_forms';
 
-    protected $guarded = [];
+    protected $fillable = [
+    'thesis_id',
+    'thesis_title',
+    'current_stage',
+    'status',
+    'reverted_by_role',
+    'reverted_by_id',
+    'reversion_comment',
+
+    // Main Supervisor
+    'main_supervisor_recommendation',
+    'main_supervisor_submitted_at',
+
+    // Co-Supervisors (1 to 10)
+    'co_supervisor_1_id', 'co_supervisor_1_recommendation', 'co_supervisor_1_submitted_at',
+    'co_supervisor_2_id', 'co_supervisor_2_recommendation', 'co_supervisor_2_submitted_at',
+    'co_supervisor_3_id', 'co_supervisor_3_recommendation', 'co_supervisor_3_submitted_at',
+    'co_supervisor_4_id', 'co_supervisor_4_recommendation', 'co_supervisor_4_submitted_at',
+    'co_supervisor_5_id', 'co_supervisor_5_recommendation', 'co_supervisor_5_submitted_at',
+    'co_supervisor_6_id', 'co_supervisor_6_recommendation', 'co_supervisor_6_submitted_at',
+    'co_supervisor_7_id', 'co_supervisor_7_recommendation', 'co_supervisor_7_submitted_at',
+    'co_supervisor_8_id', 'co_supervisor_8_recommendation', 'co_supervisor_8_submitted_at',
+    'co_supervisor_9_id', 'co_supervisor_9_recommendation', 'co_supervisor_9_submitted_at',
+    'co_supervisor_10_id', 'co_supervisor_10_recommendation', 'co_supervisor_10_submitted_at',
+    'co_supervisors_submitted_at',
+
+    // DPGC & HOD
+    'dpgc_recommendation',
+    'dpgc_submitted_at',
+    'hod_recommendation',
+    'hod_submitted_at',
+
+    // Academic Office
+    'academic_office_is_verified',
+    'academic_office_verification_remark',
+    'academic_office_submitted_at',
+
+    // DOAA
+    'doaa_is_verified',
+    'doaa_verification_remark',
+    'doaa_submitted_at',
+
+    // Senate Chairperson
+    'senate_chairperson_approval',
+    'senate_chairperson_confidential_remark',
+    'senate_chairperson_approval_remark',
+    'senate_chairperson_submitted_at',
+
+    // Authority Snapshots & Vested DOAA Assignment
+    'main_supervisor_id',
+    'dpgc_user_id',
+    'hod_user_id',
+    'academic_office_user_id',
+    'doaa_user_id',
+    'senate_chairperson_user_id',
+    'acting_doaa_email',
+    'vested_doaa_email',
+    'approved_by_id',
+    ];
+
 
     protected $casts = [
         'main_supervisor_recommendation' => 'boolean',
@@ -62,11 +121,6 @@ class Pts3Form extends Model
         return $this->belongsTo(Thesis::class);
     }
 
-    public function student()
-    {
-        return $this->thesis->student();
-    }
-
     public function examiners(): HasMany
     {
         return $this->hasMany(Pts3Examiner::class);
@@ -74,28 +128,17 @@ class Pts3Form extends Model
 
     public function indianExaminers(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class)->where('examiner_type', 'indian');
+        return $this->hasMany(Pts3Examiner::class)->where('type', 'indian');
     }
 
     public function internationalExaminers(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class)->where('examiner_type', 'international');
+        return $this->hasMany(Pts3Examiner::class)->where('type', 'international');
     }
 
     public function oebMembers(): HasMany
     {
         return $this->hasMany(Pts3OebMember::class);
-    }
-
-    public function mainSupervisor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'main_supervisor_id');
-    }
-
-    public function getCoSupervisor(int $index): ?User
-    {
-        $id = $this->{"co_supervisor_{$index}_id"};
-        return $id ? User::find($id) : null;
     }
 
     /**
@@ -127,48 +170,6 @@ class Pts3Form extends Model
         return $result;
     }
 
-    public function dpgcUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'dpgc_user_id');
-    }
-
-    public function hodUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'hod_user_id');
-    }
-
-    public function academicOfficeUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'academic_office_user_id');
-    }
-
-    public function doaaUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'doaa_user_id');
-    }
-
-    public function senateChairpersonUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'senate_chairperson_user_id');
-    }
-
-    public function getStageLabelAttribute(): string
-    {
-        return Thesis::getStageLabel($this->current_stage);
-    }
-
-    // Accessor for human-readable status label mapped from Thesis.
-    // Usage in Blade: {{ $pts3Form->status_label }}
-    public function getStatusLabelAttribute(): string
-    {
-        return Thesis::getStatusLabel($this->status);
-    }
-
-    public function getRevertedByRoleLabel(): string
-    {
-        return Thesis::getRevertedByRoleLabel($this);
-    }
-
     // Numerical rank for role in PTS-3 workflow hierarchy.
     public static function getRoleRank(?string $role): int
     {
@@ -186,6 +187,85 @@ class Pts3Form extends Model
             'senate_chairperson' => 7,
             default => 999,
         };
+    }
+
+    /**
+     * Check if the form has passed or submitted a specific evaluation stage.
+     */
+    public function hasPassedStage(string $stage): bool
+    {
+        $currentRank = self::getRoleRank($this->current_stage);
+        $targetRank = self::getRoleRank($stage);
+
+        if ($currentRank > $targetRank) {
+            return true;
+        }
+
+        return match ($stage) {
+            'main_supervisor'    => !is_null($this->main_supervisor_submitted_at) && !is_null($this->main_supervisor_recommendation),
+            'co_supervisors'     => !is_null($this->co_supervisors_submitted_at),
+            'dpgc'               => !is_null($this->dpgc_submitted_at) && !is_null($this->dpgc_recommendation),
+            'hod'                => !is_null($this->hod_submitted_at) && !is_null($this->hod_recommendation),
+            'academic_office'    => !is_null($this->academic_office_submitted_at) && !is_null($this->academic_office_is_verified),
+            'doaa'               => !is_null($this->doaa_submitted_at) && !is_null($this->doaa_is_verified),
+            'senate_chairperson' => !is_null($this->senate_chairperson_submitted_at) && !is_null($this->senate_chairperson_approval),
+            default              => false,
+        };
+    }
+
+    public function canUserViewRevertedForm(?User $user): bool
+    {
+        if (!$user || $this->status !== 'reverted') {
+            return false;
+        }
+
+        if ($user->isStudent()) {
+            return false;
+        }
+
+        $reverterRole = $this->reverted_by_role;
+        if (!$reverterRole) {
+            return false;
+        }
+
+        $reverterRank = self::getRoleRank($reverterRole);
+
+        if ($user->isFaculty()) {
+            $isMain = ($this->main_supervisor_id === $user->id);
+            $isCo = false;
+            for ($i = 1; $i <= 10; $i++) {
+                if ($this->{"co_supervisor_{$i}_id"} === $user->id) {
+                    $isCo = true;
+                    break;
+                }
+            }
+
+            if ($isMain && $reverterRank >= 1) return true;
+            if ($isCo && $reverterRank >= 2) return true;
+            if ($user->isDpgc() && $reverterRank >= 3) return true;
+            if ($user->isHod() && $reverterRank >= 4) return true;
+        }
+
+        if ($user->isExternalSupervisor()) {
+            $isCo = false;
+            for ($i = 1; $i <= 10; $i++) {
+                if ($this->{"co_supervisor_{$i}_id"} === $user->id) {
+                    $isCo = true;
+                    break;
+                }
+            }
+            if ($isCo && $reverterRank >= 2) return true;
+        }
+
+        if ($user->isAcademicOffice() && $reverterRank >= 5) return true;
+        if (($user->isDoaa() || $user->isAdoaa()) && $reverterRank >= 6) return true;
+        if ($user->isSenateChairperson() && $reverterRank >= 7) return true;
+
+        if ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email) && $reverterRank >= 6) {
+            return true;
+        }
+
+        return false;
     }
 
     // Determine access status for in-progress PTS-3 submission: 'allowed', 'pending_endorsement', 'not_reached', or 'unauthorized'
@@ -327,59 +407,42 @@ class Pts3Form extends Model
         return $this->getUserSubmissionAccessStatus($user) === 'pending_endorsement';
     }
 
-    public function canUserViewRevertedForm(?User $user): bool
+    // Check if user is authorized to revert this form back to Main Supervisor
+    public function canUserRevert(?User $user): bool
     {
-        if (!$user || $this->status !== 'reverted') {
+        if (!$user || $this->status !== 'in_progress') {
             return false;
         }
 
-        if ($user->isStudent()) {
+        $stageRank = self::getRoleRank($this->current_stage);
+        if ($stageRank < 3) {
             return false;
         }
 
-        $reverterRole = $this->reverted_by_role;
-        if (!$reverterRole) {
-            return false;
-        }
+        return $this->canUserReview($user);
+    }
 
-        $reverterRank = self::getRoleRank($reverterRole);
+    public function getRevertedByRoleLabel(): string
+    {
+        return Thesis::getRevertedByRoleLabel($this);
+    }
 
-        if ($user->isFaculty()) {
-            $isMain = ($this->main_supervisor_id === $user->id);
-            $isCo = false;
-            for ($i = 1; $i <= 10; $i++) {
-                if ($this->{"co_supervisor_{$i}_id"} === $user->id) {
-                    $isCo = true;
-                    break;
-                }
-            }
+    // Get the reversion comment left by the reverting authority.
+    public function getReversionComment(): ?string
+    {
+        return $this->reversion_comment;
+    }
 
-            if ($isMain && $reverterRank >= 1) return true;
-            if ($isCo && $reverterRank >= 2) return true;
-            if ($user->isDpgc() && $reverterRank >= 3) return true;
-            if ($user->isHod() && $reverterRank >= 4) return true;
-        }
+    // Accessor for human-readable stage label mapped from Thesis.
+    public function getStageLabelAttribute(): string
+    {
+        return Thesis::getStageLabel($this->current_stage);
+    }
 
-        if ($user->isExternalSupervisor()) {
-            $isCo = false;
-            for ($i = 1; $i <= 10; $i++) {
-                if ($this->{"co_supervisor_{$i}_id"} === $user->id) {
-                    $isCo = true;
-                    break;
-                }
-            }
-            if ($isCo && $reverterRank >= 2) return true;
-        }
-
-        if ($user->isAcademicOffice() && $reverterRank >= 5) return true;
-        if (($user->isDoaa() || $user->isAdoaa()) && $reverterRank >= 6) return true;
-        if ($user->isSenateChairperson() && $reverterRank >= 7) return true;
-
-        if ($user->isActingApprovalAuthority() && ($this->acting_doaa_email === $user->email || $this->vested_doaa_email === $user->email) && $reverterRank >= 6) {
-            return true;
-        }
-
-        return false;
+    // Usage in Blade: {{ $pts3Form->status_label }}
+    public function getStatusLabelAttribute(): string
+    {
+        return Thesis::getStatusLabel($this->status);
     }
 
     /**
@@ -388,6 +451,41 @@ class Pts3Form extends Model
     public function getSubmittedTimeline(): array
     {
         return Thesis::getSubmissionTimeline($this);
+    }
+
+    public function revertedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reverted_by_id');
+    }
+
+    public function mainSupervisor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'main_supervisor_id');
+    }
+
+    public function dpgcUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dpgc_user_id');
+    }
+
+    public function hodUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'hod_user_id');
+    }
+
+    public function academicOfficeUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'academic_office_user_id');
+    }
+
+    public function doaaUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'doaa_user_id');
+    }
+
+    public function senateChairpersonUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'senate_chairperson_user_id');
     }
 
     public function approvedBy(): BelongsTo

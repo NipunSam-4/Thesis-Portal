@@ -1,18 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Thesis Management Portal') }}
-            </h2>
-            <div class="flex justify-between items-center">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                    @if($user->isDpgc()) DPGC Convener @endif
-                    @if($user->isHod()) HOD @endif
-                </span>
-                <x-profile_dropdown/>
-            </div>
-        </div>
-    </x-slot>
 
     <div class="py-8" x-data="{
         programTab: 'phd',
@@ -31,19 +17,6 @@
         }
     }">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
-
-            <!-- Flash Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('warning') }}
-                </div>
-            @endif
 
             <!-- Banner Header -->
             <div class="{{ $user->isDpgc() ? 'bg-purple-600 dark:bg-purple-900' : 'bg-indigo-700 dark:bg-indigo-900' }} rounded-xl shadow-sm p-6 text-white flex justify-between items-center">

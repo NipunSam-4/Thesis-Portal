@@ -64,14 +64,6 @@
             <!-- Navigation Back Button & Page Title Component -->
             <x-admin-header title="Students Management" description="Manage student accounts and view PTS/MSRTS form progress cards" />
 
-            <!-- Alerts -->
-            @if(session('success'))
-                <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-xl text-sm flex items-center shadow-sm">
-                    <svg class="w-5 h-5 mr-2 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-
             @if($errors->any())
                 <div class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 px-4 py-3 rounded-xl text-sm shadow-sm">
                     {{ $errors->first() }}

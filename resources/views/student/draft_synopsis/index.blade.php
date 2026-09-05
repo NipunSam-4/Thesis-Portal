@@ -16,19 +16,6 @@
                 </div>
             </div>
 
-            <!-- Success/Error Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold text-sm">
-                    {{ session('warning') }}
-                </div>
-            @endif
-
             @if($errors->any())
                 <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-sm font-semibold text-sm space-y-1">
                     @foreach($errors->all() as $error)
@@ -124,7 +111,7 @@
                             @foreach($comments as $comment)
                                 <x-role-card :role="$comment->authority_role ?? 'main_supervisor'" class="min-w-0 max-w-full">
                                     <div class="flex items-center justify-between text-xs gap-2 sm:gap-4 flex-wrap sm:flex-nowrap min-w-0">
-                                        <span class="font-bold text-sm min-w-0 break-words">
+                                        <span class="font-bold text-base min-w-0 break-words">
                                             @php
                                                 $label = $comment->authority_label;
                                                 $formattedLabel = preg_replace('/(\s*\([^)]+\))/', '<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">$1</span>', e($label));

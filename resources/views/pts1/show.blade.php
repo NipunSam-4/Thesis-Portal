@@ -40,43 +40,6 @@
                 </div>
             </div>
 
-            <!-- Flash Session Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-100 dark:bg-emerald-900/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('success') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-amber-100 dark:bg-amber-900/40 border-l-4 border-amber-500 text-amber-800 dark:text-amber-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('warning') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-100 dark:bg-red-900/40 border-l-4 border-red-500 text-red-800 dark:text-red-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('error') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('info'))
-                <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 rounded-xl shadow-sm flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">{{ session('info') }}</span>
-                    </div>
-                </div>
-            @endif
-
             <!-- Common Form Information Sections (1 to 5) -->
             @include('pts1.form_info', ['pts1' => $pts1])
 
@@ -98,8 +61,8 @@
                     <div class="space-y-4">
                         <!-- 1. Main Supervisor Evaluation -->
                         <x-role-card role="main_supervisor">
-                            <div class="flex items-center justify-between text-s gap-2 sm:gap-4">
-                                <span class="font-bold text-indigo-900 dark:text-indigo-200">
+                            <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
                                     Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
                                 </span>
                                 @if($pts1->work_status)
@@ -129,7 +92,7 @@
                         <!-- 2. Co-Supervisors Endorsements -->
                         @if($hasAnyCo && !$isStudent)
                             <x-role-card role="co_supervisor">
-                                <h5 class="text-sm font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
                                 @foreach($coSupervisors as $i => $coUser)
                                     @php
                                         $recCol = "co_supervisor_{$i}_recommendation";
@@ -139,7 +102,7 @@
                                         $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
                                     @endphp
                                     <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                        <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
                                             <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
                                             @if(!is_null($pts1->$recCol))
                                                 <span class="font-bold whitespace-nowrap shrink-0 {{ $pts1->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
@@ -159,14 +122,14 @@
                         <!-- 3. PSPC Committee Endorsements -->
                         @if($hasAnyPspc && !$isStudent)
                             <x-role-card role="pspc">
-                                <h5 class="text-sm font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
+                                <h5 class="text-base font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
                                 @foreach($pspcMembers as $i => $pspcUser)
                                     @php
                                         $recCol = "pspc_member_{$i}_recommendation";
                                         $remCol = "pspc_member_{$i}_confidential_remark";
                                     @endphp
                                     <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-cyan-100 dark:border-cyan-900' : '' }}">
-                                        <div class="flex items-center justify-between font-semibold gap-2 sm:gap-4">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
                                             <span>PSPC Member {{ $i }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspcUser->name }})</span>:</span>
                                             @if(!is_null($pts1->$recCol))
                                                 <span class="font-bold whitespace-nowrap shrink-0 {{ $pts1->$recCol ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">

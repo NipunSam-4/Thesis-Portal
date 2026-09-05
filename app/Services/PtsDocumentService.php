@@ -202,6 +202,7 @@ class PtsDocumentService
             'draft_synopsis_doc_path',
             'thesis_doc_path',
             'main_supervisor_thesis_doc_path',
+            'thesis_certificate_doc_path',
         ];
 
         $updatedAttributes = [];
@@ -266,5 +267,93 @@ class PtsDocumentService
         if (!empty($updatedAttributes)) {
             $form->update($updatedAttributes);
         }
+
+        // 3. Check examiner consent documents for PTS-3 forms
+        if ($form instanceof \App\Models\Pts3Form || method_exists($form, 'examiners')) {
+            $examiners = $form->examiners ?? [];
+            foreach ($examiners as $examiner) {
+                if ($examiner->consent_doc_path) {
+                    $oldPath = $examiner->consent_doc_path;
+                    if ($disk->exists($oldPath) && strpos($oldPath, $targetDir) === false) {
+                        if (!$disk->exists($targetDir)) {
+                            $disk->makeDirectory($targetDir);
+                        }
+                        $filename = basename($oldPath);
+                        $newPath = "{$targetDir}/{$filename}";
+
+                        if (strpos($oldPath, '/reverted/') !== false || strpos($oldPath, '/rejected/') !== false || strpos($oldPath, '/approved/') !== false) {
+                            $disk->copy($oldPath, $newPath);
+                        } else {
+                            try {
+                                $disk->move($oldPath, $newPath);
+                            } catch (\Throwable $e) {
+                                $disk->copy($oldPath, $newPath);
+                            }
+                        }
+                        $examiner->update(['consent_doc_path' => $newPath]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Generate official Thesis Submission Certificate PDF for an approved PTS-4 form.
+     * Path: students/{rollNumber}/thesis_{thesisId}/pts4/approved/{rollNumber}_Thesiscerificate.pdf
+     */
+    public function generateThesisCertificate(\App\Models\Pts4Form $pts4): string
+    {
+        $disk = Storage::disk('local');
+        $thesis = $pts4->thesis;
+        $student = $thesis?->student;
+        $user = $student?->user;
+        $department = $student?->department;
+
+        $rollNumber = $student?->roll_number ?? 'N/A';
+        $thesisId = $thesis?->id ?? $pts4->thesis_id;
+        $studentName = $user?->name ?? 'Student';
+        $departmentName = $department?->name ?? 'N/A';
+        $thesisTitle = $pts4->main_supervisor_thesis_title ?: ($pts4->thesis_title ?: ($thesis?->title ?? 'N/A'));
+
+        // PTS-4 Submission date: student's submission date (created_at or submitted date)
+        $submissionDate = $pts4->created_at ? $pts4->created_at->format('j F Y') : now()->format('j F Y');
+
+        // Certificate Issue date: DR submission/approval date or now
+        $issueDate = $pts4->dr_submitted_at ? $pts4->dr_submitted_at->format('j F Y') : now()->format('j F Y');
+
+        // Header base64 image
+        $headerPath = public_path('images/iiti_certificate_header.png');
+        $headerBase64 = '';
+        if (file_exists($headerPath)) {
+            $headerBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($headerPath));
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.thesis_certificate', [
+            'rollNumber' => $rollNumber,
+            'studentName' => $studentName,
+            'departmentName' => $departmentName,
+            'thesisTitle' => $thesisTitle,
+            'submissionDate' => $submissionDate,
+            'issueDate' => $issueDate,
+            'headerBase64' => $headerBase64,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        $dir = "students/{$rollNumber}/thesis_{$thesisId}/pts4/approved";
+        if (!$disk->exists($dir)) {
+            $disk->makeDirectory($dir);
+        }
+
+        $filename = "{$rollNumber}_Thesiscerificate.pdf";
+        $storagePath = "{$dir}/{$filename}";
+
+        $disk->put($storagePath, $pdf->output());
+
+        $pts4->update([
+            'thesis_certificate_doc_path' => $storagePath,
+        ]);
+
+        return $storagePath;
     }
 }

@@ -16,6 +16,7 @@ class Pts4Form extends Model
         'thesis_id',
         'thesis_title',
         'thesis_doc_path',
+        'thesis_certificate_doc_path',
         'current_stage',
         'status',
         'reverted_by_role',

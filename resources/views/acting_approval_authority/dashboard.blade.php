@@ -25,19 +25,6 @@
     }">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
 
-            <!-- Flash Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('warning') }}
-                </div>
-            @endif
-
             <!-- Dynamic Header Card -->
             <div class="bg-gradient-to-r from-indigo-700 to-purple-800 rounded-xl shadow-sm p-6 text-white flex justify-between items-center">
                 <div>

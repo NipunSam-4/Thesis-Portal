@@ -1,4 +1,4 @@
-@props(['rejectedTheses', 'student' => null])
+@props(['rejectedTheses', 'student' => null, 'showPill' => true, 'openByDefault' => false])
 
 @php
     $student = $student ?? ($rejectedTheses->first()?->student ?? null);
@@ -7,26 +7,28 @@
 @endphp
 
 @if($rejectedTheses && $rejectedTheses->isNotEmpty())
-    <div x-data="{ openRejectedTheses: false }" class="space-y-3">
-        <!-- Top-Right Standalone Past Rejected Theses Collapsible Pill -->
-        <div class="flex justify-end">
-            <button 
-                type="button" 
-                @click="openRejectedTheses = !openRejectedTheses" 
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/70 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 text-xs font-semibold shadow-xs transition focus:outline-none cursor-pointer"
-            >
-                <span>Past rejected theses</span>
-                <span class="w-4 h-4 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 flex items-center justify-center text-[10px] font-bold">
-                    {{ $rejectedTheses->count() }}
-                </span>
-                <svg class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 transform transition-transform duration-200" :class="{ 'rotate-180': openRejectedTheses }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-        </div>
+    <div x-data="{ openRejectedTheses: {{ $openByDefault ? 'true' : 'false' }} }" class="space-y-3">
+        @if($showPill)
+            <!-- Top-Right Standalone Past Rejected Theses Collapsible Pill -->
+            <div class="flex justify-end">
+                <button 
+                    type="button" 
+                    @click="openRejectedTheses = !openRejectedTheses" 
+                    class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/70 dark:hover:bg-rose-900/80 border border-rose-200 dark:border-rose-800 text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 text-xs font-semibold shadow-xs transition focus:outline-none cursor-pointer"
+                >
+                    <span>Past rejected theses</span>
+                    <span class="w-4 h-4 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 flex items-center justify-center text-[10px] font-bold">
+                        {{ $rejectedTheses->count() }}
+                    </span>
+                    <svg class="w-3.5 h-3.5 text-rose-500 dark:text-rose-400 transform transition-transform duration-200" :class="{ 'rotate-180': openRejectedTheses }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
+        @endif
 
-        <!-- Expanded Content Body when Pill is Clicked -->
-        <div x-show="openRejectedTheses" x-transition x-cloak class="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900/40 space-y-4">
+        <!-- Content Body -->
+        <div @if($showPill) x-show="openRejectedTheses" x-transition x-cloak @endif class="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900/40 space-y-4">
             <div class="text-xs font-extrabold uppercase tracking-wider text-rose-800 dark:text-rose-300 flex items-center gap-2 pb-3 border-b border-rose-100 dark:border-gray-700">
                 <span> Past Rejected Theses History ({{ $rejectedTheses->count() }})</span>
             </div>

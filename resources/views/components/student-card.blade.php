@@ -98,11 +98,6 @@
 
     <!-- Expandable Student Breakdown -->
     <div x-show="expandedStudent === '{{ $cardKey }}'" x-cloak class="p-2 sm:p-5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-4 sm:space-y-5">
-        
-        <!-- Standalone Past Rejected Theses History Pill -->
-        @if($rejectedTheses && $rejectedTheses->isNotEmpty())
-            <x-past-rejected-theses :rejectedTheses="$rejectedTheses" :student="$student" />
-        @endif
 
         @if($thesis)
             <div class="p-2.5 sm:p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-4">
@@ -413,16 +408,48 @@
                                         Waiting for the Main Supervisor to Initiate
                                     </button>
                                 @endif
-                            @elseif($role === 'main' && $thesis->pts3Form->status === 'reverted' && $thesis->pts3Form->current_stage === 'main_supervisor')
-                                <a href="{{ route('faculty.pts3.edit', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    Edit Reverted {{ $ptsPrefix }}-3 Form &rarr;
-                                </a>
-                            @elseif(Gate::check('review', $thesis->pts3Form))
-                                <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                    Review & Endorse {{ $ptsPrefix }}-3 Form &rarr;
-                                </a>
-                            @elseif(Gate::check('view', $thesis->pts3Form))
-                                @if($thesis->pts3Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts3Form))
+                            @elseif($role === 'main')
+                                {{-- Main Supervisor Creator View --}}
+                                @if($thesis->pts3Form->status === 'reverted')
+                                    <a href="{{ route('faculty.pts3.edit', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                        Edit your {{ $ptsPrefix }}-3 Form &rarr;
+                                    </a>
+                                @elseif($thesis->pts3Form->status === 'rejected')
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between gap-2 pt-1">
+                                            <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-3 Form Rejected</span>
+                                            <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                View Rejected Form &rarr;
+                                            </a>
+                                        </div>
+                                        <div class="pt-2">
+                                            <a href="{{ route('faculty.pts3.create', $student->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                Create New {{ $ptsPrefix }}-3 Form &rarr;
+                                            </a>
+                                        </div>
+                                    </div>
+                                @elseif(Gate::check('view', $thesis->pts3Form))
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                        {{ $getBtnText($thesis->pts3Form->status) }} &rarr;
+                                    </a>
+                                @endif
+                            @else
+                                {{-- Other Authorities / Reviewers View --}}
+                                @if(Gate::check('review', $thesis->pts3Form))
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                        Review & Endorse {{ $ptsPrefix }}-3 Form &rarr;
+                                    </a>
+                                @elseif($thesis->pts3Form->status === 'reverted')
+                                    @if(Gate::check('viewReverted', $thesis->pts3Form))
+                                        <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                            View Reverted Form &rarr;
+                                        </a>
+                                    @else
+                                        <button disabled class="w-full text-center px-4 py-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold text-xs rounded-lg border border-amber-200 dark:border-amber-800 cursor-not-allowed">
+                                            Form Reverted to Main Supervisor
+                                        </button>
+                                    @endif
+                                @elseif(Gate::check('view', $thesis->pts3Form))
                                     <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts3Form->status) }} &rarr;
                                     </a>

@@ -37,6 +37,9 @@ class Pts1Controller extends Controller
         // Check if student has an active thesis with status in_progress
         $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
@@ -89,6 +92,9 @@ class Pts1Controller extends Controller
         // Check if student has an active thesis with status in_progress
         $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
@@ -112,6 +118,9 @@ class Pts1Controller extends Controller
 
         $thesis = $student->theses()->where('status', 'in_progress')->latest()->first();
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('error', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('error', 'Please register your thesis title on your dashboard first before submitting PTS-1.');
         }
 

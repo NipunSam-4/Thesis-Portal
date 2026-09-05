@@ -50,10 +50,20 @@ class PtsDocumentController extends Controller
             }
 
             $filePath = $form->{$field};
+        } elseif ($formType === 'pts3') {
+            if ($field === 'consent_doc') {
+                $examinerId = $request->query('examiner_id') ?: $id;
+                $examiner = \App\Models\Pts3Examiner::with('pts3Form.thesis.student')->findOrFail($examinerId);
+                $form = $examiner->pts3Form;
+                $thesis = $form?->thesis;
+                $filePath = $examiner->consent_doc_path;
+            } else {
+                abort(400, 'Invalid document type');
+            }
         } elseif ($formType === 'pts4') {
             $form = \App\Models\Pts4Form::with('thesis.student')->findOrFail($id);
             $thesis = $form->thesis;
-            $allowedFields = ['thesis_doc_path', 'main_supervisor_thesis_doc_path'];
+            $allowedFields = ['thesis_doc_path', 'main_supervisor_thesis_doc_path', 'thesis_certificate_doc_path'];
 
             if (!in_array($field, $allowedFields, true)) {
                 abort(400, 'Invalid document type');

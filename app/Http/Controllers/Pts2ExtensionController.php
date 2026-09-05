@@ -27,6 +27,9 @@ class Pts2ExtensionController extends Controller
 
         $thesis = $student->activeThesis;
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'You must have an active thesis registered to apply for PTS-2 extension.');
         }
 
@@ -71,6 +74,9 @@ class Pts2ExtensionController extends Controller
         $thesis = $student->activeThesis;
 
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('error', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('error', 'Active thesis not found.');
         }
 

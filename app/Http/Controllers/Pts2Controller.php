@@ -38,6 +38,9 @@ class Pts2Controller extends Controller
         $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->first();
 
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'Please register your thesis title first.');
         }
 
@@ -84,6 +87,9 @@ class Pts2Controller extends Controller
         $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form'])->first();
 
         if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('info', 'This thesis has already been completed.');
+            }
             return redirect()->route('student.dashboard')->with('warning', 'No active registered thesis found.');
         }
 
@@ -105,7 +111,14 @@ class Pts2Controller extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Student profile not found.');
         }
 
-        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form', 'pts2Extension'])->firstOrFail();
+        $thesis = Thesis::where('student_id', $student->id)->where('status', 'in_progress')->with(['pts1Form', 'pts2Form', 'pts2Extension'])->first();
+
+        if (!$thesis) {
+            if ($student->hasCompletedThesis()) {
+                return redirect()->route('student.dashboard')->with('error', 'This thesis has already been completed.');
+            }
+            return redirect()->route('student.dashboard')->with('error', 'Active registered thesis not found.');
+        }
 
         if (!$thesis->pts1Form || $thesis->pts1Form->status !== 'approved') {
             return redirect()->route('student.dashboard')->with('error', 'Unauthorized: PTS-1 is not approved.');
