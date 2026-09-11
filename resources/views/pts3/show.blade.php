@@ -67,12 +67,19 @@
             @endif
 
             <!-- Section 1: Read-Only Student Information -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                    1. Student Information
-                </h3>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ showStudentInfo: true }">
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span>1. Student Information</span>
+                    </h3>
+                    <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click.stop="showStudentInfo = !showStudentInfo">
+                        <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': !showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <x-readonly-label value="Student Name" />
                         <x-readonly-input :value="$studentUser->name ?? 'N/A'" />
@@ -347,6 +354,23 @@
                                     <strong>Verification Remark:</strong>
                                     <x-feedback-box :text="$pts3->academic_office_verification_remark" fallback="Remark not provided" role="academic_office" />
                                 </div>
+                                @if(Auth::user()?->isAcademicOffice())
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                        <strong>Assigned Acting DOAA:</strong>
+                                        @if(!empty($pts3->acting_doaa_email))
+                                            @php
+                                                $actingDoaaUser = \App\Models\User::where('email', $pts3->acting_doaa_email)->first();
+                                            @endphp
+                                            <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                {{ $actingDoaaUser->name ?? $pts3->acting_doaa_email }} ({{ $pts3->acting_doaa_email }})
+                                            </div>
+                                        @else
+                                            <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                None
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </x-role-card>
                         @endif
 

@@ -44,7 +44,7 @@
             </div>
 
             <!-- Common Form Information Sections (1 to 3) -->
-            @include('pts4.form-info', ['pts4' => $pts4])
+            @include('pts4.form_info', ['pts4' => $pts4])
 
             @php
                 $currentUser = $user ?? auth()->user();

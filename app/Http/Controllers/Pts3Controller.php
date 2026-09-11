@@ -409,6 +409,7 @@ class Pts3Controller extends Controller
                 case 'academic_office':
                     $pts3->academic_office_is_verified = true;
                     $pts3->academic_office_verification_remark = $request->input('academic_office_verification_remark');
+                    $pts3->acting_doaa_email = $request->filled('acting_doaa_email') ? $request->input('acting_doaa_email') : null;
                     $pts3->academic_office_submitted_at = now();
                     $pts3->academic_office_user_id = $user->id;
                     $pts3->current_stage = 'doaa';

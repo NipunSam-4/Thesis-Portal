@@ -76,7 +76,7 @@
                                 </div>
 
                                 <div class="pt-2 border-t border-slate-100 dark:border-gray-700">
-                                    <a href="{{ route('student.draft_synopsis.show', $rejThesis->draftSynopsisCirculation->id) }}" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
+                                    <a href="{{ route('student.draft_synopsis.show', $rejThesis->draftSynopsisCirculation->id) }}" target="_blank" class="block w-full text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow-sm transition">
                                         View Circulated Synopsis &amp; Comments &rarr;
                                     </a>
                                 </div>
@@ -111,12 +111,12 @@
                                     <div class="flex items-center justify-between gap-2 pt-1">
                                         @if($rejThesis->pts1Form->status === 'approved')
                                             <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-1 Form Fully Approved</span>
-                                            <a href="{{ route('pts1.show', $rejThesis->pts1Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts1.show', $rejThesis->pts1Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @else
                                             <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ {{ $ptsPrefix }}-1 Form Rejected</span>
-                                            <a href="{{ route('pts1.show', $rejThesis->pts1Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts1.show', $rejThesis->pts1Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @endif
@@ -161,7 +161,7 @@
                                             </div>
                                             <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                 <span>Extended Until: {{ ($rejThesis->pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                <a href="{{ route('pts2_extension.show', $rejThesis->pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Form &rarr;</a>
+                                                <a href="{{ route('pts2_extension.show', $rejThesis->pts2Extension->id) }}" target="_blank" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Form &rarr;</a>
                                             </div>
                                         </div>
                                     @endif
@@ -171,12 +171,12 @@
                                     <div class="flex items-center justify-between gap-2 pt-1">
                                         @if($rejThesis->pts2Form->status === 'approved')
                                             <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-2 Form Approved</span>
-                                            <a href="{{ route('pts2.show', $rejThesis->pts2Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts2.show', $rejThesis->pts2Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @else
                                             <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ {{ $ptsPrefix }}-2 Form Rejected</span>
-                                            <a href="{{ route('pts2.show', $rejThesis->pts2Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts2.show', $rejThesis->pts2Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @endif
@@ -213,12 +213,12 @@
                                     <div class="flex items-center justify-between gap-2 pt-1">
                                         @if($rejThesis->pts3Form->status === 'approved')
                                             <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-3 Form Approved</span>
-                                            <a href="{{ route('pts3.show', $rejThesis->pts3Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts3.show', $rejThesis->pts3Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Status &rarr;
                                             </a>
                                         @else
                                             <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ Form Rejected</span>
-                                            <a href="{{ route('pts3.show', $rejThesis->pts3Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts3.show', $rejThesis->pts3Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Status &rarr;
                                             </a>
                                         @endif
@@ -263,7 +263,7 @@
                                             </div>
                                             <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                 <span>Extended Until: {{ ($rejThesis->pts4Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                <a href="{{ route('pts4_extension.show', $rejThesis->pts4Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Form &rarr;</a>
+                                                <a href="{{ route('pts4_extension.show', $rejThesis->pts4Extension->id) }}" target="_blank" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Form &rarr;</a>
                                             </div>
                                         </div>
                                     @endif
@@ -273,12 +273,12 @@
                                     <div class="flex items-center justify-between gap-2 pt-1">
                                         @if($rejThesis->pts4Form->status === 'approved')
                                             <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
-                                            <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @else
                                             <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
-                                            <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
                                                 View Submission &rarr;
                                             </a>
                                         @endif

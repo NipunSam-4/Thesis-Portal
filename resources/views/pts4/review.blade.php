@@ -33,7 +33,7 @@
             @endif
 
             <!-- Common Form Information Sections (1 to 3) -->
-            @include('pts4.form-info', ['pts4' => $pts4])
+            @include('pts4.form_info', ['pts4' => $pts4])
 
             <!-- Section 4: Authority Recommendations & Remarks -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">

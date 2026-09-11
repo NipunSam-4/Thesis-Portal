@@ -6,25 +6,6 @@
     @endphp
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6">
-
-            <!-- Success/Info Flash Alerts -->
-            @if(session('success'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-emerald-100 border-l-4 border-emerald-500 text-emerald-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('info'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('info') }}
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="p-4 bg-amber-100 border-l-4 border-amber-500 text-amber-800 rounded-lg shadow-sm font-semibold">
-                    {{ session('warning') }}
-                </div>
-            @endif
             
             <!-- Welcome Header Banner -->
             <div class="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-xl shadow-sm p-6 text-white flex items-center justify-between">
@@ -320,7 +301,7 @@
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
                                         @if($draftSynopsis)
-                                            <a href="{{ route('student.draft_synopsis.show') }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                            <a href="{{ route('student.draft_synopsis.show') }}" target="_blank" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                 View Circulated Synopsis & Comments &rarr;
                                             </a>
                                         @elseif(!$pts1Approved)
@@ -384,14 +365,14 @@
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts1Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts1.submitted', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                <a href="{{ route('pts1.submitted', $pts1Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submitted Form &rarr;
                                                 </a>
                                             </div>
                                         @elseif($pts1Form->status === 'approved')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-1 Form Approved</span>
-                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                <a href="{{ route('pts1.show', $pts1Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Approved Form &rarr;
                                                 </a>
                                             </div>
@@ -399,7 +380,7 @@
                                             <div class="space-y-2">
                                                 <div class="flex items-center justify-between gap-2 pt-1">
                                                     <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-1 Form Rejected</span>
-                                                    <a href="{{ route('pts1.show', $pts1Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    <a href="{{ route('pts1.show', $pts1Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Rejected Form &rarr;
                                                     </a>
                                                 </div>
@@ -456,7 +437,7 @@
                                         @elseif($pts2Form && $pts2Form->status === 'approved')
                                             <div class="flex items-center justify-between gap-2 pt-1">
                                                 <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-2 Form Approved</span>
-                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                <a href="{{ route('pts2.show', $pts2Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Approved Form &rarr;
                                                 </a>
                                             </div>
@@ -465,7 +446,7 @@
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts2Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts2.submitted', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                <a href="{{ route('pts2.submitted', $pts2Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submitted Form &rarr;
                                                 </a>
                                             </div>
@@ -473,7 +454,7 @@
                                             <div class="space-y-2">
                                                 <div class="flex items-center justify-between gap-2 pt-1">
                                                     <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-2 Form Rejected</span>
-                                                    <a href="{{ route('pts2.show', $pts2Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    <a href="{{ route('pts2.show', $pts2Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Rejected Form &rarr;
                                                     </a>
                                                 </div>
@@ -544,12 +525,12 @@
                                                 @if($pts2Extension->status === 'in_progress')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-0.5">
                                                         <span class="font-semibold text-purple-800 dark:text-purple-300 leading-tight break-words">⏳ Under Review Stage: {{ $pts2Extension->stage_label }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" target="_blank" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'approved')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Extended Until: {{ ($pts2Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" target="_blank" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts2Extension->status === 'reverted')
                                                     <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
@@ -565,7 +546,7 @@
                                                 @elseif($pts2Extension->status === 'rejected')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Application Rejected</span>
-                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
+                                                        <a href="{{ route('pts2_extension.show', $pts2Extension->id) }}" target="_blank" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -703,11 +684,11 @@
                                             <div class="space-y-2 pt-1">
                                                 <div class="flex items-center justify-between gap-2">
                                                     <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
-                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Approved Form &rarr;
                                                     </a>
                                                 </div>
-                                                <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" class="inline-flex items-center justify-center w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
+                                                <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" target="_blank" class="inline-flex items-center justify-center w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
                                                     <span>📄 Download Thesis Certificate</span>
                                                 </a>
                                             </div>
@@ -716,7 +697,7 @@
                                                 <div class="text-[11px] text-blue-700 dark:text-blue-300 font-semibold py-1 leading-tight break-words">
                                                     ⏳ Under Review Stage: {{ $pts4Form->stage_label }}
                                                 </div>
-                                                <a href="{{ route('pts4.submitted', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                <a href="{{ route('pts4.submitted', $pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                     View Submitted Form &rarr;
                                                 </a>
                                             </div>
@@ -724,7 +705,7 @@
                                             <div class="space-y-2">
                                                 <div class="flex items-center justify-between gap-2 pt-1">
                                                     <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
-                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                                    <a href="{{ route('pts4.show', $pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                         View Rejected Form &rarr;
                                                     </a>
                                                 </div>
@@ -795,12 +776,12 @@
                                                 @if($pts4Extension->status === 'in_progress')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-0.5">
                                                         <span class="font-semibold text-purple-800 dark:text-purple-300 leading-tight break-words">⏳ Under Review Stage: {{ $pts4Extension->stage_label }}</span>
-                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
+                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" target="_blank" class="underline font-bold text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-purple-100 shrink-0 whitespace-nowrap">View Submitted Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts4Extension->status === 'approved')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Extended Until: {{ ($pts4Extension->approved_extended_until_date)?->format('d-M-Y') ?? 'N/A' }}</span>
-                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
+                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" target="_blank" class="underline font-bold hover:text-emerald-700 shrink-0 whitespace-nowrap">View Approved Form &rarr;</a>
                                                     </div>
                                                 @elseif($pts4Extension->status === 'reverted')
                                                     <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 rounded-lg text-xs">
@@ -816,7 +797,7 @@
                                                 @elseif($pts4Extension->status === 'rejected')
                                                     <div class="text-[11px] flex justify-between items-center gap-2 pt-1">
                                                         <span>Application Rejected</span>
-                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
+                                                        <a href="{{ route('pts4_extension.show', $pts4Extension->id) }}" target="_blank" class="underline font-bold hover:text-red-700 shrink-0 whitespace-nowrap">View Rejected Form &rarr;</a>
                                                     </div>
                                                 @endif
                                             </div>
@@ -954,7 +935,7 @@
                                                 <tr>
                                                     <th scope="col" class="px-4 py-3 font-extrabold whitespace-nowrap min-w-[160px]">Form Type</th>
                                                     <th scope="col" class="px-4 py-3 font-extrabold whitespace-nowrap min-w-[160px]">Timestamps</th>
-                                                    <th scope="col" class="px-4 py-3 font-extrabold whitespace-nowrap min-w-[120px] text-center">Actions</th>
+                                                    <th scope="col" class="px-4 py-3 font-extrabold whitespace-nowrap min-w-[120px]">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1006,7 +987,7 @@
                                                                 </x-slot>
                                                             </x-submission-timeline-modal>
                                                         </td>
-                                                        <td class="px-4 py-3.5 whitespace-nowrap text-center">
+                                                        <td class="px-4 py-3.5 whitespace-nowrap">
                                                             @php
                                                                 $formRoute = match(true) {
                                                                     $form instanceof \App\Models\Pts1Form => route('pts1.show', $form->id),
@@ -1017,7 +998,7 @@
                                                                     default => '#'
                                                                 };
                                                             @endphp
-                                                            <a href="{{ $formRoute }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                                            <a href="{{ $formRoute }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
                                                                 View Form &rarr;
                                                             </a>
                                                         </td>

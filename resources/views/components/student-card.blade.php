@@ -149,7 +149,7 @@
                                         </button>
                                     @endif
                                 @else
-                                    <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('draft_synopsis.review', $thesis->draftSynopsisCirculation->id) }}" target="_blank" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                         View Circulation Status &rarr;
                                     </a>
                                 @endif
@@ -217,7 +217,7 @@
                                     };
                                 @endphp
                                 @if($thesis->pts1Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts1Form))
-                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts1Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ $viewRoute }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts1Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts1Form->status) }} &rarr;
                                     </a>
                                 @endif
@@ -294,7 +294,7 @@
                                     };
                                 @endphp
                                 @if($thesis->pts2Form->status !== 'reverted' || Gate::check('viewReverted', $thesis->pts2Form))
-                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts2Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ $viewRoute }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts2Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts2Form->status) }} &rarr;
                                     </a>
                                 @endif
@@ -341,7 +341,7 @@
                                     </div>
                                 @elsecan('view', $thesis->pts2Extension)
                                     <div class="pt-1">
-                                        <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" 
+                                        <a href="{{ route('pts2_extension.show', $thesis->pts2Extension->id) }}" target="_blank" 
                                            class="block w-full text-center px-3 py-1.5 {{ $getBtnColor($thesis->pts2Extension->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                             {{ $getBtnText($thesis->pts2Extension->status, 'Extension') }} &rarr;
                                         </a>
@@ -418,7 +418,7 @@
                                     <div class="space-y-2">
                                         <div class="flex items-center justify-between gap-2 pt-1">
                                             <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-3 Form Rejected</span>
-                                            <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
+                                            <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
                                                 View Rejected Form &rarr;
                                             </a>
                                         </div>
@@ -429,19 +429,19 @@
                                         </div>
                                     </div>
                                 @elseif(Gate::check('view', $thesis->pts3Form))
-                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts3Form->status) }} &rarr;
                                     </a>
                                 @endif
                             @else
                                 {{-- Other Authorities / Reviewers View --}}
                                 @if(Gate::check('review', $thesis->pts3Form))
-                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" target="_blank" class="block w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow transition">
                                         Review & Endorse {{ $ptsPrefix }}-3 Form &rarr;
                                     </a>
                                 @elseif($thesis->pts3Form->status === 'reverted')
                                     @if(Gate::check('viewReverted', $thesis->pts3Form))
-                                        <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
+                                        <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" target="_blank" class="block w-full text-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg shadow transition">
                                             View Reverted Form &rarr;
                                         </a>
                                     @else
@@ -450,7 +450,7 @@
                                         </button>
                                     @endif
                                 @elseif(Gate::check('view', $thesis->pts3Form))
-                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ route('pts3.show', $thesis->pts3Form->id) }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts3Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts3Form->status) }} &rarr;
                                     </a>
                                 @endif
@@ -523,7 +523,7 @@
                                         : route($thesis->pts4Form->status === 'reverted' ? 'pts4.reverted' : 'pts4.show', $thesis->pts4Form->id);
                                 @endphp
                                 @if($thesis->pts4Form->status !== 'reverted' || $thesis->pts4Form->canUserViewRevertedForm($user))
-                                    <a href="{{ $viewRoute }}" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts4Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
+                                    <a href="{{ $viewRoute }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts4Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                         {{ $getBtnText($thesis->pts4Form->status) }} &rarr;
                                     </a>
                                 @endif
@@ -570,7 +570,7 @@
                                     </div>
                                 @elsecan('view', $thesis->pts4Extension)
                                     <div class="pt-1">
-                                        <a href="{{ route('pts4_extension.show', $thesis->pts4Extension->id) }}" 
+                                        <a href="{{ route('pts4_extension.show', $thesis->pts4Extension->id) }}" target="_blank" 
                                            class="block w-full text-center px-3 py-1.5 {{ $getBtnColor($thesis->pts4Extension->status) }} text-white font-bold text-xs rounded-lg shadow transition">
                                             {{ $getBtnText($thesis->pts4Extension->status, 'Extension') }} &rarr;
                                         </a>

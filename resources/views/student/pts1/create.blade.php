@@ -64,12 +64,19 @@
                 @endif
 
                 <!-- Section 1: Pre-filled Student Details (Read-Only) -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
-                        1. Student Information
-                    </h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ showStudentInfo: true }">
+                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span>1. Student Information</span>
+                        </h3>
+                        <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click.stop="showStudentInfo = !showStudentInfo">
+                            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': !showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <x-readonly-label value="Student Name" />
                             <x-readonly-input :value="$user->name" />
@@ -386,20 +393,22 @@
                         4. Document Uploads & Publication Preview
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-2">
                         <!-- Draft Synopsis Upload -->
                         <div>
-                            <div class="flex justify-between items-center mb-1">
+                            <div class="flex justify-between items-center md:pr-2">
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    <span>Upload Draft Synopsis Report (.pdf, .docx) <span class="text-red-500">*</span></span>
+                                    <span>Upload Draft Synopsis Report (.pdf, .docx)<span class="text-red-500">*</span></span>
                                     @if($showModified && $pts1Form->main_supervisor_draft_synopsis_report_doc_path && $pts1Form->main_supervisor_draft_synopsis_report_doc_path !== $pts1Form->draft_synopsis_report_doc_path)
                                         <x-modified-badge />
                                     @endif
                                 </label>
-                                <span class="text-[11px] text-gray-400">Max 10 MB</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-[11px] text-gray-400">Max 10 MB</span>
+                                </div>
                             </div>
 
-                            <div class="h-8"></div>
+                            <div class="md:h-9"></div>
 
                             <div x-show="!fileStates.synopsis.name">
                                 <input type="file" id="synopsisInput" name="draft_synopsis_report" accept=".pdf,.docx" :required="!fileStates.synopsis.name" @change="handleFileSelect($event, 'synopsis')" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
@@ -439,7 +448,7 @@
                         <div>
                             <div class="flex justify-between items-center">
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    <span>Upload Publication and Other Recognition List (.xlsx, .xls) <span class="text-red-500">*</span></span>
+                                    <span>Upload Publication and Other Recognition List (.xlsx, .xls)<span class="text-red-500">*</span></span>
                                     @if($showModified && $pts1Form->main_supervisor_publication_list_doc_path && $pts1Form->main_supervisor_publication_list_doc_path !== $pts1Form->publication_list_doc_path)
                                         <x-modified-badge />
                                     @endif

@@ -140,6 +140,23 @@
                                     <strong>Verification Remark:</strong>
                                     <x-feedback-box :text="$academicOfficeRemark" fallback="Remark not provided" role="academic_office" />
                                 </div>
+                                @if(Auth::user()?->isAcademicOffice())
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                        <strong>Assigned Acting DOAA:</strong>
+                                        @if(!empty($pts2->acting_doaa_email))
+                                            @php
+                                                $actingDoaaUser = \App\Models\User::where('email', $pts2->acting_doaa_email)->first();
+                                            @endphp
+                                            <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                {{ $actingDoaaUser->name ?? $pts2->acting_doaa_email }} ({{ $pts2->acting_doaa_email }})
+                                            </div>
+                                        @else
+                                            <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                None
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </x-role-card>
                         @endif
 
