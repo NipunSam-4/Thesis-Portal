@@ -203,6 +203,14 @@ class PtsDocumentService
             'thesis_doc_path',
             'main_supervisor_thesis_doc_path',
             'thesis_certificate_doc_path',
+            'indian_examiner_1_consent_doc_path',
+            'indian_examiner_2_consent_doc_path',
+            'indian_examiner_3_consent_doc_path',
+            'indian_examiner_4_consent_doc_path',
+            'international_examiner_1_consent_doc_path',
+            'international_examiner_2_consent_doc_path',
+            'international_examiner_3_consent_doc_path',
+            'international_examiner_4_consent_doc_path',
         ];
 
         $updatedAttributes = [];
@@ -266,34 +274,6 @@ class PtsDocumentService
 
         if (!empty($updatedAttributes)) {
             $form->update($updatedAttributes);
-        }
-
-        // 3. Check examiner consent documents for PTS-3 forms
-        if ($form instanceof \App\Models\Pts3Form || method_exists($form, 'examiners')) {
-            $examiners = $form->examiners ?? [];
-            foreach ($examiners as $examiner) {
-                if ($examiner->consent_doc_path) {
-                    $oldPath = $examiner->consent_doc_path;
-                    if ($disk->exists($oldPath) && strpos($oldPath, $targetDir) === false) {
-                        if (!$disk->exists($targetDir)) {
-                            $disk->makeDirectory($targetDir);
-                        }
-                        $filename = basename($oldPath);
-                        $newPath = "{$targetDir}/{$filename}";
-
-                        if (strpos($oldPath, '/reverted/') !== false || strpos($oldPath, '/rejected/') !== false || strpos($oldPath, '/approved/') !== false) {
-                            $disk->copy($oldPath, $newPath);
-                        } else {
-                            try {
-                                $disk->move($oldPath, $newPath);
-                            } catch (\Throwable $e) {
-                                $disk->copy($oldPath, $newPath);
-                            }
-                        }
-                        $examiner->update(['consent_doc_path' => $newPath]);
-                    }
-                }
-            }
         }
     }
 

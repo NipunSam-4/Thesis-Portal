@@ -83,6 +83,35 @@ return new class extends Migration
             $table->string('vested_doaa_email')->nullable();
             $table->foreignId('approved_by_id')->nullable()->constrained('users')->nullOnDelete();
 
+            // 8. Panel of Examiners (Up to 4 Indian, 4 International) & OEB Chairpersons (Up to 4)
+            for ($i = 1; $i <= 4; $i++) {
+                $table->string("indian_examiner_{$i}_email")->nullable();
+                $table->boolean("indian_examiner_{$i}_has_consent")->nullable();
+                $table->string("indian_examiner_{$i}_consent_doc_path")->nullable();
+                $table->text("indian_examiner_{$i}_academic_office_remark")->nullable();
+                $table->text("indian_examiner_{$i}_doaa_remark")->nullable();
+                $table->unsignedInteger("indian_examiner_{$i}_doaa_priority")->nullable();
+                $table->unsignedInteger("indian_examiner_{$i}_senate_chairperson_priority")->nullable();
+            }
+
+            for ($i = 1; $i <= 4; $i++) {
+                $table->string("international_examiner_{$i}_email")->nullable();
+                $table->boolean("international_examiner_{$i}_has_consent")->nullable();
+                $table->string("international_examiner_{$i}_consent_doc_path")->nullable();
+                $table->text("international_examiner_{$i}_academic_office_remark")->nullable();
+                $table->text("international_examiner_{$i}_doaa_remark")->nullable();
+                $table->unsignedInteger("international_examiner_{$i}_doaa_priority")->nullable();
+                $table->unsignedInteger("international_examiner_{$i}_senate_chairperson_priority")->nullable();
+            }
+
+            for ($i = 1; $i <= 4; $i++) {
+                $table->string("oeb_chairperson_{$i}_email")->nullable();
+                $table->text("oeb_chairperson_{$i}_academic_office_remark")->nullable();
+                $table->text("oeb_chairperson_{$i}_doaa_remark")->nullable();
+                $table->unsignedInteger("oeb_chairperson_{$i}_doaa_priority")->nullable();
+                $table->unsignedInteger("oeb_chairperson_{$i}_senate_chairperson_priority")->nullable();
+            }
+
             $table->timestamps();
         });
     }

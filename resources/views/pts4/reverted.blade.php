@@ -56,7 +56,7 @@
                     $hasAnyComment = !is_null($pts4->main_supervisor_recommendation)
                         || !empty($revertedCoSupervisors)
                         || !is_null($pts4->academic_office_is_verified)
-                        || !is_null($pts4->dr_approval);
+                        || !is_null($pts4->dr_acceptance);
                 @endphp
 
                 @if($hasAnyComment)
@@ -129,14 +129,14 @@
                             </x-role-card>
                         @endif
 
-                        <!-- DR Approval -->
-                        @if(!is_null($pts4->dr_approval))
+                        <!-- DR Acceptance -->
+                        @if(!is_null($pts4->dr_acceptance))
                             <x-role-card role="dr" title="Deputy Registrar (DR)">
                                 <x-slot:badge>
-                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->dr_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                        {{ $pts4->dr_approval ? '✓ Approved' : '❌ Rejected' }}
-                                        @if($pts4->approvedBy)
-                                            by: {{ $pts4->approvedBy->email }}
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->dr_acceptance ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts4->dr_acceptance ? '✓ Accepted' : '❌ Not Accepted' }}
+                                        @if($pts4->acceptedBy)
+                                            by: {{ $pts4->acceptedBy->email }}
                                         @endif
                                     </span>
                                 </x-slot:badge>

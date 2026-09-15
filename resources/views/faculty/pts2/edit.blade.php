@@ -283,6 +283,8 @@
                     <x-student-comment-input 
                         name="main_supervisor_student_comment" 
                         model="studentComment" 
+                        form-type="pts2"
+                        role="main_supervisor"
                         :value="old('main_supervisor_student_comment', $pts2->main_supervisor_student_comment)" />
 
                 </div>

@@ -65,13 +65,13 @@ class Pts4Controller extends Controller
             if ($pts4Form->status === 'in_progress') {
                 return redirect()->route('student.dashboard')->with('info', 'Your PTS-4 form is currently under review.');
             }
-            if ($pts4Form->status === 'approved') {
-                return redirect()->route('student.dashboard')->with('info', 'Your PTS-4 form has already been approved.');
+            if ($pts4Form->status === 'accepted') {
+                return redirect()->route('student.dashboard')->with('info', 'Your PTS-4 form has already been accepted.');
             }
             if ($pts4Form->status === 'reverted') {
                 return redirect()->route('student.pts4.edit')->with('warning', 'You have a reverted PTS-4 form. Please edit and resubmit your reverted form.');
             }
-            if ($pts4Form->status === 'rejected') {
+            if ($pts4Form->status === 'not_accepted') {
                 $pts4Form = null;
             }
         }
@@ -143,7 +143,7 @@ class Pts4Controller extends Controller
         }
 
         $pts4Form = $thesis->pts4Form;
-        $hasExisting = $pts4Form && in_array($pts4Form->status, ['reverted', 'rejected']);
+        $hasExisting = $pts4Form && in_array($pts4Form->status, ['reverted', 'not_accepted']);
         $validated = $request->validated();
 
         // Update active thesis title
@@ -207,7 +207,7 @@ class Pts4Controller extends Controller
             'academic_office_verification_remark' => null,
             'academic_office_confidential_remark' => null,
             'academic_office_submitted_at' => null,
-            'dr_approval' => null,
+            'dr_acceptance' => null,
             'dr_student_comment' => null,
             'dr_confidential_remark' => null,
             'dr_submitted_at' => null,
@@ -396,13 +396,13 @@ class Pts4Controller extends Controller
 
                 $pts4->update([
                     'dr_student_comment' => $comment,
-                    'dr_approval' => $isRecommended,
+                    'dr_acceptance' => $isRecommended,
                     'dr_confidential_remark' => $remark,
                     'dr_submitted_at' => now(),
                     'dr_user_id' => $user->id,
-                    'approved_by_id' => $user->id,
+                    'accepted_by_id' => $user->id,
                     'current_stage' => 'completed',
-                    'status' => $isRecommended ? 'approved' : 'rejected',
+                    'status' => $isRecommended ? 'accepted' : 'not_accepted',
                 ]);
 
                 if ($isRecommended) {

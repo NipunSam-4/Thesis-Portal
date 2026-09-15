@@ -6,22 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Pts3OebMember extends Model
+class Pts3ExaminerDraft extends Model
 {
     use HasFactory;
 
-    protected $table = 'pts3_oeb_members';
+    protected $table = 'pts3_examiner_drafts';
 
     protected $guarded = [];
 
-    protected $casts = [
-        'doaa_priority' => 'integer',
-        'senate_chairperson_priority' => 'integer',
-    ];
-
-    public function pts3Form(): BelongsTo
+    public function pts3Draft(): BelongsTo
     {
-        return $this->belongsTo(Pts3Form::class);
+        return $this->belongsTo(Pts3Draft::class);
     }
 
     public function getFormattedPhoneNumber(): string

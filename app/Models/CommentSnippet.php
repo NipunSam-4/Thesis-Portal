@@ -25,11 +25,9 @@ class CommentSnippet extends Model
     ];
 
     public const COMMENT_TYPES = [
-        'recommendation',
-        'non-recommendation',
+        'confidential',
         'student_comment',
         'verification_remark',
-        'reversion_comment',
     ];
 
     protected $fillable = [

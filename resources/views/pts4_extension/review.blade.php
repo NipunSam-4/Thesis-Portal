@@ -116,6 +116,31 @@
             <!-- Section 3: Prior Authority Evaluations Trail -->
             @php
                 $viewerRank = \App\Models\Pts4Extension::getRoleRank($userRole);
+                $currStage = $extension->current_stage;
+                $isDept = in_array($currStage, ['dpgc', 'hod']);
+                $isGlobal = in_array($currStage, ['academic_office', 'doaa']);
+                $isDeptOrGlobal = $isDept || $isGlobal;
+                $defaultOpen = $isDept;
+
+                $immediateStage = match($currStage) {
+                    'dpgc' => 'main_supervisor',
+                    'hod' => 'dpgc',
+                    'academic_office' => 'hod',
+                    'doaa' => 'academic_office',
+                    default => null,
+                };
+
+                $hasEarlierStages = false;
+                if ($isDeptOrGlobal && $immediateStage) {
+                    if ($immediateStage === 'dpgc') {
+                        $hasEarlierStages = $extension->main_supervisor_recommendation !== null;
+                    } elseif ($immediateStage === 'hod') {
+                        $hasEarlierStages = ($extension->main_supervisor_recommendation !== null || $extension->dpgc_recommendation !== null);
+                    } elseif ($immediateStage === 'academic_office') {
+                        $hasEarlierStages = ($extension->main_supervisor_recommendation !== null || $extension->dpgc_recommendation !== null || $extension->hod_recommendation !== null);
+                    }
+                }
+
                 $hasPriorRecommendation = 
                     ($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null) ||
                     ($viewerRank > 2 && $extension->dpgc_recommendation !== null) ||
@@ -131,82 +156,236 @@
 
                     @if($hasPriorRecommendation)
                     <div class="space-y-4">
-                        <!-- Main Supervisor Evaluation (Rank 1) -->
-                        @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
-                            <x-role-card role="main_supervisor">
-                                 <div class="flex items-center justify-between gap-2 sm:gap-4">
-                                     <span class="font-bold text-base text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
-                                     <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                         {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                     </span>
-                                 </div>
-                                 <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                     <strong>Confidential Remark:</strong>
-                                     <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
-                                 </div>
-                            </x-role-card>
-                        @endif
+                        @if($isDeptOrGlobal && $immediateStage)
+                            <!-- Earlier Authority Recommendations (Collapsed by default for Global, Open for Dept) -->
+                            @if($hasEarlierStages)
+                                <x-collapsible-earlier-remarks :default-open="$defaultOpen">
+                                    <!-- Main Supervisor Evaluation (Rank 1) -->
+                                    @if($extension->main_supervisor_recommendation !== null && $immediateStage !== 'main_supervisor')
+                                        <x-role-card role="main_supervisor">
+                                             <div class="flex items-center justify-between gap-2 sm:gap-4">
+                                                 <span class="font-bold text-base text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                                 <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                     {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                 </span>
+                                             </div>
+                                             <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                 <strong>Confidential Remark:</strong>
+                                                 <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                                             </div>
+                                        </x-role-card>
+                                    @endif
 
-                        <!-- DPGC Evaluation (Rank 2) -->
-                        @if($viewerRank > 2 && $extension->dpgc_recommendation !== null)
-                            <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
-                                <x-slot:badge>
-                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                        {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                    </span>
-                                </x-slot:badge>
-                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                    <strong>Confidential Remark:</strong>
-                                    <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
-                                </div>
-                            </x-role-card>
-                        @endif
-
-                        <!-- HOD Evaluation (Rank 3) -->
-                        @if($viewerRank > 3 && $extension->hod_recommendation !== null)
-                            <x-role-card role="hod" title="Head of Department (HOD)">
-                                <x-slot:badge>
-                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                        {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                    </span>
-                                </x-slot:badge>
-                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                    <strong>Confidential Remark:</strong>
-                                    <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
-                                </div>
-                            </x-role-card>
-                        @endif
-
-                        <!-- Academic Office Evaluation (Rank 4) -->
-                        @if($viewerRank > 4 && $extension->academic_office_recommendation !== null)
-                            <x-role-card role="academic_office" title="Academic Office">
-                                <x-slot:badge>
-                                    <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
-                                        ✓ Verified &amp; Forwarded
-                                    </span>
-                                </x-slot:badge>
-                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                    <strong>Verification Remark:</strong>
-                                    <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
-                                </div>
-                                @if(Auth::user()?->isAcademicOffice())
-                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
-                                        <strong>Assigned Acting DOAA:</strong>
-                                        @if(!empty($extension->acting_doaa_email))
-                                            @php
-                                                $actingDoaaUser = \App\Models\User::where('email', $extension->acting_doaa_email)->first();
-                                            @endphp
-                                            <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
-                                                {{ $actingDoaaUser->name ?? $extension->acting_doaa_email }} ({{ $extension->acting_doaa_email }})
+                                    <!-- DPGC Evaluation (Rank 2) -->
+                                    @if($extension->dpgc_recommendation !== null && $immediateStage !== 'dpgc')
+                                        <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                            <x-slot:badge>
+                                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            </x-slot:badge>
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                <strong>Confidential Remark:</strong>
+                                                <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
                                             </div>
-                                        @else
-                                            <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
-                                                None
+                                        </x-role-card>
+                                    @endif
+
+                                    <!-- HOD Evaluation (Rank 3) -->
+                                    @if($extension->hod_recommendation !== null && $immediateStage !== 'hod')
+                                        <x-role-card role="hod" title="Head of Department (HOD)">
+                                            <x-slot:badge>
+                                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            </x-slot:badge>
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                <strong>Confidential Remark:</strong>
+                                                <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
                                             </div>
-                                        @endif
+                                        </x-role-card>
+                                    @endif
+
+                                    <!-- Academic Office Evaluation (Rank 4) -->
+                                    @if($extension->academic_office_recommendation !== null && $immediateStage !== 'academic_office')
+                                        <x-role-card role="academic_office" title="Academic Office">
+                                            <x-slot:badge>
+                                                <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                                    ✓ Verified &amp; Forwarded
+                                                </span>
+                                            </x-slot:badge>
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                <strong>Verification Remark:</strong>
+                                                <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
+                                            </div>
+                                            @if(Auth::user()?->isAcademicOffice())
+                                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                                    <strong>Assigned Acting DOAA:</strong>
+                                                    @if(!empty($extension->acting_doaa_email))
+                                                        @php
+                                                            $actingDoaaUser = \App\Models\User::where('email', $extension->acting_doaa_email)->first();
+                                                        @endphp
+                                                        <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                            {{ $actingDoaaUser->name ?? $extension->acting_doaa_email }} ({{ $extension->acting_doaa_email }})
+                                                        </div>
+                                                    @else
+                                                        <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                            None
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </x-role-card>
+                                    @endif
+                                </x-collapsible-earlier-remarks>
+                            @endif
+
+                            <!-- Immediate Previous Stage (Always Open / Visible directly) -->
+                            @if($immediateStage === 'main_supervisor' && $extension->main_supervisor_recommendation !== null)
+                                <x-role-card role="main_supervisor">
+                                     <div class="flex items-center justify-between gap-2 sm:gap-4">
+                                         <span class="font-bold text-base text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                         <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                             {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                         </span>
+                                     </div>
+                                     <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                         <strong>Confidential Remark:</strong>
+                                         <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                                     </div>
+                                </x-role-card>
+                            @elseif($immediateStage === 'dpgc' && $extension->dpgc_recommendation !== null)
+                                <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
                                     </div>
-                                @endif
-                            </x-role-card>
+                                </x-role-card>
+                            @elseif($immediateStage === 'hod' && $extension->hod_recommendation !== null)
+                                <x-role-card role="hod" title="Head of Department (HOD)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
+                                    </div>
+                                </x-role-card>
+                            @elseif($immediateStage === 'academic_office' && $extension->academic_office_recommendation !== null)
+                                <x-role-card role="academic_office" title="Academic Office">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                            ✓ Verified &amp; Forwarded
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Verification Remark:</strong>
+                                        <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
+                                    </div>
+                                    @if(Auth::user()?->isAcademicOffice())
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                            <strong>Assigned Acting DOAA:</strong>
+                                            @if(!empty($extension->acting_doaa_email))
+                                                @php
+                                                    $actingDoaaUser = \App\Models\User::where('email', $extension->acting_doaa_email)->first();
+                                                @endphp
+                                                <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                    {{ $actingDoaaUser->name ?? $extension->acting_doaa_email }} ({{ $extension->acting_doaa_email }})
+                                                </div>
+                                            @else
+                                                <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                    None
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </x-role-card>
+                            @endif
+                        @else
+                            <!-- Main Supervisor Evaluation (Rank 1) -->
+                            @if($viewerRank >= 1 && $extension->main_supervisor_recommendation !== null)
+                                <x-role-card role="main_supervisor">
+                                     <div class="flex items-center justify-between gap-2 sm:gap-4">
+                                         <span class="font-bold text-base text-indigo-900 dark:text-indigo-200">Main Supervisor</span>
+                                         <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->main_supervisor_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                             {{ $extension->main_supervisor_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                         </span>
+                                     </div>
+                                     <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                         <strong>Confidential Remark:</strong>
+                                         <x-feedback-box :text="$extension->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                                     </div>
+                                </x-role-card>
+                            @endif
+
+                            <!-- DPGC Evaluation (Rank 2) -->
+                            @if($viewerRank > 2 && $extension->dpgc_recommendation !== null)
+                                <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $extension->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$extension->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
+                                    </div>
+                                </x-role-card>
+                            @endif
+
+                            <!-- HOD Evaluation (Rank 3) -->
+                            @if($viewerRank > 3 && $extension->hod_recommendation !== null)
+                                <x-role-card role="hod" title="Head of Department (HOD)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $extension->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $extension->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$extension->hod_confidential_remark" fallback="Remark not provided" role="hod" />
+                                    </div>
+                                </x-role-card>
+                            @endif
+
+                            <!-- Academic Office Evaluation (Rank 4) -->
+                            @if($viewerRank > 4 && $extension->academic_office_recommendation !== null)
+                                <x-role-card role="academic_office" title="Academic Office">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                            ✓ Verified &amp; Forwarded
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Verification Remark:</strong>
+                                        <x-feedback-box :text="$extension->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
+                                    </div>
+                                    @if(Auth::user()?->isAcademicOffice())
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                            <strong>Assigned Acting DOAA:</strong>
+                                            @if(!empty($extension->acting_doaa_email))
+                                                @php
+                                                    $actingDoaaUser = \App\Models\User::where('email', $extension->acting_doaa_email)->first();
+                                                @endphp
+                                                <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                    {{ $actingDoaaUser->name ?? $extension->acting_doaa_email }} ({{ $extension->acting_doaa_email }})
+                                                </div>
+                                            @else
+                                                <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                    None
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </x-role-card>
+                            @endif
                         @endif
                     </div>
                     @else
@@ -334,6 +513,9 @@
                                 <label class="block text-sm font-bold text-indigo-900 dark:text-indigo-200">
                                     Mandatory Remarks for Student <span class="text-red-500">*</span>
                                 </label>
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="doaaStudentComment" form-type="pts4_extension" role="doaa" comment-type="student_comment" />
+                                </div>
                                 <textarea name="doaa_student_comment" 
                                           rows="3" 
                                           required 

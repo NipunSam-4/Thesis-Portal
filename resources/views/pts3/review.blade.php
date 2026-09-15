@@ -1,6 +1,7 @@
 <x-app-layout>
     @php
         $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
+        $canEvaluate = true;
     @endphp
 
     <div class="py-6" x-data="pts3ReviewForm()">
@@ -149,393 +150,516 @@
                     $isAcademicOfficeActive = $pts3->current_stage === 'academic_office';
                     $isDoaaActive = $pts3->current_stage === 'doaa';
                     $isSenateActive = $pts3->current_stage === 'senate_chairperson';
-                    $oebData = $oebMembers->map(function($oeb) {
-                        return [
-                            'id' => $oeb->id,
-                            'name' => $oeb->name,
-                            'designation' => $oeb->designation,
-                            'department' => $oeb->department,
-                            'email' => $oeb->email,
-                            'phone_formatted' => $oeb->getFormattedPhoneNumber(),
-                            'academic_office_remark' => $oeb->academic_office_remark,
-                            'doaa_remark' => $oeb->doaa_remark,
-                        ];
-                    })->values();
-                    $oebDraftKey = ($isDoaaActive || $isSenateActive)
-                        ? ('pts3_review_draft_oeb_user_' . auth()->id() . '_form_' . $pts3->id . '_stage_' . $pts3->current_stage)
-                        : null;
                 @endphp
 
-                @if($isDoaaActive || $isSenateActive)
-                    @once
-                    <script>
-                        function initOebReorder(initialList, draftKey) {
-                            let list = initialList || [];
-                            if (draftKey) {
-                                try {
-                                    const saved = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
-                                    if (saved && Array.isArray(saved) && saved.length === initialList.length) {
-                                        const map = new Map(initialList.map(item => [item.id, item]));
-                                        const restored = [];
-                                        let valid = true;
-                                        for (const s of saved) {
-                                            if (map.has(s.id)) {
-                                                restored.push({ ...map.get(s.id), ...s });
-                                            } else {
-                                                valid = false;
-                                                break;
-                                            }
-                                        }
-                                        if (valid && restored.length === initialList.length) {
-                                            list = restored;
-                                        }
-                                    }
-                                } catch (e) {}
-                            }
-
-                            return {
-                                oebList: list,
-                                init() {
-                                    if (draftKey) {
-                                        this.$watch('oebList', () => {
-                                            try {
-                                                sessionStorage.setItem(draftKey, JSON.stringify(this.oebList));
-                                            } catch (e) {}
-                                        });
-                                    }
-                                },
-                                moveUp(index) {
-                                    if (index > 0) {
-                                        const item = this.oebList.splice(index, 1)[0];
-                                        this.oebList.splice(index - 1, 0, item);
-                                        if (draftKey) {
-                                            try {
-                                                sessionStorage.setItem(draftKey, JSON.stringify(this.oebList));
-                                            } catch (e) {}
-                                        }
-                                    }
-                                },
-                                moveDown(index) {
-                                    if (index < this.oebList.length - 1) {
-                                        const item = this.oebList.splice(index, 1)[0];
-                                        this.oebList.splice(index + 1, 0, item);
-                                        if (draftKey) {
-                                            try {
-                                                sessionStorage.setItem(draftKey, JSON.stringify(this.oebList));
-                                            } catch (e) {}
-                                        }
-                                    }
-                                }
-                            };
-                        }
-                    </script>
-                    @endonce
-                @endif
-
-                <!-- Section 5: Proposed Oral Examination Board (OEB) Members -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-4"
-                     @if($isDoaaActive || $isSenateActive)
-                         x-data="initOebReorder({{ Js::from($oebData) }}, {{ Js::from($oebDraftKey) }})"
-                     @endif
-                >
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <span>5. Proposed Oral Examination Board (OEB) Members</span>
-                            </h3>
-                        </div>
-                        <span class="text-xs px-2.5 py-1 bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 rounded-full font-semibold border border-amber-200 dark:border-amber-800">
-                            Count: {{ $oebMembers->count() }} Member(s)
-                        </span>
+                <!-- Section 5: Proposed Oral Examination Board (OEB) Chairpersons (2-Column Grid 1 -> 2, 3 -> 4) -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-5">
+                    <div class="pb-3 border-b border-gray-100 dark:border-gray-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span>5. Proposed Oral Examination Board (OEB) Chairpersons</span>
+                        </h3>
                     </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs">
-                        <table class="w-full min-w-[750px] text-left text-sm text-gray-600 dark:text-gray-300">
-                            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
-                                <tr>
-                                    @if($userRank >= 5)
-                                        <th class="p-3 w-20 text-center whitespace-nowrap">{{ ($isDoaaActive || $isSenateActive) ? '# / Order' : '#' }}</th>
-                                    @endif
-                                    <th class="p-3 min-w-[160px] max-w-[240px]">Name</th>
-                                    <th class="p-3 min-w-[140px] max-w-[200px]">Designation</th>
-                                    <th class="p-3 min-w-[150px] max-w-[220px]">Department</th>
-                                    <th class="p-3 min-w-[160px]">Email</th>
-                                    <th class="p-3 min-w-[130px] whitespace-nowrap">Phone</th>
-                                </tr>
-                            </thead>
-                            @if($isDoaaActive || $isSenateActive)
-                                <template x-for="(oeb, index) in oebList" :key="oeb.id">
-                                    <tbody class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors align-top">
-                                            <td class="p-3 text-center whitespace-nowrap">
-                                                <div class="flex items-center justify-start gap-2">
-                                                    <div class="flex flex-col gap-0.5 shrink-0 bg-gray-50 dark:bg-gray-700/80 p-0.5 rounded border border-gray-200 dark:border-gray-600 shadow-2xs">
-                                                        <button type="button" 
-                                                                @click="moveUp(index)" 
-                                                                :disabled="index === 0" 
-                                                                :class="index === 0 ? 'opacity-25 cursor-not-allowed text-gray-400' : 'hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'" 
-                                                                class="px-1 py-0 rounded text-[7px] leading-none font-bold transition flex items-center justify-center h-2.5" 
-                                                                title="Move Up">
-                                                            ▲
-                                                        </button>
-                                                        <button type="button" 
-                                                                @click="moveDown(index)" 
-                                                                :disabled="index === oebList.length - 1" 
-                                                                :class="index === oebList.length - 1 ? 'opacity-25 cursor-not-allowed text-gray-400' : 'hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300'" 
-                                                                class="px-1 py-0 rounded text-[7px] leading-none font-bold transition flex items-center justify-center h-2.5" 
-                                                                title="Move Down">
-                                                            ▼
-                                                        </button>
-                                                    </div>
-                                                    <span class="w-4 font-bold text-gray-900 dark:text-white text-sm leading-tight text-center" x-text="index + 1"></span>
-                                                    
-                                                    @if($isDoaaActive)
-                                                        <input type="hidden" :name="'doaa_oeb_priority[' + oeb.id + ']'" :value="index + 1">
-                                                    @endif
-                                                    @if($isSenateActive)
-                                                        <input type="hidden" :name="'senate_oeb_priority[' + oeb.id + ']'" :value="index + 1">
-                                                    @endif
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @forelse($oebMembers as $index => $oeb)
+                            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 transition shadow-2xs space-y-3.5 flex flex-col justify-between">
+                                <div>
+                                    <!-- Card Top Header (Order + Member Label) -->
+                                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-gray-100 dark:border-gray-700">
+                                        <div class="flex items-center gap-2">
+                                            <!-- Unified Order Box (Visible only to DOAA and Senate Chairperson) -->
+                                            @if($isDoaaActive)
+                                                <div class="flex items-center gap-1.5" title="DOAA Priority Order (0 to 4)">
+                                                    <span class="text-xs font-bold text-purple-800 dark:text-purple-200">Order:</span>
+                                                    <select name="doaa_oeb_priority[{{ $oeb->id }}]" 
+                                                            class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-purple-400 dark:border-purple-500 bg-white dark:bg-gray-900 text-purple-950 dark:text-purple-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-xs cursor-pointer">
+                                                        @php
+                                                            $selDoaaOebPriority = (string)old("doaa_oeb_priority.{$oeb->id}", $oeb->doaa_priority ?? ($index + 1));
+                                                        @endphp
+                                                        @foreach([0, 1, 2, 3, 4] as $val)
+                                                            <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selDoaaOebPriority === (string)$val ? 'selected' : '' }}>
+                                                                {{ $val }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                            </td>
-                                            <td class="p-3 font-bold text-gray-900 dark:text-white min-w-[160px] max-w-[240px] break-words" x-text="oeb.name"></td>
-                                            <td class="p-3 text-xs text-gray-700 dark:text-gray-300 min-w-[140px] max-w-[200px] break-words" x-text="oeb.designation || 'N/A'"></td>
-                                            <td class="p-3 text-xs font-medium text-gray-800 dark:text-gray-200 min-w-[150px] max-w-[220px] break-words" x-text="oeb.department || 'N/A'"></td>
-                                            <td class="p-3 text-xs min-w-[160px] break-all">
-                                                <a :href="'mailto:' + oeb.email" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium" x-text="oeb.email"></a>
-                                            </td>
-                                            <td class="p-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-[130px]" x-text="oeb.phone_formatted || 'N/A'"></td>
-                                        </tr>
-                                        @if($isDoaaActive)
-                                            <!-- DOAA Sub-Row: View Academic Office Comment + DOAA Comment Input Side-by-Side -->
-                                            <tr class="bg-gray-50/40 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-800">
-                                                <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-3 px-6">
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <!-- Academic Office Comment Card (Left) -->
-                                                        <div class="p-3 bg-violet-50/70 dark:bg-violet-950/40 border-l-4 border-violet-500 rounded-xl space-y-1.5">
-                                                            <span class="block text-xs font-bold text-violet-900 dark:text-violet-200">
-                                                                Academic Office Comment
-                                                            </span>
-                                                            <div x-show="oeb.academic_office_remark" class="min-w-0 max-w-full">
-                                                                <p class="m-0 text-xs text-gray-800 dark:text-gray-100 bg-white/95 dark:bg-gray-900/70 py-1.5 px-3 rounded-md border border-violet-200 dark:border-violet-800/70 whitespace-pre-wrap break-words leading-snug shadow-xs" x-text="oeb.academic_office_remark"></p>
-                                                            </div>
-                                                            <div x-show="!oeb.academic_office_remark" class="min-w-0 max-w-full">
-                                                                <div class="w-full flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50/80 dark:bg-gray-900/40 py-1.5 px-3 rounded-md border border-dashed border-gray-300 dark:border-gray-700/60 shadow-xs">
-                                                                    <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
-                                                                    <span class="italic font-normal">No comment provided</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- DOAA Comment Card (Right) -->
-                                                        <div class="p-3 bg-purple-50/70 dark:bg-purple-950/40 border-l-4 border-purple-500 rounded-xl space-y-1.5">
-                                                            <label class="block text-xs font-bold text-purple-900 dark:text-purple-200">
-                                                                DOAA Comment
-                                                            </label>
-                                                            <textarea :name="'doaa_oeb_remarks[' + oeb.id + ']'" 
-                                                                      rows="2" 
-                                                                      class="w-full text-xs rounded-lg border-purple-200 dark:border-purple-800/70 bg-white dark:bg-gray-900/80 text-gray-800 dark:text-gray-100 focus:border-purple-500 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500 flex-1" 
-                                                                      placeholder="Enter DOAA notes or observations regarding this OEB member..." 
-                                                                      x-model="oeb.doaa_remark"></textarea>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @elseif($isSenateActive)
-                                            <!-- Senate Chairperson Sub-Row: View Academic Office & DOAA Comments Side-by-Side -->
-                                            <tr class="bg-gray-50/40 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-800">
-                                                <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-3 px-6">
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <!-- Academic Office Comment Card (Left) -->
-                                                        <div class="p-3 bg-violet-50/70 dark:bg-violet-950/40 border-l-4 border-violet-500 rounded-xl space-y-1.5">
-                                                            <span class="block text-xs font-bold text-violet-900 dark:text-violet-200">
-                                                                Academic Office Comment
-                                                            </span>
-                                                            <div x-show="oeb.academic_office_remark" class="min-w-0 max-w-full">
-                                                                <p class="m-0 text-xs text-gray-800 dark:text-gray-100 bg-white/95 dark:bg-gray-900/70 py-1.5 px-3 rounded-md border border-violet-200 dark:border-violet-800/70 whitespace-pre-wrap break-words leading-snug shadow-xs" x-text="oeb.academic_office_remark"></p>
-                                                            </div>
-                                                            <div x-show="!oeb.academic_office_remark" class="min-w-0 max-w-full">
-                                                                <div class="w-full flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50/80 dark:bg-gray-900/40 py-1.5 px-3 rounded-md border border-dashed border-gray-300 dark:border-gray-700/60 shadow-xs">
-                                                                    <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
-                                                                    <span class="italic font-normal">No comment provided</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- DOAA Comment Card (Right) -->
-                                                        <div class="p-3 bg-purple-50/70 dark:bg-purple-950/40 border-l-4 border-purple-500 rounded-xl space-y-1.5">
-                                                            <span class="block text-xs font-bold text-purple-900 dark:text-purple-200">
-                                                                DOAA Comment
-                                                            </span>
-                                                            <div x-show="oeb.doaa_remark" class="min-w-0 max-w-full">
-                                                                <p class="m-0 text-xs text-gray-800 dark:text-gray-100 bg-white/95 dark:bg-gray-900/70 py-1.5 px-3 rounded-md border border-purple-200 dark:border-purple-800/70 whitespace-pre-wrap break-words leading-snug shadow-xs" x-text="oeb.doaa_remark"></p>
-                                                            </div>
-                                                            <div x-show="!oeb.doaa_remark" class="min-w-0 max-w-full">
-                                                                <div class="w-full flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50/80 dark:bg-gray-900/40 py-1.5 px-3 rounded-md border border-dashed border-gray-300 dark:border-gray-700/60 shadow-xs">
-                                                                    <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.418 9 8z"></path></svg>
-                                                                    <span class="italic font-normal">No comment provided</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
-                                </template>
-                            @else
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                                    @forelse($oebMembers as $index => $oeb)
-                                        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors align-top">
-                                            @if($userRank >= 5)
-                                                <td class="p-3 text-center font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $index + 1 }}</td>
+                                            @elseif($isSenateActive)
+                                                <div class="flex items-center gap-1.5" title="Senate Chairperson Priority Order (0 to 4)">
+                                                    <span class="text-xs font-bold text-indigo-800 dark:text-indigo-200">Order:</span>
+                                                    <select name="senate_oeb_priority[{{ $oeb->id }}]" 
+                                                            class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-indigo-400 dark:border-indigo-500 bg-white dark:bg-gray-900 text-indigo-950 dark:text-indigo-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs cursor-pointer">
+                                                        @php
+                                                            $selSpOebPriority = (string)old("senate_oeb_priority.{$oeb->id}", $oeb->senate_chairperson_priority ?? $oeb->doaa_priority ?? ($index + 1));
+                                                        @endphp
+                                                        @foreach([0, 1, 2, 3, 4] as $val)
+                                                            <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selSpOebPriority === (string)$val ? 'selected' : '' }}>
+                                                                {{ $val }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @elseif($userRank >= 6)
+                                                @php
+                                                    $oebPriorityNum = ($userRank === 7) 
+                                                        ? ($oeb->senate_chairperson_priority ?? $oeb->doaa_priority ?? ($index + 1)) 
+                                                        : ($oeb->doaa_priority ?? ($index + 1));
+                                                @endphp
+                                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-700 text-xs font-black shrink-0 shadow-2xs">
+                                                    #{{ $oebPriorityNum }}
+                                                </span>
+                                            @else
+                                                {{-- For MS, Co-Supervisors, DPGC, HOD, Academic Office: Do not show sequence numbers --}}
                                             @endif
-                                            <td class="p-3 font-bold text-gray-900 dark:text-white min-w-[160px] max-w-[240px] break-words">{{ $oeb->name }}</td>
-                                            <td class="p-3 text-xs text-gray-700 dark:text-gray-300 min-w-[140px] max-w-[200px] break-words">{{ $oeb->designation }}</td>
-                                            <td class="p-3 text-xs font-medium text-gray-800 dark:text-gray-200 min-w-[150px] max-w-[220px] break-words">{{ $oeb->department }}</td>
-                                            <td class="p-3 text-xs min-w-[160px] break-all">
-                                                <a href="mailto:{{ $oeb->email }}" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">{{ $oeb->email }}</a>
-                                            </td>
-                                            <td class="p-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-[130px]">{{ $oeb->getFormattedPhoneNumber() ?: 'N/A' }}</td>
-                                        </tr>
+                                        </div>
 
-                                        <!-- Sub-Row for Academic Office Active Input -->
-                                        @if($isAcademicOfficeActive)
-                                            <tr class="bg-violet-50/20 dark:bg-violet-950/20 border-t border-gray-100 dark:border-gray-800">
-                                                <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-3 px-6">
-                                                    <x-role-card role="academic_office" class="p-3 !space-y-1.5 max-w-3xl">
-                                                        <label class="block text-xs font-bold text-violet-900 dark:text-violet-200">
-                                                            Academic Office Comment
-                                                        </label>
-                                                        <textarea name="oeb_remarks[{{ $oeb->id }}]" 
-                                                                  rows="2" 
-                                                                  class="w-full text-xs rounded-lg border-violet-200 dark:border-violet-800/70 bg-white dark:bg-gray-900/80 text-gray-800 dark:text-gray-100 focus:border-violet-500 focus:ring-violet-500 placeholder-gray-400 dark:placeholder-gray-500" 
-                                                                  placeholder="Enter verification notes or observations regarding this OEB member...">{{ old("oeb_remarks.{$oeb->id}", $oeb->academic_office_remark) }}</textarea>
-                                                    </x-role-card>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @empty
-                                        <tr>
-                                            <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-4 text-center text-sm text-gray-500">No OEB members proposed.</td>
-                                        </tr>
-                                    @endforelse
+                                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                            OEB Chairperson
+                                        </span>
+                                    </div>
+
+                                    <!-- Discrete Fields (All Shown in Card: Inline Label: Value) -->
+                                    <div class="space-y-2 pt-2 text-xs">
+                                        <!-- Name -->
+                                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Faculty Name:</span>
+                                            <span class="font-bold text-xs text-gray-900 dark:text-white">{{ $oeb->name }}</span>
+                                        </div>
+
+                                        <!-- Designation -->
+                                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Designation:</span>
+                                            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ $oeb->designation ?: 'N/A' }}</span>
+                                        </div>
+
+                                        <!-- Department -->
+                                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Department:</span>
+                                            <span class="text-gray-800 dark:text-gray-200 font-medium">{{ $oeb->department ?: 'N/A' }}</span>
+                                        </div>
+
+                                        <!-- Email -->
+                                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Email Address:</span>
+                                            <a href="mailto:{{ $oeb->email }}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium break-all">{{ $oeb->email ?: 'N/A' }}</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Evaluation Remarks Section -->
+                                @if($isAcademicOfficeActive)
+                                    <!-- Academic Office Comment Input -->
+                                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700"
+                                         x-data="{ oebRemark: @js(old("oeb_remarks.{$oeb->id}", $oeb->academic_office_remark ?? '')) }">
+                                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                                            <label class="block text-xs font-bold text-violet-900 dark:text-violet-200">
+                                                Academic Office Comment
+                                            </label>
+                                            <x-snippet-dropdown target="oebRemark" form-type="pts3" role="academic_office" />
+                                        </div>
+                                        <textarea name="oeb_remarks[{{ $oeb->id }}]" 
+                                                  x-model="oebRemark"
+                                                  rows="2" 
+                                                  class="w-full text-xs rounded-lg border-violet-200 dark:border-violet-800/70 bg-white dark:bg-gray-900/80 text-gray-800 dark:text-gray-100 focus:border-violet-500 focus:ring-violet-500 placeholder-gray-400 dark:placeholder-gray-500" 
+                                                  placeholder="Enter verification comment for this OEB chairperson..."></textarea>
+                                    </div>
+                                @elseif($isDoaaActive)
+                                    <!-- DOAA Active: View Academic Office Comment + DOAA Comment Input -->
+                                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                                        <div class="space-y-1">
+                                            <span class="block text-[11px] font-bold text-violet-900 dark:text-violet-200 uppercase tracking-wide">
+                                                Academic Office Comment
+                                            </span>
+                                            <x-feedback-box :text="$oeb->academic_office_remark" role="academic_office" fallback="No comment provided" />
+                                        </div>
+                                        <div x-data="{ doaaOebRemark: @js(old("doaa_oeb_remarks.{$oeb->id}", $oeb->doaa_remark ?? '')) }" class="space-y-1">
+                                            <div class="flex items-center justify-between gap-2 mb-1.5">
+                                                <label class="block text-xs font-bold text-purple-900 dark:text-purple-200">
+                                                    DOAA Comment
+                                                </label>
+                                                <x-snippet-dropdown target="doaaOebRemark" form-type="pts3" role="doaa" />
+                                            </div>
+                                            <textarea name="doaa_oeb_remarks[{{ $oeb->id }}]" 
+                                                      x-model="doaaOebRemark"
+                                                      rows="2" 
+                                                      class="w-full text-xs rounded-lg border-purple-200 dark:border-purple-800/70 bg-white dark:bg-gray-900/80 text-gray-800 dark:text-gray-100 focus:border-purple-500 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500" 
+                                                      placeholder="Enter DOAA observation/remark..."></textarea>
+                                        </div>
+                                    </div>
+                                @elseif($isSenateActive)
+                                    <!-- Senate Chairperson Active: View DOAA Comment ONLY (Academic Office comment hidden) -->
+                                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-1">
+                                        <span class="block text-[11px] font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wide">
+                                            DOAA Comment
+                                        </span>
+                                        <x-feedback-box :text="$oeb->doaa_remark" role="doaa" fallback="No comment provided" />
+                                    </div>
+                                @elseif(!$canEvaluate && $userRank >= 5)
+                                    <!-- View Mode Remarks (Historical / Show view) -->
+                                    @php
+                                        $showAcademic = ($userRank < 7) && (bool)$pts3->academic_office_submitted_at;
+                                        $showDoaa = ($userRank >= 6) && (bool)$pts3->doaa_submitted_at;
+                                    @endphp
+                                    @if($showAcademic || $showDoaa)
+                                        <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                                            @if($showAcademic)
+                                                <div class="space-y-1">
+                                                    <span class="block text-[10px] font-bold text-violet-900 dark:text-violet-200 uppercase tracking-wide">
+                                                        Academic Office Comment
+                                                    </span>
+                                                    <x-feedback-box :text="$oeb->academic_office_remark" role="academic_office" fallback="No comment provided" />
+                                                </div>
+                                            @endif
+                                            @if($showDoaa)
+                                                <div class="space-y-1">
+                                                    <span class="block text-[10px] font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wide">
+                                                        DOAA Comment
+                                                    </span>
+                                                    <x-feedback-box :text="$oeb->doaa_remark" role="doaa" fallback="No comment provided" />
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 @endif
-                            </tbody>
-                        </table>
+                            </div>
+                        @empty
+                            <div class="col-span-full p-6 text-center text-sm text-gray-500 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                                No OEB members proposed.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
                 <!-- Section 6: Prior Authority Recommendations Trail -->
                 @if($userRank >= 3)
+                    @php
+                        $currStage = $pts3->current_stage;
+                        $isDept = in_array($currStage, ['dpgc', 'hod']);
+                        $isGlobal = in_array($currStage, ['academic_office', 'doaa', 'senate_chairperson']);
+                        $isDeptOrGlobal = $isDept || $isGlobal;
+                        $defaultOpen = $isDept;
+
+                        $hasCoSupervisors = ($pts3->co_supervisors_submitted_at && !empty($coSupervisors));
+
+                        $immediateStage = match($currStage) {
+                            'dpgc' => ($hasCoSupervisors ? 'co_supervisors' : 'main_supervisor'),
+                            'hod' => 'dpgc',
+                            'academic_office' => 'hod',
+                            'doaa' => 'academic_office',
+                            'senate_chairperson' => 'doaa',
+                            default => null,
+                        };
+
+                        $hasEarlierStages = false;
+                        if ($isDeptOrGlobal && $immediateStage) {
+                            if ($immediateStage === 'co_supervisors') {
+                                $hasEarlierStages = (bool)$pts3->main_supervisor_submitted_at;
+                            } elseif ($immediateStage === 'dpgc') {
+                                $hasEarlierStages = (bool)$pts3->main_supervisor_submitted_at || $hasCoSupervisors;
+                            } elseif ($immediateStage === 'hod') {
+                                $hasEarlierStages = (bool)$pts3->main_supervisor_submitted_at || $hasCoSupervisors || (bool)$pts3->dpgc_submitted_at;
+                            } elseif ($immediateStage === 'academic_office') {
+                                $hasEarlierStages = (bool)$pts3->main_supervisor_submitted_at || $hasCoSupervisors || (bool)$pts3->dpgc_submitted_at || (bool)$pts3->hod_submitted_at;
+                            } elseif ($immediateStage === 'doaa') {
+                                $hasEarlierStages = (bool)$pts3->main_supervisor_submitted_at || $hasCoSupervisors || (bool)$pts3->dpgc_submitted_at || (bool)$pts3->hod_submitted_at || (bool)$pts3->academic_office_submitted_at;
+                            }
+                        }
+                    @endphp
+
                     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white pb-2 border-b border-gray-100 dark:border-gray-700">
                             6. Prior Evaluation &amp; Recommendations Trail
                         </h3>
 
                         <div class="space-y-4">
-                            <!-- 1. Main Supervisor -->
-                            @if($pts3->main_supervisor_submitted_at)
-                                <x-role-card role="main_supervisor">
-                                    <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
-                                        <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
-                                            Main Supervisor @if($pts3->mainSupervisor)<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pts3->mainSupervisor->name }})</span>@endif
-                                        </span>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                            ✓ Endorsed
-                                        </span>
-                                    </div>
-                                </x-role-card>
-                            @endif
+                            @if($isDeptOrGlobal && $immediateStage)
+                                <!-- Earlier Authority Recommendations (Collapsed by default for Global, Open for Dept) -->
+                                @if($hasEarlierStages)
+                                    <x-collapsible-earlier-remarks :default-open="$defaultOpen">
+                                        <!-- 1. Main Supervisor -->
+                                        @if($pts3->main_supervisor_submitted_at && $immediateStage !== 'main_supervisor')
+                                            <x-role-card role="main_supervisor">
+                                                <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                                    <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
+                                                        Main Supervisor @if($pts3->mainSupervisor)<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pts3->mainSupervisor->name }})</span>@endif
+                                                    </span>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Endorsed
+                                                    </span>
+                                                </div>
+                                            </x-role-card>
+                                        @endif
 
-                            <!-- 2. Co-Supervisors -->
-                            @if($pts3->co_supervisors_submitted_at && !empty($coSupervisors))
-                                <x-role-card role="co_supervisor">
-                                    <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
-                                    @foreach($coSupervisors as $i => $coUser)
-                                        @php
-                                            $isExt = $coUser->isExternalSupervisor();
-                                            $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
-                                            $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
-                                        @endphp
-                                        <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                            <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
-                                                <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
-                                                <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                                    ✓ Endorsed
-                                                </span>
+                                        <!-- 2. Co-Supervisors -->
+                                        @if($hasCoSupervisors && $immediateStage !== 'co_supervisors')
+                                            <x-role-card role="co_supervisor">
+                                                <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                                @foreach($coSupervisors as $i => $coUser)
+                                                    @php
+                                                        $isExt = $coUser->isExternalSupervisor();
+                                                        $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                                        $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                                    @endphp
+                                                    <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                                            <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                                ✓ Endorsed
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </x-role-card>
+                                        @endif
+
+                                        <!-- 3. DPGC -->
+                                        @if($pts3->dpgc_submitted_at && $immediateStage !== 'dpgc')
+                                            <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                                <x-slot:badge>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Endorsed
+                                                    </span>
+                                                </x-slot:badge>
+                                            </x-role-card>
+                                        @endif
+
+                                        <!-- 4. HOD -->
+                                        @if($pts3->hod_submitted_at && $immediateStage !== 'hod')
+                                            <x-role-card role="hod" title="Head of Department (HOD)">
+                                                <x-slot:badge>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Endorsed
+                                                    </span>
+                                                </x-slot:badge>
+                                            </x-role-card>
+                                        @endif
+
+                                        <!-- 5. Academic Office -->
+                                        @if($pts3->academic_office_submitted_at && $immediateStage !== 'academic_office')
+                                            <x-role-card role="academic_office" title="Academic Office">
+                                                <x-slot:badge>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Verified
+                                                    </span>
+                                                </x-slot:badge>
+                                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                    <strong>Verification Remark:</strong>
+                                                    <x-feedback-box :text="$pts3->academic_office_verification_remark" fallback="Remark not provided" role="academic_office" />
+                                                </div>
+                                            </x-role-card>
+                                        @endif
+
+                                        <!-- 6. DOAA -->
+                                        @if($pts3->doaa_submitted_at && $immediateStage !== 'doaa')
+                                            <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                                                <x-slot:badge>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Verified
+                                                    </span>
+                                                </x-slot:badge>
+                                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                                    <strong>Verification Remark:</strong>
+                                                    <x-feedback-box :text="$pts3->doaa_verification_remark" fallback="Remark not provided" role="doaa" />
+                                                </div>
+                                            </x-role-card>
+                                        @endif
+                                    </x-collapsible-earlier-remarks>
+                                @endif
+
+                                <!-- Immediate Previous Stage (Always Open / Visible directly) -->
+                                @if($immediateStage === 'main_supervisor' && $pts3->main_supervisor_submitted_at)
+                                    <x-role-card role="main_supervisor">
+                                        <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                            <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
+                                                Main Supervisor @if($pts3->mainSupervisor)<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pts3->mainSupervisor->name }})</span>@endif
+                                            </span>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </div>
+                                    </x-role-card>
+                                @elseif($immediateStage === 'co_supervisors' && $hasCoSupervisors)
+                                    <x-role-card role="co_supervisor">
+                                        <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                        @foreach($coSupervisors as $i => $coUser)
+                                            @php
+                                                $isExt = $coUser->isExternalSupervisor();
+                                                $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                                $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                            @endphp
+                                            <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                                <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                                    <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Endorsed
+                                                    </span>
+                                                </div>
                                             </div>
+                                        @endforeach
+                                    </x-role-card>
+                                @elseif($immediateStage === 'dpgc' && $pts3->dpgc_submitted_at)
+                                    <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </x-slot:badge>
+                                    </x-role-card>
+                                @elseif($immediateStage === 'hod' && $pts3->hod_submitted_at)
+                                    <x-role-card role="hod" title="Head of Department (HOD)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </x-slot:badge>
+                                    </x-role-card>
+                                @elseif($immediateStage === 'academic_office' && $pts3->academic_office_submitted_at)
+                                    <x-role-card role="academic_office" title="Academic Office">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Verified
+                                            </span>
+                                        </x-slot:badge>
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                            <strong>Verification Remark:</strong>
+                                            <x-feedback-box :text="$pts3->academic_office_verification_remark" fallback="Remark not provided" role="academic_office" />
                                         </div>
-                                    @endforeach
-                                </x-role-card>
-                            @endif
-
-                            <!-- 3. DPGC -->
-                            @if($userRank > 3 && $pts3->dpgc_submitted_at)
-                                <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
-                                    <x-slot:badge>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                            ✓ Endorsed
-                                        </span>
-                                    </x-slot:badge>
-                                </x-role-card>
-                            @endif
-
-                            <!-- 4. HOD -->
-                            @if($userRank > 4 && $pts3->hod_submitted_at)
-                                <x-role-card role="hod" title="Head of Department (HOD)">
-                                    <x-slot:badge>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                            ✓ Endorsed
-                                        </span>
-                                    </x-slot:badge>
-                                </x-role-card>
-                            @endif
-
-                            <!-- 5. Academic Office -->
-                            @if($userRank > 5 && $pts3->academic_office_submitted_at)
-                                <x-role-card role="academic_office" title="Academic Office">
-                                    <x-slot:badge>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                            ✓ Verified
-                                        </span>
-                                    </x-slot:badge>
-                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                        <strong>Verification Remark:</strong>
-                                        <x-feedback-box :text="$pts3->academic_office_verification_remark" fallback="Remark not provided" role="academic_office" />
-                                    </div>
-                                    @if(Auth::user()?->isAcademicOffice())
-                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
-                                            <strong>Assigned Acting DOAA:</strong>
-                                            @if(!empty($pts3->acting_doaa_email))
-                                                @php
-                                                    $actingDoaaUser = \App\Models\User::where('email', $pts3->acting_doaa_email)->first();
-                                                @endphp
-                                                <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
-                                                    {{ $actingDoaaUser->name ?? $pts3->acting_doaa_email }} ({{ $pts3->acting_doaa_email }})
-                                                </div>
-                                            @else
-                                                <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
-                                                    None
-                                                </div>
-                                            @endif
+                                        @if(Auth::user()?->isAcademicOffice())
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                                <strong>Assigned Acting DOAA:</strong>
+                                                @if(!empty($pts3->acting_doaa_email))
+                                                    @php
+                                                        $actingDoaaUser = \App\Models\User::where('email', $pts3->acting_doaa_email)->first();
+                                                    @endphp
+                                                    <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                        {{ $actingDoaaUser->name ?? $pts3->acting_doaa_email }} ({{ $pts3->acting_doaa_email }})
+                                                    </div>
+                                                @else
+                                                    <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                        None
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </x-role-card>
+                                @elseif($immediateStage === 'doaa' && $pts3->doaa_submitted_at)
+                                    <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Verified
+                                            </span>
+                                        </x-slot:badge>
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                            <strong>Verification Remark:</strong>
+                                            <x-feedback-box :text="$pts3->doaa_verification_remark" fallback="Remark not provided" role="doaa" />
                                         </div>
-                                    @endif
-                                </x-role-card>
-                            @endif
+                                    </x-role-card>
+                                @endif
+                            @else
+                                <!-- Stages before Dept/Global - Render all passed stages directly -->
+                                <!-- 1. Main Supervisor -->
+                                @if($pts3->main_supervisor_submitted_at)
+                                    <x-role-card role="main_supervisor">
+                                        <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                            <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
+                                                Main Supervisor @if($pts3->mainSupervisor)<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pts3->mainSupervisor->name }})</span>@endif
+                                            </span>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </div>
+                                    </x-role-card>
+                                @endif
 
-                            <!-- 6. DOAA -->
-                            @if($userRank > 6 && $pts3->doaa_submitted_at)
-                                <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
-                                    <x-slot:badge>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
-                                            ✓ Verified
-                                        </span>
-                                    </x-slot:badge>
-                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                        <strong>Verification Remark:</strong>
-                                        <x-feedback-box :text="$pts3->doaa_verification_remark" fallback="Remark not provided" role="doaa" />
-                                    </div>
-                                </x-role-card>
+                                <!-- 2. Co-Supervisors -->
+                                @if($pts3->co_supervisors_submitted_at && !empty($coSupervisors))
+                                    <x-role-card role="co_supervisor">
+                                        <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                        @foreach($coSupervisors as $i => $coUser)
+                                            @php
+                                                $isExt = $coUser->isExternalSupervisor();
+                                                $roleTitle = $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}");
+                                                $inst = ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '';
+                                            @endphp
+                                            <div class="text-xs space-y-1.5 pt-1.5 {{ !$loop->first ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                                <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                                    <span>{{ $roleTitle }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $coUser->name }}{{ $inst }})</span>:</span>
+                                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                        ✓ Endorsed
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </x-role-card>
+                                @endif
+
+                                <!-- 3. DPGC -->
+                                @if($userRank > 3 && $pts3->dpgc_submitted_at)
+                                    <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </x-slot:badge>
+                                    </x-role-card>
+                                @endif
+
+                                <!-- 4. HOD -->
+                                @if($userRank > 4 && $pts3->hod_submitted_at)
+                                    <x-role-card role="hod" title="Head of Department (HOD)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Endorsed
+                                            </span>
+                                        </x-slot:badge>
+                                    </x-role-card>
+                                @endif
+
+                                <!-- 5. Academic Office -->
+                                @if($userRank > 5 && $pts3->academic_office_submitted_at)
+                                    <x-role-card role="academic_office" title="Academic Office">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Verified
+                                            </span>
+                                        </x-slot:badge>
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                            <strong>Verification Remark:</strong>
+                                            <x-feedback-box :text="$pts3->academic_office_verification_remark" fallback="Remark not provided" role="academic_office" />
+                                        </div>
+                                        @if(Auth::user()?->isAcademicOffice())
+                                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                                <strong>Assigned Acting DOAA:</strong>
+                                                @if(!empty($pts3->acting_doaa_email))
+                                                    @php
+                                                        $actingDoaaUser = \App\Models\User::where('email', $pts3->acting_doaa_email)->first();
+                                                    @endphp
+                                                    <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                        {{ $actingDoaaUser->name ?? $pts3->acting_doaa_email }} ({{ $pts3->acting_doaa_email }})
+                                                    </div>
+                                                @else
+                                                    <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                        None
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </x-role-card>
+                                @endif
+
+                                <!-- 6. DOAA -->
+                                @if($userRank > 6 && $pts3->doaa_submitted_at)
+                                    <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
+                                        <x-slot:badge>
+                                            <span class="font-bold text-xs whitespace-nowrap shrink-0 text-emerald-600 dark:text-emerald-400">
+                                                ✓ Verified
+                                            </span>
+                                        </x-slot:badge>
+                                        <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                            <strong>Verification Remark:</strong>
+                                            <x-feedback-box :text="$pts3->doaa_verification_remark" fallback="Remark not provided" role="doaa" />
+                                        </div>
+                                    </x-role-card>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -550,9 +674,12 @@
                     <!-- Stage-Specific Remarks before Declaration Checkbox -->
                     @if($pts3->current_stage === 'academic_office')
                         <div class="space-y-1.5 pb-2">
-                            <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
-                                Verification Remark <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Confidential to DOAA &amp; Senate Chairperson)</span>
-                            </label>
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
+                                    Verification Remark <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Confidential to DOAA)</span>
+                                </label>
+                                <x-snippet-dropdown target="academicOfficeVerificationRemark" form-type="pts3" role="academic_office" comment-type="confidential" />
+                            </div>
                             <textarea name="academic_office_verification_remark" 
                                       x-model="academicOfficeVerificationRemark"
                                       rows="2" 
@@ -580,6 +707,9 @@
                             <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
                                 Verification Remark <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Confidential to Senate Chairperson)</span>
                             </label>
+                            <div class="pt-0.5">
+                                <x-snippet-dropdown target="doaaVerificationRemark" form-type="pts3" role="doaa" comment-type="confidential" />
+                            </div>
                             <textarea name="doaa_verification_remark" 
                                       x-model="doaaVerificationRemark"
                                       rows="2" 
@@ -604,13 +734,17 @@
                                 model="recommendation"
                                 remark-name="senate_chairperson_approval_remark"
                                 remark-model="confidentialRemark"
-                                :remark-value="old('senate_chairperson_approval_remark', $pts3->senate_chairperson_approval_remark)"
-                                :show-snippet="false" />
+                                form-type="pts3"
+                                role="senate_chairperson"
+                                :remark-value="old('senate_chairperson_approval_remark', $pts3->senate_chairperson_approval_remark)" />
 
                             <div class="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-700">
                                 <label class="block text-sm font-bold text-gray-800 dark:text-gray-200">
                                     Confidential Remark <span class="text-xs font-normal text-gray-500 dark:text-gray-400">(Visible to DOAA &amp; Senate Chairperson only)</span>
                                 </label>
+                                <div class="pt-0.5">
+                                    <x-snippet-dropdown target="senateConfidentialRemark" form-type="pts3" role="senate_chairperson" comment-type="confidential" />
+                                </div>
                                 <textarea name="senate_chairperson_confidential_remark" 
                                           x-model="senateConfidentialRemark"
                                           rows="2" 

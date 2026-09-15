@@ -14,11 +14,7 @@ class Pts3Examiner extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'has_consent' => 'boolean',
-        'doaa_priority' => 'integer',
-        'senate_chairperson_priority' => 'integer',
-    ];
+    protected $casts = [];
 
     public function pts3Form(): BelongsTo
     {

@@ -46,14 +46,14 @@ class StudentDashboardController extends Controller
         $pts5Form = $activeThesis ? $activeThesis->pts5Form : null;
         $pts6Form = $activeThesis ? $activeThesis->pts6Form : null;
 
-        // PTS-2 is unlocked when PTS-1 is approved (status === 'approved')
+        // PTS-2 and PTS-3 are unlocked when PTS-1 is approved (status === 'approved')
         $pts1Approved = $pts1Form && $pts1Form->status === 'approved';
 
-        // PTS-3 and PTS-4 are unlocked when PTS-2 is approved (status === 'approved')
+        // PTS-4 is unlocked when PTS-2 is approved (status === 'approved')
         $pts2Approved = $pts2Form && $pts2Form->status === 'approved';
 
         $pts3Approved = $pts3Form && $pts3Form->status === 'approved';
-        $pts4Approved = $pts4Form && $pts4Form->status === 'approved';
+        $pts4Accepted = $pts4Form && $pts4Form->status === 'accepted';
         $pts5Approved = $pts5Form && $pts5Form->status === 'approved';
         $pts6Approved = $pts6Form && $pts6Form->status === 'approved';
 
@@ -64,7 +64,7 @@ class StudentDashboardController extends Controller
             $rejectedPts2 = $activeThesis->pts2Forms()->where('status', 'rejected')->get();
             $rejectedPts2Ext = $activeThesis->pts2Extensions()->where('status', 'rejected')->get();
             $rejectedPts3 = $activeThesis->pts3Forms()->where('status', 'rejected')->get();
-            $rejectedPts4 = $activeThesis->pts4Forms()->where('status', 'rejected')->get();
+            $rejectedPts4 = $activeThesis->pts4Forms()->where('status', 'not_accepted')->get();
             $rejectedPts4Ext = $activeThesis->pts4Extensions()->where('status', 'rejected')->get();
             $rejectedPts5 = $activeThesis->pts5Forms()->where('status', 'rejected')->get();
             $rejectedPts6 = $activeThesis->pts6Forms()->where('status', 'rejected')->get();
@@ -113,7 +113,7 @@ class StudentDashboardController extends Controller
             'pts1Approved', 
             'pts2Approved', 
             'pts3Approved',
-            'pts4Approved',
+            'pts4Accepted',
             'pts5Approved',
             'pts6Approved',
             'currentRejectedForms',

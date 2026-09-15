@@ -72,15 +72,15 @@
                                     
                                     $badgeClass = match($statusType) {
                                         'pending' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-200 dark:border-amber-700',
-                                        'approved' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300',
-                                        'rejected' => 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300',
+                                        'approved', 'accepted' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300',
+                                        'rejected', 'not_accepted' => 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300',
                                         'reverted' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300',
                                         default => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300',
                                     };
                                     
                                     $cardBg = match($statusType) {
                                         'pending' => 'bg-amber-50/60 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/60',
-                                        'rejected' => 'bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50',
+                                        'rejected', 'not_accepted' => 'bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-800/50',
                                         'reverted' => 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/50',
                                         default => 'bg-gray-50 dark:bg-gray-700/40 border-gray-200 dark:border-gray-600',
                                     };
@@ -109,7 +109,7 @@
                                             <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                             <span>{{ \Carbon\Carbon::parse($item['submitted_at'])->format('d-M-Y H:i') }}</span>
                                         </div>
-                                    @elseif(in_array($statusType, ['submitted', 'approved']))
+                                    @elseif(in_array($statusType, ['submitted', 'approved', 'accepted']))
                                         <div class="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center space-x-1 pt-0.5">
                                             <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             <span>Submitted</span>

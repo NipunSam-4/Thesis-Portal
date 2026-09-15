@@ -19,25 +19,25 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="space-y-1">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                        @if($pts4->status === 'approved')
-                            {{ __("Approved {$formPrefix}-4 Form Details & Remarks") }}
+                        @if($pts4->status === 'accepted')
+                            {{ __("Accepted {$formPrefix}-4 Form Details & Remarks") }}
                         @else
-                            {{ __("Rejected {$formPrefix}-4 Form Details & Remarks") }}
+                            {{ __("Not Accepted {$formPrefix}-4 Form Details & Remarks") }}
                         @endif
                     </h2>
                 </div>
                 <div class="flex items-center space-x-3 shrink-0">
-                    @if($pts4->status === 'approved')
+                    @if($pts4->status === 'accepted')
                         <a href="{{ route('student.pts4.certificate', $pts4->id) }}" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition inline-flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <span>Download Thesis Certificate</span>
                         </a>
                         <span class="px-3.5 py-1.5 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-emerald-200 dark:border-emerald-800">
-                            ✓ Approved
+                            ✓ Accepted
                         </span>
                     @else
                         <span class="px-3.5 py-1.5 bg-red-100 dark:bg-red-900/60 text-red-800 dark:text-red-300 text-xs font-extrabold rounded-full uppercase tracking-wider flex items-center shadow-xs border border-red-200 dark:border-red-800">
-                            ❌ Rejected
+                            ❌ Not Accepted
                         </span>
                     @endif
                 </div>
@@ -53,7 +53,7 @@
             @endphp
 
             <!-- Section 4: Authority Comments (Student) or Authority Recommendations & Remarks (Authorities) -->
-            @if(in_array($pts4->status, ['approved', 'rejected']))
+            @if(in_array($pts4->status, ['accepted', 'not_accepted']))
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
                         {{ $isStudent ? '4. Authority Comments' : '4. Authority Recommendations & Remarks' }}
@@ -143,15 +143,15 @@
                             </x-role-card>
                         @endif
 
-                        <!-- DR Approval -->
-                        @if($pts4->dr_submitted_at || $pts4->dr_approval !== null)
+                        <!-- DR Acceptance -->
+                        @if($pts4->dr_submitted_at || $pts4->dr_acceptance !== null)
                             <x-role-card role="dr" title="Deputy Registrar (DR)">
-                                @if(!$isStudent && $pts4->dr_approval !== null)
+                                @if(!$isStudent && $pts4->dr_acceptance !== null)
                                     <x-slot:badge>
-                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->dr_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                            {{ $pts4->dr_approval ? '✓ Approved' : '❌ Rejected' }}
-                                            @if($pts4->approvedBy)
-                                                by: {{ $pts4->approvedBy->email }}
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts4->dr_acceptance ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $pts4->dr_acceptance ? '✓ Accepted' : '❌ Not Accepted' }}
+                                            @if($pts4->acceptedBy)
+                                                by: {{ $pts4->acceptedBy->email }}
                                             @endif
                                         </span>
                                     </x-slot:badge>

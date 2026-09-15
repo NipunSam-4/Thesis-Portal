@@ -27,16 +27,9 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->text('research_area')->nullable();
             
-            $table->boolean('has_consent')->default(false);
-            $table->string('consent_doc_path')->nullable();
-            $table->text('academic_office_remark')->nullable();
-            $table->text('doaa_remark')->nullable();
-            
-            // Examiner Selection Priorities for DOAA & Senate Chairperson stages
-            $table->unsignedInteger('doaa_priority')->nullable();
-            $table->unsignedInteger('senate_chairperson_priority')->nullable();
-            
             $table->timestamps();
+
+            $table->unique(['pts3_form_id', 'email']);
         });
     }
 

@@ -237,10 +237,10 @@
                                         </span>
                                         <div class="flex items-center gap-1.5 shrink-0">
                                             <x-submission-timeline-modal :form="$rejThesis->pts4Form" :title="$ptsPrefix . '-4 Submission Timeline'" />
-                                            @if($rejThesis->pts4Form->status === 'approved')
-                                                <span class="shrink-0 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Approved</span>
-                                            @elseif($rejThesis->pts4Form->status === 'rejected')
-                                                <span class="shrink-0 bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Rejected</span>
+                                            @if($rejThesis->pts4Form->status === 'accepted')
+                                                <span class="shrink-0 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Accepted</span>
+                                            @elseif($rejThesis->pts4Form->status === 'not_accepted')
+                                                <span class="shrink-0 bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs font-bold px-2.5 py-0.5 rounded-full">Not Accepted</span>
                                             @else
                                                 <span class="shrink-0 bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ ucfirst($rejThesis->pts4Form->status) }}</span>
                                             @endif
@@ -271,15 +271,15 @@
 
                                 <div class="pt-2 border-t border-slate-100 dark:border-gray-700">
                                     <div class="flex items-center justify-between gap-2 pt-1">
-                                        @if($rejThesis->pts4Form->status === 'approved')
-                                            <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
+                                        @if($rejThesis->pts4Form->status === 'accepted')
+                                            <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Accepted</span>
                                             <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
-                                                View Submission &rarr;
+                                                View Accepted Form &rarr;
                                             </a>
                                         @else
-                                            <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
+                                            <span class="text-[11px] text-rose-700 dark:text-rose-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Not Accepted</span>
                                             <a href="{{ route('pts4.show', $rejThesis->pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-sm transition shrink-0 whitespace-nowrap">
-                                                View Submission &rarr;
+                                                View Not Accepted Form &rarr;
                                             </a>
                                         @endif
                                     </div>

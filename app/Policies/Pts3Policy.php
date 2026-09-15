@@ -80,10 +80,10 @@ class Pts3Policy
         if ($user->isAcademicOffice()) {
             return 5;
         }
-        if ($user->isDoaa() || ($pts3->vested_doaa_email && $user->email === $pts3->vested_doaa_email) || ($pts3->acting_doaa_email && $user->email === $pts3->acting_doaa_email)) {
+        if ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($pts3->acting_doaa_email === $user->email || $pts3->vested_doaa_email === $user->email)) || ($pts3->vested_doaa_email && $user->email === $pts3->vested_doaa_email) || ($pts3->acting_doaa_email && $user->email === $pts3->acting_doaa_email)) {
             return 6;
         }
-        if ($user->role === 'senate_chairperson' || auth('admin')->check() || $user->isAdmin()) {
+        if ($user->role === 'senate_chairperson' || auth('admin')->check()) {
             return 7;
         }
         return 0;

@@ -48,15 +48,12 @@ class UpdatePts3Request extends FormRequest
             'international_examiners.*.has_consent' => 'required|boolean',
             'international_examiners.*.consent_doc' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
 
-            // OEB Members (Exactly 4)
-            'oeb_members' => 'required|array|size:4',
-            'oeb_members.*.name' => 'required|string',
-            'oeb_members.*.designation' => 'required|string',
-            'oeb_members.*.department' => 'required|string',
-            'oeb_members.*.email' => 'required|email',
-            'oeb_members.*.phone_number' => 'nullable|string',
-            'oeb_members.*.phone_country_code' => 'nullable|string|max:5',
-            'oeb_members.*.phone_iso2' => 'nullable|string|max:10',
+            // OEB Chairpersons (Exactly 4)
+            'oeb_chairpersons' => 'required|array|size:4',
+            'oeb_chairpersons.*.name' => 'required|string',
+            'oeb_chairpersons.*.designation' => 'required|string',
+            'oeb_chairpersons.*.department' => 'required|string',
+            'oeb_chairpersons.*.email' => 'required|email',
 
             // Supervisor Declaration
             'supervisor_declaration' => 'required|accepted',

@@ -185,82 +185,102 @@
                 :collapsible="false"
             />
 
-            <!-- Section 5: Proposed Oral Examination Board (OEB) Members (Ordered by viewer role) -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>5. Proposed Oral Examination Board (OEB) Members</span>
-                        </h3>
-                    </div>
-                    <span class="text-xs px-2.5 py-1 bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 rounded-full font-semibold border border-amber-200 dark:border-amber-800">
-                        Count: {{ $oebMembers->count() }} Member(s)
-                    </span>
+            <!-- Section 5: Proposed Oral Examination Board (OEB) Chairpersons (2-Column Grid 1 -> 2, 3 -> 4) -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-5">
+                <div class="pb-3 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span>5. Proposed Oral Examination Board (OEB) Chairpersons</span>
+                    </h3>
                 </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs">
-                        <table class="w-full min-w-[750px] text-left text-sm text-gray-600 dark:text-gray-300 divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase text-gray-500 dark:text-gray-400">
-                                <tr>
-                                    @if($userRank >= 5)
-                                        <th class="p-3 w-12 text-center whitespace-nowrap">#</th>
-                                    @endif
-                                    <th class="p-3 min-w-[160px] max-w-[240px]">Name</th>
-                                    <th class="p-3 min-w-[140px] max-w-[200px]">Designation</th>
-                                    <th class="p-3 min-w-[150px] max-w-[220px]">Department</th>
-                                    <th class="p-3 min-w-[160px]">Email</th>
-                                    <th class="p-3 min-w-[130px] whitespace-nowrap">Phone No.</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                                @forelse($oebMembers as $index => $oeb)
-                                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors align-top">
-                                        @if($userRank >= 5)
-                                            <td class="p-3 text-center font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ $index + 1 }}</td>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @forelse($oebMembers as $index => $oeb)
+                        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 transition shadow-2xs space-y-3.5 flex flex-col justify-between">
+                            <div>
+                                <!-- Card Top Header (Order + Member Label) -->
+                                <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-gray-100 dark:border-gray-700">
+                                    <div class="flex items-center gap-2">
+                                        @if($userRank >= 6)
+                                            @php
+                                                $oebPriorityNum = ($userRank === 7) 
+                                                    ? ($oeb->senate_chairperson_priority ?? $oeb->doaa_priority ?? ($index + 1)) 
+                                                    : ($oeb->doaa_priority ?? ($index + 1));
+                                            @endphp
+                                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-700 text-xs font-black shrink-0 shadow-2xs">
+                                                #{{ $oebPriorityNum }}
+                                            </span>
+                                        @else
+                                            {{-- For MS, Co-Supervisors, DPGC, HOD, Academic Office: Do not show sequence numbers --}}
                                         @endif
-                                        <td class="p-3 font-bold text-gray-900 dark:text-white min-w-[160px] max-w-[240px] break-words">{{ $oeb->name }}</td>
-                                        <td class="p-3 text-xs text-gray-700 dark:text-gray-300 min-w-[140px] max-w-[200px] break-words">{{ $oeb->designation }}</td>
-                                        <td class="p-3 text-xs font-medium text-gray-800 dark:text-gray-200 min-w-[150px] max-w-[220px] break-words">{{ $oeb->department }}</td>
-                                        <td class="p-3 text-xs min-w-[160px] break-all">
-                                            <a href="mailto:{{ $oeb->email }}" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">{{ $oeb->email }}</a>
-                                        </td>
-                                        <td class="p-3 text-xs text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-[130px]">{{ $oeb->getFormattedPhoneNumber() ?: 'N/A' }}</td>
-                                    </tr>
+                                    </div>
 
-                                    <!-- Side-by-Side Remarks Sub-Row for Evaluating Authorities (userRank >= 5) -->
-                                    @if($userRank >= 5 && ($pts3->academic_office_submitted_at || ($userRank >= 6 && $pts3->doaa_submitted_at)))
-                                        <tr class="bg-gray-50/40 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-800">
-                                            <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-3 px-6">
-                                                <div class="grid grid-cols-1 {{ ($userRank >= 6 && ($pts3->doaa_submitted_at || in_array($pts3->status, ['approved', 'rejected']))) ? 'md:grid-cols-2' : '' }} gap-4">
-                                                    <!-- Academic Office Comment Card (Left) -->
-                                                    <x-role-card role="academic_office" class="p-3 !space-y-1.5">
-                                                        <span class="block text-xs font-bold text-violet-900 dark:text-violet-200">
-                                                            Academic Office Comment
-                                                        </span>
-                                                        <x-feedback-box :text="$oeb->academic_office_remark" role="academic_office" fallback="No comment provided" />
-                                                    </x-role-card>
-                                          
-                                                    @if($userRank >= 6 && ($pts3->doaa_submitted_at || in_array($pts3->status, ['approved', 'rejected'])))
-                                                    <!-- DOAA Comment Card (Right) -->
-                                                    <x-role-card role="doaa" class="p-3 !space-y-1.5">
-                                                        <span class="block text-xs font-bold text-purple-900 dark:text-purple-200">
-                                                            DOAA Comment
-                                                        </span>
-                                                        <x-feedback-box :text="$oeb->doaa_remark" role="doaa" fallback="No comment provided" />
-                                                    </x-role-card>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @empty
-                                    <tr>
-                                        <td colspan="{{ $userRank >= 5 ? 6 : 5 }}" class="p-4 text-center text-sm text-gray-500">No OEB members proposed.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400">
+                                        OEB Chairperson
+                                    </span>
+                                </div>
+
+                                <!-- Discrete Fields (All Shown in Card: Inline Label: Value) -->
+                                <div class="space-y-2 pt-2 text-xs">
+                                    <!-- Name -->
+                                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                                        <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Faculty Name:</span>
+                                        <span class="font-bold text-xs text-gray-900 dark:text-white">{{ $oeb->name }}</span>
+                                    </div>
+
+                                    <!-- Designation -->
+                                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                                        <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Designation:</span>
+                                        <span class="text-gray-800 dark:text-gray-200 font-medium">{{ $oeb->designation ?: 'N/A' }}</span>
+                                    </div>
+
+                                    <!-- Department -->
+                                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                                        <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Department:</span>
+                                        <span class="text-gray-800 dark:text-gray-200 font-medium">{{ $oeb->department ?: 'N/A' }}</span>
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                                        <span class="font-semibold text-gray-500 dark:text-gray-400 shrink-0">Email Address:</span>
+                                        <a href="mailto:{{ $oeb->email }}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium break-all">{{ $oeb->email ?: 'N/A' }}</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Remarks Sub-Section (Role-Restricted) -->
+                            @if($userRank >= 5 && ($pts3->academic_office_submitted_at || ($userRank >= 6 && $pts3->doaa_submitted_at)))
+                                @php
+                                    $showAcademic = ($userRank < 7) && (bool)$pts3->academic_office_submitted_at;
+                                    $showDoaa = ($userRank >= 6) && (bool)$pts3->doaa_submitted_at;
+                                @endphp
+                                @if($showAcademic || $showDoaa)
+                                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                                        @if($showAcademic)
+                                            <div class="space-y-1">
+                                                <span class="block text-[10px] font-bold text-violet-900 dark:text-violet-200 uppercase tracking-wide">
+                                                    Academic Office Comment
+                                                </span>
+                                                <x-feedback-box :text="$oeb->academic_office_remark" role="academic_office" fallback="No comment provided" />
+                                            </div>
+                                        @endif
+                                        @if($showDoaa)
+                                            <div class="space-y-1">
+                                                <span class="block text-[10px] font-bold text-purple-900 dark:text-purple-200 uppercase tracking-wide">
+                                                    DOAA Comment
+                                                </span>
+                                                <x-feedback-box :text="$oeb->doaa_remark" role="doaa" fallback="No comment provided" />
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    @empty
+                        <div class="col-span-full p-6 text-center text-sm text-gray-500 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                            No OEB Chairpersons proposed.
+                        </div>
+                    @endforelse
+                </div>
             </div>
 
             <!-- Section 6: Stage Evaluation Trail -->

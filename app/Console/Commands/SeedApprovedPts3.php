@@ -7,7 +7,7 @@ use App\Models\Student;
 use App\Models\Thesis;
 use App\Models\Pts3Form;
 use App\Models\Pts3Examiner;
-use App\Models\Pts3OebMember;
+use App\Models\Pts3OebChairperson;
 use App\Models\User;
 
 class SeedApprovedPts3 extends Command
@@ -53,6 +53,44 @@ class SeedApprovedPts3 extends Command
 
         $now = now();
 
+        $slotData = [
+            'indian_examiner_1_email' => 'rksharma@cse.iitd.ac.in',
+            'indian_examiner_1_has_consent' => true,
+            'indian_examiner_1_doaa_priority' => 1,
+            'indian_examiner_1_senate_chairperson_priority' => 1,
+
+            'indian_examiner_2_email' => 'mukerjee@cse.iitk.ac.in',
+            'indian_examiner_2_has_consent' => true,
+            'indian_examiner_2_doaa_priority' => 2,
+            'indian_examiner_2_senate_chairperson_priority' => 2,
+
+            'international_examiner_1_email' => 'damiller@cs.stanford.edu',
+            'international_examiner_1_has_consent' => true,
+            'international_examiner_1_doaa_priority' => 1,
+            'international_examiner_1_senate_chairperson_priority' => 1,
+
+            'international_examiner_2_email' => 'erostova@inf.ethz.ch',
+            'international_examiner_2_has_consent' => true,
+            'international_examiner_2_doaa_priority' => 2,
+            'international_examiner_2_senate_chairperson_priority' => 2,
+
+            'oeb_chairperson_1_email' => 'subhashish@iitg.ac.in',
+            'oeb_chairperson_1_doaa_priority' => 1,
+            'oeb_chairperson_1_senate_chairperson_priority' => 1,
+
+            'oeb_chairperson_2_email' => 'meenakshi@iitg.ac.in',
+            'oeb_chairperson_2_doaa_priority' => 2,
+            'oeb_chairperson_2_senate_chairperson_priority' => 2,
+
+            'oeb_chairperson_3_email' => 'hemant@iitg.ac.in',
+            'oeb_chairperson_3_doaa_priority' => 3,
+            'oeb_chairperson_3_senate_chairperson_priority' => 3,
+
+            'oeb_chairperson_4_email' => 'anamika@iitg.ac.in',
+            'oeb_chairperson_4_doaa_priority' => 4,
+            'oeb_chairperson_4_senate_chairperson_priority' => 4,
+        ];
+
         $pts3 = Pts3Form::updateOrCreate(
             ['thesis_id' => $thesis->id],
             array_merge([
@@ -87,12 +125,12 @@ class SeedApprovedPts3 extends Command
                 'status' => 'approved',
                 'current_stage' => 'completed',
                 'approved_by_id' => $senate?->id,
-            ], $coSupData)
+            ], $coSupData, $slotData)
         );
 
         // Delete existing examiners and OEB members to re-seed cleanly
         Pts3Examiner::where('pts3_form_id', $pts3->id)->delete();
-        Pts3OebMember::where('pts3_form_id', $pts3->id)->delete();
+        Pts3OebChairperson::where('pts3_form_id', $pts3->id)->delete();
 
         // 2 Indian Examiners
         Pts3Examiner::create([
@@ -108,9 +146,6 @@ class SeedApprovedPts3 extends Command
             'phone_iso2' => 'in',
             'website' => 'https://www.iitd.ac.in/~rksharma',
             'research_area' => 'Neural Network Optimization, Deep Learning Systems',
-            'has_consent' => true,
-            'doaa_priority' => 1,
-            'senate_chairperson_priority' => 1,
         ]);
 
         Pts3Examiner::create([
@@ -126,9 +161,6 @@ class SeedApprovedPts3 extends Command
             'phone_iso2' => 'in',
             'website' => 'https://www.iitk.ac.in/~mukerjee',
             'research_area' => 'Artificial Intelligence and Cognitive Robotics',
-            'has_consent' => true,
-            'doaa_priority' => 2,
-            'senate_chairperson_priority' => 2,
         ]);
 
         // 2 International Examiners
@@ -145,9 +177,6 @@ class SeedApprovedPts3 extends Command
             'phone_iso2' => 'us',
             'website' => 'https://cs.stanford.edu/~damiller',
             'research_area' => 'High-Performance Machine Learning Accelerators',
-            'has_consent' => true,
-            'doaa_priority' => 1,
-            'senate_chairperson_priority' => 1,
         ]);
 
         Pts3Examiner::create([
@@ -163,12 +192,9 @@ class SeedApprovedPts3 extends Command
             'phone_iso2' => 'ch',
             'website' => 'https://inf.ethz.ch/~erostova',
             'research_area' => 'Parallel Algorithms & AI Systems',
-            'has_consent' => true,
-            'doaa_priority' => 2,
-            'senate_chairperson_priority' => 2,
         ]);
 
-        // 4 OEB Members
+        // 4 OEB Chairpersons
         $oebList = [
             ['name' => 'Dr. Subhashish Banerjee', 'designation' => 'Associate Professor', 'department' => 'CSE', 'email' => 'subhashish@iitg.ac.in'],
             ['name' => 'Dr. Meenakshi D\'Souza', 'designation' => 'Associate Professor', 'department' => 'EEE', 'email' => 'meenakshi@iitg.ac.in'],
@@ -177,17 +203,12 @@ class SeedApprovedPts3 extends Command
         ];
 
         foreach ($oebList as $idx => $oeb) {
-            Pts3OebMember::create([
+            Pts3OebChairperson::create([
                 'pts3_form_id' => $pts3->id,
                 'name' => $oeb['name'],
                 'designation' => $oeb['designation'],
                 'department' => $oeb['department'],
                 'email' => $oeb['email'],
-                'phone_number' => '987650000' . ($idx + 1),
-                'phone_country_code' => '+91',
-                'phone_iso2' => 'in',
-                'doaa_priority' => $idx + 1,
-                'senate_chairperson_priority' => $idx + 1,
             ]);
         }
 

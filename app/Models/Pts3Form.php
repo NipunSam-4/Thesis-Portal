@@ -71,6 +71,24 @@ class Pts3Form extends Model
     'acting_doaa_email',
     'vested_doaa_email',
     'approved_by_id',
+
+    // Indian Examiners (1 to 4)
+    'indian_examiner_1_email', 'indian_examiner_1_has_consent', 'indian_examiner_1_consent_doc_path', 'indian_examiner_1_academic_office_remark', 'indian_examiner_1_doaa_remark', 'indian_examiner_1_doaa_priority', 'indian_examiner_1_senate_chairperson_priority',
+    'indian_examiner_2_email', 'indian_examiner_2_has_consent', 'indian_examiner_2_consent_doc_path', 'indian_examiner_2_academic_office_remark', 'indian_examiner_2_doaa_remark', 'indian_examiner_2_doaa_priority', 'indian_examiner_2_senate_chairperson_priority',
+    'indian_examiner_3_email', 'indian_examiner_3_has_consent', 'indian_examiner_3_consent_doc_path', 'indian_examiner_3_academic_office_remark', 'indian_examiner_3_doaa_remark', 'indian_examiner_3_doaa_priority', 'indian_examiner_3_senate_chairperson_priority',
+    'indian_examiner_4_email', 'indian_examiner_4_has_consent', 'indian_examiner_4_consent_doc_path', 'indian_examiner_4_academic_office_remark', 'indian_examiner_4_doaa_remark', 'indian_examiner_4_doaa_priority', 'indian_examiner_4_senate_chairperson_priority',
+
+    // International Examiners (1 to 4)
+    'international_examiner_1_email', 'international_examiner_1_has_consent', 'international_examiner_1_consent_doc_path', 'international_examiner_1_academic_office_remark', 'international_examiner_1_doaa_remark', 'international_examiner_1_doaa_priority', 'international_examiner_1_senate_chairperson_priority',
+    'international_examiner_2_email', 'international_examiner_2_has_consent', 'international_examiner_2_consent_doc_path', 'international_examiner_2_academic_office_remark', 'international_examiner_2_doaa_remark', 'international_examiner_2_doaa_priority', 'international_examiner_2_senate_chairperson_priority',
+    'international_examiner_3_email', 'international_examiner_3_has_consent', 'international_examiner_3_consent_doc_path', 'international_examiner_3_academic_office_remark', 'international_examiner_3_doaa_remark', 'international_examiner_3_doaa_priority', 'international_examiner_3_senate_chairperson_priority',
+    'international_examiner_4_email', 'international_examiner_4_has_consent', 'international_examiner_4_consent_doc_path', 'international_examiner_4_academic_office_remark', 'international_examiner_4_doaa_remark', 'international_examiner_4_doaa_priority', 'international_examiner_4_senate_chairperson_priority',
+
+    // OEB Chairpersons (1 to 4)
+    'oeb_chairperson_1_email', 'oeb_chairperson_1_academic_office_remark', 'oeb_chairperson_1_doaa_remark', 'oeb_chairperson_1_doaa_priority', 'oeb_chairperson_1_senate_chairperson_priority',
+    'oeb_chairperson_2_email', 'oeb_chairperson_2_academic_office_remark', 'oeb_chairperson_2_doaa_remark', 'oeb_chairperson_2_doaa_priority', 'oeb_chairperson_2_senate_chairperson_priority',
+    'oeb_chairperson_3_email', 'oeb_chairperson_3_academic_office_remark', 'oeb_chairperson_3_doaa_remark', 'oeb_chairperson_3_doaa_priority', 'oeb_chairperson_3_senate_chairperson_priority',
+    'oeb_chairperson_4_email', 'oeb_chairperson_4_academic_office_remark', 'oeb_chairperson_4_doaa_remark', 'oeb_chairperson_4_doaa_priority', 'oeb_chairperson_4_senate_chairperson_priority',
     ];
 
 
@@ -114,6 +132,42 @@ class Pts3Form extends Model
 
         'senate_chairperson_approval' => 'boolean',
         'senate_chairperson_submitted_at' => 'datetime',
+
+        'indian_examiner_1_has_consent' => 'boolean',
+        'indian_examiner_2_has_consent' => 'boolean',
+        'indian_examiner_3_has_consent' => 'boolean',
+        'indian_examiner_4_has_consent' => 'boolean',
+        'international_examiner_1_has_consent' => 'boolean',
+        'international_examiner_2_has_consent' => 'boolean',
+        'international_examiner_3_has_consent' => 'boolean',
+        'international_examiner_4_has_consent' => 'boolean',
+
+        'indian_examiner_1_doaa_priority' => 'integer',
+        'indian_examiner_2_doaa_priority' => 'integer',
+        'indian_examiner_3_doaa_priority' => 'integer',
+        'indian_examiner_4_doaa_priority' => 'integer',
+        'indian_examiner_1_senate_chairperson_priority' => 'integer',
+        'indian_examiner_2_senate_chairperson_priority' => 'integer',
+        'indian_examiner_3_senate_chairperson_priority' => 'integer',
+        'indian_examiner_4_senate_chairperson_priority' => 'integer',
+
+        'international_examiner_1_doaa_priority' => 'integer',
+        'international_examiner_2_doaa_priority' => 'integer',
+        'international_examiner_3_doaa_priority' => 'integer',
+        'international_examiner_4_doaa_priority' => 'integer',
+        'international_examiner_1_senate_chairperson_priority' => 'integer',
+        'international_examiner_2_senate_chairperson_priority' => 'integer',
+        'international_examiner_3_senate_chairperson_priority' => 'integer',
+        'international_examiner_4_senate_chairperson_priority' => 'integer',
+
+        'oeb_chairperson_1_doaa_priority' => 'integer',
+        'oeb_chairperson_2_doaa_priority' => 'integer',
+        'oeb_chairperson_3_doaa_priority' => 'integer',
+        'oeb_chairperson_4_doaa_priority' => 'integer',
+        'oeb_chairperson_1_senate_chairperson_priority' => 'integer',
+        'oeb_chairperson_2_senate_chairperson_priority' => 'integer',
+        'oeb_chairperson_3_senate_chairperson_priority' => 'integer',
+        'oeb_chairperson_4_senate_chairperson_priority' => 'integer',
     ];
 
     public function thesis(): BelongsTo
@@ -123,22 +177,126 @@ class Pts3Form extends Model
 
     public function examiners(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class);
+        return $this->hasMany(Pts3Examiner::class, 'pts3_form_id');
     }
 
-    public function indianExaminers(): HasMany
+    public function oebChairpersons(): HasMany
     {
-        return $this->hasMany(Pts3Examiner::class)->where('type', 'indian');
+        return $this->hasMany(Pts3OebChairperson::class, 'pts3_form_id');
     }
 
-    public function internationalExaminers(): HasMany
+    /**
+     * Get 4 Indian examiner objects with combined profile and form workflow data.
+     */
+    public function getIndianExaminers()
     {
-        return $this->hasMany(Pts3Examiner::class)->where('type', 'international');
+        $profiles = $this->examiners->where('type', 'indian')->keyBy('email');
+        $items = collect();
+
+        for ($i = 1; $i <= 4; $i++) {
+            $email = $this->{"indian_examiner_{$i}_email"};
+            if (!$email) {
+                continue;
+            }
+            $profile = $profiles->get($email);
+            $items->push((object)[
+                'slot' => $i,
+                'id' => $profile?->id ?? $i,
+                'type' => 'indian',
+                'name' => $profile?->name ?? '',
+                'designation' => $profile?->designation ?? '',
+                'organization' => $profile?->organization ?? '',
+                'postal_address' => $profile?->postal_address ?? '',
+                'email' => $email,
+                'phone_number' => $profile?->phone_number ?? null,
+                'phone_country_code' => $profile?->phone_country_code ?? '+91',
+                'phone_iso2' => $profile?->phone_iso2 ?? 'in',
+                'website' => $profile?->website ?? null,
+                'research_area' => $profile?->research_area ?? null,
+                'has_consent' => (bool)$this->{"indian_examiner_{$i}_has_consent"},
+                'consent_doc_path' => $this->{"indian_examiner_{$i}_consent_doc_path"},
+                'academic_office_remark' => $this->{"indian_examiner_{$i}_academic_office_remark"},
+                'doaa_remark' => $this->{"indian_examiner_{$i}_doaa_remark"},
+                'doaa_priority' => $this->{"indian_examiner_{$i}_doaa_priority"},
+                'senate_chairperson_priority' => $this->{"indian_examiner_{$i}_senate_chairperson_priority"},
+                'profile' => $profile,
+            ]);
+        }
+
+        return $items;
     }
 
-    public function oebMembers(): HasMany
+    /**
+     * Get 4 International examiner objects with combined profile and form workflow data.
+     */
+    public function getInternationalExaminers()
     {
-        return $this->hasMany(Pts3OebMember::class);
+        $profiles = $this->examiners->where('type', 'international')->keyBy('email');
+        $items = collect();
+
+        for ($i = 1; $i <= 4; $i++) {
+            $email = $this->{"international_examiner_{$i}_email"};
+            if (!$email) {
+                continue;
+            }
+            $profile = $profiles->get($email);
+            $items->push((object)[
+                'slot' => $i,
+                'id' => $profile?->id ?? $i,
+                'type' => 'international',
+                'name' => $profile?->name ?? '',
+                'designation' => $profile?->designation ?? '',
+                'organization' => $profile?->organization ?? '',
+                'postal_address' => $profile?->postal_address ?? '',
+                'email' => $email,
+                'phone_number' => $profile?->phone_number ?? null,
+                'phone_country_code' => $profile?->phone_country_code ?? '+1',
+                'phone_iso2' => $profile?->phone_iso2 ?? 'us',
+                'website' => $profile?->website ?? null,
+                'research_area' => $profile?->research_area ?? null,
+                'has_consent' => (bool)$this->{"international_examiner_{$i}_has_consent"},
+                'consent_doc_path' => $this->{"international_examiner_{$i}_consent_doc_path"},
+                'academic_office_remark' => $this->{"international_examiner_{$i}_academic_office_remark"},
+                'doaa_remark' => $this->{"international_examiner_{$i}_doaa_remark"},
+                'doaa_priority' => $this->{"international_examiner_{$i}_doaa_priority"},
+                'senate_chairperson_priority' => $this->{"international_examiner_{$i}_senate_chairperson_priority"},
+                'profile' => $profile,
+            ]);
+        }
+
+        return $items;
+    }
+
+    /**
+     * Get 4 OEB Chairperson objects with combined profile and form workflow data.
+     */
+    public function getOebChairpersons()
+    {
+        $profiles = $this->oebChairpersons->keyBy('email');
+        $items = collect();
+
+        for ($i = 1; $i <= 4; $i++) {
+            $email = $this->{"oeb_chairperson_{$i}_email"};
+            if (!$email) {
+                continue;
+            }
+            $profile = $profiles->get($email);
+            $items->push((object)[
+                'slot' => $i,
+                'id' => $profile?->id ?? $i,
+                'name' => $profile?->name ?? '',
+                'designation' => $profile?->designation ?? '',
+                'department' => $profile?->department ?? '',
+                'email' => $email,
+                'academic_office_remark' => $this->{"oeb_chairperson_{$i}_academic_office_remark"},
+                'doaa_remark' => $this->{"oeb_chairperson_{$i}_doaa_remark"},
+                'doaa_priority' => $this->{"oeb_chairperson_{$i}_doaa_priority"},
+                'senate_chairperson_priority' => $this->{"oeb_chairperson_{$i}_senate_chairperson_priority"},
+                'profile' => $profile,
+            ]);
+        }
+
+        return $items;
     }
 
     /**

@@ -24,12 +24,10 @@ return new class extends Migration
             ])->default('all');
 
             $table->enum('comment_type', [ 
-                'recommendation',
-                'non-recommendation',
+                'confidential',
                 'student_comment',
                 'verification_remark',
-                'reversion_comment'
-            ])->default('recommendation');
+            ])->default('confidential');
 
             $table->enum('role', [ 
                 'dpgc', 

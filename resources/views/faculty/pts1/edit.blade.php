@@ -496,10 +496,13 @@
                             <span x-show="workStatus === 'adequate'">2. Recommendation Remark (Optional)</span>
                             <span x-show="workStatus === 'inadequate'">2. Non-Recommendation Remark <span class="text-red-500">*</span></span>
                         </label>
+                        <div class="pt-0.5">
+                            <x-snippet-dropdown target="confidentialRemark" form-type="pts1" role="main_supervisor" comment-type="confidential" />
+                        </div>
                         <textarea name="main_supervisor_confidential_remark" 
                                   rows="3" 
                                   :required="workStatus === 'inadequate'" 
-                                  x-model="confidentialRemark"
+                                  x-model="confidentialRemark" 
                                   :placeholder="workStatus === 'adequate' ? 'Optional confidential remarks' : 'Provide mandatory confidential remark'" 
                                   class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('main_supervisor_confidential_remark', $pts1->main_supervisor_confidential_remark)) }}</textarea>
                     </div>
@@ -509,6 +512,9 @@
                         <label class="block font-bold text-gray-900 dark:text-white text-sm">
                             3. Additional comments / observations / recommendations of the PSPC (for the Student)<span class="text-red-500">*</span>
                         </label>
+                        <div class="pt-0.5">
+                            <x-snippet-dropdown target="studentComment" form-type="pts1" role="main_supervisor" comment-type="student_comment" />
+                        </div>
                         <textarea name="main_supervisor_student_comment" rows="4" required x-model="studentComment" placeholder="Provide detailed comments, observations, and recommendations" class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm whitespace-pre-wrap">{{ trim(old('main_supervisor_student_comment')) }}</textarea>
                     </div>
                 </div>

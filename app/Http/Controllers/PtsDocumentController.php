@@ -51,12 +51,39 @@ class PtsDocumentController extends Controller
 
             $filePath = $form->{$field};
         } elseif ($formType === 'pts3') {
-            if ($field === 'consent_doc') {
-                $examinerId = $request->query('examiner_id') ?: $id;
-                $examiner = \App\Models\Pts3Examiner::with('pts3Form.thesis.student')->findOrFail($examinerId);
-                $form = $examiner->pts3Form;
-                $thesis = $form?->thesis;
-                $filePath = $examiner->consent_doc_path;
+            $form = \App\Models\Pts3Form::with('thesis.student')->findOrFail($id);
+            $thesis = $form->thesis;
+
+            if (str_ends_with($field, '_consent_doc_path')) {
+                $filePath = $form->{$field};
+            } elseif ($field === 'consent_doc') {
+                $type = $request->query('type');
+                $slot = $request->query('slot');
+                if ($type && $slot) {
+                    $filePath = $form->{"{$type}_examiner_{$slot}_consent_doc_path"};
+                } elseif ($examinerId = $request->query('examiner_id')) {
+                    $examiner = \App\Models\Pts3Examiner::find($examinerId);
+                    if ($examiner) {
+                        for ($i = 1; $i <= 4; $i++) {
+                            if ($form->{"{$examiner->type}_examiner_{$i}_email"} === $examiner->email) {
+                                $filePath = $form->{"{$examiner->type}_examiner_{$i}_consent_doc_path"};
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                abort(400, 'Invalid document type');
+            }
+        } elseif ($formType === 'pts3_draft') {
+            $draft = \App\Models\Pts3Draft::with('thesis.student')->findOrFail($id);
+            $thesis = $draft->thesis;
+            if (str_ends_with($field, '_consent_doc_path')) {
+                $filePath = $draft->{$field};
+            } elseif ($field === 'consent_doc') {
+                $type = $request->query('type', 'indian');
+                $slot = $request->query('slot') ?? ((int)$request->query('index', 0) + 1);
+                $filePath = $draft->{"{$type}_examiner_{$slot}_consent_doc_path"};
             } else {
                 abort(400, 'Invalid document type');
             }

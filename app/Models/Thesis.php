@@ -69,6 +69,11 @@ class Thesis extends Model
         return $this->hasMany(Pts3Form::class);
     }
 
+    public function pts3Draft(): HasOne
+    {
+        return $this->hasOne(Pts3Draft::class);
+    }
+
     public function pts4Form(): HasOne
     {
         return $this->hasOne(Pts4Form::class)->latestOfMany();
@@ -131,7 +136,7 @@ class Thesis extends Model
             $this->pts1Form?->status === 'approved' &&
             $this->pts2Form?->status === 'approved' &&
             $this->pts3Form?->status === 'approved' &&
-            $this->pts4Form?->status === 'approved' &&
+            $this->pts4Form?->status === 'accepted' &&
             $this->pts5Form?->status === 'approved' &&
             $this->pts6Form?->status === 'approved'
         ) {
@@ -787,14 +792,14 @@ class Thesis extends Model
         // 9. Deputy Registrar (DR) (PTS-4 only)
         if ($form instanceof Pts4Form) {
             if ($form->dr_submitted_at) {
-                $isApproved = ($form->dr_approval || $formStatus === 'approved');
+                $isAccepted = ($form->dr_acceptance || $formStatus === 'accepted');
 
                 $timeline[] = [
                     'role' => 'Deputy Registrar (DR)',
                     'name' => 'Deputy Registrar (Academic)',
                     'submitted_at' => $form->dr_submitted_at,
-                    'status_type' => $isApproved ? 'approved' : 'rejected',
-                    'status_label' => $isApproved ? '✓ Approved' : '❌ Rejected',
+                    'status_type' => $isAccepted ? 'accepted' : 'not_accepted',
+                    'status_label' => $isAccepted ? '✓ Accepted' : '❌ Not Accepted',
                 ];
             } elseif ($formStatus === 'in_progress' && $currentStage === 'dr') {
                 $timeline[] = [

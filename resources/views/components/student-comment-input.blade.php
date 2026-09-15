@@ -7,7 +7,7 @@
     'rows' => 3,
     'formType' => null,
     'role' => null,
-    'showSnippet' => false,
+    'showSnippet' => true,
 ])
 
 <div class="space-y-2 pt-2">
@@ -17,7 +17,7 @@
 
     @if($showSnippet && $formType && $role)
         <div class="pt-0.5">
-            <x-snippet-dropdown :target="$model" :form-type="$formType" :role="$role" />
+            <x-snippet-dropdown :target="$model" :form-type="$formType" :role="$role" comment-type="student_comment" />
         </div>
     @endif
 

@@ -29,7 +29,7 @@ return new class extends Migration
                 'reverted'
             ])->default('main_supervisor');
 
-            $table->enum('status', ['pending', 'in_progress', 'approved', 'rejected', 'reverted'])->default('pending');
+            $table->enum('status', ['pending', 'in_progress', 'accepted', 'not_accepted', 'reverted'])->default('pending');
             $table->string('reverted_by_role')->nullable();
             $table->unsignedBigInteger('reverted_by_id')->nullable();
             $table->text('reversion_comment')->nullable();
@@ -119,8 +119,8 @@ return new class extends Migration
             $table->text('academic_office_confidential_remark')->nullable();
             $table->timestamp('academic_office_submitted_at')->nullable();
 
-            // 4. AR / DR Final Approval
-            $table->boolean('dr_approval')->nullable();
+            // 4. AR / DR Final Acceptance
+            $table->boolean('dr_acceptance')->nullable();
             $table->text('dr_student_comment')->nullable();
             $table->text('dr_confidential_remark')->nullable();
             $table->timestamp('dr_submitted_at')->nullable();
@@ -129,7 +129,7 @@ return new class extends Migration
             $table->foreignId('main_supervisor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('academic_office_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('dr_user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('approved_by_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('accepted_by_id')->nullable()->constrained('users')->nullOnDelete();
 
             $table->timestamps();
         });

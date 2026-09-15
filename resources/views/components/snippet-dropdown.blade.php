@@ -7,7 +7,11 @@
 ])
 
 @php
-    $snippetList = $snippets ?? \App\Models\CommentSnippet::forSnippet($formType, $role, $commentType)->get();
+    try {
+        $snippetList = $snippets ?? \App\Models\CommentSnippet::forSnippet($formType, $role, $commentType)->get();
+    } catch (\Throwable $e) {
+        $snippetList = collect();
+    }
 @endphp
 
 @if($snippetList->isNotEmpty())

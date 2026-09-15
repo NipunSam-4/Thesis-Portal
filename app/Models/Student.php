@@ -381,39 +381,47 @@ class Student extends Model
             return "{$prefix}-1";
         }
 
-        // Stage 2 (Parallel): PTS-2 & PTS-2 Extension (Requires PTS-1 Approved)
         $pts2Approved = $pts2 && $pts2->status === 'approved';
+        $pts3Approved = $pts3 && $pts3->status === 'approved';
+        $pts4Accepted = $pts4 && $pts4->status === 'accepted';
+
+        // Parallel Tracks after PTS-1 Approved:
+        // - Track A: PTS-2 (and PTS-2 Extension) -> once approved -> PTS-4 (and PTS-4 Extension)
+        // - Track B: PTS-3 (Panels of Examiners)
+        $activeStages = [];
+
+        // Track A1: PTS-2 / PTS-2 Extension (runs until PTS-2 is approved)
         if (!$pts2Approved) {
             if ($pts2Ext && $pts2Ext->status === 'in_progress') {
                 if ($pts2 && $pts2->status === 'in_progress') {
-                    return "{$prefix}-2 & {$prefix}-2 Extension";
+                    $activeStages[] = "{$prefix}-2 & {$prefix}-2 Extension";
+                } else {
+                    $activeStages[] = "{$prefix}-2 Extension";
                 }
-                return "{$prefix}-2 Extension";
+            } else {
+                $activeStages[] = "{$prefix}-2";
             }
-            return "{$prefix}-2";
         }
 
-        // Stage 3 & 4 (Parallel): PTS-3, PTS-4 & PTS-4 Extension (Requires PTS-2 Approved)
-        $pts3Approved = $pts3 && $pts3->status === 'approved';
-        $pts4Approved = $pts4 && $pts4->status === 'approved';
+        // Track B: PTS-3 (opens post PTS-1 approved, runs until PTS-3 approved)
+        if (!$pts3Approved) {
+            $activeStages[] = "{$prefix}-3";
+        }
 
-        if (!$pts3Approved || !$pts4Approved) {
+        // Track A2: PTS-4 / PTS-4 Extension (opens only after PTS-2 approved, runs until PTS-4 accepted)
+        if ($pts2Approved && !$pts4Accepted) {
             if ($pts4Ext && $pts4Ext->status === 'in_progress') {
-                if (!$pts3Approved) {
-                    return "{$prefix}-3 & {$prefix}-4 Extension";
-                }
-                return "{$prefix}-4 Extension";
+                $activeStages[] = "{$prefix}-4 Extension";
+            } else {
+                $activeStages[] = "{$prefix}-4";
             }
-            if (!$pts3Approved && !$pts4Approved) {
-                return "{$prefix}-3 & {$prefix}-4";
-            }
-            if (!$pts3Approved) {
-                return "{$prefix}-3";
-            }
-            return "{$prefix}-4";
         }
 
-        // Stage 5 (Sequential): PTS-5 (Examiner Reports / Defense)
+        if (!empty($activeStages)) {
+            return implode(' & ', $activeStages);
+        }
+
+        // Stage 5 (Sequential): PTS-5 (Examiner Reports / Defense - Requires both PTS-3 Approved & PTS-4 Accepted)
         $pts5Approved = $pts5 && $pts5->status === 'approved';
         if (!$pts5Approved) {
             return "{$prefix}-5";
@@ -431,8 +439,8 @@ class Student extends Model
     // Get all pending form action items for a given viewing authority user.
     // Handles parallel stages:
     // - Stage 1: PTS-1 & Draft Synopsis (parallel)
-    // - Stage 2: PTS-2 & PTS-2 Extension (parallel, post PTS-1 approved)
-    // - Stage 3 & 4: PTS-3, PTS-4 & PTS-4 Extension (parallel, post PTS-2 approved)
+    // - Stage 2 & 3: PTS-2 / PTS-2 Extension & PTS-3 (parallel, post PTS-1 approved)
+    // - Stage 4: PTS-4 & PTS-4 Extension (post PTS-2 approved, parallel with ongoing PTS-3)
     // - Stage 5 & 6: PTS-5 & PTS-6 (sequential)
     public function getPendingActionItemsForUser(User $user, ?string $roleFilter = null): array
     {
@@ -459,7 +467,7 @@ class Student extends Model
 
         $pts4 = $thesis->pts4Form;
         $pts4Ext = $thesis->pts4Extension;
-        $pts4Approved = $pts4 && $pts4->status === 'approved';
+        $pts4Accepted = $thesis->pts4Accepted ?? ($pts4 && $pts4->status === 'accepted');
 
         $pts5 = $thesis->pts5Form;
         $pts5Approved = $pts5 && $pts5->status === 'approved';
@@ -529,7 +537,7 @@ class Student extends Model
         }
 
         // ==========================================
-        // STAGE 2 (PARALLEL): PTS-2 & PTS-2 Extension (Requires PTS-1 Approved)
+        // STAGE 2 & 3 (PARALLEL): PTS-2 / PTS-2 Extension & PTS-3 (Requires PTS-1 Approved)
         // ==========================================
         if ($pts1Approved) {
             // 2.1 PTS-2 Form Action Check
@@ -583,110 +591,112 @@ class Student extends Model
                     $items[] = "{$prefix}-2 Extension";
                 }
             }
-        }
 
-        // ==========================================
-        // STAGE 3 & 4 (PARALLEL): PTS-3, PTS-4 & PTS-4 Extension
-        // ==========================================
-        // 3.1 PTS-3 Action Check
-        if ($pts3 && $pts3->status === 'in_progress') {
-            $pts3NeedsAction = false;
-            if ((!$roleFilter || $roleFilter === 'main') && $pts3->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
-                $pts3NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'co') && $pts3->current_stage === 'co_supervisors') {
-                for ($i = 1; $i <= 10; $i++) {
-                    $idCol = "co_supervisor_{$i}_id";
-                    $recCol = "co_supervisor_{$i}_recommendation";
-                    if ($pts3->$idCol && (int)$pts3->$idCol === (int)$user->id && is_null($pts3->$recCol)) {
-                        $pts3NeedsAction = true;
-                        break;
+            // 3.1 PTS-3 Action Check (parallel with PTS-2, opens post PTS-1 approved)
+            if ($pts3 && $pts3->status === 'in_progress') {
+                $pts3NeedsAction = false;
+                if ((!$roleFilter || $roleFilter === 'main') && $pts3->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                    $pts3NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'co') && $pts3->current_stage === 'co_supervisors') {
+                    for ($i = 1; $i <= 10; $i++) {
+                        $idCol = "co_supervisor_{$i}_id";
+                        $recCol = "co_supervisor_{$i}_recommendation";
+                        if ($pts3->$idCol && (int)$pts3->$idCol === (int)$user->id && is_null($pts3->$recCol)) {
+                            $pts3NeedsAction = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts3->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                $pts3NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'hod') && $pts3->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                $pts3NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts3->current_stage === 'academic_office' && ($user->isAcademicOffice() || ($user->isGlobalAuthority() && !$user->isActingApprovalAuthority()))) {
-                $pts3NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'doaa') && $pts3->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($pts3->acting_doaa_email === $user->email || $pts3->vested_doaa_email === $user->email)))) {
-                $pts3NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'senate_chairperson') && $pts3->current_stage === 'senate_chairperson' && $user->isSenateChairperson()) {
-                $pts3NeedsAction = true;
-            }
+                if ((!$roleFilter || $roleFilter === 'dpgc') && $pts3->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                    $pts3NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'hod') && $pts3->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                    $pts3NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts3->current_stage === 'academic_office' && ($user->isAcademicOffice() || ($user->isGlobalAuthority() && !$user->isActingApprovalAuthority()))) {
+                    $pts3NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'doaa') && $pts3->current_stage === 'doaa' && ($user->isDoaa() || $user->isAdoaa() || ($user->isActingApprovalAuthority() && ($pts3->acting_doaa_email === $user->email || $pts3->vested_doaa_email === $user->email)))) {
+                    $pts3NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'senate_chairperson') && $pts3->current_stage === 'senate_chairperson' && $user->isSenateChairperson()) {
+                    $pts3NeedsAction = true;
+                }
 
-            if ($pts3NeedsAction) {
+                if ($pts3NeedsAction) {
+                    $items[] = "{$prefix}-3";
+                }
+            } elseif (($pts3 && in_array($pts3->status, ['reverted', 'rejected'])) && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
+                // Main supervisor action to initiate or resubmit PTS-3
+                $items[] = "{$prefix}-3";
+            } elseif (!$pts3 && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
+                // Main supervisor action to initiate PTS-3 after PTS-1 is approved
                 $items[] = "{$prefix}-3";
             }
-        } elseif (($pts3 && in_array($pts3->status, ['reverted', 'rejected'])) && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
-            // Main supervisor action to initiate or resubmit PTS-3
-            $items[] = "{$prefix}-3";
-        } elseif (!$pts3 && $pts2Approved && ((!$roleFilter || $roleFilter === 'main') && $this->isMainSupervisor($user))) {
-            // Main supervisor action to initiate PTS-3 after PTS-2 is approved
-            $items[] = "{$prefix}-3";
         }
 
-        // 3.2 PTS-4 Action Check
-        if ($pts4 && $pts4->status === 'in_progress') {
-            $pts4NeedsAction = false;
-            if ((!$roleFilter || $roleFilter === 'main') && $pts4->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
-                $pts4NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'co') && $pts4->current_stage === 'co_supervisors') {
-                for ($i = 1; $i <= 10; $i++) {
-                    $idCol = "co_supervisor_{$i}_id";
-                    $recCol = "co_supervisor_{$i}_recommendation";
-                    if ($pts4->$idCol && (int)$pts4->$idCol === (int)$user->id && is_null($pts4->$recCol)) {
-                        $pts4NeedsAction = true;
-                        break;
+        // ==========================================
+        // STAGE 4: PTS-4 & PTS-4 Extension (Requires PTS-2 Approved)
+        // ==========================================
+        if ($pts2Approved) {
+            // 4.1 PTS-4 Action Check
+            if ($pts4 && $pts4->status === 'in_progress') {
+                $pts4NeedsAction = false;
+                if ((!$roleFilter || $roleFilter === 'main') && $pts4->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                    $pts4NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'co') && $pts4->current_stage === 'co_supervisors') {
+                    for ($i = 1; $i <= 10; $i++) {
+                        $idCol = "co_supervisor_{$i}_id";
+                        $recCol = "co_supervisor_{$i}_recommendation";
+                        if ($pts4->$idCol && (int)$pts4->$idCol === (int)$user->id && is_null($pts4->$recCol)) {
+                            $pts4NeedsAction = true;
+                            break;
+                        }
                     }
                 }
-            }
-            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-                $pts4NeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'dr') && $pts4->current_stage === 'dr' && ($user->isDr())) {
-                $pts4NeedsAction = true;
+                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4->current_stage === 'academic_office' && $user->isAcademicOffice()) {
+                    $pts4NeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'dr') && $pts4->current_stage === 'dr' && ($user->isDr())) {
+                    $pts4NeedsAction = true;
+                }
+
+                if ($pts4NeedsAction) {
+                    $items[] = "{$prefix}-4";
+                }
             }
 
-            if ($pts4NeedsAction) {
-                $items[] = "{$prefix}-4";
-            }
-        }
+            // 4.2 PTS-4 Extension Action Check (parallel with PTS-4)
+            if ($pts4Ext && $pts4Ext->status === 'in_progress' && !$pts4Accepted) {
+                $pts4ExtNeedsAction = false;
+                if ((!$roleFilter || $roleFilter === 'main') && $pts4Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
+                    $pts4ExtNeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'dpgc') && $pts4Ext->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                    $pts4ExtNeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'hod') && $pts4Ext->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
+                    $pts4ExtNeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) {
+                    $pts4ExtNeedsAction = true;
+                }
+                if ((!$roleFilter || $roleFilter === 'doaa') && $pts4Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts4Ext->acting_doaa_email === $user->email || $pts4Ext->vested_doaa_email === $user->email)))) {
+                    $pts4ExtNeedsAction = true;
+                }
 
-        // 3.3 PTS-4 Extension Action Check (parallel with PTS-3 and PTS-4)
-        if ($pts4Ext && $pts4Ext->status === 'in_progress' && !$pts4Approved) {
-            $pts4ExtNeedsAction = false;
-            if ((!$roleFilter || $roleFilter === 'main') && $pts4Ext->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
-                $pts4ExtNeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'dpgc') && $pts4Ext->current_stage === 'dpgc' && $user->isDpgc() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                $pts4ExtNeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'hod') && $pts4Ext->current_stage === 'hod' && $user->isHod() && $user->deptAuthorityProfile?->department_id === $this->department_id) {
-                $pts4ExtNeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'academic_office') && $pts4Ext->current_stage === 'academic_office' && $user->isAcademicOffice()) {
-                $pts4ExtNeedsAction = true;
-            }
-            if ((!$roleFilter || $roleFilter === 'doaa') && $pts4Ext->current_stage === 'doaa' && ($user->isDoaa() || ($user->isActingApprovalAuthority() && ($pts4Ext->acting_doaa_email === $user->email || $pts4Ext->vested_doaa_email === $user->email)))) {
-                $pts4ExtNeedsAction = true;
-            }
-
-            if ($pts4ExtNeedsAction) {
-                $items[] = "{$prefix}-4 Extension";
+                if ($pts4ExtNeedsAction) {
+                    $items[] = "{$prefix}-4 Extension";
+                }
             }
         }
 
         // ==========================================
         // STAGE 5 (SEQUENTIAL): PTS-5 (Evaluation / Defense - Post PTS-4 & PTS-3 Approved)
         // ==========================================
-        if ($pts4Approved && $pts3Approved) {
+        if ($pts4Accepted && $pts3Approved) {
             if ($pts5 && $pts5->status === 'in_progress') {
                 $pts5NeedsAction = false;
                 if ((!$roleFilter || $roleFilter === 'main') && $pts5->current_stage === 'main_supervisor' && $this->isMainSupervisor($user)) {
@@ -820,13 +830,13 @@ class Student extends Model
             }
             // Check for rejected
             foreach ($allForms as $f) {
-                if (isset($f->status) && $f->status === 'rejected') {
+                if (isset($f->status) && in_array($f->status, ['rejected', 'not_accepted'])) {
                     return 300;
                 }
             }
-            // Check for approved / completed
+            // Check for approved / completed / accepted
             foreach ($allForms as $f) {
-                if (isset($f->status) && in_array($f->status, ['approved', 'completed'])) {
+                if (isset($f->status) && in_array($f->status, ['approved', 'accepted', 'completed'])) {
                     return 400;
                 }
             }

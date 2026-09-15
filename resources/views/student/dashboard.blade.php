@@ -82,7 +82,7 @@
                                     <p class="text-[11px] text-emerald-700 dark:text-emerald-300">
                                         Your thesis has been successfully completed and approved.
                                     </p>
-                                    @if($pts4Form && $pts4Form->status === 'approved')
+                                    @if($pts4Form && $pts4Form->status === 'accepted')
                                         <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" class="inline-flex items-center justify-center w-full px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
                                             <span>📄 Download Thesis Certificate</span>
                                         </a>
@@ -583,7 +583,7 @@
                                             </span>
                                             <div class="flex items-center gap-1 shrink-0">
                                                 <x-submission-timeline-modal :form="$pts3Form" :title="$ptsPrefix . '-3 Submission Timeline'" />
-                                                @if(!$pts2Approved)
+                                                @if(!$pts1Approved)
                                                     <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                                 @elseif(!$pts3Form)
                                                     <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Pending Initiation</span>
@@ -604,9 +604,9 @@
                                     </div>
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                                        @if(!$pts2Approved)
+                                        @if(!$pts1Approved)
                                             <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                Requires {{ $ptsPrefix }}-2 Approval
+                                                Requires {{ $ptsPrefix }}-1 Approval
                                             </button>
                                         @elseif($pts3Form && $pts3Form->status === 'approved')
                                             <div class="flex items-center justify-between gap-2 pt-1">
@@ -651,12 +651,12 @@
                                                     <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                                 @elseif(!$pts4Form)
                                                     <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Ready to Submit</span>
-                                                @elseif($pts4Form->status === 'approved')
-                                                    <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
+                                                @elseif($pts4Form->status === 'accepted')
+                                                    <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Accepted</span>
                                                 @elseif($pts4Form->status === 'reverted')
                                                     <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Reverted</span>
-                                                @elseif($pts4Form->status === 'rejected')
-                                                    <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Rejected</span>
+                                                @elseif($pts4Form->status === 'not_accepted')
+                                                    <span class="shrink-0 bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Not Accepted</span>
                                                 @else
                                                     <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">In Progress</span>
                                                 @endif
@@ -680,12 +680,12 @@
                                             <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
                                                 Requires {{ $ptsPrefix }}-2 Approval
                                             </button>
-                                        @elseif($pts4Form && $pts4Form->status === 'approved')
+                                        @elseif($pts4Form && $pts4Form->status === 'accepted')
                                             <div class="space-y-2 pt-1">
                                                 <div class="flex items-center justify-between gap-2">
-                                                    <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Approved</span>
+                                                    <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">✓ {{ $ptsPrefix }}-4 Form Accepted</span>
                                                     <a href="{{ route('pts4.show', $pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                        View Approved Form &rarr;
+                                                        View Accepted Form &rarr;
                                                     </a>
                                                 </div>
                                                 <a href="{{ route('student.pts4.certificate', $pts4Form->id) }}" target="_blank" class="inline-flex items-center justify-center w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition gap-1.5">
@@ -701,12 +701,12 @@
                                                     View Submitted Form &rarr;
                                                 </a>
                                             </div>
-                                        @elseif($pts4Form && $pts4Form->status === 'rejected')
+                                        @elseif($pts4Form && $pts4Form->status === 'not_accepted')
                                             <div class="space-y-2">
                                                 <div class="flex items-center justify-between gap-2 pt-1">
-                                                    <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Rejected</span>
+                                                    <span class="text-[11px] text-red-700 dark:text-red-300 font-bold">❌ {{ $ptsPrefix }}-4 Form Not Accepted</span>
                                                     <a href="{{ route('pts4.show', $pts4Form->id) }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg shadow transition shrink-0 whitespace-nowrap">
-                                                        View Rejected Form &rarr;
+                                                        View Not Accepted Form &rarr;
                                                     </a>
                                                 </div>
                                                 <div class="pt-2">
@@ -804,7 +804,7 @@
                                         @endif
 
                                         <!-- Apply for PTS-4 Extension Button (Purple Theme) -->
-                                        @if($pts2Approved && (!$pts4Form || $pts4Form->status !== 'approved'))
+                                        @if($pts2Approved && (!$pts4Form || $pts4Form->status !== 'accepted'))
                                             @if(!$pts4Extension || $pts4Extension->status === 'approved' || $pts4Extension->status === 'rejected')
                                                 <div class="my-2 space-y-1">
                                                     @if($activeThesis->canApplyForPts4Extension())
@@ -836,7 +836,7 @@
                                                 @if($pts5Form)
                                                     <x-submission-timeline-modal :form="$pts5Form" :title="$ptsPrefix . '-5 Submission Timeline'" />
                                                 @endif
-                                                @if(!$pts3Approved || !$pts4Approved)
+                                                @if(!$pts3Approved || !$pts4Accepted)
                                                     <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                                 @elseif($pts5Form && $pts5Form->status === 'approved')
                                                     <span class="shrink-0 bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Approved</span>
@@ -855,9 +855,9 @@
                                     </div>
 
                                     <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                                        @if(!$pts3Approved || !$pts4Approved)
+                                        @if(!$pts3Approved || !$pts4Accepted)
                                             <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                                Requires {{ $ptsPrefix }}-3 &amp; {{ $ptsPrefix }}-4 Approval
+                                                Requires {{ $ptsPrefix }}-3 Approval &amp; {{ $ptsPrefix }}-4 Acceptance
                                             </button>
                                         @elseif($pts5Form && $pts5Form->status === 'approved')
                                             <div class="flex items-center justify-between gap-2 pt-1">
@@ -994,12 +994,16 @@
                                                                     $form instanceof \App\Models\Pts2Form => route('pts2.show', $form->id),
                                                                     $form instanceof \App\Models\Pts2Extension => route('pts2_extension.show', $form->id),
                                                                     $form instanceof \App\Models\Pts3Form => route('pts3.show', $form->id),
+                                                                    $form instanceof \App\Models\Pts4Form => route('pts4.show', $form->id),
                                                                     $form instanceof \App\Models\Pts4Extension => route('pts4_extension.show', $form->id),
+                                                                    $form instanceof \App\Models\Pts5Form => route('pts5.show', $form->id),
+                                                                    $form instanceof \App\Models\Pts6Form => route('pts6.show', $form->id),
                                                                     default => '#'
                                                                 };
+                                                                $formBtnLabel = ($form instanceof \App\Models\Pts4Form) ? 'View Not Accepted Form' : 'View Rejected Form';
                                                             @endphp
                                                             <a href="{{ $formRoute }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow transition">
-                                                                View Form &rarr;
+                                                                {{ $formBtnLabel }} &rarr;
                                                             </a>
                                                         </td>
                                                     </tr>

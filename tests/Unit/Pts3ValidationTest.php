@@ -10,7 +10,7 @@ use App\Models\Thesis;
 use App\Models\Pts1Form;
 use App\Models\Pts3Form;
 use App\Models\Pts3Examiner;
-use App\Models\Pts3OebMember;
+use App\Models\Pts3OebChairperson;
 use App\Http\Requests\Pts3\StorePts3Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -45,7 +45,7 @@ class Pts3ValidationTest extends TestCase
         $student->setRelation('coSupervisors', collect([]));
         $student->setRelation('externalSupervisors', collect([]));
 
-        $thesis = new Thesis(['title' => 'Quantum Machine Learning Architectures']);
+        $thesis = new Thesis(['title' => 'Quantum Machine Learning Architectures', 'status' => 'in_progress']);
         $thesis->id = 501;
         $thesis->setRelation('student', $student);
         $thesis->setRelation('pts1Form', new Pts1Form(['seminar_date' => '2023-09-15']));
@@ -63,6 +63,15 @@ class Pts3ValidationTest extends TestCase
             'main_supervisor_submitted_at' => now(),
             'current_stage' => $stage,
             'status' => $status,
+            'indian_examiner_1_email' => 'indian1@iitb.ac.in',
+            'indian_examiner_1_has_consent' => true,
+            'indian_examiner_2_email' => 'indian2@iitd.ac.in',
+            'indian_examiner_2_has_consent' => true,
+            'international_examiner_1_email' => 'intl1@mit.edu',
+            'international_examiner_1_has_consent' => true,
+            'international_examiner_2_email' => 'intl2@stanford.edu',
+            'international_examiner_2_has_consent' => true,
+            'oeb_chairperson_1_email' => 'oeb1@iiti.ac.in',
         ]);
         $pts3->id = 301;
         $pts3->setRelation('thesis', $thesis);
@@ -79,7 +88,6 @@ class Pts3ValidationTest extends TestCase
             'phone_number' => '9876543210',
             'phone_country_code' => '+91',
             'phone_iso2' => 'in',
-            'has_consent' => true,
         ]);
         $indian1->id = 1;
 
@@ -94,7 +102,6 @@ class Pts3ValidationTest extends TestCase
             'phone_number' => '9876543211',
             'phone_country_code' => '+91',
             'phone_iso2' => 'in',
-            'has_consent' => true,
         ]);
         $indian2->id = 2;
 
@@ -109,7 +116,6 @@ class Pts3ValidationTest extends TestCase
             'phone_number' => '1234567890',
             'phone_country_code' => '+1',
             'phone_iso2' => 'us',
-            'has_consent' => true,
         ]);
         $intl1->id = 3;
 
@@ -124,23 +130,20 @@ class Pts3ValidationTest extends TestCase
             'phone_number' => '1234567891',
             'phone_country_code' => '+1',
             'phone_iso2' => 'us',
-            'has_consent' => true,
         ]);
         $intl2->id = 4;
 
-        $oeb1 = new Pts3OebMember([
+        $oeb1 = new Pts3OebChairperson([
             'pts3_form_id' => $pts3->id,
             'name' => 'Dr. Internal Member 1',
             'designation' => 'Professor',
             'department' => 'CSE',
             'email' => 'oeb1@iiti.ac.in',
-            'phone_number' => '9123456780',
         ]);
         $oeb1->id = 5;
 
-        $pts3->setRelation('indianExaminers', collect([$indian1, $indian2]));
-        $pts3->setRelation('internationalExaminers', collect([$intl1, $intl2]));
-        $pts3->setRelation('oebMembers', collect([$oeb1]));
+        $pts3->setRelation('examiners', collect([$indian1, $indian2, $intl1, $intl2]));
+        $pts3->setRelation('oebChairpersons', collect([$oeb1]));
 
         return $pts3;
     }
@@ -179,9 +182,9 @@ class Pts3ValidationTest extends TestCase
         $pts3->senate_chairperson_approval_remark = 'Examiner panel approved as proposed.';
         $userRank = 7;
         $coSupervisors = [];
-        $indianExaminers = $pts3->indianExaminers;
-        $internationalExaminers = $pts3->internationalExaminers;
-        $oebMembers = $pts3->oebMembers;
+        $indianExaminers = $pts3->getIndianExaminers();
+        $internationalExaminers = $pts3->getInternationalExaminers();
+        $oebMembers = $pts3->getOebChairpersons();
 
         $html = view('pts3.show', compact(
             'pts3', 'thesis', 'student', 'studentUser', 'user', 'userRank',
@@ -202,9 +205,9 @@ class Pts3ValidationTest extends TestCase
         $pts3->senate_chairperson_approval_remark = 'Panel not meeting institutional diversity requirements.';
         $userRank = 7;
         $coSupervisors = [];
-        $indianExaminers = $pts3->indianExaminers;
-        $internationalExaminers = $pts3->internationalExaminers;
-        $oebMembers = $pts3->oebMembers;
+        $indianExaminers = $pts3->getIndianExaminers();
+        $internationalExaminers = $pts3->getInternationalExaminers();
+        $oebMembers = $pts3->getOebChairpersons();
 
         $html = view('pts3.show', compact(
             'pts3', 'thesis', 'student', 'studentUser', 'user', 'userRank',
@@ -224,9 +227,9 @@ class Pts3ValidationTest extends TestCase
         $pts3->reversion_comment = 'Need more examiners from premier IITs.';
         $userRank = 1;
         $coSupervisors = [];
-        $indianExaminers = $pts3->indianExaminers;
-        $internationalExaminers = $pts3->internationalExaminers;
-        $oebMembers = $pts3->oebMembers;
+        $indianExaminers = $pts3->getIndianExaminers();
+        $internationalExaminers = $pts3->getInternationalExaminers();
+        $oebMembers = $pts3->getOebChairpersons();
 
         $html = view('pts3.show', compact(
             'pts3', 'thesis', 'student', 'studentUser', 'user', 'userRank',
@@ -246,9 +249,9 @@ class Pts3ValidationTest extends TestCase
         $userRank = 3;
         $coSupervisors = [];
         $actingDoaaUsers = collect([]);
-        $indianExaminers = $pts3->indianExaminers;
-        $internationalExaminers = $pts3->internationalExaminers;
-        $oebMembers = $pts3->oebMembers;
+        $indianExaminers = $pts3->getIndianExaminers();
+        $internationalExaminers = $pts3->getInternationalExaminers();
+        $oebMembers = $pts3->getOebChairpersons();
 
         $html = view('pts3.review', compact(
             'pts3', 'thesis', 'student', 'studentUser', 'user', 'userRank',
@@ -267,9 +270,9 @@ class Pts3ValidationTest extends TestCase
         $userRank = 7;
         $coSupervisors = [];
         $actingDoaaUsers = collect([]);
-        $indianExaminers = $pts3->indianExaminers;
-        $internationalExaminers = $pts3->internationalExaminers;
-        $oebMembers = $pts3->oebMembers;
+        $indianExaminers = $pts3->getIndianExaminers();
+        $internationalExaminers = $pts3->getInternationalExaminers();
+        $oebMembers = $pts3->getOebChairpersons();
 
         $html = view('pts3.review', compact(
             'pts3', 'thesis', 'student', 'studentUser', 'user', 'userRank',
@@ -340,4 +343,158 @@ class Pts3ValidationTest extends TestCase
         $validator->passes();
         $this->assertTrue($validator->errors()->has('indian_examiners'));
     }
+
+    public function test_pts3_draft_view_renders_cleanly(): void
+    {
+        [$user, $studentUser, $student, $thesis] = $this->createMockStudentAndThesis();
+        $draft = new \App\Models\Pts3Draft([
+            'thesis_id' => $thesis->id,
+            'user_id' => $user->id,
+            'thesis_title' => 'Draft Thesis Title for PTS-3',
+            'indian_examiner_1_email' => 'draft.indian1@iitb.ac.in',
+            'indian_examiner_1_has_consent' => true,
+            'international_examiner_1_email' => 'draft.intl1@mit.edu',
+            'international_examiner_1_has_consent' => true,
+            'oeb_chairperson_1_email' => 'draft.oeb1@iiti.ac.in',
+        ]);
+        $draft->id = 701;
+
+        $indianDraft1 = new \App\Models\Pts3ExaminerDraft([
+            'pts3_draft_id' => $draft->id,
+            'type' => 'indian',
+            'name' => 'Draft Indian Examiner',
+            'designation' => 'Professor',
+            'organization' => 'IIT Bombay',
+            'email' => 'draft.indian1@iitb.ac.in',
+        ]);
+
+        $intlDraft1 = new \App\Models\Pts3ExaminerDraft([
+            'pts3_draft_id' => $draft->id,
+            'type' => 'international',
+            'name' => 'Draft International Examiner',
+            'designation' => 'Chair Professor',
+            'organization' => 'MIT',
+            'email' => 'draft.intl1@mit.edu',
+        ]);
+
+        $oebDraft1 = new \App\Models\Pts3OebChairpersonDraft([
+            'pts3_draft_id' => $draft->id,
+            'name' => 'Draft OEB Chairperson',
+            'designation' => 'Professor',
+            'department' => 'CSE',
+            'email' => 'draft.oeb1@iiti.ac.in',
+        ]);
+
+        $draft->setRelation('examinerDrafts', collect([$indianDraft1, $intlDraft1]));
+        $draft->setRelation('oebChairpersonDrafts', collect([$oebDraft1]));
+
+        $html = view('faculty.pts3.create', compact('user', 'student', 'thesis', 'studentUser', 'draft'))->render();
+        $this->assertNotEmpty($html);
+        $this->assertStringContainsString('Submit PTS-3 Form', $html);
+        $this->assertStringContainsString('Draft Thesis Title for PTS-3', $html);
+        $this->assertStringContainsString('Draft Indian Examiner', $html);
+        $this->assertStringContainsString('Draft International Examiner', $html);
+        $this->assertStringContainsString('Draft OEB Chairperson', $html);
+    }
+
+    public function test_pts3_partial_draft_loading_with_slot(): void
+    {
+        [$facultyUser, $studentUser, $student, $thesis] = $this->createMockStudentAndThesis();
+        $user = $facultyUser;
+
+        $draft = new \App\Models\Pts3Draft([
+            'thesis_id' => $thesis->id,
+            'user_id' => $user->id,
+            'thesis_title' => 'Partial Draft Title',
+        ]);
+        $draft->id = 801;
+
+        // Partial examiner 1 with email, examiner 2 with only name (no email), examiner 3 with only designation
+        $indian1 = new \App\Models\Pts3ExaminerDraft([
+            'pts3_draft_id' => $draft->id,
+            'slot' => 1,
+            'type' => 'indian',
+            'name' => 'Dr. Full Examiner',
+            'email' => 'full@iitb.ac.in',
+        ]);
+        $indian2 = new \App\Models\Pts3ExaminerDraft([
+            'pts3_draft_id' => $draft->id,
+            'slot' => 2,
+            'type' => 'indian',
+            'name' => 'Prof. Only Name',
+            'email' => null,
+        ]);
+        $indian3 = new \App\Models\Pts3ExaminerDraft([
+            'pts3_draft_id' => $draft->id,
+            'slot' => 3,
+            'type' => 'indian',
+            'name' => null,
+            'designation' => 'Associate Professor',
+            'email' => null,
+        ]);
+
+        $oeb3 = new \App\Models\Pts3OebChairpersonDraft([
+            'pts3_draft_id' => $draft->id,
+            'slot' => 3,
+            'name' => 'Dr. OEB Slot 3 Only Name',
+            'email' => null,
+        ]);
+
+        $draft->setRelation('examinerDrafts', collect([$indian1, $indian2, $indian3]));
+        $draft->setRelation('oebChairpersonDrafts', collect([$oeb3]));
+
+        $indianList = $draft->getIndianExaminers();
+        $this->assertCount(3, $indianList);
+        $this->assertEquals('Prof. Only Name', $indianList[1]->name);
+        $this->assertEquals('Associate Professor', $indianList[2]->designation);
+
+        $oebList = $draft->getOebChairpersons();
+        $this->assertCount(4, $oebList);
+        $this->assertEquals('Dr. OEB Slot 3 Only Name', $oebList[2]->name);
+
+        $html = view('faculty.pts3.create', compact('user', 'student', 'thesis', 'studentUser', 'draft'))->render();
+        $this->assertStringContainsString('Prof. Only Name', $html);
+        $this->assertStringContainsString('Dr. OEB Slot 3 Only Name', $html);
+        $this->assertStringContainsString('OEB Chairperson #${index + 1}', $html);
+        $this->assertStringContainsString('clearOebMember', $html);
+        $this->assertStringContainsString('clearExaminer', $html);
+    }
+
+    public function test_parallel_pts2_and_pts3_progression_logic(): void
+    {
+        [$facultyUser, $studentUser, $student, $thesis] = $this->createMockStudentAndThesis();
+        $student->setRelation('theses', collect([$thesis]));
+        $thesis->setRelation('draftSynopsisCirculation', null);
+        $thesis->setRelation('pts2Form', null);
+        $thesis->setRelation('pts2Extension', null);
+        $thesis->setRelation('pts3Form', null);
+        $thesis->setRelation('pts4Form', null);
+        $thesis->setRelation('pts4Extension', null);
+        $thesis->setRelation('pts5Form', null);
+        $thesis->setRelation('pts6Form', null);
+
+        // 1. PTS-1 not approved yet -> Stage is PTS-1
+        $thesis->pts1Form->status = 'in_progress';
+        $this->assertEquals('PTS-1', $student->getThesisStageLabel());
+
+        // 2. PTS-1 approved -> Both PTS-2 and PTS-3 open in parallel
+        $thesis->pts1Form->status = 'approved';
+        $this->assertEquals('PTS-2 & PTS-3', $student->getThesisStageLabel());
+
+        // 3. PTS-2 approved while PTS-3 still in progress -> PTS-3 and PTS-4 open in parallel
+        $pts2 = new \App\Models\Pts2Form(['status' => 'approved']);
+        $thesis->setRelation('pts2Form', $pts2);
+        $this->assertEquals('PTS-3 & PTS-4', $student->getThesisStageLabel());
+
+        // 4. PTS-3 approved while PTS-4 still pending -> Only PTS-4 active
+        $pts3 = new Pts3Form(['status' => 'approved']);
+        $thesis->setRelation('pts3Form', $pts3);
+        $this->assertEquals('PTS-4', $student->getThesisStageLabel());
+
+        // 5. PTS-4 accepted and PTS-3 approved -> Opens PTS-5
+        $pts4 = new \App\Models\Pts4Form(['status' => 'accepted']);
+        $thesis->setRelation('pts4Form', $pts4);
+        $this->assertEquals('PTS-5', $student->getThesisStageLabel());
+    }
 }
+

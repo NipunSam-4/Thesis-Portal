@@ -1,44 +1,96 @@
 <x-app-layout>
     @php
+        $draft = $draft ?? null;
+        $pts3 = $pts3 ?? null;
         $formPrefix = isset($student) && $student->isPhd() ? 'PTS' : 'MSRTS';
         $isReverted = isset($pts3) && $pts3->status === 'reverted';
 
         $defaultExaminer = ['name'=>'', 'designation'=>'', 'organization'=>'', 'postal_address'=>'', 'email'=>'', 'phone_number'=>'', 'phone_country_code'=>'+91', 'phone_iso2'=>'in', 'website'=>'', 'research_area'=>'', 'has_consent'=>'1', 'consent_doc_path'=>null, 'consent_doc_name'=>null, 'consent_doc_url'=>null];
-        $defaultOeb = ['name'=>'', 'designation'=>'', 'department'=>'', 'email'=>'', 'phone_number'=>'', 'phone_country_code'=>'+91', 'phone_iso2'=>'in'];
+        $defaultOeb = ['name'=>'', 'designation'=>'', 'department'=>'', 'email'=>''];
 
-        $indianData = isset($pts3) ? $pts3->indianExaminers->sortBy('id')->map(function($e) use ($pts3) {
-            return [
-                'id' => $e->id,
-                'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
-                'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
-                'phone_country_code' => $e->phone_country_code ?? '+91', 'phone_iso2' => $e->phone_iso2 ?? 'in',
-                'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
-                'consent_doc_path' => $e->consent_doc_path,
-                'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
-                'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['pts3', $pts3->id, 'consent_doc', 'examiner_id' => $e->id]) : null,
-            ];
-        })->values()->toArray() : [$defaultExaminer, $defaultExaminer];
+        if ($isReverted) {
+            $indianData = $pts3->getIndianExaminers()->map(function($e) use ($pts3) {
+                return [
+                    'id' => $e->id,
+                    'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
+                    'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
+                    'phone_country_code' => $e->phone_country_code ?? '+91', 'phone_iso2' => $e->phone_iso2 ?? 'in',
+                    'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
+                    'consent_doc_path' => $e->consent_doc_path,
+                    'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
+                    'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['formType' => 'pts3', 'id' => $pts3->id, 'field' => 'consent_doc', 'type' => 'indian', 'slot' => $e->slot]) : null,
+                ];
+            })->values()->toArray();
+        } elseif ($draft && $draft->getIndianExaminers()->isNotEmpty()) {
+            $indianData = $draft->getIndianExaminers()->map(function($e) use ($draft) {
+                return [
+                    'id' => null,
+                    'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
+                    'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
+                    'phone_country_code' => $e->phone_country_code ?? '+91', 'phone_iso2' => $e->phone_iso2 ?? 'in',
+                    'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
+                    'consent_doc_path' => $e->consent_doc_path,
+                    'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
+                    'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['formType' => 'pts3_draft', 'id' => $draft->id, 'field' => 'consent_doc', 'type' => 'indian', 'slot' => $e->slot]) : null,
+                ];
+            })->values()->toArray();
+        } else {
+            $indianData = [$defaultExaminer, $defaultExaminer];
+        }
 
-        $intlData = isset($pts3) ? $pts3->internationalExaminers->sortBy('id')->map(function($e) use ($pts3) {
-            return [
-                'id' => $e->id,
-                'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
-                'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
-                'phone_country_code' => $e->phone_country_code ?? '+91', 'phone_iso2' => $e->phone_iso2 ?? 'in',
-                'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
-                'consent_doc_path' => $e->consent_doc_path,
-                'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
-                'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['pts3', $pts3->id, 'consent_doc', 'examiner_id' => $e->id]) : null,
-            ];
-        })->values()->toArray() : [$defaultExaminer, $defaultExaminer];
+        if ($isReverted) {
+            $intlData = $pts3->getInternationalExaminers()->map(function($e) use ($pts3) {
+                return [
+                    'id' => $e->id,
+                    'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
+                    'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
+                    'phone_country_code' => $e->phone_country_code ?? '+1', 'phone_iso2' => $e->phone_iso2 ?? 'us',
+                    'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
+                    'consent_doc_path' => $e->consent_doc_path,
+                    'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
+                    'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['formType' => 'pts3', 'id' => $pts3->id, 'field' => 'consent_doc', 'type' => 'international', 'slot' => $e->slot]) : null,
+                ];
+            })->values()->toArray();
+        } elseif ($draft && $draft->getInternationalExaminers()->isNotEmpty()) {
+            $intlData = $draft->getInternationalExaminers()->map(function($e) use ($draft) {
+                return [
+                    'id' => null,
+                    'name' => $e->name, 'designation' => $e->designation, 'organization' => $e->organization,
+                    'postal_address' => $e->postal_address, 'email' => $e->email, 'phone_number' => $e->phone_number,
+                    'phone_country_code' => $e->phone_country_code ?? '+1', 'phone_iso2' => $e->phone_iso2 ?? 'us',
+                    'website' => $e->website, 'research_area' => $e->research_area, 'has_consent' => $e->has_consent ? '1' : '0',
+                    'consent_doc_path' => $e->consent_doc_path,
+                    'consent_doc_name' => $e->consent_doc_path ? basename($e->consent_doc_path) : null,
+                    'consent_doc_url' => $e->consent_doc_path ? route('pts.document.serve', ['formType' => 'pts3_draft', 'id' => $draft->id, 'field' => 'consent_doc', 'type' => 'international', 'slot' => $e->slot]) : null,
+                ];
+            })->values()->toArray();
+        } else {
+            $intlData = [$defaultExaminer, $defaultExaminer];
+        }
 
-        $oebData = isset($pts3) ? $pts3->oebMembers->sortBy('id')->map(function($o) {
-            return [
-                'name' => $o->name, 'designation' => $o->designation, 'department' => $o->department,
-                'email' => $o->email, 'phone_number' => $o->phone_number,
-                'phone_country_code' => $o->phone_country_code ?? '+91', 'phone_iso2' => $o->phone_iso2 ?? 'in'
-            ];
-        })->values()->toArray() : array_fill(0, 4, $defaultOeb);
+        if ($isReverted) {
+            $oebData = $pts3->getOebChairpersons()->map(function($o) {
+                return [
+                    'name' => $o->name, 'designation' => $o->designation, 'department' => $o->department,
+                    'email' => $o->email
+                ];
+            })->values()->toArray();
+        } elseif ($draft && $draft->getOebChairpersons()->isNotEmpty()) {
+            $oebData = $draft->getOebChairpersons()->map(function($o) {
+                return [
+                    'name' => $o->name, 'designation' => $o->designation, 'department' => $o->department,
+                    'email' => $o->email
+                ];
+            })->values()->toArray();
+            while (count($oebData) < 4) {
+                $oebData[] = $defaultOeb;
+            }
+        } else {
+            $oebData = array_fill(0, 4, $defaultOeb);
+        }
+
+        $thesisTitle = old('thesis_title', $draft->thesis_title ?? ($pts3->thesis_title ?? ($thesis->title ?? '')));
+        $supervisorDeclaration = old('supervisor_declaration', $isReverted ? true : false);
     @endphp
     <div class="py-6" x-data="pts3Form()">
         <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 space-y-4">
@@ -64,6 +116,30 @@
                 @endif
             </div>
 
+            <!-- Saved Draft Notification Banner -->
+            @if(!$isReverted && $draft)
+                <div class="p-4 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center gap-2.5 text-blue-900 dark:text-blue-200 text-sm">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        <div>
+                            <span class="font-bold">Loaded from saved draft</span>
+                            <span class="text-xs text-blue-700 dark:text-blue-300 block sm:inline sm:ml-1">
+                                (Last saved: {{ $draft->updated_at ? $draft->updated_at->format('d M Y, h:i A') : 'Recently' }})
+                            </span>
+                        </div>
+                    </div>
+                    <form action="{{ route('faculty.pts3.draft.discard', $student->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to discard this saved draft and start fresh?');" class="shrink-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-3.5 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg border border-red-200 dark:border-red-800 transition cursor-pointer">
+                            Discard Draft
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             <!-- Error Alerts -->
             @if($errors->any())
                 <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm">
@@ -76,7 +152,7 @@
                 </div>
             @endif
 
-            <form action="{{ $isReverted ? route('faculty.pts3.update', $pts3->id) : route('faculty.pts3.store', $student->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="if (!validateForm($event)) { return false; } clearDraft();">
+            <form action="{{ $isReverted ? route('faculty.pts3.update', $pts3->id) : route('faculty.pts3.store', $student->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6" @submit="if ($event.submitter && $event.submitter.hasAttribute('formaction')) { return true; } if (!validateForm($event)) { return false; }">
                 @csrf
                 @if($isReverted)
                     @method('PUT')
@@ -196,34 +272,48 @@
                 
                 <x-pts3-examiners-section type="international" title="4. International Examiners Panel" />
 
-                <!-- OEB Members -->
+                <!-- OEB Chairpersons -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        5. Oral Examination Board (OEB) Faculty Members
+                        5. Oral Examination Board (OEB) Chairpersons
                     </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Please provide exactly 4 faculty members for the OEB.</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Please provide exactly 4 Institute faculty members as proposed OEB Chairpersons.</p>
                     
                     <div class="space-y-6">
                         <template x-for="(oeb, index) in oebMembers" :key="index">
-                            <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-lg relative bg-gray-50 dark:bg-gray-900/50">
-                                <h4 class="font-bold text-gray-700 dark:text-gray-300 mb-3" x-text="`OEB Member #${index + 1}`"></h4>
+                            <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl relative bg-gray-50 dark:bg-gray-900/50 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-gray-700">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold shrink-0"
+                                              x-text="index + 1"></span>
+                                        <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200" 
+                                            x-text="oeb.name ? oeb.name : `OEB Chairperson #${index + 1}`"></h4>
+                                    </div>
+                                    <button type="button" 
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition cursor-pointer"
+                                            @click="clearOebMember(index)"
+                                            title="Clear all fields for this OEB chairperson">
+                                        <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        <span>Clear</span>
+                                    </button>
+                                </div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <x-form-label value="Name" required />
-                                        <x-form-input type="text" x-model="oeb.name" x-bind:name="`oeb_members[${index}][name]`" required placeholder="Faculty Name" />
+                                        <x-form-input type="text" x-model="oeb.name" x-bind:name="`oeb_chairpersons[${index}][name]`" required placeholder="Faculty Name" />
                                     </div>
                                     <div>
                                         <x-form-label value="Designation" required />
-                                        <x-form-input type="text" x-model="oeb.designation" x-bind:name="`oeb_members[${index}][designation]`" required placeholder="e.g. Professor / Assoc. Prof" />
+                                        <x-form-input type="text" x-model="oeb.designation" x-bind:name="`oeb_chairpersons[${index}][designation]`" required placeholder="e.g. Professor / Assoc. Prof" />
                                     </div>
                                     <div>
                                         <x-form-label value="Department" required />
-                                        <x-form-input type="text" x-model="oeb.department" x-bind:name="`oeb_members[${index}][department]`" required placeholder="e.g. Mechanical Engineering" />
+                                        <x-form-input type="text" x-model="oeb.department" x-bind:name="`oeb_chairpersons[${index}][department]`" required placeholder="e.g. Mechanical Engineering" />
                                     </div>
                                     <div>
                                         <x-form-label value="Email Address" required />
-                                        <x-form-input type="email" x-model="oeb.email" x-bind:name="`oeb_members[${index}][email]`" required placeholder="faculty@institute.ac.in" />
+                                        <x-form-input type="email" x-model="oeb.email" x-bind:name="`oeb_chairpersons[${index}][email]`" required placeholder="faculty@institute.ac.in" />
                                     </div>
                                 </div>
                             </div>
@@ -258,13 +348,38 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-end pt-4 pb-12">
-                    <button type="submit" 
-                            :disabled="!isPanelValid('indianExaminers') || !isPanelValid('internationalExaminers') || !supervisorDeclaration"
-                            :class="(!isPanelValid('indianExaminers') || !isPanelValid('internationalExaminers') || !supervisorDeclaration) ? 'opacity-60 cursor-not-allowed bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'"
-                            class="px-6 py-3 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-12">
+                    <div>
+                        @if(isset($draft) && $draft && !$isReverted)
+                            <button type="submit"
+                                    formaction="{{ route('faculty.pts3.draft.discard', $student->id) }}"
+                                    formnovalidate
+                                    onclick="return confirm('Are you sure you want to discard this saved draft? All unsaved progress will be permanently removed.');"
+                                    class="px-4 py-2.5 text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl border border-red-200 dark:border-red-800 transition shadow-xs cursor-pointer flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <span>Discard Draft</span>
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                        @if(!$isReverted)
+                            <button type="submit" 
+                                    formaction="{{ route('faculty.pts3.draft.save', $student->id) }}" 
+                                    formnovalidate
+                                    class="px-5 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
+                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                <span>Save Draft</span>
+                            </button>
+                        @endif
+
+                        <button type="submit" 
+                                :disabled="!isPanelValid('indianExaminers') || !isPanelValid('internationalExaminers') || !supervisorDeclaration"
+                                :class="(!isPanelValid('indianExaminers') || !isPanelValid('internationalExaminers') || !supervisorDeclaration) ? 'opacity-60 cursor-not-allowed bg-gray-400' : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'"
+                                class="px-6 py-3 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2">
                         <span>{{ $isReverted ? 'Resubmit' : 'Submit' }}</span>
-                    </button>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -282,93 +397,94 @@
 
     <!-- Define alpine data logic in script -->
     <script>
-        function pts3Form() {
-            const userId = @js(auth()->id());
-            const thesisId = @js($thesis->id);
-            const formId = @js(isset($pts3) && $pts3 ? $pts3->id : null);
-            const draftKey = 'pts3_supervisor_draft_user_' + userId + '_thesis_' + thesisId + (formId ? '_form_' + formId : '');
+        function createDefaultExaminerObject(type = 'indian', consent = '1') {
+            const isIntl = type === 'international' || type === 'internationalExaminers';
+            return {
+                id: null,
+                name: '',
+                designation: '',
+                organization: '',
+                postal_address: '',
+                email: '',
+                phone_number: '',
+                phone_country_code: isIntl ? '+1' : '+91',
+                phone_iso2: isIntl ? 'us' : 'in',
+                website: '',
+                research_area: '',
+                has_consent: consent,
+                consent_doc_path: null,
+                consent_doc_name: null,
+                consent_doc_url: null
+            };
+        }
 
+        function pts3Form() {
             const serverIndian = @json($indianData);
             const serverIntl = @json($intlData);
-
-            function sanitizeDraftExaminers(draftList, serverList) {
-                if (!draftList || !Array.isArray(draftList) || !draftList.length) return serverList;
-                return draftList.map((e, index) => {
-                    const serverMatch = serverList && serverList[index] ? serverList[index] : null;
-                    return {
-                        ...e,
-                        consent_doc_path: serverMatch ? serverMatch.consent_doc_path : null,
-                        consent_doc_name: serverMatch ? serverMatch.consent_doc_name : null,
-                        consent_doc_url: serverMatch ? serverMatch.consent_doc_url : null,
-                    };
-                });
-            }
-
-            let savedDraft = {};
-            try {
-                savedDraft = JSON.parse(sessionStorage.getItem(draftKey) || '{}');
-            } catch (e) {}
+            const serverOeb = @json($oebData);
+            const serverTitle = @json($thesisTitle);
+            const serverDeclaration = @json($supervisorDeclaration);
 
             return {
-                thesisTitle: @js(old('thesis_title')) || savedDraft.thesisTitle || @js($pts3->thesis_title ?? $thesis->title ?? ''),
-                supervisorDeclaration: savedDraft.supervisorDeclaration !== undefined ? savedDraft.supervisorDeclaration : @js($isReverted ? true : false),
+                thesisTitle: serverTitle || '',
+                supervisorDeclaration: Boolean(serverDeclaration),
                 
-                indianExaminers: sanitizeDraftExaminers(savedDraft.indianExaminers, serverIndian),
-                internationalExaminers: sanitizeDraftExaminers(savedDraft.internationalExaminers, serverIntl),
-                oebMembers: (savedDraft.oebMembers && savedDraft.oebMembers.length) ? savedDraft.oebMembers : @json($oebData),
-
-                init() {
-                    this.$watch('thesisTitle', () => this.saveDraft());
-                    this.$watch('supervisorDeclaration', () => this.saveDraft());
-                    this.$watch('indianExaminers', () => this.saveDraft(), { deep: true });
-                    this.$watch('internationalExaminers', () => this.saveDraft(), { deep: true });
-                    this.$watch('oebMembers', () => this.saveDraft(), { deep: true });
-                },
-
-                saveDraft() {
-                    try {
-                        const cleanExaminers = (list) => (list || []).map(e => ({
-                            ...e,
-                            consent_doc_path: null,
-                            consent_doc_name: null,
-                            consent_doc_url: null,
-                        }));
-
-                        sessionStorage.setItem(draftKey, JSON.stringify({
-                            thesisTitle: this.thesisTitle,
-                            supervisorDeclaration: this.supervisorDeclaration,
-                            indianExaminers: cleanExaminers(this.indianExaminers),
-                            internationalExaminers: cleanExaminers(this.internationalExaminers),
-                            oebMembers: this.oebMembers,
-                        }));
-                    } catch (e) {}
-                },
-
-                clearDraft() {
-                    try {
-                        sessionStorage.removeItem(draftKey);
-                    } catch (e) {}
-                },
+                indianExaminers: (serverIndian && serverIndian.length) ? serverIndian : [
+                    createDefaultExaminerObject('indian', '1'),
+                    createDefaultExaminerObject('indian', '1')
+                ],
+                internationalExaminers: (serverIntl && serverIntl.length) ? serverIntl : [
+                    createDefaultExaminerObject('international', '1'),
+                    createDefaultExaminerObject('international', '1')
+                ],
+                oebMembers: (serverOeb && serverOeb.length) ? serverOeb : [
+                    { name: '', designation: '', department: '', email: '' },
+                    { name: '', designation: '', department: '', email: '' },
+                    { name: '', designation: '', department: '', email: '' },
+                    { name: '', designation: '', department: '', email: '' }
+                ],
 
                 createDefaultExaminer(type = 'indian', consent = '1') {
-                    const isIntl = type === 'international' || type === 'internationalExaminers';
-                    return {
-                        id: null,
-                        name: '',
-                        designation: '',
-                        organization: '',
-                        postal_address: '',
-                        email: '',
-                        phone_number: '',
-                        phone_country_code: isIntl ? '+1' : '+91',
-                        phone_iso2: isIntl ? 'us' : 'in',
-                        website: '',
-                        research_area: '',
-                        has_consent: consent,
-                        consent_doc_path: null,
-                        consent_doc_name: null,
-                        consent_doc_url: null
-                    };
+                    return createDefaultExaminerObject(type, consent);
+                },
+
+                clearExaminer(type, index, inputId) {
+                    if (this[type] && this[type][index]) {
+                        const isIntl = type === 'international' || type === 'internationalExaminers';
+                        const currentConsent = this[type][index].has_consent || '1';
+                        this[type][index] = {
+                            id: null,
+                            name: '',
+                            designation: '',
+                            organization: '',
+                            postal_address: '',
+                            email: '',
+                            phone_number: '',
+                            phone_country_code: isIntl ? '+1' : '+91',
+                            phone_iso2: isIntl ? 'us' : 'in',
+                            website: '',
+                            research_area: '',
+                            has_consent: currentConsent,
+                            consent_doc_path: null,
+                            consent_doc_name: null,
+                            consent_doc_url: null
+                        };
+                    }
+                    if (inputId) {
+                        const el = document.getElementById(inputId);
+                        if (el) el.value = '';
+                    }
+                },
+
+                clearOebMember(index) {
+                    if (this.oebMembers && this.oebMembers[index]) {
+                        this.oebMembers[index] = {
+                            name: '',
+                            designation: '',
+                            department: '',
+                            email: ''
+                        };
+                    }
                 },
 
                 clearConsentDoc(type, index, inputId) {
@@ -411,55 +527,39 @@
                     }
                 },
 
-                // Auto-balancing consent logic
                 handleConsentChange(type, index, value) {
                     if (!this[type] || !this[type][index]) return;
                     this[type][index].has_consent = String(value);
-
-                    const total = this[type].length;
-                    const consentCount = this[type].filter(e => e.has_consent === '1').length;
-                    const nonConsentCount = this[type].filter(e => e.has_consent === '0').length;
-
-                    // Case A: 2 examiners, user makes one '0' -> needs 1 more '0' slot (total 3)
-                    if (total === 2 && consentCount === 1 && nonConsentCount === 1) {
-                        this[type].push(this.createDefaultExaminer(type, '0'));
-                    }
-                    // Case B: 2 examiners, user makes both '0' -> needs 2 more '0' slots (total 4)
-                    else if (total === 2 && consentCount === 0 && nonConsentCount === 2) {
-                        this[type].push(this.createDefaultExaminer(type, '0'));
-                        this[type].push(this.createDefaultExaminer(type, '0'));
-                    }
-                    // Case C: 3 examiners (1 consent + 2 non-consent), user turns the 1 consent to '0' -> needs 1 more '0' slot (total 4)
-                    else if (total === 3 && consentCount === 0 && nonConsentCount === 3) {
-                        this[type].push(this.createDefaultExaminer(type, '0'));
-                    }
-                    // Case D: User changes a non-consent to consent:
-                    // If we have 3 examiners and now 2 are consented, collapse the 3rd non-consent
-                    else if (total === 3 && consentCount === 2 && nonConsentCount === 1) {
-                        const lastNonConsentIdx = this[type].map(e => e.has_consent).lastIndexOf('0');
-                        if (lastNonConsentIdx !== -1) {
-                            this[type].splice(lastNonConsentIdx, 1);
-                        }
-                    }
-                    // If we have 4 examiners and now 1 is consented, collapse the 4th non-consent (becomes 1 consent + 2 non-consent = 3 total)
-                    else if (total === 4 && consentCount === 1 && nonConsentCount === 3) {
-                        const lastNonConsentIdx = this[type].map(e => e.has_consent).lastIndexOf('0');
-                        if (lastNonConsentIdx !== -1) {
-                            this[type].splice(lastNonConsentIdx, 1);
-                        }
-                    }
-                    // If we have 4 examiners and now 2 are consented, collapse 2 non-consents (becomes 2 consent = 2 total)
-                    else if (total === 4 && consentCount === 2 && nonConsentCount === 2) {
-                        this[type] = this[type].filter(e => e.has_consent === '1');
+                    if (String(value) === '0') {
+                        this[type][index].consent_doc_path = null;
+                        this[type][index].consent_doc_name = null;
+                        this[type][index].consent_doc_url = null;
                     }
                 },
 
                 getPanelUnits(type) {
-                    if (!this[type]) return '0.0';
+                    if (!this[type]) return 0;
                     const consentCount = this[type].filter(e => e.has_consent === '1').length;
                     const nonConsentCount = this[type].filter(e => e.has_consent === '0').length;
-                    const units = (consentCount * 1.0) + (nonConsentCount * 0.5);
-                    return Number.isInteger(units) ? units.toFixed(1) : units.toString();
+                    return (consentCount * 1.0) + (nonConsentCount * 0.5);
+                },
+
+                getPanelCompositionLabel(type) {
+                    if (!this[type]) return 'Requirement Not Met';
+                    const total = this[type].length;
+                    const consentCount = this[type].filter(e => e.has_consent === '1').length;
+                    const nonConsentCount = this[type].filter(e => e.has_consent === '0').length;
+
+                    if (total === 2 && consentCount === 2 && nonConsentCount === 0) {
+                        return '2 Consent';
+                    }
+                    if (total === 3 && consentCount === 1 && nonConsentCount === 2) {
+                        return '1 Consent + 2 Non-Consent';
+                    }
+                    if (total === 4 && consentCount === 0 && nonConsentCount === 4) {
+                        return '4 Non-Consent';
+                    }
+                    return `Requirement Not Met`;
                 },
 
                 isPanelValid(type) {
@@ -480,7 +580,7 @@
                 },
 
                 removeExaminer(type, index) {
-                    if (this[type].length > 2) {
+                    if (this[type] && this[type].length > 0) {
                         this[type].splice(index, 1);
                     }
                 },

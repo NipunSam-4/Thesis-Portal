@@ -117,6 +117,8 @@ Route::middleware('auth')->group(function () {
     // ==========================================
     // Main Supervisor Form Actions
     Route::get('/faculty/pts3/create/{student}', [\App\Http\Controllers\Pts3Controller::class, 'create'])->name('faculty.pts3.create');
+    Route::post('/faculty/pts3/draft/{student}', [\App\Http\Controllers\Pts3Controller::class, 'saveDraft'])->name('faculty.pts3.draft.save');
+    Route::match(['post', 'delete'], '/faculty/pts3/draft/{student}/discard', [\App\Http\Controllers\Pts3Controller::class, 'discardDraft'])->name('faculty.pts3.draft.discard');
     Route::get('/faculty/pts3/{pts3}/edit', [\App\Http\Controllers\Pts3Controller::class, 'edit'])->name('faculty.pts3.edit');
     Route::post('/faculty/pts3/store/{student}', [\App\Http\Controllers\Pts3Controller::class, 'store'])->name('faculty.pts3.store');
     Route::match(['post', 'put'], '/faculty/pts3/{pts3}/update', [\App\Http\Controllers\Pts3Controller::class, 'update'])->name('faculty.pts3.update');

@@ -17,19 +17,29 @@
     $pts1Approved = $thesis && $thesis->pts1Form && $thesis->pts1Form->status === 'approved';
     $pts2Approved = $thesis && $thesis->pts2Form && $thesis->pts2Form->status === 'approved';
     $pts3Approved = $thesis && $thesis->pts3Form && $thesis->pts3Form->status === 'approved';
-    $pts4Approved = $thesis && $thesis->pts4Form && $thesis->pts4Form->status === 'approved';
+    $pts4Accepted = $thesis && $thesis->pts4Form && $thesis->pts4Form->status === 'accepted';
     $pts5Approved = $thesis && $thesis->pts5Form && $thesis->pts5Form->status === 'approved';
+    $isDr = ($user && ($user->isDr() || $role === 'dr'));
 
     $getBtnColor = function (?string $status) {
         return match($status) {
-            'reverted' => 'bg-amber-600 hover:bg-amber-700',
-            'rejected' => 'bg-red-600 hover:bg-red-700',
-            'approved' => 'bg-emerald-600 hover:bg-emerald-700',
-            default    => 'bg-blue-600 hover:bg-blue-700',
+            'reverted'                 => 'bg-amber-600 hover:bg-amber-700',
+            'rejected', 'not_accepted' => 'bg-red-600 hover:bg-red-700',
+            'approved', 'accepted'     => 'bg-emerald-600 hover:bg-emerald-700',
+            default                    => 'bg-blue-600 hover:bg-blue-700',
         };
     };
 
-    $getBtnText = function (?string $status, string $type = 'Form') {
+    $getBtnText = function (?string $status, string $type = 'Form', bool $isPts4 = false) {
+        if ($isPts4) {
+            return match($status) {
+                'in_progress'  => "View Submitted {$type}",
+                'reverted'     => "View Reverted {$type}",
+                'not_accepted' => "View Not Accepted {$type}",
+                'accepted'     => "View Accepted {$type}",
+                default        => "View {$type}",
+            };
+        }
         return match($status) {
             'in_progress' => "View Submitted {$type}",
             'reverted'    => "View Reverted {$type}",
@@ -41,11 +51,11 @@
 
     $getBadgeColor = function (?string $status) {
         return match($status) {
-            'in_progress' => 'bg-blue-100 text-blue-800',
-            'reverted'    => 'bg-amber-100 text-amber-800',
-            'approved'    => 'bg-emerald-100 text-emerald-800',
-            'rejected'    => 'bg-red-100 text-red-800',
-            default       => 'bg-gray-200 text-gray-700',
+            'in_progress'              => 'bg-blue-100 text-blue-800',
+            'reverted'                 => 'bg-amber-100 text-amber-800',
+            'approved', 'accepted'     => 'bg-emerald-100 text-emerald-800',
+            'rejected', 'not_accepted' => 'bg-red-100 text-red-800',
+            default                    => 'bg-gray-200 text-gray-700',
         };
     };
 @endphp
@@ -357,7 +367,7 @@
                             <div class="flex justify-between items-start gap-2">
                                 <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">{{ $ptsPrefix }}-3: Panels of Examiners Submission</span>
                                 <div class="flex items-center gap-1 shrink-0">
-                                    @if(!$pts2Approved)
+                                    @if(!$pts1Approved)
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                     @elseif($thesis->pts3Form)
                                         <x-submission-timeline-modal :form="$thesis->pts3Form" :title="$ptsPrefix . '-3 Submission Timeline'" />
@@ -394,9 +404,9 @@
                         </div>
 
                         <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
-                            @if(!$pts2Approved)
+                            @if(!$pts1Approved)
                                 <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                    Requires {{ $ptsPrefix }}-2 Approval
+                                    Requires {{ $ptsPrefix }}-1 Approval
                                 </button>
                             @elseif(!$thesis->pts3Form)
                                 @if($role === 'main')
@@ -457,6 +467,40 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Examiner Evaluation Card (DR Role Only) -->
+                    @if($isDr)
+                        <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-start gap-2">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">Examiner Evaluation</span>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        @if(!$pts3Approved)
+                                            <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
+                                        @else
+                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Available</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    Evaluation and tracking of Indian &amp; International External Examiner thesis reports.
+                                </p>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                @if(!$pts3Approved)
+                                    <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                        Requires {{ $ptsPrefix }}-3 Approval
+                                    </button>
+                                @else
+                                    <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
+                                        Examiner Evaluation Stage
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- PTS-4 Milestone Card -->
                     <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
@@ -524,7 +568,7 @@
                                 @endphp
                                 @if($thesis->pts4Form->status !== 'reverted' || $thesis->pts4Form->canUserViewRevertedForm($user))
                                     <a href="{{ $viewRoute }}" target="_blank" class="block w-full text-center px-4 py-2 {{ $getBtnColor($thesis->pts4Form->status) }} text-white font-bold text-xs rounded-lg shadow transition">
-                                        {{ $getBtnText($thesis->pts4Form->status) }} &rarr;
+                                        {{ $getBtnText($thesis->pts4Form->status, 'Form', true) }} &rarr;
                                     </a>
                                 @endif
                             @endif
@@ -591,7 +635,7 @@
                                     @if($thesis->pts5Form)
                                         <x-submission-timeline-modal :form="$thesis->pts5Form" :title="$ptsPrefix . '-5 Submission Timeline'" />
                                     @endif
-                                    @if(!$pts3Approved || !$pts4Approved)
+                                    @if(!$pts3Approved || !$pts4Accepted)
                                         <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
                                     @elseif($thesis->pts5Form)
                                         <span class="shrink-0 {{ $getBadgeColor($thesis->pts5Form->status) }} text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">
@@ -608,9 +652,9 @@
                         </div>
 
                         <div class="pt-2 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                            @if(!$pts3Approved || !$pts4Approved)
+                            @if(!$pts3Approved || !$pts4Accepted)
                                 <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
-                                    Requires {{ $ptsPrefix }}-3 &amp; {{ $ptsPrefix }}-4 Approval
+                                    Requires {{ $ptsPrefix }}-3 Approval &amp; {{ $ptsPrefix }}-4 Acceptance
                                 </button>
                             @elseif($thesis->pts5Form && $thesis->pts5Form->status === 'approved')
                                 <div class="flex items-center justify-between gap-2 pt-1">
@@ -629,6 +673,40 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- OEB Formation Card (DR Role Only) -->
+                    @if($isDr)
+                        <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-start gap-2">
+                                    <span class="font-bold text-sm text-gray-900 dark:text-white leading-snug">OEB Formation</span>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        @if(!$pts5Approved)
+                                            <span class="shrink-0 bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap">🔒 Locked</span>
+                                        @else
+                                            <span class="shrink-0 bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded whitespace-nowrap">Available</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    Formation and constitution of the Oral Examination Board (OEB) for thesis defense.
+                                </p>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-200 dark:border-gray-600">
+                                @if(!$pts5Approved)
+                                    <button disabled class="w-full text-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-bold text-xs rounded-lg cursor-not-allowed">
+                                        Requires {{ $ptsPrefix }}-5 Approval
+                                    </button>
+                                @else
+                                    <button disabled class="w-full text-center px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-xs rounded-lg border border-blue-200 dark:border-blue-800 cursor-not-allowed">
+                                        OEB Formation Stage
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- PTS-6 Milestone Card -->
                     <div class="p-2.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 space-y-3 flex flex-col justify-between">

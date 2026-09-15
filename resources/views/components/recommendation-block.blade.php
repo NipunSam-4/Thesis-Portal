@@ -79,7 +79,7 @@
 
         @if($showSnippet && $formType && $role)
             <div class="pt-0.5">
-                <x-snippet-dropdown :target="$remarkModel" :form-type="$formType" :role="$role" />
+                <x-snippet-dropdown :target="$remarkModel" :form-type="$formType" :role="$role" comment-type="confidential" />
             </div>
         @endif
 

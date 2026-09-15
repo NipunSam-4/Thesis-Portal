@@ -41,201 +41,341 @@
                     6. Authority Recommendations & Remarks
                 </h3>
 
+                @php
+                    $currStage = $pts1->current_stage;
+                    $isDept = in_array($currStage, ['dpgc', 'hod']);
+                    $isGlobal = in_array($currStage, ['academic_office', 'doaa']);
+                    $isDeptOrGlobal = $isDept || $isGlobal;
+                    $defaultOpen = $isDept;
+
+                    $passedCoSupervisors = $pts1->hasPassedStage('co_supervisors');
+                    $activeCoSupervisors = [];
+                    foreach ($coSupervisors as $i => $coUser) {
+                        $remCol = "co_supervisor_{$i}_confidential_remark";
+                        $recCol = "co_supervisor_{$i}_recommendation";
+                        if (!is_null($pts1->$remCol) || $passedCoSupervisors) {
+                            $isExt = $coUser->isExternalSupervisor();
+                            $activeCoSupervisors[] = [
+                                'slot' => $i,
+                                'user' => $coUser,
+                                'roleTitle' => $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}"),
+                                'inst' => ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '',
+                                'recommended' => (bool)$pts1->$recCol,
+                                'remark' => $pts1->$remCol,
+                            ];
+                        }
+                    }
+
+                    $passedPspcMembers = $pts1->hasPassedStage('pspc_members');
+                    $activePspcMembers = [];
+                    foreach ($pspcMembers as $i => $pspcUser) {
+                        $remCol = "pspc_member_{$i}_confidential_remark";
+                        $recCol = "pspc_member_{$i}_recommendation";
+                        if (!is_null($pts1->$remCol) || $passedPspcMembers) {
+                            $activePspcMembers[] = [
+                                'slot' => $i,
+                                'user' => $pspcUser,
+                                'recommended' => (bool)$pts1->$recCol,
+                                'remark' => $pts1->$remCol,
+                            ];
+                        }
+                    }
+
+                    $immediateStage = match($currStage) {
+                        'dpgc' => (!empty($activePspcMembers) ? 'pspc_members' : 'co_supervisors'),
+                        'hod' => 'dpgc',
+                        'academic_office' => 'hod',
+                        'doaa' => 'academic_office',
+                        default => null,
+                    };
+                @endphp
+
                 <div class="space-y-4">
-                    <!-- Main Supervisor Evaluation -->
-                    @if($pts1->hasPassedStage('main_supervisor'))
-                        <x-role-card role="main_supervisor">
-                            <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
-                                <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
-                                    Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
-                                </span>
-                                <span class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[120px] sm:max-w-none">
-                                    Open Seminar Status: {{ strtoupper($pts1->work_status) }}
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Additional Comment:</strong>
-                                <x-feedback-box :text="$pts1->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
-                            </div>
-                       
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Confidential Remark:</strong>
-                                <x-feedback-box :text="$pts1->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
-                            </div>
-                        </x-role-card>
-                    @endif
-
-                    <!-- Co-Supervisors Recommendations -->
-                    @php
-                        $passedCoSupervisors = $pts1->hasPassedStage('co_supervisors');
-                        $activeCoSupervisors = [];
-                        foreach ($coSupervisors as $i => $coUser) {
-                            $remCol = "co_supervisor_{$i}_confidential_remark";
-                            $recCol = "co_supervisor_{$i}_recommendation";
-                            if (!is_null($pts1->$remCol) || $passedCoSupervisors) {
-                                $isExt = $coUser->isExternalSupervisor();
-                                $activeCoSupervisors[] = [
-                                    'slot' => $i,
-                                    'user' => $coUser,
-                                    'roleTitle' => $student ? $student->getSupervisorRoleTitle($coUser) : ($isExt ? 'External Supervisor' : "Co-Supervisor {$i}"),
-                                    'inst' => ($isExt && $coUser->externalSupervisorProfile?->affiliated_institute) ? ' - ' . $coUser->externalSupervisorProfile->affiliated_institute : '',
-                                    'recommended' => (bool)$pts1->$recCol,
-                                    'remark' => $pts1->$remCol,
-                                ];
-                            }
-                        }
-                    @endphp
-
-                    @if(!empty($activeCoSupervisors))
-                        <x-role-card role="co_supervisor">
-                            <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
-                            
-                            @foreach($activeCoSupervisors as $index => $co)
-                                <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
-                                    <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
-                                        <span>{{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:</span>
-                                        <span class="font-bold whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                            {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                    @if($isDeptOrGlobal && $immediateStage)
+                        <!-- Earlier Authority Recommendations (Collapsed by default for Global, Open for Dept) -->
+                        <x-collapsible-earlier-remarks :default-open="$defaultOpen">
+                            <!-- Main Supervisor Evaluation -->
+                            @if($pts1->hasPassedStage('main_supervisor') && $immediateStage !== 'main_supervisor')
+                                <x-role-card role="main_supervisor">
+                                    <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                        <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
+                                            Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
+                                        </span>
+                                        <span class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[120px] sm:max-w-none">
+                                            Open Seminar Status: {{ strtoupper($pts1->work_status) }}
                                         </span>
                                     </div>
-                                    <div class="space-y-1">
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Additional Comment:</strong>
+                                        <x-feedback-box :text="$pts1->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
+                                    </div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
                                         <strong>Confidential Remark:</strong>
-                                        <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                        <x-feedback-box :text="$pts1->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
                                     </div>
-                                </div>
-                            @endforeach
-                        </x-role-card>
-                    @endif
-
-                    <!-- PSPC Committee Recommendations -->
-                    @php
-                        $passedPspcMembers = $pts1->hasPassedStage('pspc_members');
-                        $activePspcMembers = [];
-                        foreach ($pspcMembers as $i => $pspcUser) {
-                            $remCol = "pspc_member_{$i}_confidential_remark";
-                            $recCol = "pspc_member_{$i}_recommendation";
-                            if (!is_null($pts1->$remCol) || $passedPspcMembers) {
-                                $activePspcMembers[] = [
-                                    'slot' => $i,
-                                    'user' => $pspcUser,
-                                    'recommended' => (bool)$pts1->$recCol,
-                                    'remark' => $pts1->$remCol,
-                                ];
-                            }
-                        }
-                    @endphp
-
-                    @if(!empty($activePspcMembers))
-                        <x-role-card role="pspc">
-                            <h5 class="text-base font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
-                            
-                            @foreach($activePspcMembers as $index => $pspc)
-                                <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-cyan-100 dark:border-cyan-900' : '' }}">
-                                    <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
-                                        <span>PSPC Member {{ $pspc['slot'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspc['user']->name }})</span>:</span>
-                                        <span class="font-bold whitespace-nowrap shrink-0 {{ $pspc['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                            {{ $pspc['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
-                                        </span>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <strong>Confidential Remark:</strong>
-                                        <x-feedback-box :text="$pspc['remark']" fallback="Remark not provided" role="pspc" />
-                                    </div>
-                                </div>
-                            @endforeach
-                        </x-role-card>
-                    @endif
-
-                    <!-- DPGC Endorsement -->
-                    @if($pts1->hasPassedStage('dpgc'))
-                        <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
-                            <x-slot:badge>
-                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                </span>
-                            </x-slot:badge>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Student Comment:</strong>
-                                <x-feedback-box :text="$pts1->dpgc_student_comment" fallback="Comment not provided" role="dpgc" />
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Confidential Remark:</strong>
-                                <x-feedback-box :text="$pts1->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
-                            </div>
-                        </x-role-card>
-                    @endif
-
-                    <!-- HOD Endorsement -->
-                    @if($pts1->hasPassedStage('hod'))
-                        <x-role-card role="hod" title="Head of Department (HOD)">
-                            <x-slot:badge>
-                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
-                                </span>
-                            </x-slot:badge>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Student Comment:</strong>
-                                <x-feedback-box :text="$pts1->hod_student_comment" fallback="Comment not provided" role="hod" />
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Confidential Remark:</strong>
-                                <x-feedback-box :text="$pts1->hod_confidential_remark" fallback="Remark not provided" role="hod" />
-                            </div>
-                        </x-role-card>
-                    @endif
-
-                    <!-- Academic Office Endorsement -->
-                    @if($pts1->hasPassedStage('academic_office'))
-                        <x-role-card role="academic_office" title="Academic Office">
-                            <x-slot:badge>
-                                <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
-                                    ✓ Verified &amp; Forwarded
-                                </span>
-                            </x-slot:badge>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Verification Remark:</strong>
-                                <x-feedback-box :text="$pts1->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
-                            </div>
-                            @if(Auth::user()?->isAcademicOffice())
-                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
-                                    <strong>Assigned Acting DOAA:</strong>
-                                    @if(!empty($pts1->acting_doaa_email))
-                                        @php
-                                            $actingDoaaUser = \App\Models\User::where('email', $pts1->acting_doaa_email)->first();
-                                        @endphp
-                                        <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
-                                            {{ $actingDoaaUser->name ?? $pts1->acting_doaa_email }} ({{ $pts1->acting_doaa_email }})
-                                        </div>
-                                    @else
-                                        <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
-                                            None
-                                        </div>
-                                    @endif
-                                </div>
+                                </x-role-card>
                             @endif
-                        </x-role-card>
-                    @endif
 
-                    <!-- DOAA Approval -->
-                    @if($pts1->hasPassedStage('doaa'))
-                        <x-role-card role="doaa" title="Dean of Academic Affairs (DOAA)">
-                            <x-slot:badge>
-                                <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->doaa_approval ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                                    {{ $pts1->doaa_approval ? '✓ Approved' : '❌ Rejected' }}
-                                    @if($pts1->approvedBy)
-                                        by: {{ $pts1->approvedBy->email }}
-                                    @endif
-                                </span>
-                            </x-slot:badge>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Student Comment:</strong>
-                                <x-feedback-box :text="$pts1->doaa_student_comment" fallback="Comment not provided" role="doaa" />
-                            </div>
-                            <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
-                                <strong>Confidential Remark:</strong>
-                                <x-feedback-box :text="$pts1->doaa_confidential_remark" fallback="Remark not provided" role="doaa" />
-                            </div>
-                        </x-role-card>
+                            <!-- Co-Supervisors Recommendations -->
+                            @if(!empty($activeCoSupervisors) && $immediateStage !== 'co_supervisors')
+                                <x-role-card role="co_supervisor">
+                                    <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                    @foreach($activeCoSupervisors as $index => $co)
+                                        <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                            <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                                <span>{{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:</span>
+                                                <span class="font-bold whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <strong>Confidential Remark:</strong>
+                                                <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </x-role-card>
+                            @endif
+
+                            <!-- PSPC Committee Recommendations -->
+                            @if(!empty($activePspcMembers) && $immediateStage !== 'pspc_members')
+                                <x-role-card role="pspc">
+                                    <h5 class="text-base font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
+                                    @foreach($activePspcMembers as $index => $pspc)
+                                        <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-cyan-100 dark:border-cyan-900' : '' }}">
+                                            <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                                <span>PSPC Member {{ $pspc['slot'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspc['user']->name }})</span>:</span>
+                                                <span class="font-bold whitespace-nowrap shrink-0 {{ $pspc['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ $pspc['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                                </span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <strong>Confidential Remark:</strong>
+                                                <x-feedback-box :text="$pspc['remark']" fallback="Remark not provided" role="pspc" />
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </x-role-card>
+                            @endif
+
+                            <!-- DPGC Endorsement -->
+                            @if($pts1->hasPassedStage('dpgc') && $immediateStage !== 'dpgc')
+                                <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $pts1->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Student Comment:</strong>
+                                        <x-feedback-box :text="$pts1->dpgc_student_comment" fallback="Comment not provided" role="dpgc" />
+                                    </div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$pts1->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
+                                    </div>
+                                </x-role-card>
+                            @endif
+
+                            <!-- HOD Endorsement -->
+                            @if($pts1->hasPassedStage('hod') && $immediateStage !== 'hod')
+                                <x-role-card role="hod" title="Head of Department (HOD)">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                            {{ $pts1->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Student Comment:</strong>
+                                        <x-feedback-box :text="$pts1->hod_student_comment" fallback="Comment not provided" role="hod" />
+                                    </div>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Confidential Remark:</strong>
+                                        <x-feedback-box :text="$pts1->hod_confidential_remark" fallback="Remark not provided" role="hod" />
+                                    </div>
+                                </x-role-card>
+                            @endif
+
+                            <!-- Academic Office Endorsement -->
+                            @if($pts1->hasPassedStage('academic_office') && $immediateStage !== 'academic_office')
+                                <x-role-card role="academic_office" title="Academic Office">
+                                    <x-slot:badge>
+                                        <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                            ✓ Verified &amp; Forwarded
+                                        </span>
+                                    </x-slot:badge>
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                        <strong>Verification Remark:</strong>
+                                        <x-feedback-box :text="$pts1->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
+                                    </div>
+                                </x-role-card>
+                            @endif
+                        </x-collapsible-earlier-remarks>
+
+                        <!-- Immediate Previous Stage (Always Open / Visible directly) -->
+                        @if($immediateStage === 'pspc_members' && !empty($activePspcMembers))
+                            <x-role-card role="pspc">
+                                <h5 class="text-base font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
+                                @foreach($activePspcMembers as $index => $pspc)
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-cyan-100 dark:border-cyan-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                            <span>PSPC Member {{ $pspc['slot'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspc['user']->name }})</span>:</span>
+                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $pspc['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $pspc['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Confidential Remark:</strong>
+                                            <x-feedback-box :text="$pspc['remark']" fallback="Remark not provided" role="pspc" />
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </x-role-card>
+                        @elseif($immediateStage === 'co_supervisors' && !empty($activeCoSupervisors))
+                            <x-role-card role="co_supervisor">
+                                <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                @foreach($activeCoSupervisors as $index => $co)
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                            <span>{{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:</span>
+                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Confidential Remark:</strong>
+                                            <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </x-role-card>
+                        @elseif($immediateStage === 'dpgc' && $pts1->hasPassedStage('dpgc'))
+                            <x-role-card role="dpgc" title="Department Postgraduate Committee (DPGC)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->dpgc_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts1->dpgc_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Student Comment:</strong>
+                                    <x-feedback-box :text="$pts1->dpgc_student_comment" fallback="Comment not provided" role="dpgc" />
+                                </div>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
+                                    <x-feedback-box :text="$pts1->dpgc_confidential_remark" fallback="Remark not provided" role="dpgc" />
+                                </div>
+                            </x-role-card>
+                        @elseif($immediateStage === 'hod' && $pts1->hasPassedStage('hod'))
+                            <x-role-card role="hod" title="Head of Department (HOD)">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs whitespace-nowrap shrink-0 {{ $pts1->hod_recommendation ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $pts1->hod_recommendation ? '✓ Recommended' : '❌ Not Recommended' }}
+                                    </span>
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Student Comment:</strong>
+                                    <x-feedback-box :text="$pts1->hod_student_comment" fallback="Comment not provided" role="hod" />
+                                </div>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
+                                    <x-feedback-box :text="$pts1->hod_confidential_remark" fallback="Remark not provided" role="hod" />
+                                </div>
+                            </x-role-card>
+                        @elseif($immediateStage === 'academic_office' && $pts1->hasPassedStage('academic_office'))
+                            <x-role-card role="academic_office" title="Academic Office">
+                                <x-slot:badge>
+                                    <span class="font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap shrink-0">
+                                        ✓ Verified &amp; Forwarded
+                                    </span>
+                                </x-slot:badge>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Verification Remark:</strong>
+                                    <x-feedback-box :text="$pts1->academic_office_confidential_remark" fallback="Remark not provided" role="academic_office" />
+                                </div>
+                                @if(Auth::user()?->isAcademicOffice())
+                                    <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1 pt-1">
+                                        <strong>Assigned Acting DOAA:</strong>
+                                        @if(!empty($pts1->acting_doaa_email))
+                                            @php
+                                                $actingDoaaUser = \App\Models\User::where('email', $pts1->acting_doaa_email)->first();
+                                            @endphp
+                                            <div class="p-2 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-lg font-semibold text-indigo-900 dark:text-indigo-200">
+                                                {{ $actingDoaaUser->name ?? $pts1->acting_doaa_email }} ({{ $pts1->acting_doaa_email }})
+                                            </div>
+                                        @else
+                                            <div class="p-2 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 font-medium">
+                                                None
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </x-role-card>
+                        @endif
+                    @else
+                        <!-- Stages before Dept/Global (e.g. Co-Supervisors / PSPC) - Render all passed stages directly -->
+                        <!-- Main Supervisor Evaluation -->
+                        @if($pts1->hasPassedStage('main_supervisor'))
+                            <x-role-card role="main_supervisor">
+                                <div class="flex items-center justify-between text-base gap-2 sm:gap-4">
+                                    <span class="font-bold text-indigo-900 dark:text-indigo-200 text-base">
+                                        Main Supervisor @if(isset($mainSupervisor))<span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $mainSupervisor->name }})</span>@endif
+                                    </span>
+                                    <span class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg uppercase text-[10px] text-center leading-tight whitespace-normal max-w-[120px] sm:max-w-none">
+                                        Open Seminar Status: {{ strtoupper($pts1->work_status) }}
+                                    </span>
+                                </div>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Additional Comment:</strong>
+                                    <x-feedback-box :text="$pts1->main_supervisor_student_comment" fallback="Comment not provided" role="main_supervisor" />
+                                </div>
+                                <div class="text-xs text-gray-700 dark:text-gray-300 space-y-1">
+                                    <strong>Confidential Remark:</strong>
+                                    <x-feedback-box :text="$pts1->main_supervisor_confidential_remark" fallback="Remark not provided" role="main_supervisor" />
+                                </div>
+                            </x-role-card>
+                        @endif
+
+                        <!-- Co-Supervisors Recommendations -->
+                        @if(!empty($activeCoSupervisors))
+                            <x-role-card role="co_supervisor">
+                                <h5 class="text-base font-bold text-blue-900 dark:text-blue-200">Co-Supervisors</h5>
+                                @foreach($activeCoSupervisors as $index => $co)
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-blue-100 dark:border-blue-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                            <span>{{ $co['roleTitle'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $co['user']->name }}{{ $co['inst'] }})</span>:</span>
+                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $co['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $co['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Confidential Remark:</strong>
+                                            <x-feedback-box :text="$co['remark']" fallback="Remark not provided" role="co_supervisor" />
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </x-role-card>
+                        @endif
+
+                        <!-- PSPC Committee Recommendations -->
+                        @if(!empty($activePspcMembers))
+                            <x-role-card role="pspc">
+                                <h5 class="text-base font-bold text-cyan-900 dark:text-cyan-200">PSPC Committee</h5>
+                                @foreach($activePspcMembers as $index => $pspc)
+                                    <div class="text-xs space-y-1.5 pt-1.5 {{ $index > 0 ? 'border-t border-cyan-100 dark:border-cyan-900' : '' }}">
+                                        <div class="flex items-center justify-between font-semibold text-sm gap-2 sm:gap-4">
+                                            <span>PSPC Member {{ $pspc['slot'] }} <span class="block sm:inline text-xs font-normal text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-0">({{ $pspc['user']->name }})</span>:</span>
+                                            <span class="font-bold whitespace-nowrap shrink-0 {{ $pspc['recommended'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ $pspc['recommended'] ? '✓ Recommended' : '❌ Not Recommended' }}
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <strong>Confidential Remark:</strong>
+                                            <x-feedback-box :text="$pspc['remark']" fallback="Remark not provided" role="pspc" />
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </x-role-card>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -280,11 +420,15 @@
                                 remark-placeholder-positive="Optional approval remarks"
                                 remark-placeholder-negative="Provide mandatory non-approval remarks"
                                 remark-rows="3"
+                                form-type="pts1"
+                                role="doaa"
                                 :remark-value="old('confidential_remark')" />
                         @else
                             <x-recommendation-block 
                                 label="Recommendation Status for Student Thesis Submission"
                                 remark-rows="5"
+                                form-type="pts1"
+                                :role="$pts1->current_stage"
                                 :remark-value="old('confidential_remark')" />
                         @endif
                         
@@ -325,7 +469,7 @@
 
                         <!-- Item 3: Student Comments Textarea (For DPGC, HOD, DOAA) -->
                         @if(in_array($pts1->current_stage, ['dpgc', 'hod', 'doaa']))
-                            <x-student-comment-input :value="old('student_comment')" />
+                            <x-student-comment-input :value="old('student_comment')" form-type="pts1" :role="$pts1->current_stage" />
                         @endif
                     </div>
                     

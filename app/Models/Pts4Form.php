@@ -49,14 +49,14 @@ class Pts4Form extends Model
         'academic_office_verification_remark',
         'academic_office_confidential_remark',
         'academic_office_submitted_at',
-        'dr_approval',
+        'dr_acceptance',
         'dr_student_comment',
         'dr_confidential_remark',
         'dr_submitted_at',
         'main_supervisor_id',
         'academic_office_user_id',
         'dr_user_id',
-        'approved_by_id',
+        'accepted_by_id',
     ];
 
     protected function casts(): array
@@ -87,7 +87,7 @@ class Pts4Form extends Model
             'co_supervisors_submitted_at' => 'datetime',
             'academic_office_is_verified' => 'boolean',
             'academic_office_submitted_at' => 'datetime',
-            'dr_approval' => 'boolean',
+            'dr_acceptance' => 'boolean',
             'dr_submitted_at' => 'datetime',
         ];
     }
@@ -192,7 +192,7 @@ class Pts4Form extends Model
             'main_supervisor' => !is_null($this->main_supervisor_submitted_at) && !is_null($this->main_supervisor_recommendation),
             'co_supervisors'  => !is_null($this->co_supervisors_submitted_at),
             'academic_office' => !is_null($this->academic_office_is_verified) && !is_null($this->academic_office_submitted_at),
-            'dr'              => !is_null($this->dr_approval) && !is_null($this->dr_submitted_at),
+            'dr'              => !is_null($this->dr_acceptance) && !is_null($this->dr_submitted_at),
             default           => false,
         };
     }
@@ -305,7 +305,7 @@ class Pts4Form extends Model
         if ($user->isDr()) {
             if ($stageRank < 4) return 'not_reached';
             if ($stageRank === 4) {
-                return ($this->dr_submitted_at && !is_null($this->dr_approval)) ? 'allowed' : 'pending_endorsement';
+                return ($this->dr_submitted_at && !is_null($this->dr_acceptance)) ? 'allowed' : 'pending_endorsement';
             }
             return 'allowed';
         }
@@ -404,7 +404,23 @@ class Pts4Form extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return Thesis::getStatusLabel($this->status);
+        return match ($this->status) {
+            'accepted' => 'Accepted',
+            'not_accepted' => 'Not Accepted',
+            'in_progress' => 'In Progress',
+            'reverted' => 'Reverted',
+            default => Thesis::getStatusLabel($this->status),
+        };
+    }
+
+    public function isAccepted(): bool
+    {
+        return $this->status === 'accepted';
+    }
+
+    public function isNotAccepted(): bool
+    {
+        return $this->status === 'not_accepted';
     }
 
     public function getSubmittedTimeline(): array
@@ -436,8 +452,8 @@ class Pts4Form extends Model
         return $this->belongsTo(User::class, 'dr_user_id');
     }
 
-    public function approvedBy(): BelongsTo
+    public function acceptedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approved_by_id');
+        return $this->belongsTo(User::class, 'accepted_by_id');
     }
 }
