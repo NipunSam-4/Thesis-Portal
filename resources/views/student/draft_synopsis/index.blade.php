@@ -44,7 +44,7 @@
                     <!-- Thesis Title (Read-Only) -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                            Name of Thesis
+                            Thesis Title
                         </label>
                         <input type="text" 
                                value="{{ $circulation->thesis_title ?? $thesis->title }}" 
@@ -206,7 +206,7 @@
                         <!-- Thesis Title Field (Editable) -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                                Name of Thesis <span class="text-red-500">*</span>
+                                Thesis Title <span class="text-red-500">*</span>
                             </label>
                             <input type="text" 
                                    name="thesis_title" 

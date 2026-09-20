@@ -20,7 +20,7 @@
     $accentBorder = $type === 'indian' ? 'border-indigo-200 dark:border-indigo-800' : 'border-purple-200 dark:border-purple-800';
 @endphp
 
-<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-5"
+<div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-3"
      x-data="{ activeModalExaminer: null }">
     <!-- Section Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
@@ -41,9 +41,9 @@
     </div>
 
     <!-- Examiners 2-Column Grid (1 -> 2, 3 -> 4) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
         @forelse($examiners as $index => $ex)
-            <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 transition shadow-2xs space-y-3.5 flex flex-col justify-between">
+            <div class="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 transition shadow-2xs space-y-1 flex flex-col justify-between">
                 <div>
                     <!-- Card Top Header (Order + Consent + Plus/Details Button) -->
                     <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-gray-100 dark:border-gray-700">

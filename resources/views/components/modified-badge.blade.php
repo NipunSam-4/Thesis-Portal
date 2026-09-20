@@ -4,12 +4,12 @@
     'text' => null
 ])
 
-<span x-data="{ open: false }" class="relative inline-flex items-center align-middle">
-    <!-- Modified Pill Badge (Clean Yellow/Amber in both themes) -->
+<span x-data="{ open: false }" class="relative inline-flex items-center align-middle shrink-0 self-center">
+    <!-- Modified Badge (Circular Amber/Yellow in both themes) -->
     <span @mouseenter="open = true" 
           @mouseleave="open = false" 
           @click.prevent="open = !open" 
-          class="cursor-pointer select-none inline-flex items-center px-1 py-0 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 dark:bg-amber-950/80 dark:text-yellow-300 dark:border-yellow-600/50 dark:hover:bg-amber-900 transition shadow-xs">
+          class="cursor-pointer select-none w-4 h-4 inline-flex items-center justify-center rounded-full text-[10px] font-bold leading-none bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 dark:bg-amber-950/80 dark:text-yellow-300 dark:border-yellow-600/50 dark:hover:bg-amber-900 transition shadow-xs shrink-0 self-center">
         M
     </span>
     

@@ -6,27 +6,23 @@
 @endphp
 
 <!-- Section 1: Read-Only Student Information -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ showStudentInfo: true }">
-    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4" x-data="{ showStudentInfo: false }">
+    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <span>1. Student Information</span>
         </h3>
         <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click.stop="showStudentInfo = !showStudentInfo">
-            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': !showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
         </button>
     </div>
 
-    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Always Visible First Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
             <x-readonly-label value="Student Name" />
             <x-readonly-input :value="$studentUser->name ?? 'N/A'" />
-        </div>
-
-        <div>
-            <x-readonly-label value="Student Name (Hindi)" />
-            <x-readonly-input :value="$pts4->hindi_name ?? ($student->hindi_name ?? 'N/A')" class="font-hindi" />
         </div>
 
         <div>
@@ -37,6 +33,14 @@
         <div>
             <x-readonly-label value="Department" />
             <x-readonly-input :value="$student->department->name ?? 'N/A'" />
+        </div>
+    </div>
+
+    <!-- Collapsible Remaining Details -->
+    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+        <div>
+            <x-readonly-label value="Student Name (Hindi)" />
+            <x-readonly-input :value="$pts4->hindi_name ?? ($student->hindi_name ?? 'N/A')" class="font-hindi" />
         </div>
 
         <div>
@@ -106,20 +110,17 @@
     </div>
 </div>
 
-<!-- Section 2: Name of Thesis -->
+<!-- Section 2: Thesis Title -->
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-2">
-    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-        2. Name of Thesis
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2 flex items-center gap-2">
+        <span>2. Thesis Title</span>
+        @if($pts4->main_supervisor_thesis_title && $pts4->main_supervisor_thesis_title !== $pts4->thesis_title)
+            <x-modified-badge 
+                :old-value="$pts4->thesis_title ?: ($thesis->title ?? 'N/A')" 
+                :new-value="$pts4->main_supervisor_thesis_title" />
+        @endif
     </h3>
     <div>
-        <x-form-label class="flex items-center gap-2">
-            <span>Thesis Title</span>
-            @if($pts4->main_supervisor_thesis_title && $pts4->main_supervisor_thesis_title !== $pts4->thesis_title)
-                <x-modified-badge 
-                    :old-value="$pts4->thesis_title ?: ($thesis->title ?? 'N/A')" 
-                    :new-value="$pts4->main_supervisor_thesis_title" />
-            @endif
-        </x-form-label>
         @php
             $dispThesisTitle = $pts4->effective_thesis_title;
         @endphp

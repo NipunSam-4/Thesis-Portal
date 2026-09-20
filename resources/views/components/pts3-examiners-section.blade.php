@@ -236,7 +236,7 @@
                             </div>
                             
                             <!-- Consent Document Upload -->
-                            <div x-show="examiner.has_consent === '1'" class="mt-3 p-3 bg-blue-50/60 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900/60 space-y-2">
+                            <div x-show="examiner.has_consent === '1'" class="mt-3 pt-1 p-3 bg-blue-50/60 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-900/60 space-y-2">
                                 <input type="hidden" :name="`{{ $namePrefix }}[${index}][consent_doc_path]`" x-model="examiner.consent_doc_path">
                                 
                                 <div class="flex justify-between items-center">

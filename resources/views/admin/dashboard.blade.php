@@ -1,22 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Thesis Management Portal') }}
-            </h2>
-            <div class="flex items-center space-x-3">
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                    @if(auth('admin')->user()->isSuperAdmin())
-                        Department Super Admin ({{ $department->code ?? 'Dept' }})
-                    @else
-                        System Administrator
-                    @endif
-                </span>
-                <x-profile_dropdown/>
-            </div>
-        </div>
-    </x-slot>
-
     <div class="py-4 sm:py-8">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-4 sm:gap-6">
             

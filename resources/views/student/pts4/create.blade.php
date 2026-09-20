@@ -64,19 +64,12 @@
                 @endif
 
                 <!-- Section 1: Read-Only Student Information -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ showStudentInfo: true }">
-                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>1. Student Information</span>
-                        </h3>
-                        <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click.stop="showStudentInfo = !showStudentInfo">
-                            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': !showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                    </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white pb-3 mb-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+                        <span>1. Student Information</span>
+                    </h3>
 
-                    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <x-readonly-label value="Student Name" />
                             <x-readonly-input :value="$user->name" />
@@ -144,20 +137,12 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Name of Thesis -->
+                <!-- Section 2: Thesis Title -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-3">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Name of Thesis
+                        2. Thesis Title <span class="text-red-500">*</span>
                     </h3>
                     <div>
-                        <x-form-label class="flex items-center gap-2">
-                            <span>Thesis Title <span class="text-red-500">*</span></span>
-                            @if($showModified && $pts4Form->main_supervisor_thesis_title && $pts4Form->main_supervisor_thesis_title !== $pts4Form->thesis_title)
-                                <x-modified-badge 
-                                    :old-value="$pts4Form->thesis_title ?: ($thesis->title ?? 'N/A')" 
-                                    :new-value="$pts4Form->main_supervisor_thesis_title" />
-                            @endif
-                        </x-form-label>
                         <x-form-input type="text" name="thesis_title" required x-model="thesisTitle" placeholder="Enter full title of thesis" />
                     </div>
                 </div>

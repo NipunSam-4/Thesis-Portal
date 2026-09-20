@@ -65,7 +65,7 @@
 
     <div class="relative z-10 min-h-screen flex flex-col" x-data="{ mobileMenuOpen: false }">
         
-        <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 z-40 sticky top-0 transition-colors duration-300">
+        <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800 z-40 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <!-- Navigation Bar Header Content -->

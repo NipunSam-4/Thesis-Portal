@@ -176,19 +176,20 @@
                 @endif
 
                 <!-- Section 1: Read-Only Student Information -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6" x-data="{ showStudentInfo: true }">
-                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 mb-4 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-4" x-data="{ showStudentInfo: false }">
+                    <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 cursor-pointer select-none" @click="showStudentInfo = !showStudentInfo">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <span>1. Student Information</span>
                         </h3>
                         <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition" @click.stop="showStudentInfo = !showStudentInfo">
-                            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': !showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 transform transition-transform duration-200" :class="{ 'rotate-180': showStudentInfo }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
                     </div>
 
-                    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Always Visible First Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <x-readonly-label value="Student Name" />
                             <x-readonly-input :value="$user->name" />
@@ -203,6 +204,10 @@
                             <x-readonly-label value="Department" />
                             <x-readonly-input :value="$student->department->name ?? 'N/A'" />
                         </div>
+                    </div>
+
+                    <!-- Collapsible Remaining Details -->
+                    <div x-show="showStudentInfo" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-100 dark:border-gray-700">
 
                         <div>
                             <x-readonly-label value="Date of Registration" />
@@ -234,17 +239,17 @@
                             <x-readonly-input :value="$student->phone_number ? (($student->phone_country_code ?? '+91') . ' ' . $student->phone_number) : 'N/A'" />
                         </div>
 
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-1">
                             <x-readonly-label value="Main Supervisor" />
                             <x-readonly-input :value="$student->mainSupervisors->pluck('name')->join(', ') ?: ($student->supervisors->first()?->name ?? 'Not Assigned')" />
                         </div>
 
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-2">
                             <x-readonly-label value="Co-Supervisor(s)" />
                             <x-readonly-input :value="$student->coSupervisors->pluck('name')->join(', ') ?: 'None'" />
                         </div>
 
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-2">
                             <x-readonly-label value="External Supervisor(s)" />
                             @php
                                 $extSupText = $student->externalSupervisors->isNotEmpty()
@@ -256,13 +261,12 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Name of Thesis -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-3">
+                <!-- Section 2: Thesis Title -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-2">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">
-                        2. Name of Thesis
+                        2. Thesis Title <span class="text-red-500">*</span>
                     </h3>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Thesis Title <span class="text-red-500">*</span></label>
                         <input type="text" name="thesis_title" required x-model="thesisTitle" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500" placeholder="Enter full title of thesis">
                     </div>
                 </div>
