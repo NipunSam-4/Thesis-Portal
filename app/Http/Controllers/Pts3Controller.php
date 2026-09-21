@@ -856,13 +856,13 @@ class Pts3Controller extends Controller
                     }
 
                     $priorityErrors = [];
-                    if ($err = $this->validatePanelPriorities($indianPriorities, 'Indian Examiners Panel')) {
+                    if ($err = $this->validatePanelPriorities($indianPriorities, 'Indian Examiners Panel', count($indianExIds))) {
                         $priorityErrors[] = $err;
                     }
-                    if ($err = $this->validatePanelPriorities($intlPriorities, 'International Examiners Panel')) {
+                    if ($err = $this->validatePanelPriorities($intlPriorities, 'International Examiners Panel', count($intlExIds))) {
                         $priorityErrors[] = $err;
                     }
-                    if ($err = $this->validatePanelPriorities($oebPriorities, 'Oral Examination Board (OEB) Chairpersons')) {
+                    if ($err = $this->validatePanelPriorities($oebPriorities, 'Oral Examination Board (OEB) Chairpersons', 4)) {
                         $priorityErrors[] = $err;
                     }
 
@@ -969,13 +969,13 @@ class Pts3Controller extends Controller
                         }
 
                         $priorityErrors = [];
-                        if ($err = $this->validatePanelPriorities($indianPriorities, 'Indian Examiners Panel')) {
+                        if ($err = $this->validatePanelPriorities($indianPriorities, 'Indian Examiners Panel', count($indianExIds))) {
                             $priorityErrors[] = $err;
                         }
-                        if ($err = $this->validatePanelPriorities($intlPriorities, 'International Examiners Panel')) {
+                        if ($err = $this->validatePanelPriorities($intlPriorities, 'International Examiners Panel', count($intlExIds))) {
                             $priorityErrors[] = $err;
                         }
-                        if ($err = $this->validatePanelPriorities($oebPriorities, 'Oral Examination Board (OEB) Chairpersons')) {
+                        if ($err = $this->validatePanelPriorities($oebPriorities, 'Oral Examination Board (OEB) Chairpersons', 4)) {
                             $priorityErrors[] = $err;
                         }
 
@@ -1281,12 +1281,12 @@ class Pts3Controller extends Controller
         $examiners = $type === 'indian' ? $pts3->getIndianExaminers() : $pts3->getInternationalExaminers();
         if ($userRank === 7 && $pts3->senate_chairperson_submitted_at) {
             return $examiners->sortBy(function ($ex) {
-                return ($ex->senate_chairperson_priority && $ex->senate_chairperson_priority > 0) ? $ex->senate_chairperson_priority : 999;
+                return ($ex->senate_chairperson_priority !== null && $ex->senate_chairperson_priority > 0) ? $ex->senate_chairperson_priority : 999;
             })->values();
         }
         if ($userRank >= 6 && $pts3->doaa_submitted_at) {
             return $examiners->sortBy(function ($ex) {
-                return ($ex->doaa_priority && $ex->doaa_priority > 0) ? $ex->doaa_priority : 999;
+                return ($ex->doaa_priority !== null && $ex->doaa_priority > 0) ? $ex->doaa_priority : 999;
             })->values();
         }
         return $examiners;
@@ -1298,78 +1298,70 @@ class Pts3Controller extends Controller
         $oebs = $pts3->getOebChairpersons();
         if ($userRank === 7 && $pts3->senate_chairperson_submitted_at) {
             return $oebs->sortBy(function ($oeb) {
-                return ($oeb->senate_chairperson_priority && $oeb->senate_chairperson_priority > 0) ? $oeb->senate_chairperson_priority : 999;
+                return ($oeb->senate_chairperson_priority !== null && $oeb->senate_chairperson_priority > 0) ? $oeb->senate_chairperson_priority : 999;
             })->values();
         }
         if ($userRank >= 6 && $pts3->doaa_submitted_at) {
             return $oebs->sortBy(function ($oeb) {
-                return ($oeb->doaa_priority && $oeb->doaa_priority > 0) ? $oeb->doaa_priority : 999;
+                return ($oeb->doaa_priority !== null && $oeb->doaa_priority > 0) ? $oeb->doaa_priority : 999;
             })->values();
         }
         return $oebs;
     }
 
     /**
-     * Validate that an array of priorities for a panel has exactly one of each required priority (1..min(4, count)),
-     * no duplicates of positive priorities, and all remaining items set to 0.
+     * Validate that an array of priorities for a panel has valid values (0..maxAllowed),
+     * that all positive priorities (> 0) are unique and form a sequential sequence starting from 1 (1..k),
+     * with 0 allowed for any unranked items.
      *
      * @param array $priorities Map of id => priority value
      * @param string $panelName Name of the panel for error message
+     * @param int $maxAllowed Maximum allowed priority value (number of examiners or 4 for OEB)
      * @return string|null Error message if invalid, null if valid
      */
-    protected function validatePanelPriorities(array $priorities, string $panelName): ?string
+    protected function validatePanelPriorities(array $priorities, string $panelName, int $maxAllowed = 4): ?string
     {
         $totalMembers = count($priorities);
         if ($totalMembers === 0) {
             return null;
         }
 
+        $maxAllowed = max(1, $maxAllowed);
+
         $values = array_map(function ($val) {
             return is_numeric($val) ? (int)$val : 0;
         }, array_values($priorities));
 
-        $counts = array_count_values($values);
-
-        // Check for invalid numbers (anything not in 0..4)
-        foreach ($counts as $num => $freq) {
-            if (!in_array($num, [0, 1, 2, 3, 4], true)) {
-                return "Priority order for {$panelName} contains invalid priority value ({$num}). Only 0, 1, 2, 3, and 4 are permitted.";
+        // Check for out-of-range numbers (less than 0 or greater than maxAllowed)
+        foreach ($values as $num) {
+            if ($num < 0 || $num > $maxAllowed) {
+                return "Priority order for {$panelName} contains invalid priority value ({$num}). Only values from 0 to {$maxAllowed} are permitted.";
             }
         }
 
-        // Required priorities are 1 through min(4, totalMembers)
-        $maxRequired = min(4, $totalMembers);
-        $requiredPriorities = range(1, $maxRequired);
+        // Extract positive priorities (> 0)
+        $positives = array_values(array_filter($values, fn($v) => $v > 0));
+        $k = count($positives);
 
-        $missing = [];
-        $duplicates = [];
-
-        foreach ($requiredPriorities as $p) {
-            $freq = $counts[$p] ?? 0;
-            if ($freq === 0) {
-                $missing[] = $p;
-            } elseif ($freq > 1) {
-                $duplicates[] = $p;
+        if ($k > 0) {
+            // Check for duplicate positive priorities
+            $counts = array_count_values($positives);
+            $duplicates = [];
+            foreach ($counts as $num => $freq) {
+                if ($freq > 1) {
+                    $duplicates[] = $num;
+                }
             }
-        }
-
-        // Also check if any priority > $maxRequired was selected
-        for ($p = $maxRequired + 1; $p <= 4; $p++) {
-            if (($counts[$p] ?? 0) > 0) {
-                $duplicates[] = $p;
+            if (!empty($duplicates)) {
+                return "Priority order for {$panelName} contains duplicate priority values: " . implode(', ', $duplicates) . ". Each positive priority must be unique.";
             }
-        }
 
-        $errorParts = [];
-        if (!empty($missing)) {
-            $errorParts[] = "missing priority: " . implode(', ', $missing);
-        }
-        if (!empty($duplicates)) {
-            $errorParts[] = "duplicate/excess priority: " . implode(', ', array_unique($duplicates));
-        }
-
-        if (!empty($errorParts)) {
-            return "Priority order for {$panelName} is invalid. Each priority from 1 to {$maxRequired} must be assigned exactly once (multiple 0s allowed for remaining). Issues: " . implode('; ', $errorParts) . ".";
+            // Check that positive values form a continuous sequence starting from 1 (1, 2, ..., k)
+            sort($positives);
+            $expected = range(1, $k);
+            if ($positives !== $expected) {
+                return "Priority order for {$panelName} is invalid. Positive priorities must be sequential starting from 1 without gaps (e.g. 1 to {$k}).";
+            }
         }
 
         return null;

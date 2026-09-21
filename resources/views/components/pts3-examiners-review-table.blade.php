@@ -50,14 +50,14 @@
                         <div class="flex items-center gap-2">
                             <!-- Unified Order Box (Visible only to DOAA and Senate Chairperson) -->
                             @if($isDoaaActive)
-                                <div class="flex items-center gap-1.5" title="DOAA Priority Order (0 to 4)">
+                                <div class="flex items-center gap-1.5" title="DOAA Priority Order (0 to {{ $examiners->count() }})">
                                     <span class="text-xs font-bold text-purple-800 dark:text-purple-200">Order:</span>
                                     <select name="doaa_examiner_priority[{{ $ex->id }}]" 
                                             class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-purple-400 dark:border-purple-500 bg-white dark:bg-gray-900 text-purple-950 dark:text-purple-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-xs cursor-pointer">
                                         @php
-                                            $selDoaaPriority = (string)old("doaa_examiner_priority.{$ex->id}", $ex->doaa_priority ?? ($index + 1));
+                                            $selDoaaPriority = (string)old("doaa_examiner_priority.{$ex->id}", $ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count()));
                                         @endphp
-                                        @foreach([0, 1, 2, 3, 4] as $val)
+                                        @foreach(range(0, max(1, $examiners->count())) as $val)
                                             <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selDoaaPriority === (string)$val ? 'selected' : '' }}>
                                                 {{ $val }}
                                             </option>
@@ -65,14 +65,14 @@
                                     </select>
                                 </div>
                             @elseif($isSenateActive)
-                                <div class="flex items-center gap-1.5" title="Senate Chairperson Priority Order (0 to 4)">
+                                <div class="flex items-center gap-1.5" title="Senate Chairperson Priority Order (0 to {{ $examiners->count() }})">
                                     <span class="text-xs font-bold text-indigo-800 dark:text-indigo-200">Order:</span>
                                     <select name="senate_examiner_priority[{{ $ex->id }}]" 
                                             class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-indigo-400 dark:border-indigo-500 bg-white dark:bg-gray-900 text-indigo-950 dark:text-indigo-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs cursor-pointer">
                                         @php
-                                            $selSpPriority = (string)old("senate_examiner_priority.{$ex->id}", $ex->senate_chairperson_priority ?? $ex->doaa_priority ?? ($index + 1));
+                                            $selSpPriority = (string)old("senate_examiner_priority.{$ex->id}", $ex->senate_chairperson_priority !== null ? $ex->senate_chairperson_priority : ($ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count())));
                                         @endphp
-                                        @foreach([0, 1, 2, 3, 4] as $val)
+                                        @foreach(range(0, max(1, $examiners->count())) as $val)
                                             <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selSpPriority === (string)$val ? 'selected' : '' }}>
                                                 {{ $val }}
                                             </option>
@@ -82,8 +82,8 @@
                             @elseif($userRank >= 6)
                                 @php
                                     $exPriorityNum = ($userRank === 7) 
-                                        ? ($ex->senate_chairperson_priority ?? $ex->doaa_priority ?? ($index + 1)) 
-                                        : ($ex->doaa_priority ?? ($index + 1));
+                                        ? ($ex->senate_chairperson_priority !== null ? $ex->senate_chairperson_priority : ($ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count()))) 
+                                        : ($ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count()));
                                 @endphp
                                 <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-700 text-xs font-black shrink-0 shadow-2xs">
                                     #{{ $exPriorityNum }}
@@ -108,8 +108,8 @@
                             <!-- Plus / View Full Details Button -->
                             @php
                                 $modalIndex = ($userRank === 7) 
-                                    ? ($ex->senate_chairperson_priority ?? $ex->doaa_priority ?? ($index + 1)) 
-                                    : (($userRank === 6) ? ($ex->doaa_priority ?? ($index + 1)) : ($index + 1));
+                                    ? ($ex->senate_chairperson_priority !== null ? $ex->senate_chairperson_priority : ($ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count()))) 
+                                    : (($userRank === 6) ? ($ex->doaa_priority !== null ? $ex->doaa_priority : min($index + 1, $examiners->count())) : ($index + 1));
                             @endphp
                             <button type="button"                                    @click="activeModalExaminer = {{ Js::from([
                                         'id' => $ex->id,

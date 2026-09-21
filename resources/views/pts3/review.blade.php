@@ -178,7 +178,7 @@
                                                     <select name="doaa_oeb_priority[{{ $oeb->id }}]" 
                                                             class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-purple-400 dark:border-purple-500 bg-white dark:bg-gray-900 text-purple-950 dark:text-purple-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-xs cursor-pointer">
                                                         @php
-                                                            $selDoaaOebPriority = (string)old("doaa_oeb_priority.{$oeb->id}", $oeb->doaa_priority ?? ($index + 1));
+                                                            $selDoaaOebPriority = (string)old("doaa_oeb_priority.{$oeb->id}", $oeb->doaa_priority !== null ? $oeb->doaa_priority : min($index + 1, 4));
                                                         @endphp
                                                         @foreach([0, 1, 2, 3, 4] as $val)
                                                             <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selDoaaOebPriority === (string)$val ? 'selected' : '' }}>
@@ -193,7 +193,7 @@
                                                     <select name="senate_oeb_priority[{{ $oeb->id }}]" 
                                                             class="w-20 h-8 py-0.5 pl-3.5 pr-8 text-sm font-extrabold rounded-lg border-2 border-indigo-400 dark:border-indigo-500 bg-white dark:bg-gray-900 text-indigo-950 dark:text-indigo-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-xs cursor-pointer">
                                                         @php
-                                                            $selSpOebPriority = (string)old("senate_oeb_priority.{$oeb->id}", $oeb->senate_chairperson_priority ?? $oeb->doaa_priority ?? ($index + 1));
+                                                            $selSpOebPriority = (string)old("senate_oeb_priority.{$oeb->id}", $oeb->senate_chairperson_priority !== null ? $oeb->senate_chairperson_priority : ($oeb->doaa_priority !== null ? $oeb->doaa_priority : min($index + 1, 4)));
                                                         @endphp
                                                         @foreach([0, 1, 2, 3, 4] as $val)
                                                             <option value="{{ $val }}" class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-bold" {{ $selSpOebPriority === (string)$val ? 'selected' : '' }}>
@@ -205,8 +205,8 @@
                                             @elseif($userRank >= 6)
                                                 @php
                                                     $oebPriorityNum = ($userRank === 7) 
-                                                        ? ($oeb->senate_chairperson_priority ?? $oeb->doaa_priority ?? ($index + 1)) 
-                                                        : ($oeb->doaa_priority ?? ($index + 1));
+                                                        ? ($oeb->senate_chairperson_priority !== null ? $oeb->senate_chairperson_priority : ($oeb->doaa_priority !== null ? $oeb->doaa_priority : min($index + 1, 4))) 
+                                                        : ($oeb->doaa_priority !== null ? $oeb->doaa_priority : min($index + 1, 4));
                                                 @endphp
                                                 <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-700 text-xs font-black shrink-0 shadow-2xs">
                                                     #{{ $oebPriorityNum }}

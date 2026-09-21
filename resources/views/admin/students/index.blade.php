@@ -1,6 +1,4 @@
 <x-app-layout>
-    <x-admin-top-navbar />
-
     <div class="py-8" x-data="{ 
         programTab: 'phd',
         editModalOpen: false, 

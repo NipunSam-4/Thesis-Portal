@@ -32,6 +32,7 @@
 
     @php
         $authUser = Auth::user() ?? Auth::guard('admin')->user();
+        $isAdminGuard = Auth::guard('admin')->check();
         $userRoleLabel = 'User';
         if ($authUser) {
             if (method_exists($authUser, 'isStudent') && $authUser->isStudent()) {
@@ -55,6 +56,10 @@
                 $userRoleLabel = 'Deputy Registrar (Academic)';
             } elseif ($authUser->role === 'academic_office') {
                 $userRoleLabel = 'Academic Office';
+            } elseif (method_exists($authUser, 'isSuperAdmin') && $authUser->isSuperAdmin()) {
+                $userRoleLabel = 'Super Admin';
+            } elseif (method_exists($authUser, 'isSystemAdmin') && $authUser->isSystemAdmin()) {
+                $userRoleLabel = 'System Admin';
             } elseif (isset($authUser->role)) {
                 $userRoleLabel = ucfirst(str_replace('_', ' ', $authUser->role));
             } else {
@@ -189,19 +194,27 @@
 
                         <!-- 3. DASHBOARD & PROFILE LINKS (ALWAYS VISIBLE & NON-COLLAPSIBLE IN SIDEBAR) -->
                         <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800 flex-1">
+                            @php
+                                $dashboardUrl = $isAdminGuard ? route('admin.dashboard') : route('dashboard');
+                                $profileUrl = $isAdminGuard ? route('admin.profile.edit') : route('profile.edit');
+                                $isDashActive = $isAdminGuard ? request()->routeIs('admin.dashboard') : request()->routeIs('dashboard');
+                                $isProfActive = $isAdminGuard ? request()->routeIs('admin.profile.edit') : request()->routeIs('profile.edit');
+                                $logoutAction = $isAdminGuard ? route('admin.logout') : route('logout');
+                            @endphp
+
                             <!-- Dashboard Link -->
-                            <a href="{{ route('dashboard') }}" 
-                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
-                                <svg class="w-4 h-4 {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ $dashboardUrl }}" 
+                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ $isDashActive ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
+                                <svg class="w-4 h-4 {{ $isDashActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                                 </svg>
                                 <span>Dashboard</span>
                             </a>
 
                             <!-- Profile Settings Link -->
-                            <a href="{{ route('profile.edit') }}" 
-                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ request()->routeIs('profile.edit') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
-                                <svg class="w-4 h-4 {{ request()->routeIs('profile.edit') ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ $profileUrl }}" 
+                               class="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold {{ $isProfActive ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60' : 'text-slate-700 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800/50 hover:bg-slate-200/70 dark:hover:bg-slate-800' }} transition">
+                                <svg class="w-4 h-4 {{ $isProfActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 <span>Profile Settings</span>
@@ -214,7 +227,7 @@
                 <div class="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                     @if($authUser)
                         <!-- Log Out Form & Button -->
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ $logoutAction }}">
                             @csrf
                             <button type="submit" 
                                     class="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800/50 transition shadow-sm">

@@ -496,5 +496,47 @@ class Pts3ValidationTest extends TestCase
         $thesis->setRelation('pts4Form', $pts4);
         $this->assertEquals('PTS-5', $student->getThesisStageLabel());
     }
+
+    public function test_validate_panel_priorities_logic(): void
+    {
+        $controller = new \App\Http\Controllers\Pts3Controller(app(\App\Services\PtsDocumentService::class));
+        $refMethod = new \ReflectionMethod($controller, 'validatePanelPriorities');
+        $refMethod->setAccessible(true);
+
+        // 1. Valid: [1, 2, 0] with maxAllowed = 3
+        $err = $refMethod->invoke($controller, [10 => 1, 20 => 2, 30 => 0], 'Indian Panel', 3);
+        $this->assertNull($err);
+
+        // 2. Valid: [0, 0] with maxAllowed = 2 (all unranked)
+        $err = $refMethod->invoke($controller, [10 => 0, 20 => 0], 'Indian Panel', 2);
+        $this->assertNull($err);
+
+        // 3. Valid: [1, 0, 2] with maxAllowed = 3
+        $err = $refMethod->invoke($controller, [10 => 1, 20 => 0, 30 => 2], 'International Panel', 3);
+        $this->assertNull($err);
+
+        // 4. Invalid: [1, 3, 0] with maxAllowed = 3 (gap: missing 2)
+        $err = $refMethod->invoke($controller, [10 => 1, 20 => 3, 30 => 0], 'Indian Panel', 3);
+        $this->assertNotNull($err);
+        $this->assertStringContainsString('Positive priorities must be sequential starting from 1 without gaps', $err);
+
+        // 5. Invalid: [1, 1, 0] (duplicate positive priority)
+        $err = $refMethod->invoke($controller, [10 => 1, 20 => 1, 30 => 0], 'Indian Panel', 3);
+        $this->assertNotNull($err);
+        $this->assertStringContainsString('duplicate priority values', $err);
+
+        // 6. Invalid: [3, 1] with maxAllowed = 2 (out of range)
+        $err = $refMethod->invoke($controller, [10 => 3, 20 => 1], 'Indian Panel', 2);
+        $this->assertNotNull($err);
+        $this->assertStringContainsString('Only values from 0 to 2 are permitted', $err);
+
+        // 7. Valid OEB: [1, 2, 3, 4] with maxAllowed = 4
+        $err = $refMethod->invoke($controller, [1 => 1, 2 => 2, 3 => 3, 4 => 4], 'OEB Panel', 4);
+        $this->assertNull($err);
+
+        // 8. Valid OEB: [1, 2, 0, 0] with maxAllowed = 4
+        $err = $refMethod->invoke($controller, [1 => 1, 2 => 2, 3 => 0, 4 => 0], 'OEB Panel', 4);
+        $this->assertNull($err);
+    }
 }
 
